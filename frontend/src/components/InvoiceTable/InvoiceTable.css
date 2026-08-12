@@ -1,0 +1,19 @@
+table input{
+
+width:80px;
+
+padding:8px;
+
+border:1px solid #ddd;
+
+border-radius:8px;
+
+}
+
+
+
+table input:focus{
+
+outline:2px solid #2563eb;
+
+}

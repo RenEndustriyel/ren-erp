@@ -1,0 +1,649 @@
+/* =========================================================
+   REN ERP — SIDEBAR FINAL
+   Temiz / kurumsal / net tipografi
+========================================================= */
+
+.ren-app-shell {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: var(--ren-bg, #f4f7fb);
+}
+
+.ren-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #09111f;
+  color: #eef3f8;
+
+  z-index: 1000;
+
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.ren-sidebar *,
+.ren-sidebar button,
+.ren-sidebar input,
+.ren-sidebar a,
+.ren-sidebar span,
+.ren-sidebar strong,
+.ren-sidebar small {
+  font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+  font-style: normal !important;
+  text-shadow: none !important;
+}
+
+.ren-brand {
+  padding: 27px 24px 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ren-brand-name {
+  color: #f4f7fb;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+
+.ren-brand-subtitle {
+  margin-top: 6px;
+  color: #7f8ca3;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 450;
+  letter-spacing: 0;
+}
+
+.ren-sidebar-search {
+  margin: 15px 14px 10px;
+  height: 39px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 11px;
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ren-sidebar-search span {
+  margin-right: 8px;
+  color: #8793a8;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.ren-sidebar-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #eef3f8;
+
+  font-size: 11px !important;
+  line-height: 1;
+  font-weight: 450 !important;
+}
+
+.ren-sidebar-search input::placeholder {
+  color: #748198;
+  opacity: 1;
+}
+
+.ren-sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 10px 20px;
+}
+
+.ren-sidebar-nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ren-sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ren-sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+
+/* =========================================================
+   ANA MENÜ
+========================================================= */
+
+.ren-main-link,
+.ren-menu-group-button {
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 13px;
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+  color: #b5c0cf;
+
+  text-decoration: none;
+
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 600 !important;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.ren-main-link {
+  margin-bottom: 4px;
+}
+
+.ren-main-link:hover,
+.ren-menu-group-button:hover {
+  background: rgba(255, 255, 255, 0.055);
+  color: #ffffff;
+}
+
+.ren-main-link.active {
+  background: #2864e8;
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(40, 100, 232, 0.25);
+}
+
+.ren-menu-group {
+  margin-bottom: 3px;
+}
+
+.ren-menu-group-button {
+  width: 100%;
+  justify-content: space-between;
+  outline: 0;
+}
+
+.ren-menu-group-button.has-active {
+  color: #ffffff;
+}
+
+.ren-menu-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ren-menu-left > span:last-child,
+.ren-main-link > span:last-child {
+  color: inherit;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+}
+
+.ren-menu-icon {
+  width: 21px;
+  height: 21px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 21px;
+
+  color: #aab5c8;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  font-weight: 500 !important;
+}
+
+.ren-menu-group-button:hover .ren-menu-icon,
+.ren-menu-group-button.has-active .ren-menu-icon,
+.ren-main-link.active .ren-menu-icon {
+  color: #ffffff;
+}
+
+.ren-menu-arrow {
+  width: 20px;
+  height: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 20px;
+
+  color: #738097;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  font-weight: 500 !important;
+}
+
+.ren-menu-group.open .ren-menu-arrow {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ALT MENÜ
+========================================================= */
+
+.ren-submenu {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+
+  transition:
+    max-height 0.25s ease,
+    opacity 0.18s ease;
+}
+
+.ren-submenu.submenu-open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.ren-submenu-item {
+  position: relative;
+
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+
+  margin: 2px 5px 2px 16px;
+  padding: 0 10px 0 27px;
+
+  border-radius: 6px;
+
+  color: #8997aa;
+  text-decoration: none;
+
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 500 !important;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.ren-submenu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.ren-submenu-item.active {
+  background: rgba(40, 100, 232, 0.18);
+  color: #72a0ff;
+  font-weight: 600 !important;
+}
+
+.ren-submenu-dot {
+  position: absolute;
+  left: 11px;
+
+  color: #5d6b80;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+.ren-submenu-item.active .ren-submenu-dot {
+  color: #4f86ff;
+}
+
+/* =========================================================
+   REN AI
+========================================================= */
+
+.ren-ai-link {
+  position: relative;
+
+  min-height: 54px;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  margin: 12px 3px 8px;
+  padding: 8px 11px;
+
+  border-radius: 8px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(101, 64, 255, 0.18),
+    rgba(35, 117, 255, 0.1)
+  );
+
+  border: 1px solid rgba(112, 132, 255, 0.18);
+
+  color: #ffffff;
+  text-decoration: none;
+
+  transition: all 0.2s ease;
+}
+
+.ren-ai-link:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(101, 64, 255, 0.28),
+    rgba(35, 117, 255, 0.18)
+  );
+
+  border-color: rgba(112, 132, 255, 0.35);
+}
+
+.ren-ai-link.active {
+  background: linear-gradient(
+    135deg,
+    #5541d9,
+    #2864e8
+  );
+
+  border-color: transparent;
+
+  box-shadow: 0 6px 18px rgba(62, 72, 218, 0.25);
+}
+
+.ren-ai-icon {
+  width: 31px;
+  height: 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 31px;
+
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+
+  color: #ffffff;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+}
+
+.ren-ai-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.1;
+}
+
+.ren-ai-text strong {
+  color: #ffffff;
+  font-size: 13px !important;
+  line-height: 1.1 !important;
+  font-weight: 700 !important;
+}
+
+.ren-ai-text small {
+  color: #8998b5;
+  font-size: 9px !important;
+  line-height: 1.1 !important;
+  font-weight: 500 !important;
+}
+
+.ren-ai-link.active .ren-ai-text small {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.ren-ai-status {
+  width: 7px;
+  height: 7px;
+
+  margin-left: auto;
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+  background: #36d67c;
+
+  box-shadow: 0 0 8px rgba(54, 214, 124, 0.7);
+}
+
+/* =========================================================
+   TEMA BUTONU
+========================================================= */
+
+.ren-theme-toggle {
+  padding: 0 10px 10px;
+}
+
+.ren-theme-toggle button {
+  width: 100%;
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.045);
+  color: #aeb9ca;
+
+  cursor: pointer;
+
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.ren-theme-toggle button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.ren-theme-icon {
+  width: 25px;
+  height: 25px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 25px;
+
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.07);
+
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ren-sidebar-footer {
+  padding: 10px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ren-user-card {
+  min-height: 50px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 7px 9px;
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.ren-user-avatar {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 32px;
+  margin-right: 9px;
+
+  border-radius: 8px;
+  background: #2864e8;
+
+  color: #ffffff;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+}
+
+.ren-user-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ren-user-info strong {
+  max-width: 145px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #e8edf5;
+  font-size: 10px !important;
+  line-height: 1.1 !important;
+  font-weight: 650 !important;
+}
+
+.ren-user-info span {
+  color: #748198;
+  font-size: 9px !important;
+  line-height: 1.1 !important;
+  font-weight: 500 !important;
+}
+
+.ren-user-more {
+  margin-left: auto;
+
+  color: #718097;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* =========================================================
+   ANA İÇERİK
+========================================================= */
+
+.ren-main-content {
+  width: calc(100% - 250px);
+  min-height: 100vh;
+
+  margin-left: 250px;
+
+  background: var(--ren-bg, #f4f7fb);
+}
+
+[data-theme="dark"] .ren-app-shell,
+[data-theme="dark"] .ren-main-content {
+  background: #0b1220;
+}
+
+/* =========================================================
+   MOBİL
+========================================================= */
+
+@media (max-width: 900px) {
+  .ren-sidebar {
+    width: 220px;
+  }
+
+  .ren-main-content {
+    width: calc(100% - 220px);
+    margin-left: 220px;
+  }
+}
+
+@media (max-width: 700px) {
+  .ren-sidebar {
+    width: 72px;
+  }
+
+  .ren-brand {
+    padding: 20px 10px;
+    text-align: center;
+  }
+
+  .ren-brand-name {
+    font-size: 17px !important;
+  }
+
+  .ren-brand-subtitle,
+  .ren-sidebar-search,
+  .ren-menu-left span:not(.ren-menu-icon),
+  .ren-main-link span:not(.ren-menu-icon),
+  .ren-menu-arrow,
+  .ren-submenu,
+  .ren-ai-text,
+  .ren-ai-status,
+  .ren-user-info,
+  .ren-user-more {
+    display: none;
+  }
+
+  .ren-main-link,
+  .ren-menu-group-button {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .ren-menu-left {
+    justify-content: center;
+  }
+
+  .ren-ai-link {
+    justify-content: center;
+    padding: 8px;
+  }
+
+  .ren-theme-toggle {
+    padding: 0 10px 8px;
+  }
+
+  .ren-theme-toggle button {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .ren-theme-toggle button > span:last-child {
+    display: none;
+  }
+
+  .ren-main-content {
+    width: calc(100% - 72px);
+    margin-left: 72px;
+  }
+}

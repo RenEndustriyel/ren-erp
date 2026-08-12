@@ -1,0 +1,591 @@
+/* =========================================================
+   REN ERP — STOCK MOVEMENTS
+========================================================= */
+
+.stock-movements-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: var(--ren-bg, #f4f7fb);
+  color: #172033;
+}
+
+.stock-movements-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.stock-movements-eyebrow {
+  margin-bottom: 7px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.stock-movements-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.stock-movements-header p {
+  margin: 8px 0 0;
+  color: #68768a;
+  font-size: 13px;
+}
+
+.stock-movements-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.stock-movement-primary,
+.stock-movement-secondary {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stock-movement-primary {
+  border: 1px solid #2864e8;
+  background: #2864e8;
+  color: #fff;
+}
+
+.stock-movement-secondary {
+  border: 1px solid #d4dbe4;
+  background: #fff;
+  color: #425168;
+}
+
+.stock-movement-primary:disabled,
+.stock-movement-secondary:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.stock-movement-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stock-movement-summary > div {
+  min-height: 104px;
+  padding: 17px;
+  border: 1px solid #d5dce5;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+}
+
+.stock-movement-summary span {
+  display: block;
+  color: #748196;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .05em;
+}
+
+.stock-movement-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #172033;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.stock-movement-summary small {
+  display: block;
+  margin-top: 4px;
+  color: #8591a2;
+  font-size: 10px;
+}
+
+.stock-movement-form {
+  margin-bottom: 18px;
+  padding: 20px;
+  border: 1px solid #d3dae3;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+}
+
+.stock-movement-form-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.stock-movement-form-head > div > span {
+  color: #667487;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+
+.stock-movement-form-head h2 {
+  margin: 4px 0 0;
+  font-size: 19px;
+}
+
+.stock-form-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d6dde5;
+  border-radius: 8px;
+  background: #fff;
+  color: #64748b;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.stock-movement-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.stock-movement-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stock-movement-form-grid label > span {
+  color: #5f6d80;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stock-movement-form-grid input,
+.stock-movement-form-grid select {
+  width: 100%;
+  height: 42px;
+  padding: 0 11px;
+  border: 1px solid #d4dce5;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  color: #253449;
+  font: inherit;
+  font-size: 12px;
+}
+
+.stock-movement-form-grid input:focus,
+.stock-movement-form-grid select:focus {
+  border-color: #2864e8;
+  box-shadow: 0 0 0 3px rgba(40,100,232,.10);
+}
+
+.stock-form-full {
+  grid-column: 1 / -1;
+}
+
+.stock-movement-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.stock-movement-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 13px;
+  padding: 10px 12px;
+  border: 1px solid #edc5cc;
+  border-radius: 8px;
+  background: #fff5f6;
+  color: #9f3040;
+  font-size: 11px;
+}
+
+.stock-movement-error.standalone {
+  margin-bottom: 16px;
+}
+
+.stock-movement-panel {
+  overflow: hidden;
+  border: 1px solid #d3dae3;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+}
+
+.stock-movement-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px;
+  border-bottom: 1px solid #e5e9ee;
+}
+
+.stock-movement-search {
+  min-width: 310px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid #d6dde5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.stock-movement-search svg {
+  color: #8793a4;
+  font-size: 18px;
+}
+
+.stock-movement-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #233149;
+  font: inherit;
+  font-size: 12px;
+}
+
+.stock-movement-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.stock-movement-filters button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d7dee7;
+  border-radius: 7px;
+  background: #fff;
+  color: #657286;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.stock-movement-filters button.active {
+  border-color: #2864e8;
+  background: #2864e8;
+  color: #fff;
+}
+
+.stock-movement-table-wrap {
+  overflow-x: auto;
+}
+
+.stock-movement-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stock-movement-table th,
+.stock-movement-table td {
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e7ebef;
+  white-space: nowrap;
+}
+
+.stock-movement-table th {
+  background: #f7f9fb;
+  color: #6d7a8e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.stock-movement-table td {
+  color: #526074;
+  font-size: 11px;
+}
+
+.stock-movement-table td strong {
+  color: #243248;
+}
+
+.stock-movement-table td > small {
+  display: block;
+  margin-top: 3px;
+  color: #8b96a6;
+  font-size: 9px;
+}
+
+.stock-movement-table tbody tr:hover {
+  background: #fbfcfe;
+}
+
+.stock-movement-product {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 230px;
+}
+
+.stock-movement-product-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  border-radius: 8px;
+  background: #edf3ff;
+  color: #2864e8;
+}
+
+.stock-movement-product strong {
+  display: block;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stock-movement-product small {
+  display: block;
+  margin-top: 2px;
+  color: #8b96a6;
+  font-size: 9px;
+}
+
+.movement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 27px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.movement-badge.entry {
+  background: #eaf7ef;
+  color: #258448;
+}
+
+.movement-badge.exit {
+  background: #fde9ec;
+  color: #b83a4a;
+}
+
+.movement-badge.return {
+  background: #e9f3ff;
+  color: #2767aa;
+}
+
+.movement-badge.count {
+  background: #fff3da;
+  color: #a96a00;
+}
+
+.movement-reference {
+  display: inline-flex;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: #f1f4f7;
+  color: #627084;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.stock-movement-empty {
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #7b8798;
+}
+
+.stock-movement-empty svg {
+  color: #8a97a8;
+  font-size: 40px;
+}
+
+.stock-movement-empty strong {
+  color: #27364b;
+  font-size: 14px;
+}
+
+.stock-movement-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  color: #7a8798;
+  font-size: 11px;
+}
+
+.stock-movement-back {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid #d6dde6;
+  border-radius: 8px;
+  background: #fff;
+  color: #526174;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* Dark mode */
+html[data-theme="dark"] .stock-movements-page {
+  background: #0b1422;
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .stock-movement-summary > div,
+html[data-theme="dark"] .stock-movement-form,
+html[data-theme="dark"] .stock-movement-panel,
+html[data-theme="dark"] .stock-movement-secondary,
+html[data-theme="dark"] .stock-movement-search,
+html[data-theme="dark"] .stock-movement-filters button,
+html[data-theme="dark"] .stock-form-close,
+html[data-theme="dark"] .stock-movement-back {
+  background: #0d1b2b;
+  border-color: #20374d;
+  color: #c5d0dc;
+}
+
+html[data-theme="dark"] .stock-movements-eyebrow,
+html[data-theme="dark"] .stock-movements-header p,
+html[data-theme="dark"] .stock-movement-summary span,
+html[data-theme="dark"] .stock-movement-summary small,
+html[data-theme="dark"] .stock-movement-form-head > div > span,
+html[data-theme="dark"] .stock-movement-footer {
+  color: #8797aa;
+}
+
+html[data-theme="dark"] .stock-movements-header h1,
+html[data-theme="dark"] .stock-movement-summary strong,
+html[data-theme="dark"] .stock-movement-form-head h2,
+html[data-theme="dark"] .stock-movement-table td strong,
+html[data-theme="dark"] .stock-movement-empty strong {
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .stock-movement-form-grid label > span {
+  color: #a4b1c2;
+}
+
+html[data-theme="dark"] .stock-movement-form-grid input,
+html[data-theme="dark"] .stock-movement-form-grid select,
+html[data-theme="dark"] .stock-movement-search input {
+  background: #122237;
+  border-color: #2a4056;
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .stock-movement-table th {
+  background: #122237;
+  color: #9eacbc;
+  border-color: #20374d;
+}
+
+html[data-theme="dark"] .stock-movement-table td {
+  color: #c5d0dc;
+  border-color: #20374d;
+}
+
+html[data-theme="dark"] .stock-movement-table tbody tr:hover {
+  background: #13253a;
+}
+
+html[data-theme="dark"] .stock-movement-product small,
+html[data-theme="dark"] .stock-movement-table td > small {
+  color: #77879a;
+}
+
+html[data-theme="dark"] .stock-movement-product-icon {
+  background: #17365e;
+  color: #80b6ff;
+}
+
+html[data-theme="dark"] .movement-reference {
+  background: #16283d;
+  color: #aebdce;
+}
+
+html[data-theme="dark"] .stock-movement-error {
+  background: #241518;
+  border-color: #5b3039;
+  color: #ff98a4;
+}
+
+@media (max-width: 1000px) {
+  .stock-movement-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stock-movements-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stock-movement-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stock-movement-search {
+    min-width: 0;
+  }
+
+  .stock-movement-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .stock-movements-page {
+    padding: 18px;
+  }
+
+  .stock-movement-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-movements-actions {
+    width: 100%;
+  }
+
+  .stock-movement-primary,
+  .stock-movement-secondary {
+    flex: 1;
+  }
+
+  .stock-movement-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stock-form-full {
+    grid-column: auto;
+  }
+}

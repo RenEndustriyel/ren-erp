@@ -1,0 +1,80 @@
+.sale-summary{
+
+background:white;
+border-radius:18px;
+padding:25px;
+box-shadow:0 8px 25px rgba(0,0,0,.05);
+
+}
+
+
+.summary-row{
+
+display:flex;
+justify-content:space-between;
+padding:12px 0;
+font-size:16px;
+
+}
+
+
+.summary-row span{
+
+color:#64748b;
+
+}
+
+
+.profit strong{
+
+color:#16a34a;
+
+}
+
+
+
+.discount-box{
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin:20px 0;
+
+}
+
+
+.discount-box input{
+
+width:120px;
+height:42px;
+border:1px solid #dbe2ea;
+border-radius:10px;
+padding:0 10px;
+
+}
+
+
+
+.grand-total{
+
+border-top:1px solid #e2e8f0;
+padding-top:20px;
+text-align:right;
+
+}
+
+
+.grand-total span{
+
+color:#64748b;
+
+}
+
+
+.grand-total h2{
+
+margin:8px 0 0;
+font-size:32px;
+color:#2563eb;
+
+}

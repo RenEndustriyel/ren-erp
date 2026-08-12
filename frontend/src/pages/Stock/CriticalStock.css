@@ -1,0 +1,476 @@
+/* =========================================================
+   REN ERP — CRITICAL STOCK
+========================================================= */
+
+.critical-stock-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: var(--ren-bg, #f4f7fb);
+  color: #172033;
+}
+
+.critical-stock-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.critical-stock-eyebrow {
+  margin-bottom: 7px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+
+.critical-stock-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.critical-stock-header p {
+  margin: 8px 0 0;
+  color: #68768a;
+  font-size: 13px;
+}
+
+.critical-stock-actions {
+  display: flex;
+  gap: 9px;
+}
+
+.critical-stock-primary,
+.critical-stock-secondary {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.critical-stock-primary {
+  border: 1px solid #2864e8;
+  background: #2864e8;
+  color: #fff;
+}
+
+.critical-stock-secondary {
+  border: 1px solid #d4dbe4;
+  background: #fff;
+  color: #425168;
+}
+
+.critical-stock-primary:disabled,
+.critical-stock-secondary:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.critical-stock-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.critical-stock-summary > div {
+  min-height: 104px;
+  padding: 17px;
+  border: 1px solid #d5dce5;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+}
+
+.critical-stock-summary span {
+  display: block;
+  color: #748196;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+.critical-stock-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #a96a00;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.critical-stock-summary small {
+  display: block;
+  margin-top: 4px;
+  color: #8591a2;
+  font-size: 10px;
+}
+
+.critical-stock-summary .danger strong {
+  color: #b83a4a;
+}
+
+.critical-stock-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  border: 1px solid #edc5cc;
+  border-radius: 8px;
+  background: #fff5f6;
+  color: #9f3040;
+  font-size: 11px;
+}
+
+.critical-stock-panel {
+  overflow: hidden;
+  border: 1px solid #d3dae3;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, .05);
+}
+
+.critical-stock-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px;
+  border-bottom: 1px solid #e5e9ee;
+}
+
+.critical-stock-search {
+  min-width: 320px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid #d6dde5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.critical-stock-search svg {
+  color: #8793a4;
+  font-size: 18px;
+}
+
+.critical-stock-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #233149;
+  font: inherit;
+  font-size: 12px;
+}
+
+.critical-stock-filters {
+  display: flex;
+  gap: 6px;
+}
+
+.critical-stock-filters button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d7dee7;
+  border-radius: 7px;
+  background: #fff;
+  color: #657286;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.critical-stock-filters button.active {
+  border-color: #2864e8;
+  background: #2864e8;
+  color: #fff;
+}
+
+.critical-stock-table-wrap {
+  overflow-x: auto;
+}
+
+.critical-stock-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.critical-stock-table th,
+.critical-stock-table td {
+  padding: 13px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e7ebef;
+  white-space: nowrap;
+}
+
+.critical-stock-table th {
+  background: #f7f9fb;
+  color: #6d7a8e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.critical-stock-table td {
+  color: #526074;
+  font-size: 11px;
+}
+
+.critical-stock-table td strong {
+  color: #243248;
+}
+
+.critical-stock-table td small {
+  display: block;
+  margin-top: 3px;
+  color: #8b96a6;
+  font-size: 9px;
+}
+
+.critical-product {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 250px;
+}
+
+.critical-product-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  border-radius: 8px;
+  background: #fff3da;
+  color: #a96a00;
+}
+
+.critical-product strong {
+  display: block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.critical-deficit {
+  color: #b83a4a;
+  font-weight: 800;
+}
+
+.critical-zero {
+  color: #8793a3;
+}
+
+.critical-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #fff3da;
+  color: #a96a00;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.critical-badge.out {
+  background: #fde9ec;
+  color: #b83a4a;
+}
+
+.critical-row-button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid #d7dee7;
+  border-radius: 7px;
+  background: #fff;
+  color: #526174;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.critical-row-button:hover {
+  border-color: #2864e8;
+  color: #2864e8;
+}
+
+.critical-stock-empty {
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.critical-stock-empty svg {
+  color: #a96a00;
+  font-size: 42px;
+}
+
+.critical-stock-empty strong {
+  color: #27364b;
+  font-size: 14px;
+}
+
+.critical-stock-empty span {
+  color: #7b8798;
+  font-size: 11px;
+}
+
+.critical-stock-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  color: #7a8798;
+  font-size: 11px;
+}
+
+.critical-stock-back {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid #d6dde6;
+  border-radius: 8px;
+  background: #fff;
+  color: #526174;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* Dark */
+html[data-theme="dark"] .critical-stock-page {
+  background: #0b1422;
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .critical-stock-summary > div,
+html[data-theme="dark"] .critical-stock-panel,
+html[data-theme="dark"] .critical-stock-secondary,
+html[data-theme="dark"] .critical-stock-search,
+html[data-theme="dark"] .critical-stock-filters button,
+html[data-theme="dark"] .critical-row-button,
+html[data-theme="dark"] .critical-stock-back {
+  background: #0d1b2b;
+  border-color: #20374d;
+  color: #c5d0dc;
+}
+
+html[data-theme="dark"] .critical-stock-eyebrow,
+html[data-theme="dark"] .critical-stock-header p,
+html[data-theme="dark"] .critical-stock-summary span,
+html[data-theme="dark"] .critical-stock-summary small,
+html[data-theme="dark"] .critical-stock-footer {
+  color: #8797aa;
+}
+
+html[data-theme="dark"] .critical-stock-header h1,
+html[data-theme="dark"] .critical-stock-summary strong,
+html[data-theme="dark"] .critical-stock-table td strong,
+html[data-theme="dark"] .critical-stock-empty strong {
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .critical-stock-table th {
+  background: #122237;
+  color: #9eacbc;
+  border-color: #20374d;
+}
+
+html[data-theme="dark"] .critical-stock-table td {
+  color: #c5d0dc;
+  border-color: #20374d;
+}
+
+html[data-theme="dark"] .critical-stock-search input {
+  color: #f3f7fb;
+}
+
+html[data-theme="dark"] .critical-stock-product-icon,
+html[data-theme="dark"] .critical-product-icon {
+  background: #493714;
+  color: #ffd05a;
+}
+
+html[data-theme="dark"] .critical-product small,
+html[data-theme="dark"] .critical-stock-table td small {
+  color: #77879a;
+}
+
+html[data-theme="dark"] .critical-stock-error {
+  background: #241518;
+  border-color: #5b3039;
+  color: #ff98a4;
+}
+
+html[data-theme="dark"] .critical-row-button:hover {
+  border-color: #2864e8;
+  color: #80b6ff;
+}
+
+@media (max-width: 1000px) {
+  .critical-stock-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .critical-stock-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .critical-stock-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .critical-stock-search {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .critical-stock-page {
+    padding: 18px;
+  }
+
+  .critical-stock-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .critical-stock-actions {
+    width: 100%;
+  }
+
+  .critical-stock-primary,
+  .critical-stock-secondary {
+    flex: 1;
+  }
+}
