@@ -16,7 +16,6 @@ import {
   MdReceiptLong,
   MdPeople,
   MdShoppingCart,
-  MdLocalShipping,
   MdRequestQuote,
   MdAccountBalance,
   MdDescription,
@@ -25,7 +24,6 @@ import {
   MdLightMode,
   MdExpandMore,
   MdChevronRight,
-  MdLogout,
   MdSettings,
   MdStorefront,
   MdAssessment,
@@ -226,153 +224,115 @@ const menuGroups = [
 ];
 
 export default function Layout() {
-  const location =
-    useLocation();
+  const location = useLocation();
 
-  const [
-    search,
-    setSearch,
-  ] = useState("");
+  const [search, setSearch] =
+    useState("");
 
-  const [
-    mobileOpen,
-    setMobileOpen,
-  ] = useState(false);
+  const [mobileOpen, setMobileOpen] =
+    useState(false);
 
-  const [
-    openGroups,
-    setOpenGroups,
-  ] = useState({
-    dashboard: true,
-    stock: true,
-    sales: true,
-  });
+  /*
+   * Başlangıçta hiçbir menü açık değil.
+   */
+  const [openGroup, setOpenGroup] =
+    useState(null);
 
-  const [
-    darkMode,
-    setDarkMode,
-  ] = useState(
-    () => {
+  const [darkMode, setDarkMode] =
+    useState(() => {
       const saved =
         localStorage.getItem(
           "ren-theme"
         );
 
       return saved === "dark";
-    }
-  );
+    });
 
-  const activeGroup =
-    useMemo(() => {
-      const found =
-        menuGroups.find(
-          (group) =>
-            group.items.some(
-              (item) =>
-                location.pathname ===
-                  item.path ||
-                location.pathname.startsWith(
-                  `${item.path}/`
-                )
-            )
-        );
+  const activeGroup = useMemo(() => {
+    const found = menuGroups.find(
+      (group) =>
+        group.items.some(
+          (item) =>
+            location.pathname === item.path
+        )
+    );
 
-      return (
-        found?.key ||
-        null
-      );
-    }, [
-      location.pathname,
-    ]);
+    return found?.key || null;
+  }, [location.pathname]);
 
-  const toggleGroup = (
-    key
-  ) => {
-    setOpenGroups(
-      (current) => ({
-        ...current,
-        [key]:
-          !current[key],
-      })
+  const toggleGroup = (key) => {
+    setOpenGroup((current) =>
+      current === key
+        ? null
+        : key
     );
   };
 
   const toggleTheme = () => {
-    setDarkMode(
-      (current) => {
-        const next =
-          !current;
+    setDarkMode((current) => {
+      const next = !current;
 
-        localStorage.setItem(
-          "ren-theme",
-          next
-            ? "dark"
-            : "light"
-        );
+      localStorage.setItem(
+        "ren-theme",
+        next ? "dark" : "light"
+      );
 
-        document.documentElement.dataset.theme =
-          next
-            ? "dark"
-            : "light";
+      document.documentElement.dataset.theme =
+        next ? "dark" : "light";
 
-        document.body.classList.toggle(
-          "dark",
-          next
-        );
+      document.body.classList.toggle(
+        "dark",
+        next
+      );
 
-        return next;
-      }
-    );
+      return next;
+    });
   };
 
   const filteredGroups =
     menuGroups
-      .map(
-        (group) => {
-          const q =
-            search
-              .trim()
-              .toLocaleLowerCase(
-                "tr-TR"
-              );
+      .map((group) => {
+        const q =
+          search
+            .trim()
+            .toLocaleLowerCase(
+              "tr-TR"
+            );
 
-          if (!q) {
-            return group;
-          }
+        if (!q) {
+          return group;
+        }
 
-          const groupMatches =
-            group.label
+        const groupMatches =
+          group.label
+            .toLocaleLowerCase(
+              "tr-TR"
+            )
+            .includes(q);
+
+        const items =
+          group.items.filter((item) =>
+            item.label
               .toLocaleLowerCase(
                 "tr-TR"
               )
-              .includes(q);
+              .includes(q)
+          );
 
-          const items =
-            group.items.filter(
-              (item) =>
-                item.label
-                  .toLocaleLowerCase(
-                    "tr-TR"
-                  )
-                  .includes(q)
-            );
-
-          if (
-            groupMatches ||
-            items.length
-          ) {
-            return {
-              ...group,
-              items:
-                groupMatches
-                  ? group.items
-                  : items,
-            };
-          }
-
-          return null;
+        if (
+          groupMatches ||
+          items.length
+        ) {
+          return {
+            ...group,
+            items: groupMatches
+              ? group.items
+              : items,
+          };
         }
-      )
+
+        return null;
+      })
       .filter(Boolean);
 
   return (
@@ -385,8 +345,6 @@ export default function Layout() {
             : ""
         }`}
       >
-
-        {/* LOGO */}
         <div className="ren-brand">
           <div className="ren-brand-mark">
             R
@@ -403,7 +361,6 @@ export default function Layout() {
           </div>
         </div>
 
-        {/* SEARCH */}
         <div className="ren-sidebar-search">
           <MdSearch />
 
@@ -419,28 +376,33 @@ export default function Layout() {
           />
         </div>
 
-        {/* MENU */}
         <nav className="ren-sidebar-menu">
 
           {filteredGroups.map(
             (group) => {
-              const Icon =
-                group.icon;
+              const Icon = group.icon;
+
+              const isSearchMode =
+                search.trim().length > 0;
 
               const expanded =
-                search ||
-                openGroups[
-                  group.key
-                ] ||
-                activeGroup ===
-                  group.key;
+                isSearchMode
+                  ? true
+                  : openGroup ===
+                    group.key;
 
+              /*
+               * Aktif grup sadece içeride gösterilir;
+               * kendiliğinden açılmaz.
+               *
+               * Kullanıcı sayfaya doğrudan
+               * /products/new ile geldiyse ilgili
+               * grup da kapalı kalabilir.
+               */
               return (
                 <div
                   className="ren-menu-group"
-                  key={
-                    group.key
-                  }
+                  key={group.key}
                 >
 
                   <button
@@ -492,11 +454,23 @@ export default function Layout() {
                                   : ""
                               }`
                             }
-                            onClick={() =>
+                            onClick={() => {
                               setMobileOpen(
                                 false
-                              )
-                            }
+                              );
+
+                              /*
+                               * Bir menü öğesine tıklayınca
+                               * grup açık kalır.
+                               */
+                              if (
+                                !isSearchMode
+                              ) {
+                                setOpenGroup(
+                                  group.key
+                                );
+                              }
+                            }}
                           >
                             <span className="ren-menu-dot">
                               •
@@ -521,7 +495,6 @@ export default function Layout() {
 
         </nav>
 
-        {/* THEME */}
         <button
           type="button"
           className="ren-theme-toggle"
@@ -542,7 +515,6 @@ export default function Layout() {
           </span>
         </button>
 
-        {/* USER */}
         <div className="ren-user-card">
 
           <div className="ren-user-avatar">
@@ -577,7 +549,9 @@ export default function Layout() {
           className="ren-mobile-overlay"
           aria-label="Menüyü kapat"
           onClick={() =>
-            setMobileOpen(false)
+            setMobileOpen(
+              false
+            )
           }
         />
       )}
