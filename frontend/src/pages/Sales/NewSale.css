@@ -1248,3 +1248,626 @@ body.dark .new-sale-page select {
     min-width: 900px !important;
   }
 }
+
+/* =========================================================
+   REN ERP — MOBİL YENİ SATIŞ DÜZENİ
+   ========================================================= */
+
+@media (max-width: 680px) {
+
+  /* ANA SAYFA */
+  .new-sale-page {
+    width: 100%;
+    min-height: 100%;
+    padding: 12px;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .new-sale-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .new-sale-eyebrow {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .new-sale-header h1 {
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  .new-sale-header p {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .new-sale-back {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  /* BAŞARI / HATA */
+  .new-sale-success,
+  .new-sale-error {
+    margin-bottom: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* ANA LAYOUT */
+  .new-sale-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100%;
+    gap: 12px !important;
+  }
+
+  .new-sale-main,
+  .new-sale-side {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .new-sale-main {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .new-sale-side {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: static !important;
+    width: 100%;
+  }
+
+  /* KARTLAR */
+  .new-sale-card,
+  .new-sale-total-card {
+    width: 100%;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .new-sale-card-header {
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .new-sale-card-header > div > span {
+    font-size: 9px;
+  }
+
+  .new-sale-card-header h2 {
+    font-size: 16px;
+  }
+
+  .new-sale-card-header > svg {
+    font-size: 20px;
+  }
+
+  /* CARİ */
+  .new-sale-selected-customer {
+    min-height: 58px;
+    padding: 10px 11px;
+    gap: 10px;
+  }
+
+  .new-sale-selected-customer strong {
+    font-size: 13px;
+  }
+
+  .new-sale-selected-customer span {
+    font-size: 10px;
+  }
+
+  .new-sale-selected-customer button {
+    height: 34px;
+    padding: 0 9px;
+    font-size: 10px;
+  }
+
+  .new-sale-search {
+    height: 46px;
+    padding: 0 12px;
+  }
+
+  .new-sale-search > svg {
+    font-size: 19px;
+  }
+
+  .new-sale-search input {
+    font-size: 13px;
+  }
+
+  /* DROPDOWN */
+  .new-sale-dropdown {
+    margin-top: 6px;
+    border-radius: 10px;
+  }
+
+  .new-sale-dropdown button {
+    min-height: 58px;
+    padding: 10px 11px;
+  }
+
+  .new-sale-dropdown button strong {
+    font-size: 12px;
+  }
+
+  .new-sale-dropdown button span {
+    font-size: 10px;
+  }
+
+  .product-result-meta b {
+    font-size: 11px;
+  }
+
+  .product-result-meta small {
+    font-size: 9px;
+  }
+
+  /* =======================================================
+     ÜRÜN TABLOSU
+     MOBİLDE ARTIK YATAY TABLO YOK
+     ======================================================= */
+
+  .new-sale-table-scroll {
+    width: 100% !important;
+    margin-top: 12px;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  .new-sale-table {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /*
+   * Başlıkları mobilde kaldırıyoruz.
+   */
+  .new-sale-line-head {
+    display: none !important;
+  }
+
+  .new-sale-lines {
+    width: 100%;
+  }
+
+  /*
+   * Her ürün artık ayrı kart.
+   */
+  .new-sale-line {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: auto !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto !important;
+
+    grid-template-areas:
+      "product delete"
+      "quantity quantity"
+      "price discount"
+      "net vat"
+      "total total" !important;
+
+    column-gap: 8px !important;
+    row-gap: 9px !important;
+
+    align-items: center !important;
+
+    padding: 13px 0 !important;
+
+    border-top: 1px solid var(--sale-border);
+  }
+
+  /*
+   * Ürün adı
+   */
+  .new-sale-line-main {
+    grid-area: product !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .new-sale-line-main strong {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 13px !important;
+    line-height: 1.3;
+  }
+
+  .new-sale-line-main span {
+    margin-top: 4px;
+    font-size: 10px !important;
+    line-height: 1.3;
+  }
+
+  /*
+   * SİL
+   */
+  .new-sale-delete {
+    grid-area: delete !important;
+
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+
+    justify-self: end;
+
+    border-radius: 9px;
+  }
+
+  .new-sale-delete svg {
+    font-size: 18px;
+  }
+
+  /*
+   * ADET
+   */
+  .new-sale-line-quantity {
+    grid-area: quantity !important;
+
+    width: 100% !important;
+    height: 42px !important;
+
+    grid-template-columns:
+      40px
+      minmax(0, 1fr)
+      40px !important;
+
+    border-radius: 10px;
+  }
+
+  .new-sale-line-quantity button {
+    width: 40px !important;
+    height: 42px !important;
+  }
+
+  .new-sale-line-quantity button svg {
+    font-size: 18px;
+  }
+
+  .new-sale-line-quantity input {
+    height: 42px !important;
+    font-size: 14px !important;
+  }
+
+  /*
+   * BİRİM FİYAT
+   */
+  .new-sale-price-input {
+    grid-area: price !important;
+
+    width: 100% !important;
+    height: 42px !important;
+
+    padding: 0 10px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+    font-weight: 700 !important;
+  }
+
+  /*
+   * İSKONTO
+   */
+  .new-sale-line-discount {
+    grid-area: discount !important;
+
+    width: 100% !important;
+    height: 42px !important;
+  }
+
+  .new-sale-line-discount input {
+    width: 100% !important;
+    height: 42px !important;
+
+    padding: 0 28px 0 10px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+  }
+
+  .new-sale-line-discount span {
+    right: 10px;
+    font-size: 11px;
+  }
+
+  /*
+   * KDV'SİZ TOPLAM
+   */
+  .new-sale-line-net-edit {
+    grid-area: net !important;
+
+    width: 100% !important;
+    height: 42px !important;
+  }
+
+  .new-sale-line-net-edit input {
+    width: 100% !important;
+    height: 42px !important;
+
+    padding: 0 28px 0 10px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+  }
+
+  .new-sale-line-net-edit span {
+    right: 10px !important;
+    font-size: 10px !important;
+  }
+
+  /*
+   * KDV
+   */
+  .new-sale-line-vat {
+    grid-area: vat !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 42px !important;
+
+    display: grid !important;
+    grid-template-columns: 62px minmax(0, 1fr) !important;
+
+    gap: 7px !important;
+  }
+
+  .new-sale-line-vat select {
+    width: 62px !important;
+    min-width: 62px !important;
+    height: 42px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 11px !important;
+  }
+
+  .new-sale-line-vat span {
+    min-width: 0;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+
+  /*
+   * SATIR TOPLAMI
+   */
+  .new-sale-line-total-edit {
+    grid-area: total !important;
+
+    width: 100% !important;
+    height: 46px !important;
+  }
+
+  .new-sale-line-total-edit input {
+    width: 100% !important;
+    height: 46px !important;
+
+    padding: 0 30px 0 11px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 15px !important;
+    font-weight: 900 !important;
+  }
+
+  .new-sale-line-total-edit span {
+    right: 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* BOŞ DURUM */
+  .new-sale-empty {
+    min-height: 150px;
+    padding: 20px 12px;
+  }
+
+  .new-sale-empty > svg {
+    font-size: 28px;
+  }
+
+  .new-sale-empty strong {
+    font-size: 13px;
+  }
+
+  .new-sale-empty span {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  /* =======================================================
+     AÇIKLAMA
+     ======================================================= */
+
+  .new-sale-note {
+    min-height: 100px;
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  /* =======================================================
+     SATIŞ ÖZETİ
+     ======================================================= */
+
+  .new-sale-total-header {
+    margin-bottom: 8px;
+  }
+
+  .new-sale-total-header span {
+    font-size: 9px;
+  }
+
+  .new-sale-total-header small {
+    font-size: 10px;
+  }
+
+  .new-sale-summary-row {
+    min-height: 42px;
+    font-size: 12px;
+  }
+
+  .new-sale-summary-row strong {
+    font-size: 12px;
+  }
+
+  .new-sale-grand-total {
+    padding-top: 16px;
+  }
+
+  .new-sale-grand-total span {
+    font-size: 13px;
+  }
+
+  .new-sale-grand-total strong {
+    font-size: 24px;
+  }
+
+  /* =======================================================
+     VADE / ÖDEME
+     ======================================================= */
+
+  .new-sale-field {
+    margin-bottom: 13px;
+  }
+
+  .new-sale-field label {
+    margin-bottom: 7px;
+    font-size: 11px;
+  }
+
+  .new-sale-field input,
+  .new-sale-field select {
+    height: 44px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .new-sale-toggle {
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  .new-sale-toggle button {
+    font-size: 12px;
+  }
+
+  /* =======================================================
+     SATIŞI TAMAMLA
+     ======================================================= */
+
+  .new-sale-complete {
+    width: 100%;
+    min-height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+  }
+
+  .new-sale-complete-main {
+    font-size: 14px;
+  }
+
+  .new-sale-complete-total {
+    margin-left: 4px;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .new-sale-f9-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 28px;
+    height: 24px;
+
+    padding: 0 7px;
+
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 7px;
+
+    font-size: 10px;
+    font-weight: 800;
+  }
+}
+
+/* =========================================================
+   ÇOK KÜÇÜK TELEFONLAR
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+  .new-sale-page {
+    padding: 10px;
+  }
+
+  .new-sale-card,
+  .new-sale-total-card {
+    padding: 12px;
+  }
+
+  .new-sale-header h1 {
+    font-size: 22px;
+  }
+
+  .new-sale-line {
+    column-gap: 6px !important;
+  }
+
+  .new-sale-line-vat {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+
+  .new-sale-line-vat select {
+    width: 58px !important;
+    min-width: 58px !important;
+  }
+
+  .new-sale-grand-total strong {
+    font-size: 21px;
+  }
+
+  .new-sale-complete {
+    min-height: 56px;
+  }
+}
