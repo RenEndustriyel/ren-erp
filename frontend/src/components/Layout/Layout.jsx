@@ -1,345 +1,608 @@
-import { useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { useTheme } from "../../theme/ThemeContext";
+import {
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+} from "react-router-dom";
+
+import {
+  MdDashboard,
+  MdInventory2,
+  MdPointOfSale,
+  MdReceiptLong,
+  MdPeople,
+  MdShoppingCart,
+  MdLocalShipping,
+  MdRequestQuote,
+  MdAccountBalance,
+  MdDescription,
+  MdSearch,
+  MdDarkMode,
+  MdLightMode,
+  MdExpandMore,
+  MdChevronRight,
+  MdLogout,
+  MdSettings,
+  MdStorefront,
+  MdAssessment,
+} from "react-icons/md";
+
 import "./Layout.css";
 
 const menuGroups = [
   {
-    id: "stock",
-    icon: "▣",
-    title: "Stok & Ürünler",
+    key: "dashboard",
+    label: "Genel Bakış",
+    icon: MdDashboard,
     items: [
-      { label: "Ürünler", path: "/products" },
-      { label: "Yeni Ürün", path: "/products/new" },
-      { label: "Stok Listesi", path: "/stock" },
-      { label: "Stok Hareketleri", path: "/stock/movements" },
-      { label: "Stok Sayımı", path: "/stock/count" },
-      { label: "Kritik Stoklar", path: "/stock/critical" },
-      { label: "Barkod & Etiket", path: "/stock/barcode" },
+      {
+        label: "Dashboard",
+        path: "/",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "sales",
-    icon: "🛒",
-    title: "Satış",
+    key: "stock",
+    label: "Stok & Ürünler",
+    icon: MdInventory2,
     items: [
-      { label: "Yeni Satış", path: "/sales/new" },
-      { label: "Satışlar", path: "/sales" },
-      { label: "Satış Hareketleri", path: "/sales/movements" },
-      { label: "Hızlı Satış", path: "/sales/quick" },
+      {
+        label: "Ürünler",
+        path: "/products",
+        end: true,
+      },
+      {
+        label: "Yeni Ürün",
+        path: "/products/new",
+        end: true,
+      },
+      {
+        label: "Stok Listesi",
+        path: "/stock",
+        end: true,
+      },
+      {
+        label: "Stok Hareketleri",
+        path: "/stock/movements",
+        end: true,
+      },
+      {
+        label: "Stok Sayımı",
+        path: "/stock/count",
+        end: true,
+      },
+      {
+        label: "Kritik Stoklar",
+        path: "/stock/critical",
+        end: true,
+      },
+      {
+        label: "Barkod & Etiket",
+        path: "/stock/barcode",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "invoices",
-    icon: "▤",
-    title: "Faturalar",
+    key: "sales",
+    label: "Satış",
+    icon: MdPointOfSale,
     items: [
-      { label: "Yeni Fatura", path: "/invoices/new" },
-      { label: "Fatura Listesi", path: "/invoices" },
-      { label: "Satış Faturaları", path: "/invoices/sales" },
-      { label: "Alış Faturaları", path: "/invoices/purchases" },
-      { label: "İade Faturaları", path: "/invoices/returns" },
+      {
+        label: "Yeni Satış",
+        path: "/sales/new",
+        end: true,
+      },
+      {
+        label: "Satışlar",
+        path: "/sales",
+        end: true,
+      },
+      {
+        label: "Satış Hareketleri",
+        path: "/sales/movements",
+        end: true,
+      },
+      {
+        label: "Hızlı Satış",
+        path: "/sales/quick",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "customers",
-    icon: "♟",
-    title: "Cari",
+    key: "invoices",
+    label: "Faturalar",
+    icon: MdReceiptLong,
     items: [
-      { label: "Cari Listesi", path: "/customers" },
-      { label: "Yeni Cari", path: "/customers/new" },
-      { label: "Cari Hareketleri", path: "/customers/movements" },
-      { label: "Cari Ekstre", path: "/customers/statements" },
-      { label: "Tahsilatlar", path: "/collections" },
-      { label: "Ödeme Takibi", path: "/payments" },
+      {
+        label: "Faturalar",
+        path: "/invoices",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "purchases",
-    icon: "↓",
-    title: "Alışlar",
+    key: "customers",
+    label: "Cari",
+    icon: MdPeople,
     items: [
-      { label: "Yeni Alış", path: "/purchases/new" },
-      { label: "Alış Listesi", path: "/purchases" },
-      { label: "Alış Hareketleri", path: "/purchases/movements" },
-      { label: "Tedarikçiler", path: "/suppliers" },
+      {
+        label: "Cari Hesaplar",
+        path: "/customers",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "orders",
-    icon: "☷",
-    title: "Sipariş & Teklif",
+    key: "purchases",
+    label: "Alışlar",
+    icon: MdShoppingCart,
     items: [
-      { label: "Yeni Sipariş", path: "/orders/new" },
-      { label: "Siparişler", path: "/orders" },
-      { label: "Yeni Teklif", path: "/offers/new" },
-      { label: "Teklifler", path: "/offers" },
-      { label: "Bekleyen Siparişler", path: "/orders/pending" },
+      {
+        label: "Alışlar",
+        path: "/purchases",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "cash",
-    icon: "₺",
-    title: "Kasa & Banka",
+    key: "orders",
+    label: "Sipariş & Teklif",
+    icon: MdRequestQuote,
     items: [
-      { label: "Yeni Kasa Hareketi", path: "/cash/new" },
-      { label: "Kasa Hareketleri", path: "/cash/movements" },
-      { label: "Kasa Listesi", path: "/cash" },
-      { label: "Masraf Girişi", path: "/expenses/new" },
-      { label: "Kasa Virman", path: "/cash/transfer" },
-      { label: "Banka Hesapları", path: "/banks" },
-      { label: "Banka Entegrasyonu", path: "/banks/integration" },
+      {
+        label: "Siparişler",
+        path: "/orders",
+        end: true,
+      },
+      {
+        label: "Teklifler",
+        path: "/quotes",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "dispatch",
-    icon: "▱",
-    title: "İrsaliye",
+    key: "finance",
+    label: "Kasa & Banka",
+    icon: MdAccountBalance,
     items: [
-      { label: "Yeni İrsaliye", path: "/dispatch/new" },
-      { label: "İrsaliye Listesi", path: "/dispatch" },
-      { label: "Sevk İşlemleri", path: "/dispatch/shipping" },
+      {
+        label: "Kasa",
+        path: "/cash",
+        end: true,
+      },
+      {
+        label: "Bankalar",
+        path: "/banks",
+        end: true,
+      },
+      {
+        label: "Tahsilatlar",
+        path: "/collections",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "reports",
-    icon: "▥",
-    title: "Raporlar",
+    key: "waybill",
+    label: "İrsaliye",
+    icon: MdDescription,
     items: [
-      { label: "Genel Raporlar", path: "/reports" },
-      { label: "Stok Raporları", path: "/reports/stock" },
-      { label: "Cari Raporları", path: "/reports/customers" },
-      { label: "Satış Raporları", path: "/reports/sales" },
-      { label: "Alış Raporları", path: "/reports/purchases" },
-      { label: "Kasa Raporları", path: "/reports/cash" },
-      { label: "Kâr / Zarar", path: "/reports/profit" },
-      { label: "KDV Raporları", path: "/reports/vat" },
+      {
+        label: "İrsaliyeler",
+        path: "/waybills",
+        end: true,
+      },
     ],
   },
 
   {
-    id: "settings",
-    icon: "⚙",
-    title: "Ayarlar",
+    key: "reports",
+    label: "Raporlar",
+    icon: MdAssessment,
     items: [
-      { label: "Genel Ayarlar", path: "/settings" },
-      { label: "Şirket Bilgileri", path: "/settings/company" },
-      { label: "Kullanıcılar", path: "/settings/users" },
-      { label: "Yetkilendirme", path: "/settings/permissions" },
-      { label: "Birimler", path: "/settings/units" },
-      { label: "KDV Ayarları", path: "/settings/vat" },
+      {
+        label: "Rapor Merkezi",
+        path: "/reports",
+        end: true,
+      },
     ],
   },
 ];
 
-function SidebarGroup({
-  group,
-  openGroup,
-  setOpenGroup,
-}) {
-  const location = useLocation();
+export default function Layout() {
+  const location =
+    useLocation();
 
-  const isActive = group.items.some(
-    (item) =>
-      location.pathname === item.path ||
-      location.pathname.startsWith(`${item.path}/`)
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
+  const [
+    mobileOpen,
+    setMobileOpen,
+  ] = useState(false);
+
+  const [
+    openGroups,
+    setOpenGroups,
+  ] = useState({
+    dashboard: true,
+    stock: true,
+    sales: true,
+  });
+
+  const [
+    darkMode,
+    setDarkMode,
+  ] = useState(
+    () => {
+      const saved =
+        localStorage.getItem(
+          "ren-theme"
+        );
+
+      return saved === "dark";
+    }
   );
 
-  const isOpen = openGroup === group.id;
+  const activeGroup =
+    useMemo(() => {
+      const found =
+        menuGroups.find(
+          (group) =>
+            group.items.some(
+              (item) =>
+                location.pathname ===
+                  item.path ||
+                location.pathname.startsWith(
+                  `${item.path}/`
+                )
+            )
+        );
 
-  const toggleGroup = () => {
-    setOpenGroup(isOpen ? null : group.id);
+      return (
+        found?.key ||
+        null
+      );
+    }, [
+      location.pathname,
+    ]);
+
+  const toggleGroup = (
+    key
+  ) => {
+    setOpenGroups(
+      (current) => ({
+        ...current,
+        [key]:
+          !current[key],
+      })
+    );
   };
 
+  const toggleTheme = () => {
+    setDarkMode(
+      (current) => {
+        const next =
+          !current;
+
+        localStorage.setItem(
+          "ren-theme",
+          next
+            ? "dark"
+            : "light"
+        );
+
+        document.documentElement.dataset.theme =
+          next
+            ? "dark"
+            : "light";
+
+        document.body.classList.toggle(
+          "dark",
+          next
+        );
+
+        return next;
+      }
+    );
+  };
+
+  const filteredGroups =
+    menuGroups
+      .map(
+        (group) => {
+          const q =
+            search
+              .trim()
+              .toLocaleLowerCase(
+                "tr-TR"
+              );
+
+          if (!q) {
+            return group;
+          }
+
+          const groupMatches =
+            group.label
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(q);
+
+          const items =
+            group.items.filter(
+              (item) =>
+                item.label
+                  .toLocaleLowerCase(
+                    "tr-TR"
+                  )
+                  .includes(q)
+            );
+
+          if (
+            groupMatches ||
+            items.length
+          ) {
+            return {
+              ...group,
+              items:
+                groupMatches
+                  ? group.items
+                  : items,
+            };
+          }
+
+          return null;
+        }
+      )
+      .filter(Boolean);
+
   return (
-    <div className={`ren-menu-group ${isOpen ? "open" : ""}`}>
-      <button
-        type="button"
-        className={`ren-menu-group-button ${
-          isActive ? "has-active" : ""
-        }`}
-        onClick={toggleGroup}
-      >
-        <span className="ren-menu-left">
-          <span className="ren-menu-icon">
-            {group.icon}
-          </span>
+    <div className="ren-layout">
 
-          <span>{group.title}</span>
-        </span>
-
-        <span className="ren-menu-arrow">
-          {isOpen ? "⌄" : "›"}
-        </span>
-      </button>
-
-      <div
-        className={`ren-submenu ${
-          isOpen ? "submenu-open" : ""
+      <aside
+        className={`ren-sidebar ${
+          mobileOpen
+            ? "mobile-open"
+            : ""
         }`}
       >
-        {group.items.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `ren-submenu-item ${
-                isActive ? "active" : ""
-              }`
-            }
-          >
-            <span className="ren-submenu-dot">
-              •
-            </span>
 
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default function Layout() {
-  const [openGroup, setOpenGroup] = useState(null);
-
-  const {
-    isDark,
-    toggleTheme,
-  } = useTheme();
-
-  return (
-    <div className="ren-app-shell">
-      {/* SOL MENÜ */}
-      <aside className="ren-sidebar">
+        {/* LOGO */}
         <div className="ren-brand">
-          <div className="ren-brand-name">
-            REN ERP
+          <div className="ren-brand-mark">
+            R
           </div>
 
-          <div className="ren-brand-subtitle">
-            Endüstriyel Yönetim Sistemi
+          <div>
+            <strong>
+              REN ERP
+            </strong>
+
+            <span>
+              Endüstriyel Yönetim Sistemi
+            </span>
           </div>
         </div>
 
+        {/* SEARCH */}
         <div className="ren-sidebar-search">
-          <span>⌕</span>
+          <MdSearch />
 
           <input
             type="text"
+            value={search}
+            onChange={(event) =>
+              setSearch(
+                event.target.value
+              )
+            }
             placeholder="Menüde ara..."
           />
         </div>
 
-        <nav className="ren-sidebar-nav">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `ren-main-link ${
-                isActive ? "active" : ""
-              }`
+        {/* MENU */}
+        <nav className="ren-sidebar-menu">
+
+          {filteredGroups.map(
+            (group) => {
+              const Icon =
+                group.icon;
+
+              const expanded =
+                search ||
+                openGroups[
+                  group.key
+                ] ||
+                activeGroup ===
+                  group.key;
+
+              return (
+                <div
+                  className="ren-menu-group"
+                  key={
+                    group.key
+                  }
+                >
+
+                  <button
+                    type="button"
+                    className="ren-menu-group-title"
+                    onClick={() =>
+                      toggleGroup(
+                        group.key
+                      )
+                    }
+                  >
+                    <span className="ren-menu-group-left">
+                      <Icon />
+
+                      <span>
+                        {group.label}
+                      </span>
+                    </span>
+
+                    {expanded ? (
+                      <MdExpandMore />
+                    ) : (
+                      <MdChevronRight />
+                    )}
+                  </button>
+
+                  {expanded && (
+                    <div className="ren-menu-items">
+
+                      {group.items.map(
+                        (item) => (
+                          <NavLink
+                            key={
+                              item.path
+                            }
+                            to={
+                              item.path
+                            }
+                            end={
+                              item.end ===
+                              true
+                            }
+                            className={({
+                              isActive,
+                            }) =>
+                              `ren-menu-link ${
+                                isActive
+                                  ? "active"
+                                  : ""
+                              }`
+                            }
+                            onClick={() =>
+                              setMobileOpen(
+                                false
+                              )
+                            }
+                          >
+                            <span className="ren-menu-dot">
+                              •
+                            </span>
+
+                            <span>
+                              {
+                                item.label
+                              }
+                            </span>
+                          </NavLink>
+                        )
+                      )}
+
+                    </div>
+                  )}
+
+                </div>
+              );
             }
-          >
-            <span className="ren-menu-icon">
-              ⌂
-            </span>
+          )}
 
-            <span>Genel Bakış</span>
-          </NavLink>
-
-          {menuGroups.map((group) => (
-            <SidebarGroup
-              key={group.id}
-              group={group}
-              openGroup={openGroup}
-              setOpenGroup={setOpenGroup}
-            />
-          ))}
-
-          <NavLink
-            to="/ren-ai"
-            className={({ isActive }) =>
-              `ren-ai-link ${
-                isActive ? "active" : ""
-              }`
-            }
-          >
-            <span className="ren-ai-icon">
-              ✦
-            </span>
-
-            <span className="ren-ai-text">
-              <strong>REN AI</strong>
-
-              <small>
-                Akıllı Asistan
-              </small>
-            </span>
-
-            <span className="ren-ai-status" />
-          </NavLink>
         </nav>
 
-        {/* TEMA */}
-        <div className="ren-theme-toggle">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            title={
-              isDark
-                ? "Gündüz temasına geç"
-                : "Gece temasına geç"
-            }
-          >
-            <span className="ren-theme-icon">
-              {isDark ? "☀" : "☾"}
-            </span>
+        {/* THEME */}
+        <button
+          type="button"
+          className="ren-theme-toggle"
+          onClick={
+            toggleTheme
+          }
+        >
+          {darkMode ? (
+            <MdLightMode />
+          ) : (
+            <MdDarkMode />
+          )}
+
+          <span>
+            {darkMode
+              ? "Gündüz Modu"
+              : "Gece Modu"}
+          </span>
+        </button>
+
+        {/* USER */}
+        <div className="ren-user-card">
+
+          <div className="ren-user-avatar">
+            R
+          </div>
+
+          <div className="ren-user-info">
+            <strong>
+              REN Endüstriyel
+            </strong>
 
             <span>
-              {isDark
-                ? "Gündüz Modu"
-                : "Gece Modu"}
-            </span>
-          </button>
-        </div>
-
-        {/* KULLANICI */}
-        <div className="ren-sidebar-footer">
-          <div className="ren-user-card">
-            <div className="ren-user-avatar">
-              R
-            </div>
-
-            <div className="ren-user-info">
-              <strong>
-                REN Endüstriyel
-              </strong>
-
-              <span>
-                Yönetici
-              </span>
-            </div>
-
-            <span className="ren-user-more">
-              •••
+              Yönetici
             </span>
           </div>
+
+          <button
+            type="button"
+            className="ren-user-more"
+            title="Ayarlar"
+          >
+            <MdSettings />
+          </button>
+
         </div>
+
       </aside>
 
-      {/* ANA İÇERİK */}
-      <main className="ren-main-content">
-        <Outlet />
+      {mobileOpen && (
+        <button
+          type="button"
+          className="ren-mobile-overlay"
+          aria-label="Menüyü kapat"
+          onClick={() =>
+            setMobileOpen(false)
+          }
+        />
+      )}
+
+      <main className="ren-main">
+
+        <button
+          type="button"
+          className="ren-mobile-menu-button"
+          onClick={() =>
+            setMobileOpen(
+              true
+            )
+          }
+        >
+          <MdStorefront />
+          REN ERP
+        </button>
+
+        <div className="ren-content">
+          <Outlet />
+        </div>
+
       </main>
+
     </div>
   );
 }

@@ -7,7 +7,9 @@ import {
 import Layout from "./components/Layout/Layout";
 
 import Dashboard from "./pages/Dashboard/Dashboard";
+
 import Products from "./pages/Products/Products";
+import NewProduct from "./pages/Products/NewProduct";
 
 import Stock from "./pages/Stock/Stock";
 import StockMovements from "./pages/Stock/StockMovements";
@@ -21,7 +23,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route element={<Layout />}>
 
           {/* ANA SAYFA */}
@@ -38,7 +39,7 @@ function App() {
 
           <Route
             path="/products/new"
-            element={<Products />}
+            element={<NewProduct />}
           />
 
           {/* STOK */}
@@ -74,7 +75,6 @@ function App() {
           />
 
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
