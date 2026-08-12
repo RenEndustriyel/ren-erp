@@ -823,22 +823,428 @@ body.dark .new-sale-page select {
 }
 
 
-/* Ürün satış fiyatının KDV tipi */
-.new-sale-line-main span {
-  white-space: normal;
+/* KDV'siz toplam ve satır toplamı: manuel düzenlenebilir */
+.new-sale-line-net-edit,
+.new-sale-line-total-edit {
+  position: relative;
+  width: 100%;
+  height: 36px;
+}
+
+.new-sale-line-net-edit input,
+.new-sale-line-total-edit input {
+  width: 100%;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 24px 0 9px;
+  border: 1px solid #6d9dff !important;
+  border-radius: 9px;
+  outline: none;
+  background: var(--sale-input) !important;
+  color: var(--sale-text) !important;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+  cursor: text !important;
+}
+
+.new-sale-line-net-edit input:focus,
+.new-sale-line-total-edit input:focus {
+  border-color: var(--sale-primary) !important;
+  box-shadow: 0 0 0 3px var(--sale-primary-soft) !important;
+}
+
+.new-sale-line-net-edit span,
+.new-sale-line-total-edit span {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  color: var(--sale-muted);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   SON HİZALAMA — ÜRÜN TABLOSU TAŞMA DÜZELTMESİ
+   ========================================================= */
+
+.new-sale-table-scroll {
+  overflow-x: hidden;
+}
+
+.new-sale-table {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.new-sale-line-head,
+.new-sale-line {
+  grid-template-columns:
+    minmax(150px, 1.75fr)
+    74px
+    92px
+    76px
+    108px
+    108px
+    112px
+    30px !important;
+  column-gap: 7px !important;
+}
+
+.new-sale-line-head {
+  font-size: 8px !important;
+  letter-spacing: .035em !important;
+}
+
+.new-sale-line-main strong {
+  font-size: 11px !important;
+}
+
+.new-sale-line-quantity {
+  grid-template-columns: 24px 1fr 24px;
+}
+
+.new-sale-line-quantity button {
+  width: 24px;
+}
+
+.new-sale-line-net-edit input,
+.new-sale-line-total-edit input,
+.new-sale-price-input,
+.new-sale-line-discount input {
+  padding-left: 7px !important;
+  padding-right: 20px !important;
+  font-size: 11px !important;
+}
+
+.new-sale-line-vat {
+  gap: 3px !important;
+}
+
+.new-sale-line-vat select {
+  width: 52px !important;
+  min-width: 52px !important;
+  padding: 0 4px !important;
+  font-size: 9px !important;
+}
+
+.new-sale-line-vat span {
+  font-size: 8px !important;
+}
+
+.new-sale-delete {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+@media (max-width: 1100px) {
+  .new-sale-layout {
+    grid-template-columns: minmax(0, 1fr) 290px !important;
+    gap: 15px !important;
+  }
+
+  .new-sale-card {
+    padding: 16px !important;
+  }
+
+  .new-sale-total-card {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .new-sale-table-scroll {
+    overflow-x: auto;
+  }
+
+  .new-sale-table {
+    min-width: 900px !important;
+  }
+}
+
+
+/* =========================================================
+   FINAL TABLE ALIGNMENT — DESKTOP FIT
+   ========================================================= */
+
+.new-sale-table-scroll {
+  width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  margin-top: 14px;
+}
+
+.new-sale-table {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.new-sale-line-head,
+.new-sale-line {
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns:
+    minmax(0, 2fr)
+    68px
+    92px
+    76px
+    104px
+    104px
+    108px
+    28px !important;
+  column-gap: 8px !important;
+}
+
+.new-sale-line-head {
+  min-height: 32px;
+  align-items: center !important;
+  padding-bottom: 8px !important;
+  font-size: 8px !important;
+}
+
+.new-sale-line-head > span {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  height: 100%;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.new-sale-line {
+  min-height: 62px;
+  align-items: center !important;
+}
+
+.new-sale-line-main {
+  min-width: 0 !important;
+  width: 100%;
+}
+
+.new-sale-line-main strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1.25;
 }
 
+.new-sale-line-main span {
+  line-height: 1.2;
+}
 
+.new-sale-line-quantity,
+.new-sale-price-input,
+.new-sale-line-discount,
+.new-sale-line-net-edit,
+.new-sale-line-vat,
+.new-sale-line-total-edit,
+.new-sale-delete {
+  width: 100% !important;
+  min-width: 0 !important;
+}
 
-/* Satış ekranında Birim Fiyat = müşterinin ödeyeceği KDV dahil fiyat */
+.new-sale-line-quantity {
+  grid-template-columns: 22px minmax(0, 1fr) 22px !important;
+}
+
+.new-sale-line-quantity button {
+  width: 22px !important;
+}
+
+.new-sale-line-quantity input {
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
 .new-sale-price-input {
-  font-weight: 800 !important;
+  text-align: right !important;
+}
+
+.new-sale-line-discount input,
+.new-sale-price-input,
+.new-sale-line-net-edit input,
+.new-sale-line-total-edit input {
+  font-size: 11px !important;
+}
+
+.new-sale-line-vat {
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.new-sale-line-vat select {
+  width: 52px !important;
+  min-width: 52px !important;
+}
+
+.new-sale-line-vat span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 8px !important;
+}
+
+.new-sale-line-net-edit span,
+.new-sale-line-total-edit span {
+  right: 7px !important;
+}
+
+/* Force the visible text baselines to sit centrally in every cell. */
+.new-sale-line-head > span,
+.new-sale-line-main,
+.new-sale-line-quantity,
+.new-sale-price-input,
+.new-sale-line-discount,
+.new-sale-line-net-edit,
+.new-sale-line-vat,
+.new-sale-line-total-edit,
+.new-sale-delete {
+  align-self: center !important;
+}
+
+@media (max-width: 1050px) {
+  .new-sale-table-scroll {
+    overflow-x: auto !important;
+  }
+
+  .new-sale-table {
+    min-width: 860px !important;
+  }
+
+  .new-sale-line-head,
+  .new-sale-line {
+    min-width: 860px !important;
+  }
 }
 
 
+/* =========================================================
+   SALE LINE EDITABLE TOTALS — FINAL
+   ========================================================= */
 
-/* Birim fiyat artık satış ekranında daima KDV dahil müşteri fiyatıdır. */
-.new-sale-price-input {
+.new-sale-line-net-edit,
+.new-sale-line-total-edit {
+  position: relative !important;
+  width: 100% !important;
+  height: 36px !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.new-sale-line-net-edit input,
+.new-sale-line-total-edit input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 100% !important;
+  height: 36px !important;
+  min-width: 0 !important;
+
+  display: block !important;
+
+  box-sizing: border-box !important;
+
+  padding: 0 25px 0 9px !important;
+
+  border: 1px solid #6d9dff !important;
+  border-radius: 9px !important;
+
+  outline: none !important;
+
+  background: var(--sale-input, #ffffff) !important;
+  color: var(--sale-text, #172033) !important;
+
+  font-family: inherit !important;
+  font-size: 11px !important;
   font-weight: 800 !important;
+
+  line-height: 36px !important;
+  text-align: right !important;
+
+  cursor: text !important;
+
+  pointer-events: auto !important;
+
+  transition:
+    border-color .15s ease,
+    box-shadow .15s ease,
+    background .15s ease !important;
+}
+
+.new-sale-line-net-edit input:hover,
+.new-sale-line-total-edit input:hover {
+  border-color: var(--sale-primary, #2563eb) !important;
+}
+
+.new-sale-line-net-edit input:focus,
+.new-sale-line-total-edit input:focus {
+  border-color: var(--sale-primary, #2563eb) !important;
+
+  box-shadow:
+    0 0 0 3px
+    var(--sale-primary-soft, rgba(37, 99, 235, .12)) !important;
+}
+
+/* Para birimi input'un üstünde */
+.new-sale-line-net-edit > span,
+.new-sale-line-total-edit > span {
+  position: absolute !important;
+
+  right: 8px !important;
+  top: 50% !important;
+
+  transform: translateY(-50%) !important;
+
+  z-index: 2 !important;
+
+  color:
+    var(--sale-muted, #7b8798) !important;
+
+  font-size: 9px !important;
+  font-weight: 700 !important;
+
+  pointer-events: none !important;
+}
+
+/* Number input oklarını kaldır */
+.new-sale-line-net-edit input::-webkit-inner-spin-button,
+.new-sale-line-net-edit input::-webkit-outer-spin-button,
+.new-sale-line-total-edit input::-webkit-inner-spin-button,
+.new-sale-line-total-edit input::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+.new-sale-line-net-edit input[type="number"],
+.new-sale-line-total-edit input[type="number"] {
+  -moz-appearance: textfield !important;
+}
+
+/* Dar ekranlarda tabloyu yine bozma */
+.new-sale-line-head,
+.new-sale-line {
+  min-width: 0;
+}
+
+@media (max-width: 1050px) {
+  .new-sale-table-scroll {
+    overflow-x: auto !important;
+  }
+
+  .new-sale-table {
+    min-width: 900px !important;
+  }
+
+  .new-sale-line-head,
+  .new-sale-line {
+    min-width: 900px !important;
+  }
 }
