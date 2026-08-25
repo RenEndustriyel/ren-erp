@@ -10,46 +10,459 @@ import {
   MdWallet,
 } from "react-icons/md";
 
+import {
+  getInvoices,
+} from "../../lib/invoiceStore";
+
+import {
+  getCustomers,
+} from "../../lib/customerStore";
+
+import {
+  getProducts,
+} from "../../lib/stockStore";
+
 import "./Overview.css";
 
-const transactions = [
-  {
-    time: "10:42",
-    type: "Satış",
-    description: "ABC Sanayi Ltd. Şti.",
-    document: "SAT-2026-00124",
-    amount: "₺12.450,00",
-    color: "blue",
-    icon: MdShoppingCart,
-  },
-  {
-    time: "10:18",
-    type: "Tahsilat",
-    description: "XYZ Gıda - Cari Tahsilat",
-    document: "TAH-2026-00087",
-    amount: "₺8.750,00",
-    color: "green",
-    icon: MdPayments,
-  },
-  {
-    time: "09:55",
-    type: "Gider",
-    description: "Elektrik Faturası",
-    document: "GID-2026-00031",
-    amount: "₺3.240,00",
-    color: "red",
-    icon: MdWallet,
-  },
-  {
-    time: "09:30",
-    type: "Alış",
-    description: "Tedarikçi Alış Faturası",
-    document: "ALS-2026-00054",
-    amount: "₺16.800,00",
-    color: "orange",
-    icon: MdReceiptLong,
-  },
-];
+
+/* =========================================================
+   YARDIMCI FONKSİYONLAR
+========================================================= */
+
+function toNumber(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value)
+      ? value
+      : 0;
+  }
+
+  let text =
+    String(value).trim();
+
+  if (
+    text.includes(",") &&
+    text.includes(".")
+  ) {
+    text =
+      text
+        .replace(/\./g, "")
+        .replace(",", ".");
+  } else if (
+    text.includes(",")
+  ) {
+    text =
+      text.replace(",", ".");
+  }
+
+  const result =
+    Number(text);
+
+  return Number.isFinite(result)
+    ? result
+    : 0;
+}
+
+
+function money(value) {
+  return new Intl.NumberFormat(
+    "tr-TR",
+    {
+      style: "currency",
+      currency: "TRY",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(
+    toNumber(value)
+  );
+}
+
+
+function normalizeType(type) {
+  const value =
+    String(type || "")
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (
+    value === "purchase" ||
+    value === "purchases" ||
+    value === "buy" ||
+    value === "alış" ||
+    value === "alis" ||
+    value.includes("alış") ||
+    value.includes("alis")
+  ) {
+    return "purchase";
+  }
+
+  if (
+    value === "return" ||
+    value === "returns" ||
+    value === "iade"
+  ) {
+    return "return";
+  }
+
+  return "sales";
+}
+
+
+function getInvoiceDate(
+  invoice
+) {
+  return (
+    invoice?.date ||
+    invoice?.invoiceDate ||
+    ""
+  );
+}
+
+
+function getInvoiceTotal(
+  invoice
+) {
+  return toNumber(
+    invoice?.total ??
+    invoice?.grandTotal ??
+    invoice?.netTotal ??
+    0
+  );
+}
+
+
+function getCustomerName(
+  invoice,
+  customers
+) {
+  if (
+    invoice?.customerName
+  ) {
+    return invoice.customerName;
+  }
+
+  if (
+    invoice?.supplierName
+  ) {
+    return invoice.supplierName;
+  }
+
+  const customer =
+    customers.find(
+      (item) =>
+        String(item.id) ===
+        String(
+          invoice?.customerId
+        )
+    );
+
+  return (
+    customer?.name ||
+    customer?.title ||
+    customer?.companyName ||
+    "Cari"
+  );
+}
+
+
+function getInvoiceNumber(
+  invoice
+) {
+  return (
+    invoice?.invoiceNo ||
+    invoice?.number ||
+    invoice?.documentNo ||
+    `FAT-${invoice?.id || ""}`
+  );
+}
+
+
+function getInvoiceTime(
+  invoice
+) {
+  const raw =
+    invoice?.createdAt ||
+    invoice?.updatedAt;
+
+  if (!raw) {
+    return "—";
+  }
+
+  const date =
+    new Date(raw);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return date.toLocaleTimeString(
+    "tr-TR",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+}
+
+
+function sameDay(
+  invoiceDate,
+  targetDate
+) {
+  if (!invoiceDate) {
+    return false;
+  }
+
+  const date =
+    new Date(
+      `${invoiceDate}T12:00:00`
+    );
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return false;
+  }
+
+  return (
+    date.getFullYear() ===
+      targetDate.getFullYear() &&
+    date.getMonth() ===
+      targetDate.getMonth() &&
+    date.getDate() ===
+      targetDate.getDate()
+  );
+}
+
+
+function sameMonth(
+  invoiceDate,
+  targetDate
+) {
+  if (!invoiceDate) {
+    return false;
+  }
+
+  const date =
+    new Date(
+      `${invoiceDate}T12:00:00`
+    );
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return false;
+  }
+
+  return (
+    date.getFullYear() ===
+      targetDate.getFullYear() &&
+    date.getMonth() ===
+      targetDate.getMonth()
+  );
+}
+
+
+/* =========================================================
+   ÜRÜN MALİYETİNİ BUL
+========================================================= */
+
+function getProductCost(
+  product
+) {
+  if (!product) {
+    return 0;
+  }
+
+  return toNumber(
+    product.purchaseNet ??
+    product.purchasePrice ??
+    product.buyPrice ??
+    product.cost ??
+    product.purchase ??
+    0
+  );
+}
+
+
+/* =========================================================
+   FATURA SATIRINDAN SATIŞ KÂRI
+========================================================= */
+
+function calculateInvoiceProfit(
+  invoice,
+  products
+) {
+  if (
+    normalizeType(
+      invoice?.type
+    ) !== "sales"
+  ) {
+    return 0;
+  }
+
+  const invoiceItems =
+    Array.isArray(
+      invoice?.items
+    )
+      ? invoice.items
+      : [];
+
+  return invoiceItems.reduce(
+    (
+      totalProfit,
+      item
+    ) => {
+
+      const quantity =
+        toNumber(
+          item.quantity
+        );
+
+      if (
+        quantity <= 0
+      ) {
+        return totalProfit;
+      }
+
+      const product =
+        products.find(
+          (productItem) =>
+            String(
+              productItem.id
+            ) ===
+            String(
+              item.productId
+            )
+        );
+
+      const purchasePrice =
+        getProductCost(
+          product
+        );
+
+      /*
+       * Fatura satırındaki birim fiyat
+       * KDV hariç satış fiyatıdır.
+       */
+
+      const salePrice =
+        toNumber(
+          item.unitPrice ??
+          item.price ??
+          item.salesNet ??
+          0
+        );
+
+      const lineDiscount =
+        toNumber(
+          item.discount ??
+          item.lineDiscount ??
+          0
+        );
+
+      const grossSale =
+        salePrice *
+        quantity;
+
+      const netSale =
+        Math.max(
+          0,
+          grossSale -
+          lineDiscount
+        );
+
+      const cost =
+        purchasePrice *
+        quantity;
+
+      return (
+        totalProfit +
+        (
+          netSale -
+          cost
+        )
+      );
+
+    },
+    0
+  );
+}
+
+
+/* =========================================================
+   TOPLAM SATIŞ KÂRI
+========================================================= */
+
+function calculateProfitData(
+  invoices,
+  products
+) {
+  let salesTotal = 0;
+  let profitTotal = 0;
+
+  invoices
+    .filter(
+      (invoice) =>
+        normalizeType(
+          invoice.type
+        ) === "sales"
+    )
+    .forEach(
+      (invoice) => {
+
+        salesTotal +=
+          getInvoiceTotal(
+            invoice
+          );
+
+        profitTotal +=
+          calculateInvoiceProfit(
+            invoice,
+            products
+          );
+
+      }
+    );
+
+  const profitMargin =
+    salesTotal > 0
+      ? (
+          profitTotal /
+          salesTotal
+        ) *
+        100
+      : 0;
+
+  return {
+    salesTotal,
+    profitTotal,
+    profitMargin,
+  };
+}
+
+
+/* =========================================================
+   TODAY CARD
+========================================================= */
 
 function TodayCard({
   icon: Icon,
@@ -59,24 +472,42 @@ function TodayCard({
   type,
 }) {
   return (
-    <article className={`ren-today-card ${type}`}>
+    <article
+      className={`ren-today-card ${type}`}
+    >
+
       <div className="ren-today-icon">
         <Icon />
       </div>
 
       <div className="ren-today-content">
-        <span>{title}</span>
 
-        <strong>{amount}</strong>
+        <span>
+          {title}
+        </span>
+
+        <strong>
+          {amount}
+        </strong>
+
       </div>
 
       <div className="ren-today-change">
+
         <MdTrendingUp />
+
         {change}
+
       </div>
+
     </article>
   );
 }
+
+
+/* =========================================================
+   FINANCE CARD
+========================================================= */
 
 function FinanceCard({
   icon: Icon,
@@ -87,7 +518,10 @@ function FinanceCard({
 }) {
   return (
     <article className="ren-finance-card">
-      <div className={`ren-finance-icon ${type}`}>
+
+      <div
+        className={`ren-finance-icon ${type}`}
+      >
         <Icon />
       </div>
 
@@ -95,129 +529,551 @@ function FinanceCard({
         {title}
       </div>
 
-      <div className={`ren-finance-amount ${type}`}>
+      <div
+        className={`ren-finance-amount ${type}`}
+      >
         {amount}
       </div>
 
       <div className="ren-finance-detail">
         {detail}
       </div>
+
     </article>
   );
 }
 
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
 export default function Overview() {
+
+  const invoices =
+    getInvoices();
+
+  const customers =
+    getCustomers();
+
+  const products =
+    getProducts();
+
+  const now =
+    new Date();
+
+
+  /* =======================================================
+     BUGÜN
+  ======================================================= */
+
+  const todayInvoices =
+    invoices.filter(
+      (invoice) =>
+        sameDay(
+          getInvoiceDate(
+            invoice
+          ),
+          now
+        )
+    );
+
+
+  /* =======================================================
+     BU AY
+  ======================================================= */
+
+  const monthInvoices =
+    invoices.filter(
+      (invoice) =>
+        sameMonth(
+          getInvoiceDate(
+            invoice
+          ),
+          now
+        )
+    );
+
+
+  /* =======================================================
+     BUGÜNKÜ SATIŞ
+  ======================================================= */
+
+  const todaySales =
+    todayInvoices
+      .filter(
+        (invoice) =>
+          normalizeType(
+            invoice.type
+          ) === "sales"
+      )
+      .reduce(
+        (
+          total,
+          invoice
+        ) =>
+          total +
+          getInvoiceTotal(
+            invoice
+          ),
+        0
+      );
+
+
+  /* =======================================================
+     BUGÜNKÜ ALIŞ
+  ======================================================= */
+
+  const todayPurchases =
+    todayInvoices
+      .filter(
+        (invoice) =>
+          normalizeType(
+            invoice.type
+          ) === "purchase"
+      )
+      .reduce(
+        (
+          total,
+          invoice
+        ) =>
+          total +
+          getInvoiceTotal(
+            invoice
+          ),
+        0
+      );
+
+
+  /* =======================================================
+     BU AY SATIŞ
+  ======================================================= */
+
+  const monthSales =
+    monthInvoices
+      .filter(
+        (invoice) =>
+          normalizeType(
+            invoice.type
+          ) === "sales"
+      )
+      .reduce(
+        (
+          total,
+          invoice
+        ) =>
+          total +
+          getInvoiceTotal(
+            invoice
+          ),
+        0
+      );
+
+
+  /* =======================================================
+     BU AY ALIŞ
+  ======================================================= */
+
+  const monthPurchases =
+    monthInvoices
+      .filter(
+        (invoice) =>
+          normalizeType(
+            invoice.type
+          ) === "purchase"
+      )
+      .reduce(
+        (
+          total,
+          invoice
+        ) =>
+          total +
+          getInvoiceTotal(
+            invoice
+          ),
+        0
+      );
+
+
+  /* =======================================================
+     BU AY KÂR
+  ======================================================= */
+
+  const monthProfitData =
+    calculateProfitData(
+      monthInvoices,
+      products
+    );
+
+
+  /* =======================================================
+     BUGÜNKÜ KÂR
+  ======================================================= */
+
+  const todayProfitData =
+    calculateProfitData(
+      todayInvoices,
+      products
+    );
+
+
+  /* =======================================================
+     BUGÜNKÜ SATIŞ SAYISI
+  ======================================================= */
+
+  const todaySalesCount =
+    todayInvoices.filter(
+      (invoice) =>
+        normalizeType(
+          invoice.type
+        ) === "sales"
+    ).length;
+
+
+  const todayPurchaseCount =
+    todayInvoices.filter(
+      (invoice) =>
+        normalizeType(
+          invoice.type
+        ) === "purchase"
+    ).length;
+
+
+  /* =======================================================
+     BU AY SATIŞ SAYISI
+  ======================================================= */
+
+  const monthSalesCount =
+    monthInvoices.filter(
+      (invoice) =>
+        normalizeType(
+          invoice.type
+        ) === "sales"
+    ).length;
+
+
+  const monthPurchaseCount =
+    monthInvoices.filter(
+      (invoice) =>
+        normalizeType(
+          invoice.type
+        ) === "purchase"
+    ).length;
+
+
+  /* =======================================================
+     BUGÜNKÜ İŞLEMLER
+  ======================================================= */
+
+  const transactions =
+    todayInvoices
+      .slice()
+      .sort(
+        (
+          first,
+          second
+        ) => {
+
+          const firstDate =
+            new Date(
+              first.createdAt ||
+              first.updatedAt ||
+              `${getInvoiceDate(
+                first
+              )}T00:00:00`
+            );
+
+          const secondDate =
+            new Date(
+              second.createdAt ||
+              second.updatedAt ||
+              `${getInvoiceDate(
+                second
+              )}T00:00:00`
+            );
+
+          return (
+            secondDate.getTime() -
+            firstDate.getTime()
+          );
+
+        }
+      )
+      .slice(
+        0,
+        10
+      )
+      .map(
+        (invoice) => {
+
+          const normalizedType =
+            normalizeType(
+              invoice.type
+            );
+
+          let type =
+            "Satış";
+
+          let color =
+            "blue";
+
+          let icon =
+            MdShoppingCart;
+
+
+          if (
+            normalizedType ===
+            "purchase"
+          ) {
+
+            type =
+              "Alış";
+
+            color =
+              "orange";
+
+            icon =
+              MdReceiptLong;
+
+          }
+
+
+          if (
+            normalizedType ===
+            "return"
+          ) {
+
+            type =
+              "İade";
+
+            color =
+              "red";
+
+            icon =
+              MdReceiptLong;
+
+          }
+
+
+          return {
+
+            id:
+              invoice.id,
+
+            time:
+              getInvoiceTime(
+                invoice
+              ),
+
+            type,
+
+            description:
+              getCustomerName(
+                invoice,
+                customers
+              ),
+
+            document:
+              getInvoiceNumber(
+                invoice
+              ),
+
+            amount:
+              money(
+                getInvoiceTotal(
+                  invoice
+                )
+              ),
+
+            color,
+
+            icon,
+
+            status:
+              invoice.status ||
+              invoice.paymentStatus ||
+              "Tamamlandı",
+
+          };
+
+        }
+      );
+
+
+  /* =======================================================
+     TARİH
+  ======================================================= */
+
+  const formattedDate =
+    now.toLocaleDateString(
+      "tr-TR",
+      {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }
+    );
+
+
+  const formattedDay =
+    now.toLocaleDateString(
+      "tr-TR",
+      {
+        weekday: "long",
+      }
+    );
+
+
+  /* =======================================================
+     EKRAN
+  ======================================================= */
+
   return (
+
     <div className="ren-overview">
 
-      {/* =====================================================
+
+      {/* ===================================================
           ÜST BAŞLIK
-      ===================================================== */}
+      =================================================== */}
 
       <header className="ren-overview-header">
 
         <div>
+
           <span className="ren-eyebrow">
             GENEL BAKIŞ
           </span>
+
 
           <h1>
             Hoş geldiniz
           </h1>
 
+
           <p>
             İşletmenizin güncel finansal
             durumunu buradan takip edin.
           </p>
+
         </div>
+
 
         <div className="ren-date-box">
 
           <MdCalendarToday />
 
           <div>
+
             <strong>
-              17 Ağustos 2026
+              {formattedDate}
             </strong>
 
             <span>
-              Pazartesi
+              {formattedDay}
             </span>
+
           </div>
 
         </div>
 
       </header>
 
-      {/* =====================================================
-          BUGÜNKÜ SATIŞ / TAHSİLAT
-      ===================================================== */}
+
+      {/* ===================================================
+          BUGÜNKÜ SATIŞ / KÂR
+      =================================================== */}
 
       <section className="ren-today-grid">
 
         <TodayCard
           icon={MdShoppingCart}
           title="Bugünkü Satış"
-          amount="₺47.720,60"
-          change="%18,4"
+          amount={money(
+            todaySales
+          )}
+          change={`${todaySalesCount} fatura`}
           type="sales"
         />
 
+
         <TodayCard
-          icon={MdPayments}
-          title="Bugünkü Tahsilat"
-          amount="₺55.139,10"
-          change="%12,7"
+          icon={MdTrendingUp}
+          title="Bugünkü Kâr"
+          amount={money(
+            todayProfitData.profitTotal
+          )}
+          change={`%${todayProfitData.profitMargin.toFixed(
+            1
+          )} marj`}
           type="collections"
         />
 
       </section>
 
-      {/* =====================================================
+
+      {/* ===================================================
           FİNANS KARTLARI
-      ===================================================== */}
+      =================================================== */}
 
       <section className="ren-finance-grid">
 
         <FinanceCard
           icon={MdTrendingUp}
           title="Bu Ayın Cirosu"
-          amount="₺1.198.650,40"
+          amount={money(
+            monthSales
+          )}
           type="blue"
-          detail="%18,4 geçen aya göre"
+          detail={`${monthSalesCount} satış faturası`}
         />
+
 
         <FinanceCard
           icon={MdTrendingDown}
-          title="Bu Ayın Masrafları"
-          amount="₺935.640,25"
+          title="Bu Ayın Alışları"
+          amount={money(
+            monthPurchases
+          )}
           type="red"
-          detail="%12,7 geçen aya göre"
+          detail={`${monthPurchaseCount} alış faturası`}
         />
+
 
         <FinanceCard
           icon={MdPayments}
-          title="Yaklaşan Tahsilatlar"
-          amount="₺82.450,00"
+          title="Bu Ayın Satış Kârı"
+          amount={money(
+            monthProfitData.profitTotal
+          )}
           type="orange"
-          detail="5 tahsilat bekliyor"
+          detail={`%${monthProfitData.profitMargin.toFixed(
+            1
+          )} kâr marjı`}
         />
+
 
         <FinanceCard
           icon={MdCreditCard}
-          title="Yaklaşan Ödemeler"
-          amount="₺64.300,00"
+          title="Kâr Oranı"
+          amount={`%${monthProfitData.profitMargin.toFixed(
+            1
+          )}`}
           type="purple"
-          detail="4 ödeme bekliyor"
+          detail={`Satış: ${money(
+            monthProfitData.salesTotal
+          )}`}
         />
 
       </section>
 
-      {/* =====================================================
+
+      {/* ===================================================
           BUGÜNKÜ İŞLEMLER
-      ===================================================== */}
+      =================================================== */}
 
       <section className="ren-transactions">
+
 
         <header className="ren-transactions-header">
 
@@ -229,29 +1085,43 @@ export default function Overview() {
                 Bugünkü İşlemler
               </h2>
 
+
               <span className="ren-live">
+
                 <i />
+
                 Canlı
+
               </span>
 
             </div>
 
+
             <p>
-              Bugün gerçekleştirilen tüm
-              finansal hareketler.
+              Bugün gerçekleştirilen
+              alış ve satış faturaları.
             </p>
 
           </div>
 
+
           <button
             type="button"
             className="ren-view-button"
+            onClick={() =>
+              window.location.href =
+                "/invoices"
+            }
           >
-            Tüm İşlemler
+
+            Tüm Faturalar
+
             <MdArrowForward />
+
           </button>
 
         </header>
+
 
         <div className="ren-table-wrap">
 
@@ -291,85 +1161,161 @@ export default function Overview() {
 
             </thead>
 
+
             <tbody>
 
-              {transactions.map((item) => {
+              {transactions.length >
+              0 ? (
 
-                const Icon = item.icon;
+                transactions.map(
+                  (item) => {
 
-                return (
-                  <tr
-                    key={item.document}
+                    const Icon =
+                      item.icon;
+
+                    return (
+
+                      <tr
+                        key={
+                          item.id
+                        }
+                      >
+
+                        <td>
+
+                          <span className="ren-time">
+                            {item.time}
+                          </span>
+
+                        </td>
+
+
+                        <td>
+
+                          <span
+                            className={`ren-operation ${item.color}`}
+                          >
+
+                            <Icon />
+
+                            {
+                              item.type
+                            }
+
+                          </span>
+
+                        </td>
+
+
+                        <td>
+
+                          <strong className="ren-description">
+                            {
+                              item.description
+                            }
+                          </strong>
+
+                        </td>
+
+
+                        <td>
+
+                          <span className="ren-document">
+                            {
+                              item.document
+                            }
+                          </span>
+
+                        </td>
+
+
+                        <td>
+
+                          <strong
+                            className={`ren-amount ${item.color}`}
+                          >
+                            {
+                              item.amount
+                            }
+                          </strong>
+
+                        </td>
+
+
+                        <td>
+
+                          <span className="ren-complete">
+
+                            {item.status ===
+                            "open"
+                              ? "Bekliyor"
+                              : item.status ===
+                                "Bekliyor"
+                                ? "Bekliyor"
+                                : "Tamamlandı"}
+
+                          </span>
+
+                        </td>
+
+
+                        <td>
+
+                          <button
+                            type="button"
+                            className="ren-arrow"
+                            aria-label="Faturayı aç"
+                            onClick={() =>
+                              window.location.href =
+                                `/invoices/detail?id=${encodeURIComponent(
+                                  item.id
+                                )}`
+                            }
+                          >
+
+                            <MdArrowForward />
+
+                          </button>
+
+                        </td>
+
+                      </tr>
+
+                    );
+
+                  }
+                )
+
+              ) : (
+
+                <tr>
+
+                  <td
+                    colSpan="7"
+                    className="ren-empty-transactions"
                   >
 
-                    <td>
-                      <span className="ren-time">
-                        {item.time}
-                      </span>
-                    </td>
+                    <div>
 
-                    <td>
+                      <MdReceiptLong />
 
-                      <span
-                        className={`ren-operation ${item.color}`}
-                      >
-                        <Icon />
-
-                        {item.type}
-                      </span>
-
-                    </td>
-
-                    <td>
-
-                      <strong className="ren-description">
-                        {item.description}
+                      <strong>
+                        Bugün henüz işlem yok
                       </strong>
 
-                    </td>
-
-                    <td>
-
-                      <span className="ren-document">
-                        {item.document}
+                      <span>
+                        Alış veya satış faturası
+                        oluşturulduğunda burada
+                        görünecek.
                       </span>
 
-                    </td>
+                    </div>
 
-                    <td>
+                  </td>
 
-                      <strong
-                        className={`ren-amount ${item.color}`}
-                      >
-                        {item.amount}
-                      </strong>
+                </tr>
 
-                    </td>
-
-                    <td>
-
-                      <span className="ren-complete">
-                        Tamamlandı
-                      </span>
-
-                    </td>
-
-                    <td>
-
-                      <button
-                        type="button"
-                        className="ren-arrow"
-                        aria-label="İşlemi aç"
-                      >
-                        <MdArrowForward />
-                      </button>
-
-                    </td>
-
-                  </tr>
-                );
-
-              })}
+              )}
 
             </tbody>
 
@@ -377,12 +1323,20 @@ export default function Overview() {
 
         </div>
 
+
         <button
           type="button"
           className="ren-all-transactions"
+          onClick={() =>
+            window.location.href =
+              "/invoices"
+          }
         >
-          Bugünkü tüm işlemleri görüntüle
+
+          Bugünkü tüm faturaları görüntüle
+
           <MdArrowForward />
+
         </button>
 
       </section>

@@ -1,0 +1,569 @@
+.ren-sales-invoices {
+  min-height: 100vh;
+  padding: 30px 34px 50px;
+  box-sizing: border-box;
+  background: #f6f8fb;
+  color: #172033;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.ren-sales-invoices-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 24px;
+}
+
+.ren-sales-invoices-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #3977c9;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ren-sales-invoices-back svg {
+  font-size: 17px;
+}
+
+.ren-sales-invoices-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  color: #9aa5b4;
+  font-size: 10px;
+}
+
+.ren-sales-invoices-breadcrumb strong {
+  color: #526075;
+  font-weight: 600;
+}
+
+.ren-sales-invoices-header h1 {
+  margin: 12px 0 5px;
+  color: #172033;
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.ren-sales-invoices-header p {
+  margin: 0;
+  color: #7c8798;
+  font-size: 12px;
+}
+
+.ren-sales-invoices-new {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 7px;
+  background: #286fc7;
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(40, 111, 199, 0.18);
+}
+
+.ren-sales-invoices-new:hover {
+  background: #2163b4;
+}
+
+.ren-sales-invoices-new svg {
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.ren-sales-invoices-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ren-sales-invoices-summary > div {
+  min-height: 92px;
+  padding: 17px 19px;
+  box-sizing: border-box;
+  border: 1px solid #e2e7ee;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ren-sales-invoices-summary span {
+  display: block;
+  margin-bottom: 8px;
+  color: #8b96a6;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.ren-sales-invoices-summary strong {
+  display: block;
+  color: #172033;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.ren-sales-invoices-card {
+  overflow: hidden;
+  border: 1px solid #e1e6ed;
+  border-radius: 9px;
+  background: #fff;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.ren-sales-invoices-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 15px 18px;
+  border-bottom: 1px solid #e9edf2;
+}
+
+.ren-sales-invoices-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 390px;
+  height: 37px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  border: 1px solid #dfe5ec;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.ren-sales-invoices-search:focus-within {
+  border-color: #a9c6e5;
+  background: #fff;
+}
+
+.ren-sales-invoices-search svg {
+  flex: 0 0 auto;
+  color: #8b96a6;
+  font-size: 19px;
+}
+
+.ren-sales-invoices-search input {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #263246;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.ren-sales-invoices-search input::placeholder {
+  color: #a3adba;
+}
+
+.ren-sales-invoices-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ren-sales-invoices-filters select {
+  min-width: 145px;
+  height: 37px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid #dfe5ec;
+  border-radius: 6px;
+  outline: 0;
+  background: #fff;
+  color: #657185;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.ren-sales-invoices-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ren-sales-invoices-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+}
+
+.ren-sales-invoices-table thead {
+  background: #fafbfd;
+}
+
+.ren-sales-invoices-table th {
+  height: 43px;
+  padding: 0 14px;
+  border-bottom: 1px solid #e7ebf0;
+  color: #8b96a6;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.ren-sales-invoices-table td {
+  height: 67px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #edf0f4;
+  color: #526075;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ren-sales-invoices-table tbody tr:hover {
+  background: #fbfcfe;
+}
+
+.ren-sales-invoices-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+/* =========================================================
+   FATURA NO
+========================================================= */
+
+.ren-sales-invoice-no {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #286fc7;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ren-sales-invoice-no:hover {
+  text-decoration: underline;
+}
+
+.ren-sales-invoice-no svg {
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   CARİ
+========================================================= */
+
+.ren-sales-invoice-customer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ren-sales-invoice-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  border-radius: 7px;
+  background: #edf4fd;
+  color: #3977c9;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ren-sales-invoice-customer > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ren-sales-invoice-customer strong {
+  display: block;
+  max-width: 235px;
+  overflow: hidden;
+  color: #263246;
+  font-size: 10px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+}
+
+.ren-sales-invoice-customer span {
+  color: #9aa5b4;
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   DURUM
+========================================================= */
+
+.ren-sales-invoice-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 24px;
+  padding: 0 9px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.ren-sales-invoice-status.paid {
+  background: #edf8f2;
+  color: #2f8a58;
+}
+
+.ren-sales-invoice-status.open {
+  background: #fff5e8;
+  color: #b7771b;
+}
+
+.ren-sales-invoice-status.cancelled {
+  background: #f5f5f6;
+  color: #858b94;
+}
+
+
+/* =========================================================
+   TUTAR
+========================================================= */
+
+.ren-sales-invoice-total {
+  color: #172033;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   AKSİYONLAR
+========================================================= */
+
+.ren-sales-invoice-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.ren-sales-invoice-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #8b96a6;
+  cursor: pointer;
+}
+
+.ren-sales-invoice-actions button:hover {
+  background: #f0f4f8;
+  color: #286fc7;
+}
+
+.ren-sales-invoice-actions button.danger:hover {
+  background: #fff1f1;
+  color: #c25a5a;
+}
+
+.ren-sales-invoice-actions svg {
+  font-size: 17px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.ren-sales-invoices-empty {
+  height: 340px !important;
+  text-align: center !important;
+}
+
+.ren-sales-invoices-empty > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  height: 100%;
+}
+
+.ren-sales-invoices-empty svg {
+  margin-bottom: 4px;
+  color: #a3adba;
+  font-size: 34px;
+}
+
+.ren-sales-invoices-empty strong {
+  color: #526075;
+  font-size: 12px;
+}
+
+.ren-sales-invoices-empty span {
+  max-width: 430px;
+  color: #9aa5b4;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.ren-sales-invoices-empty button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  padding: 9px 13px;
+  border: 0;
+  border-radius: 6px;
+  background: #286fc7;
+  color: #fff;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ren-sales-invoices-empty button:hover {
+  background: #2163b4;
+}
+
+.ren-sales-invoices-empty button svg {
+  margin: 0;
+  color: #fff;
+  font-size: 15px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ren-sales-invoices-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 0 18px;
+  border-top: 1px solid #edf0f4;
+  color: #9aa5b4;
+  font-size: 9px;
+}
+
+.ren-sales-invoices-footer strong {
+  color: #4b586b;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1150px) {
+  .ren-sales-invoices-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .ren-sales-invoices {
+    padding: 22px 18px 40px;
+  }
+
+  .ren-sales-invoices-header {
+    flex-direction: column;
+  }
+
+  .ren-sales-invoices-new {
+    width: 100%;
+  }
+
+  .ren-sales-invoices-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ren-sales-invoices-search {
+    width: 100%;
+  }
+
+  .ren-sales-invoices-filters {
+    width: 100%;
+  }
+
+  .ren-sales-invoices-filters select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .ren-sales-invoices-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .ren-sales-invoices-header h1 {
+    font-size: 23px;
+  }
+
+  .ren-sales-invoices-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 14px;
+  }
+}

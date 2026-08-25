@@ -1,0 +1,40 @@
+.ren-module-placeholder {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: #f7f9fc;
+
+  text-align: center;
+}
+
+.ren-module-placeholder > span {
+  margin-bottom: 8px;
+
+  color: #286fc7;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.ren-module-placeholder h1 {
+  margin: 0;
+
+  color: #172033;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.ren-module-placeholder p {
+  margin: 8px 0 0;
+
+  color: #8995a6;
+
+  font-size: 12px;
+}

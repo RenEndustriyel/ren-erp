@@ -1,0 +1,1059 @@
+==================== LAYOUT.JSX ====================
+import { useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+
+import "./Layout.css";
+
+export default function Layout() {
+  const location = useLocation();
+
+  const [stockOpen, setStockOpen] = useState(false);
+  const [customerOpen, setCustomerOpen] = useState(false);
+
+  const isStockPage =
+    location.pathname.startsWith("/stock");
+
+  const isCustomerPage =
+    location.pathname.startsWith("/customers");
+
+  return (
+    <div className="ren-layout">
+
+      {/* =====================================================
+          SOL MENÜ
+      ===================================================== */}
+
+      <aside className="ren-sidebar">
+
+        {/* LOGO */}
+
+        <div className="ren-logo">
+
+          <div className="ren-logo-mark">
+            R
+          </div>
+
+          <div>
+            <div className="ren-logo-title">
+              REN ERP
+            </div>
+
+            <div className="ren-logo-subtitle">
+              İşletme Yönetim Sistemi
+            </div>
+          </div>
+
+        </div>
+
+
+        {/* MENÜ */}
+
+        <nav className="ren-menu">
+
+          <div className="ren-menu-section">
+            GENEL
+          </div>
+
+
+          {/* =================================================
+              GENEL BAKIŞ
+          ================================================= */}
+
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ▦
+            </span>
+
+            <span>
+              Genel Bakış
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              STOK
+          ================================================= */}
+
+          <button
+            type="button"
+            className={`ren-menu-item ren-menu-parent ${
+              isStockPage ? "section-active" : ""
+            }`}
+            onClick={() =>
+              setStockOpen((value) => !value)
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ▣
+            </span>
+
+            <span>
+              Stok
+            </span>
+
+            <span className="ren-menu-arrow">
+              {stockOpen ? "⌃" : "⌄"}
+            </span>
+
+          </button>
+
+
+          {stockOpen && (
+
+            <div className="ren-submenu">
+
+              <NavLink
+                to="/stock/list"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Stok Listesi
+              </NavLink>
+
+              <NavLink
+                to="/stock/new"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Yeni Stok
+              </NavLink>
+
+              <NavLink
+                to="/stock/categories"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Kategoriler
+              </NavLink>
+
+              <NavLink
+                to="/stock/brands"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Markalar
+              </NavLink>
+
+              <NavLink
+                to="/stock/units"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Birimler
+              </NavLink>
+
+              <NavLink
+                to="/stock/movements"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Stok Hareketleri
+              </NavLink>
+
+              <NavLink
+                to="/stock/bulk"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Toplu İşlemler
+              </NavLink>
+
+            </div>
+
+          )}
+
+
+          {/* =================================================
+              MÜŞTERİ - TEDARİKÇİ
+          ================================================= */}
+
+          <button
+            type="button"
+            className={`ren-menu-item ren-menu-parent ${
+              isCustomerPage ? "section-active" : ""
+            }`}
+            onClick={() =>
+              setCustomerOpen((value) => !value)
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ◉
+            </span>
+
+            <span>
+              Müşteri - Tedarikçi
+            </span>
+
+            <span className="ren-menu-arrow">
+              {customerOpen ? "⌃" : "⌄"}
+            </span>
+
+          </button>
+
+
+          {customerOpen && (
+
+            <div className="ren-submenu">
+
+              {/* =================================================
+                  1 — HESAP LİSTESİ
+              ================================================= */}
+
+              <NavLink
+                to="/customers"
+                end
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Hesap Listesi
+              </NavLink>
+
+
+              {/* =================================================
+                  2 — YENİ HESAP
+              ================================================= */}
+
+              <NavLink
+                to="/customers/new"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Yeni Hesap
+              </NavLink>
+
+
+              {/* =================================================
+                  3 — CARİ HAREKET
+              ================================================= */}
+
+              <NavLink
+                to="/customers/movements"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Cari Hareket
+              </NavLink>
+
+
+              {/* =================================================
+                  4 — CARİ VİRMAN
+              ================================================= */}
+
+              <NavLink
+                to="/customers/transfer"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Cari Virman
+              </NavLink>
+
+
+              {/* =================================================
+                  5 — TAHSİLAT
+              ================================================= */}
+
+              <NavLink
+                to="/customers/collections"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Tahsilat
+              </NavLink>
+
+
+              {/* =================================================
+                  6 — ÖDEME
+              ================================================= */}
+
+              <NavLink
+                to="/customers/payments"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Ödeme
+              </NavLink>
+
+
+              {/* =================================================
+                  7 — VADE TAKİBİ
+              ================================================= */}
+
+              <NavLink
+                to="/customers/due-tracking"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Vade Takibi
+              </NavLink>
+
+
+              {/* =================================================
+                  8 — CARİ RAPORLAR
+              ================================================= */}
+
+              <NavLink
+                to="/customers/reports"
+                className={({ isActive }) =>
+                  `ren-submenu-item ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                Cari Raporlar
+              </NavLink>
+
+            </div>
+
+          )}
+
+
+          {/* =================================================
+              SİPARİŞ - TEKLİF
+          ================================================= */}
+
+          <NavLink
+            to="/orders"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ▤
+            </span>
+
+            <span>
+              Sipariş - Teklif
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              FATURA
+          ================================================= */}
+
+          <NavLink
+            to="/invoices"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ▥
+            </span>
+
+            <span>
+              Fatura
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              KASA - BANKA
+          ================================================= */}
+
+          <NavLink
+            to="/cash-bank"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ₺
+            </span>
+
+            <span>
+              Kasa - Banka
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              RAPORLAR
+          ================================================= */}
+
+          <NavLink
+            to="/reports"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ▥
+            </span>
+
+            <span>
+              Raporlar
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              REN AI
+          ================================================= */}
+
+          <NavLink
+            to="/assistant"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ✦
+            </span>
+
+            <span>
+              REN AI
+            </span>
+
+          </NavLink>
+
+
+          {/* =================================================
+              AYARLAR
+          ================================================= */}
+
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `ren-menu-item ${
+                isActive ? "active" : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ⚙
+            </span>
+
+            <span>
+              Ayarlar
+            </span>
+
+          </NavLink>
+
+        </nav>
+
+
+        {/* =====================================================
+            KULLANICI
+        ===================================================== */}
+
+        <div className="ren-sidebar-bottom">
+
+          <div className="ren-user-card">
+
+            <div className="ren-user-avatar">
+              R
+            </div>
+
+            <div className="ren-user-info">
+
+              <strong>
+                REN Endüstriyel
+              </strong>
+
+              <span>
+                Yönetici
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </aside>
+
+
+      {/* =====================================================
+          ANA İÇERİK
+      ===================================================== */}
+
+      <main className="ren-main">
+
+        <header className="ren-topbar">
+
+          <div className="ren-topbar-title">
+            REN ERP
+          </div>
+
+          <div className="ren-topbar-right">
+
+            <button
+              type="button"
+              className="ren-topbar-button"
+            >
+              ?
+            </button>
+
+            <div className="ren-profile">
+
+              <div className="ren-profile-avatar">
+                ME
+              </div>
+
+              <div className="ren-profile-info">
+
+                <strong>
+                  Mehmet
+                </strong>
+
+                <span>
+                  REN Endüstriyel
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </header>
+
+
+        <div className="ren-content">
+          <Outlet />
+        </div>
+
+      </main>
+
+    </div>
+  );
+}
+==================== LAYOUT.CSS ====================
+/* =========================================================
+   REN ERP - LAYOUT
+========================================================= */
+
+.ren-layout {
+  min-height: 100vh;
+  background: #f5f7fa;
+  color: #172033;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+
+/* =========================================================
+   SOL MENÜ
+========================================================= */
+
+.ren-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 250px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #102a47;
+  color: #fff;
+
+  z-index: 1000;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.ren-logo {
+  height: 78px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0 19px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ren-logo-mark {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #2878e5;
+
+  color: #fff;
+
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.ren-logo-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.ren-logo-subtitle {
+  margin-top: 2px;
+
+  color: #8fa4bb;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   MENÜ
+========================================================= */
+
+.ren-menu {
+  flex: 1;
+
+  padding: 17px 10px;
+
+  overflow-y: auto;
+}
+
+.ren-menu-section {
+  padding: 0 11px 9px;
+
+  color: #6f859d;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.8px;
+}
+
+
+/* =========================================================
+   ANA MENÜ ITEM
+========================================================= */
+
+.ren-menu-item {
+  width: 100%;
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 3px;
+
+  padding: 0 12px;
+
+  box-sizing: border-box;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #bdcad9;
+
+  text-decoration: none;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.ren-menu-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+  color: #fff;
+}
+
+.ren-menu-item.active {
+  background: #2878e5;
+  color: #fff;
+}
+
+.ren-menu-item.section-active {
+  color: #fff;
+}
+
+
+/* =========================================================
+   İKON
+========================================================= */
+
+.ren-menu-icon {
+  width: 27px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 2px;
+
+  color: #91a7bf;
+
+  font-size: 15px;
+}
+
+.ren-menu-item:hover .ren-menu-icon,
+.ren-menu-item.active .ren-menu-icon,
+.ren-menu-item.section-active .ren-menu-icon {
+  color: #fff;
+}
+
+
+/* =========================================================
+   AÇ/KAPA BUTONU
+========================================================= */
+
+.ren-menu-parent {
+  text-align: left;
+}
+
+.ren-menu-arrow {
+  margin-left: auto;
+
+  color: #8da2ba;
+
+  font-size: 12px;
+
+  transition: transform 0.15s ease;
+}
+
+
+/* =========================================================
+   ALT MENÜ
+========================================================= */
+
+.ren-submenu {
+  margin: 0 0 7px 25px;
+
+  padding: 3px 0 3px 12px;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.ren-submenu-item {
+  min-height: 36px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  border-radius: 6px;
+
+  color: #9fb1c5;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 550;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.ren-submenu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+
+  color: #fff;
+}
+
+.ren-submenu-item.active {
+  background: rgba(40, 120, 229, 0.20);
+
+  color: #fff;
+
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   ALT KULLANICI ALANI
+========================================================= */
+
+.ren-sidebar-bottom {
+  padding: 12px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ren-user-card {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px;
+
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ren-user-avatar {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #2878e5;
+
+  color: #fff;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ren-user-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.ren-user-info strong {
+  font-size: 10px;
+}
+
+.ren-user-info span {
+  color: #879bb2;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   ANA İÇERİK
+========================================================= */
+
+.ren-main {
+  min-height: 100vh;
+
+  margin-left: 250px;
+
+  background: #f5f7fa;
+}
+
+
+/* =========================================================
+   ÜST BAR
+========================================================= */
+
+.ren-topbar {
+  height: 66px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 25px;
+
+  box-sizing: border-box;
+
+  background: #fff;
+
+  border-bottom: 1px solid #e5eaf0;
+}
+
+.ren-topbar-title {
+  color: #172033;
+
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.ren-topbar-right {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.ren-topbar-button {
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid #e0e6ed;
+  border-radius: 7px;
+
+  background: #fff;
+
+  color: #657286;
+
+  cursor: pointer;
+}
+
+.ren-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin-left: 4px;
+}
+
+.ren-profile-avatar {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dff3eb;
+
+  color: #27946c;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ren-profile-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.ren-profile-info strong {
+  color: #263247;
+
+  font-size: 10px;
+}
+
+.ren-profile-info span {
+  color: #8b96a5;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   İÇERİK
+========================================================= */
+
+.ren-content {
+  min-height: calc(100vh - 66px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .ren-sidebar {
+    width: 220px;
+  }
+
+  .ren-main {
+    margin-left: 220px;
+  }
+
+  .ren-profile-info {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .ren-sidebar {
+    width: 205px;
+  }
+
+  .ren-main {
+    margin-left: 205px;
+  }
+
+  .ren-topbar {
+    padding: 0 15px;
+  }
+}

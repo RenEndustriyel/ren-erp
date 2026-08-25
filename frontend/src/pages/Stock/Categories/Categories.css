@@ -1,0 +1,1385 @@
+/* =========================================================
+   REN ERP — KATEGORİLER
+   PARAŞÜT REFERANS TEMA
+========================================================= */
+
+.categories-page {
+  width: 100%;
+  min-height: calc(100vh - 68px);
+
+  padding: 26px 30px 45px;
+
+  box-sizing: border-box;
+
+  background: #f4f4f4;
+
+  color: #30343b;
+
+  font-family:
+    "Open Sans",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.categories-header {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 8px;
+
+  color: #9299a2;
+
+  font-size: 11px;
+
+  font-weight: 400;
+}
+
+.breadcrumb span {
+  color: #b8bcc1;
+}
+
+.categories-header h1 {
+  margin: 0 0 5px;
+
+  color: #252a31;
+
+  font-size: 21px;
+
+  line-height: 1.3;
+
+  font-weight: 600;
+
+  letter-spacing: -.2px;
+}
+
+.categories-header p {
+  margin: 0;
+
+  color: #9299a2;
+
+  font-size: 12px;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   ANA BUTON
+========================================================= */
+
+.primary-button {
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  flex-shrink: 0;
+
+  padding: 0 15px;
+
+  border: 1px solid #19b99a;
+
+  border-radius: 6px;
+
+  background: #19b99a;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease;
+}
+
+.primary-button:hover {
+  background: #159f86;
+
+  border-color: #159f86;
+}
+
+.primary-button span {
+  font-size: 17px;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.categories-toolbar {
+  width: 100%;
+
+  min-height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 12px;
+
+  padding: 10px 12px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 1px 3px rgba(35, 42, 50, .055);
+}
+
+
+/* =========================================================
+   ARAMA
+========================================================= */
+
+.search-box {
+  width: 320px;
+  max-width: 100%;
+
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #cfd1d4;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  transition:
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+.search-box:focus-within {
+  border-color: #19b99a;
+
+  box-shadow:
+    0 0 0 2px rgba(25, 185, 154, .09);
+}
+
+.search-icon {
+  flex-shrink: 0;
+
+  color: #9299a2;
+
+  font-size: 18px;
+
+  line-height: 1;
+}
+
+.search-box input {
+  width: 100%;
+  height: 100%;
+
+  min-height: 0;
+
+  padding: 0;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: #30343b;
+
+  font-family: inherit;
+
+  font-size: 12px;
+}
+
+.search-box input::placeholder {
+  color: #a0a6ad;
+}
+
+
+/* =========================================================
+   KATEGORİ SAYISI
+========================================================= */
+
+.category-count {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding-right: 5px;
+
+  white-space: nowrap;
+}
+
+.category-count strong {
+  color: #30343b;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.category-count span {
+  color: #9299a2;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   ANA KART
+========================================================= */
+
+.categories-card {
+  width: 100%;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 1px 3px rgba(35, 42, 50, .055);
+}
+
+
+/* =========================================================
+   TABLO HEADER
+========================================================= */
+
+.table-header {
+  min-height: 44px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(250px, 2fr)
+    minmax(110px, .7fr)
+    minmax(100px, .6fr)
+    100px;
+
+  align-items: center;
+
+  padding: 0 16px;
+
+  box-sizing: border-box;
+
+  background: #f7f7f7;
+
+  border-bottom: 1px solid #dedfe1;
+
+  color: #68717d;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: .1px;
+}
+
+
+/* =========================================================
+   SATIR
+========================================================= */
+
+.category-row {
+  min-height: 68px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(250px, 2fr)
+    minmax(110px, .7fr)
+    minmax(100px, .6fr)
+    100px;
+
+  align-items: center;
+
+  padding: 0 16px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #e9eaec;
+
+  background: #ffffff;
+
+  transition: background .12s ease;
+}
+
+.category-row:hover {
+  background: #fafafa;
+}
+
+.category-row:last-child {
+  border-bottom: 0;
+}
+
+
+/* =========================================================
+   KATEGORİ ADI
+========================================================= */
+
+.category-name-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.category-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 6px;
+
+  background: #eaf8f4;
+
+  color: #19a88b;
+
+  font-size: 15px;
+
+  font-weight: 700;
+}
+
+.category-name-cell > div:last-child {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.category-name-cell strong {
+  overflow: hidden;
+
+  color: #30343b;
+
+  font-size: 12px;
+
+  line-height: 1.3;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+.category-name-cell small {
+  color: #9299a2;
+
+  font-size: 9px;
+
+  line-height: 1.2;
+}
+
+
+/* =========================================================
+   AÇIKLAMA
+========================================================= */
+
+.description-cell {
+  overflow: hidden;
+
+  padding-right: 15px;
+
+  color: #68717d;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+}
+
+
+/* =========================================================
+   ÜRÜN SAYISI
+========================================================= */
+
+.product-count {
+  color: #30343b;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.product-count span {
+  color: #9299a2;
+
+  font-size: 10px;
+
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   DURUM
+========================================================= */
+
+.status-badge {
+  min-height: 25px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 0 8px;
+
+  border-radius: 4px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: #eaf8f4;
+
+  color: #159f86;
+}
+
+.status-badge.passive {
+  background: #f0f1f2;
+
+  color: #7d848c;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+
+/* =========================================================
+   İŞLEMLER
+========================================================= */
+
+.actions {
+  display: flex;
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 5px;
+}
+
+.actions button {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border-radius: 5px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease;
+}
+
+.edit-button {
+  border: 1px solid #d7e7e2;
+
+  background: #f6fbf9;
+
+  color: #159f86;
+}
+
+.edit-button:hover {
+  border-color: #19b99a;
+
+  background: #eaf8f4;
+
+  color: #128c76;
+}
+
+.delete-button {
+  border: 1px solid #ead0cd;
+
+  background: #fff8f7;
+
+  color: #d9564d;
+}
+
+.delete-button:hover {
+  border-color: #ef7065;
+
+  background: #fff0ee;
+
+  color: #c84b43;
+}
+
+
+/* =========================================================
+   BOŞ DURUM
+========================================================= */
+
+.empty-state {
+  min-height: 300px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  padding: 40px 20px;
+
+  text-align: center;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+
+  border-radius: 8px;
+
+  background: #f0f2f3;
+
+  color: #9299a2;
+
+  font-size: 22px;
+}
+
+.empty-state h3 {
+  margin: 0 0 5px;
+
+  color: #59616b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin: 0 0 15px;
+
+  color: #9299a2;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   SECONDARY BUTON
+========================================================= */
+
+.secondary-button {
+  min-height: 36px;
+
+  padding: 0 14px;
+
+  border: 1px solid #cfd1d4;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #59616b;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: #f7f7f7;
+
+  border-color: #bfc3c8;
+
+  color: #30343b;
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background: rgba(25, 30, 35, .45);
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.category-modal {
+  width: 100%;
+
+  max-width: 520px;
+
+  max-height: calc(100vh - 40px);
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 9px;
+
+  box-shadow:
+    0 15px 40px rgba(25, 30, 35, .17);
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.modal-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 18px;
+
+  border-bottom: 1px solid #e9eaec;
+}
+
+.modal-header > div:first-child {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.modal-icon {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+
+  background: #eaf8f4;
+
+  color: #19a88b;
+
+  font-size: 16px;
+
+  font-weight: 700;
+}
+
+.modal-header h2 {
+  margin: 0 0 3px;
+
+  color: #30343b;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.modal-header p {
+  margin: 0;
+
+  color: #9299a2;
+
+  font-size: 10px;
+}
+
+.close-button {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 5px;
+
+  background: #ffffff;
+
+  color: #7d848c;
+
+  font-size: 19px;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.close-button:hover {
+  background: #f7f7f7;
+
+  color: #30343b;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.category-form {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #59616b;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.form-group label span {
+  margin-left: 3px;
+
+  color: #ef7065;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #cfd1d4;
+
+  border-radius: 6px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #30343b;
+
+  font-family: inherit;
+
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group select {
+  height: 38px;
+
+  min-height: 38px;
+
+  padding: 0 10px;
+}
+
+.form-group textarea {
+  padding: 10px;
+
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #a0a6ad;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #19b99a;
+
+  box-shadow:
+    0 0 0 2px rgba(25,185,154,.09);
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  margin-top: 20px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #e9eaec;
+}
+
+.cancel-button,
+.save-button {
+  min-height: 37px;
+
+  padding: 0 15px;
+
+  border-radius: 6px;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.cancel-button {
+  border: 1px solid #cfd1d4;
+
+  background: #ffffff;
+
+  color: #59616b;
+}
+
+.cancel-button:hover {
+  background: #f7f7f7;
+}
+
+.save-button {
+  border: 1px solid #19b99a;
+
+  background: #19b99a;
+
+  color: #ffffff;
+}
+
+.save-button:hover {
+  background: #159f86;
+
+  border-color: #159f86;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1050px) {
+
+  .table-header,
+  .category-row {
+    grid-template-columns:
+      minmax(190px, 1.3fr)
+      minmax(200px, 1.7fr)
+      100px
+      95px
+      90px;
+  }
+
+  .categories-page {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
+
+
+@media (max-width: 800px) {
+
+  .categories-header {
+    flex-direction: column;
+  }
+
+  .primary-button {
+    align-self: flex-start;
+  }
+
+  .categories-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .category-count {
+    padding: 0 2px;
+  }
+
+  .categories-card {
+    overflow-x: auto;
+  }
+
+  .table-header,
+  .category-row {
+    min-width: 850px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .categories-page {
+    min-height: calc(100vh - 60px);
+
+    padding: 18px 12px 30px;
+  }
+
+  .categories-header h1 {
+    font-size: 19px;
+  }
+
+  .categories-header p {
+    font-size: 11px;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+
+  .categories-toolbar {
+    padding: 10px;
+  }
+
+  .category-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .modal-header {
+    min-height: 65px;
+
+    padding: 0 14px;
+  }
+
+  .category-form {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   KATEGORİLER — SON HİZALAMA OVERRIDE
+   Global theme tarafından ezilen stilleri düzeltir
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   TABLO BAŞLIĞI VE SATIRLAR AYNI GRID
+--------------------------------------------------------- */
+
+.categories-page .categories-card > .table-header {
+  display: grid !important;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(250px, 2fr)
+    minmax(110px, .7fr)
+    minmax(100px, .6fr)
+    100px !important;
+
+  align-items: center;
+
+  width: 100%;
+
+  min-height: 44px;
+
+  margin: 0;
+
+  padding: 0 16px;
+
+  border: 0;
+
+  border-bottom: 1px solid #dedfe1;
+
+  border-radius: 0;
+
+  background: #f7f7f7;
+
+  color: #68717d;
+
+  font-family:
+    "Open Sans",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  box-shadow: none;
+
+  text-align: left;
+}
+
+
+/* ---------------------------------------------------------
+   SATIR GRID
+--------------------------------------------------------- */
+
+.categories-page .category-row {
+  display: grid !important;
+
+  grid-template-columns:
+    minmax(220px, 1.4fr)
+    minmax(250px, 2fr)
+    minmax(110px, .7fr)
+    minmax(100px, .6fr)
+    100px !important;
+
+  width: 100%;
+
+  min-height: 68px;
+
+  margin: 0;
+
+  padding: 0 16px;
+
+  border: 0;
+
+  border-bottom: 1px solid #e9eaec;
+
+  border-radius: 0;
+
+  background: #fff;
+
+  box-shadow: none;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER HÜCRELERİ
+--------------------------------------------------------- */
+
+.categories-page .table-header > div {
+  min-width: 0;
+
+  margin: 0;
+
+  padding: 0;
+
+  color: #68717d;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-align: left;
+}
+
+
+/* ---------------------------------------------------------
+   SATIR HÜCRELERİ
+--------------------------------------------------------- */
+
+.categories-page .category-row > div {
+  min-width: 0;
+}
+
+
+/* ---------------------------------------------------------
+   ARAMA ALANI — ÇİFT BORDER SORUNU
+--------------------------------------------------------- */
+
+.categories-page .categories-toolbar {
+  min-height: 58px;
+
+  display: flex !important;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 10px 12px;
+
+  background: #fff;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 1px 3px rgba(35, 42, 50, .055);
+}
+
+
+.categories-page .search-box {
+  width: 480px;
+
+  max-width: 100%;
+
+  height: 38px;
+
+  display: flex !important;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 10px;
+
+  border: 1px solid #cfd1d4;
+
+  border-radius: 6px;
+
+  background: #fff;
+
+  box-shadow: none;
+}
+
+
+.categories-page .search-box input {
+  width: 100%;
+
+  height: 36px;
+
+  min-height: 0;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: 0 !important;
+
+  border-radius: 0;
+
+  outline: 0;
+
+  box-shadow: none !important;
+
+  background: transparent;
+
+  color: #30343b;
+
+  font-family:
+    "Open Sans",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  font-size: 12px;
+}
+
+
+.categories-page .search-box input:focus {
+  border: 0 !important;
+
+  outline: 0;
+
+  box-shadow: none !important;
+}
+
+
+.categories-page .search-box:focus-within {
+  border-color: #19b99a;
+
+  box-shadow:
+    0 0 0 2px rgba(25, 185, 154, .09);
+}
+
+
+/* ---------------------------------------------------------
+   KATEGORİ SAYISI
+--------------------------------------------------------- */
+
+.categories-page .category-count {
+  margin-left: auto;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+
+/* ---------------------------------------------------------
+   ANA KART — GLOBAL .table-card ÇAKIŞMASINI ENGELLE
+--------------------------------------------------------- */
+
+.categories-page .categories-card {
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  background: #fff;
+
+  border: 1px solid #dedfe1;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 1px 3px rgba(35, 42, 50, .055);
+}
+
+
+/* ---------------------------------------------------------
+   BUTONLAR GLOBAL TEMADAN ETKİLENMESİN
+--------------------------------------------------------- */
+
+.categories-page .edit-button,
+.categories-page .delete-button {
+  min-height: 30px;
+
+  width: 30px;
+
+  padding: 0;
+
+  border-radius: 5px;
+
+  font-family: inherit;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER VE SAYFA GENİŞLİĞİ
+--------------------------------------------------------- */
+
+.categories-page {
+  width: 100% !important;
+
+  max-width: none !important;
+
+  margin: 0 !important;
+
+  overflow-x: hidden;
+}
+
+
+/* ---------------------------------------------------------
+   MOBİL
+--------------------------------------------------------- */
+
+@media (max-width: 800px) {
+
+  .categories-page .table-header,
+  .categories-page .category-row {
+    min-width: 850px;
+
+    grid-template-columns:
+      190px
+      260px
+      110px
+      100px
+      90px !important;
+  }
+
+  .categories-page .categories-card {
+    overflow-x: auto;
+  }
+
+  .categories-page .search-box {
+    width: 100%;
+  }
+}

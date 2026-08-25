@@ -1,0 +1,343 @@
+==================== APP.JSX ====================
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+
+import Layout from "./components/Layout/Layout";
+
+import Overview from "./pages/Overview/Overview";
+
+import NewStock from "./pages/Stock/NewStock/NewStock";
+import StockList from "./pages/Stock/StockList/StockList";
+import Categories from "./pages/Stock/Categories/Categories";
+import Brands from "./pages/Stock/Brands/Brands";
+import Units from "./pages/Stock/Units/Units";
+import StockMovements from "./pages/Stock/Movements/StockMovements";
+import BulkOperations from "./pages/Stock/Bulk/BulkOperations";
+
+import CustomerList from "./pages/Customers/CustomerList/CustomerList";
+import NewCustomer from "./pages/Customers/NewCustomer/NewCustomer";
+import CustomerMovements from "./pages/Customers/CustomerMovements/CustomerMovements";
+import CustomerTransfer from "./pages/Customers/CustomerTransfer/CustomerTransfer";
+import CustomerDetail from "./pages/Customers/CustomerDetail/CustomerDetail";
+
+function EmptyModule({
+  title,
+  description,
+}) {
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        padding: "40px",
+        boxSizing: "border-box",
+        background:
+          "linear-gradient(180deg,#f8fafc,#f3f6f9)",
+        fontFamily:
+          'Inter,"Segoe UI",Arial,sans-serif',
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          border: "1px solid #e0e7ef",
+          borderRadius: "10px",
+          padding: "28px",
+          maxWidth: "700px",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "11px",
+            color: "#286fc7",
+            fontWeight: 700,
+            marginBottom: "8px",
+          }}
+        >
+          REN ERP
+        </div>
+
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "24px",
+            color: "#172033",
+          }}
+        >
+          {title}
+        </h1>
+
+        <p
+          style={{
+            color: "#8793a3",
+            fontSize: "11px",
+          }}
+        >
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+
+        <Route element={<Layout />}>
+
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/dashboard"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="/dashboard"
+            element={<Overview />}
+          />
+
+          {/* STOK */}
+
+          <Route
+            path="/stock/new"
+            element={<NewStock />}
+          />
+
+          <Route
+            path="/stock/list"
+            element={<StockList />}
+          />
+
+          <Route
+            path="/stock/categories"
+            element={<Categories />}
+          />
+
+          <Route
+            path="/stock/brands"
+            element={<Brands />}
+          />
+
+          <Route
+            path="/stock/units"
+            element={<Units />}
+          />
+
+          <Route
+            path="/stock/movements"
+            element={<StockMovements />}
+          />
+
+          <Route
+            path="/stock/bulk"
+            element={<BulkOperations />}
+          />
+
+          {/* MÜŞTERİ / TEDARİKÇİ */}
+
+          <Route
+            path="/customers"
+            element={<CustomerList />}
+          />
+
+          <Route
+            path="/customers/new"
+            element={<NewCustomer />}
+          />
+
+          <Route
+            path="/customers/movements"
+            element={<CustomerMovements />}
+          />
+
+          <Route
+            path="/customers/transfer"
+            element={<CustomerTransfer />}
+          />
+
+          <Route
+            path="/customers/detail"
+            element={<CustomerDetail />}
+          />
+
+          {/* DİĞER MODÜLLER */}
+
+          <Route
+            path="/orders"
+            element={
+              <EmptyModule
+                title="Sipariş - Teklif"
+                description="Sipariş ve teklif yönetim modülü."
+              />
+            }
+          />
+
+          <Route
+            path="/invoices"
+            element={
+              <EmptyModule
+                title="Fatura"
+                description="Fatura yönetim modülü."
+              />
+            }
+          />
+
+          <Route
+            path="/cash-bank"
+            element={
+              <EmptyModule
+                title="Kasa - Banka"
+                description="Kasa ve banka yönetim modülü."
+              />
+            }
+          />
+
+          <Route
+            path="/reports"
+            element={
+              <EmptyModule
+                title="Raporlar"
+                description="REN ERP raporlama merkezi."
+              />
+            }
+          />
+
+          <Route
+            path="/assistant"
+            element={
+              <EmptyModule
+                title="REN AI"
+                description="REN AI işletme asistanı."
+              />
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <EmptyModule
+                title="Ayarlar"
+                description="REN ERP sistem ayarları."
+              />
+            }
+          />
+
+        </Route>
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/dashboard"
+              replace
+            />
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
+==================== COLLECTIONS PAYMENTS ====================
+import { Link } from "react-router-dom";
+
+export default function CollectionsPayments() {
+  return (
+    <div className="customer-page">
+      <div className="customer-container">
+        <div className="customer-header">
+          <div>
+            <div className="customer-breadcrumb">
+              <span>Müşteri - Tedarikçi</span>
+              <span>/</span>
+              <span>Tahsilat</span>
+            </div>
+
+            <h1>Tahsilat</h1>
+
+            <p>
+              Müşterilerden yapılan tahsilatları yönetin.
+            </p>
+          </div>
+
+          <Link to="/customers" className="customer-primary-button">
+            Hesap Listesi
+          </Link>
+        </div>
+
+        <div className="customer-table-card">
+          <div className="table-header">
+            <strong>Tahsilat İşlemleri</strong>
+          </div>
+
+          <div className="customer-empty">
+            <div className="empty-icon">₺</div>
+
+            <h3>Yeni Tahsilat</h3>
+
+            <p>
+              Cari seçimi, tahsilat tutarı, ödeme yöntemi,
+              tarih ve açıklama bu ekrandan yönetilecek.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+==================== PAYMENTS ====================
+import { Link } from "react-router-dom";
+
+export default function Payments() {
+  return (
+    <div className="customer-page">
+      <div className="customer-container">
+        <div className="customer-header">
+          <div>
+            <div className="customer-breadcrumb">
+              <span>Müşteri - Tedarikçi</span>
+              <span>/</span>
+              <span>Ödeme</span>
+            </div>
+
+            <h1>Ödeme</h1>
+
+            <p>
+              Tedarikçilere yapılan ödemeleri yönetin.
+            </p>
+          </div>
+
+          <Link to="/customers" className="customer-primary-button">
+            Hesap Listesi
+          </Link>
+        </div>
+
+        <div className="customer-table-card">
+          <div className="table-header">
+            <strong>Ödeme İşlemleri</strong>
+          </div>
+
+          <div className="customer-empty">
+            <div className="empty-icon">₺</div>
+
+            <h3>Yeni Ödeme</h3>
+
+            <p>
+              Cari, ödeme tutarı, ödeme yöntemi,
+              tarih ve açıklama bu ekrandan yönetilecek.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
