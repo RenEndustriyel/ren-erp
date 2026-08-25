@@ -1,4 +1,4 @@
-﻿import { Finance } from "../../../lib/finance";
+import { Finance } from "../../../lib/finance";
 import {
   useEffect,
   useMemo,
@@ -104,9 +104,9 @@ function normalizeType(type) {
     value === "purchase" ||
     value === "purchases" ||
     value === "buy" ||
-    value === "alÄ±ÅŸ" ||
+    value === "alış" ||
     value === "alis" ||
-    value === "alÄ±ÅŸ faturasÄ±" ||
+    value === "alış faturası" ||
     value === "alis faturasi"
   ) {
     return "purchase";
@@ -116,7 +116,7 @@ function normalizeType(type) {
     value === "return" ||
     value === "returns" ||
     value === "iade" ||
-    value === "iade faturasÄ±" ||
+    value === "iade faturası" ||
     value === "iade faturasi"
   ) {
     return "return";
@@ -130,16 +130,16 @@ function getTypeTitle(type) {
   if (
     type === "purchase"
   ) {
-    return "Yeni AlÄ±ÅŸ FaturasÄ±";
+    return "Yeni Alış Faturası";
   }
 
   if (
     type === "return"
   ) {
-    return "Yeni Ä°ade FaturasÄ±";
+    return "Yeni İade Faturası";
   }
 
-  return "Yeni SatÄ±ÅŸ FaturasÄ±";
+  return "Yeni Satış Faturası";
 }
 
 
@@ -148,7 +148,7 @@ function productName(product) {
     product?.name ||
     product?.productName ||
     product?.title ||
-    "ÃœrÃ¼n"
+    "Ürün"
   );
 }
 
@@ -412,7 +412,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FATURA TAHSÄ°LAT / Ã–DEME
+     FATURA TAHSİLAT / ÖDEME
   ======================================================= */
 
   const [
@@ -508,7 +508,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     VERÄ°LERÄ° YENÄ°LE
+     VERİLERİ YENİLE
   ======================================================= */
 
   useEffect(() => {
@@ -586,7 +586,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     DÃœZENLEME
+     DÜZENLEME
   ======================================================= */
 
   useEffect(() => {
@@ -702,7 +702,7 @@ export default function NewInvoice() {
               productName:
                 item.productName ||
                 item.name ||
-                "ÃœrÃ¼n",
+                "Ürün",
 
               productCode:
                 item.productCode ||
@@ -743,7 +743,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     CARÄ° ARAMA
+     CARİ ARAMA
   ======================================================= */
 
   const customerResults =
@@ -811,7 +811,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     ÃœRÃœN ARAMA
+     ÜRÜN ARAMA
   ======================================================= */
 
   const productResults =
@@ -888,7 +888,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     ÃœRÃœN EKLE
+     ÜRÜN EKLE
   ======================================================= */
 
   const addProduct =
@@ -987,7 +987,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     SATIR GÃœNCELLE
+     SATIR GÜNCELLE
   ======================================================= */
 
   const updateItem =
@@ -1014,7 +1014,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     SATIR SÄ°L
+     SATIR SİL
   ======================================================= */
 
   const removeItem =
@@ -1180,7 +1180,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FATURA FÄ°NANS DURUMU
+     FATURA FİNANS DURUMU
   ======================================================= */
 
   const currentInvoice =
@@ -1239,7 +1239,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FÄ°NANS MODALINI AÃ‡
+     FİNANS MODALINI AÇ
   ======================================================= */
 
   const openFinanceModal =
@@ -1271,8 +1271,8 @@ export default function NewInvoice() {
         alert(
           mode ===
           "payment"
-            ? "Bu alÄ±ÅŸ faturasÄ± tamamen Ã¶denmiÅŸtir."
-            : "Bu satÄ±ÅŸ faturasÄ± tamamen tahsil edilmiÅŸtir."
+            ? "Bu alış faturası tamamen ödenmiştir."
+            : "Bu satış faturası tamamen tahsil edilmiştir."
         );
 
         return;
@@ -1319,8 +1319,8 @@ export default function NewInvoice() {
       setFinanceDescription(
         mode ===
         "payment"
-          ? `${currentInvoice.invoiceNo} numaralÄ± alÄ±ÅŸ faturasÄ± Ã¶demesi`
-          : `${currentInvoice.invoiceNo} numaralÄ± satÄ±ÅŸ faturasÄ± tahsilatÄ±`
+          ? `${currentInvoice.invoiceNo} numaralı alış faturası ödemesi`
+          : `${currentInvoice.invoiceNo} numaralı satış faturası tahsilatı`
       );
 
 
@@ -1332,7 +1332,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FÄ°NANS DETAYINI YENÄ°LE
+     FİNANS DETAYINI YENİLE
   ======================================================= */
 
   const refreshFinanceDetail =
@@ -1371,7 +1371,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FÄ°NANS KAYDET
+     FİNANS KAYDET
   ======================================================= */
 
   const saveFinanceTransaction =
@@ -1389,7 +1389,7 @@ export default function NewInvoice() {
       ) {
 
         alert(
-          "Fatura bulunamadÄ±."
+          "Fatura bulunamadı."
         );
 
         return;
@@ -1425,8 +1425,8 @@ export default function NewInvoice() {
         alert(
           financeMode ===
           "payment"
-            ? "Ã–deme tutarÄ± 0'dan bÃ¼yÃ¼k olmalÄ±dÄ±r."
-            : "Tahsilat tutarÄ± 0'dan bÃ¼yÃ¼k olmalÄ±dÄ±r."
+            ? "Ödeme tutarı 0'dan büyük olmalıdır."
+            : "Tahsilat tutarı 0'dan büyük olmalıdır."
         );
 
         return;
@@ -1453,7 +1453,7 @@ export default function NewInvoice() {
       ) {
 
         alert(
-          "LÃ¼tfen kasa, banka veya POS hesabÄ± seÃ§in."
+          "Lütfen kasa, banka veya POS hesabı seçin."
         );
 
         return;
@@ -1475,7 +1475,7 @@ export default function NewInvoice() {
       if (!account) {
 
         alert(
-          "Finans hesabÄ± bulunamadÄ±."
+          "Finans hesabı bulunamadı."
         );
 
         return;
@@ -1489,8 +1489,8 @@ export default function NewInvoice() {
         alert(
           financeMode ===
           "payment"
-            ? "Bu alÄ±ÅŸ faturasÄ±na baÄŸlÄ± tedarikÃ§i bulunamadÄ±."
-            : "Bu satÄ±ÅŸ faturasÄ±na baÄŸlÄ± mÃ¼ÅŸteri bulunamadÄ±."
+            ? "Bu alış faturasına bağlı tedarikçi bulunamadı."
+            : "Bu satış faturasına bağlı müşteri bulunamadı."
         );
 
         return;
@@ -1529,14 +1529,14 @@ export default function NewInvoice() {
                   ? (
                       financeMode ===
                       "payment"
-                        ? "Ã–dendi"
+                        ? "Ödendi"
                         : "Tahsil Edildi"
                     )
                   : (
                       financeMode ===
                       "payment"
-                        ? "KÄ±smi Ã–deme"
-                        : "KÄ±smi Tahsilat"
+                        ? "Kısmi Ödeme"
+                        : "Kısmi Tahsilat"
                     ),
 
               status:
@@ -1566,14 +1566,14 @@ export default function NewInvoice() {
         if (!updatedInvoice) {
 
           throw new Error(
-            "Fatura Ã¶deme/tahsilat bilgisi gÃ¼ncellenemedi."
+            "Fatura ödeme/tahsilat bilgisi güncellenemedi."
           );
 
         }
 
 
         /* =================================================
-           CARÄ°
+           CARİ
         ================================================= */
 
         const normalizedType =
@@ -1613,7 +1613,7 @@ export default function NewInvoice() {
 
 
         /* =================================================
-           FÄ°NANS HESABI
+           FİNANS HESABI
         ================================================= */
 
         const currentAccounts =
@@ -1666,7 +1666,7 @@ export default function NewInvoice() {
 
 
         /* =================================================
-           FÄ°NANS HAREKETÄ°
+           FİNANS HAREKETİ
         ================================================= */
 
         const existingMovements =
@@ -1692,8 +1692,8 @@ export default function NewInvoice() {
           direction:
             financeMode ===
             "payment"
-              ? "Ã‡Ä±kÄ±ÅŸ"
-              : "GiriÅŸ",
+              ? "Çıkış"
+              : "Giriş",
 
           amount,
 
@@ -1796,9 +1796,9 @@ export default function NewInvoice() {
           )} TL ${
             financeMode ===
             "payment"
-              ? "Ã¶deme"
+              ? "ödeme"
               : "tahsilat"
-          } baÅŸarÄ±yla kaydedildi.`
+          } başarıyla kaydedildi.`
         );
 
 
@@ -1807,14 +1807,14 @@ export default function NewInvoice() {
       ) {
 
         console.error(
-          "REN ERP finans iÅŸlemi hatasÄ±:",
+          "REN ERP finans işlemi hatası:",
           error
         );
 
 
         alert(
           error?.message ||
-          "Ä°ÅŸlem kaydedilirken bir hata oluÅŸtu."
+          "İşlem kaydedilirken bir hata oluştu."
         );
 
 
@@ -1830,7 +1830,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     STOK KONTROLÃœ
+     STOK KONTROLÜ
   ======================================================= */
 
   const checkSalesStock =
@@ -1910,7 +1910,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     STOK HAREKETÄ°
+     STOK HAREKETİ
   ======================================================= */
 
   const applyStockMovement =
@@ -1961,7 +1961,7 @@ export default function NewInvoice() {
                 {
 
                   type:
-                    "SatÄ±ÅŸ FaturasÄ±",
+                    "Satış Faturası",
 
                   source:
                     "Fatura",
@@ -1970,7 +1970,7 @@ export default function NewInvoice() {
                     invoice.id,
 
                   description:
-                    `${invoice.invoiceNo} numaralÄ± satÄ±ÅŸ faturasÄ±.`,
+                    `${invoice.invoiceNo} numaralı satış faturası.`,
 
                 }
               );
@@ -1990,7 +1990,7 @@ export default function NewInvoice() {
                 {
 
                   type:
-                    "AlÄ±ÅŸ FaturasÄ±",
+                    "Alış Faturası",
 
                   source:
                     "Fatura",
@@ -1999,7 +1999,7 @@ export default function NewInvoice() {
                     invoice.id,
 
                   description:
-                    `${invoice.invoiceNo} numaralÄ± alÄ±ÅŸ faturasÄ±.`,
+                    `${invoice.invoiceNo} numaralı alış faturası.`,
 
                 }
               );
@@ -2019,7 +2019,7 @@ export default function NewInvoice() {
                 {
 
                   type:
-                    "Ä°ade FaturasÄ±",
+                    "İade Faturası",
 
                   source:
                     "Fatura",
@@ -2028,7 +2028,7 @@ export default function NewInvoice() {
                     invoice.id,
 
                   description:
-                    `${invoice.invoiceNo} numaralÄ± iade faturasÄ±.`,
+                    `${invoice.invoiceNo} numaralı iade faturası.`,
 
                 }
               );
@@ -2042,7 +2042,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     CARÄ° HAREKET
+     CARİ HAREKET
   ======================================================= */
 
   const applyCustomerMovement =
@@ -2148,8 +2148,8 @@ export default function NewInvoice() {
         alert(
           invoiceType ===
           "purchase"
-            ? "LÃ¼tfen tedarikÃ§i seÃ§in."
-            : "LÃ¼tfen cari seÃ§in."
+            ? "Lütfen tedarikçi seçin."
+            : "Lütfen cari seçin."
         );
 
         return;
@@ -2162,7 +2162,7 @@ export default function NewInvoice() {
       ) {
 
         alert(
-          "LÃ¼tfen faturaya en az bir Ã¼rÃ¼n ekleyin."
+          "Lütfen faturaya en az bir ürün ekleyin."
         );
 
         return;
@@ -2175,7 +2175,7 @@ export default function NewInvoice() {
       ) {
 
         alert(
-          "Fatura toplamÄ± 0 TL olamaz."
+          "Fatura toplamı 0 TL olamaz."
         );
 
         return;
@@ -2191,9 +2191,9 @@ export default function NewInvoice() {
       ) {
 
         alert(
-          `"${invalidStock.productName}" iÃ§in mevcut stok yetersiz.\n\nMevcut stok: ${money(
+          `"${invalidStock.productName}" için mevcut stok yetersiz.\n\nMevcut stok: ${money(
             invalidStock.currentStock
-          )}\nÄ°stenen Ã§Ä±kÄ±ÅŸ: ${money(
+          )}\nİstenen çıkış: ${money(
             invalidStock.requested
           )}`
         );
@@ -2295,13 +2295,13 @@ export default function NewInvoice() {
 
           paymentStatus:
             paymentMethod ===
-            "PeÅŸin"
-              ? "Ã–dendi"
+            "Peşin"
+              ? "Ödendi"
               : "Bekliyor",
 
           status:
             paymentMethod ===
-            "PeÅŸin"
+            "Peşin"
               ? "paid"
               : "open",
 
@@ -2404,7 +2404,7 @@ export default function NewInvoice() {
 
 
         alert(
-          `${saved.invoiceNo} numaralÄ± fatura baÅŸarÄ±yla kaydedildi.`
+          `${saved.invoiceNo} numaralı fatura başarıyla kaydedildi.`
         );
 
 
@@ -2418,14 +2418,14 @@ export default function NewInvoice() {
       ) {
 
         console.error(
-          "REN ERP fatura kaydetme hatasÄ±:",
+          "REN ERP fatura kaydetme hatası:",
           error
         );
 
 
         alert(
           error?.message ||
-          "Fatura kaydedilirken bir hata oluÅŸtu."
+          "Fatura kaydedilirken bir hata oluştu."
         );
 
 
@@ -2439,7 +2439,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     GÃ–RÃœNÃœM
+     GÖRÜNÜM
   ======================================================= */
 
   return (
@@ -2462,18 +2462,18 @@ export default function NewInvoice() {
             </span>
 
             <b>
-              â€º
+              ›
             </b>
 
             <span>
               {
                 invoiceType ===
                 "purchase"
-                  ? "AlÄ±ÅŸ"
+                  ? "Alış"
                   : invoiceType ===
                     "return"
-                    ? "Ä°ade"
-                    : "SatÄ±ÅŸ"
+                    ? "İade"
+                    : "Satış"
               }
             </span>
 
@@ -2483,7 +2483,7 @@ export default function NewInvoice() {
           <h1>
             {
               editId
-                ? "Fatura DÃ¼zenle"
+                ? "Fatura Düzenle"
                 : getTypeTitle(
                     invoiceType
                   )
@@ -2514,8 +2514,8 @@ export default function NewInvoice() {
                 {
                   currentRemaining <=
                   0
-                    ? "TAHSÄ°L EDÄ°LDÄ°"
-                    : "+ TAHSÄ°LAT EKLE"
+                    ? "TAHSİL EDİLDİ"
+                    : "+ TAHSİLAT EKLE"
                 }
               </button>
 
@@ -2541,8 +2541,8 @@ export default function NewInvoice() {
                 {
                   currentRemaining <=
                   0
-                    ? "Ã–DENDÄ°"
-                    : "+ Ã–DEME EKLE"
+                    ? "ÖDENDİ"
+                    : "+ ÖDEME EKLE"
                 }
               </button>
 
@@ -2557,7 +2557,7 @@ export default function NewInvoice() {
                 "/invoices"
             }
           >
-            VAZGEÃ‡
+            VAZGEÇ
           </button>
 
 
@@ -2576,7 +2576,7 @@ export default function NewInvoice() {
 
             {
               saving
-                ? "KAYDEDÄ°LÄ°YOR..."
+                ? "KAYDEDİLİYOR..."
                 : "KAYDET"
             }
 
@@ -2601,16 +2601,16 @@ export default function NewInvoice() {
 
       <div className="parasut-invoice-card">
 
-        {/* FATURA Ä°SMÄ° */}
+        {/* FATURA İSMİ */}
 
         <div className="parasut-row parasut-invoice-name-row">
 
           <div className="parasut-row-icon document-icon">
-            â–¤
+            ▤
           </div>
 
           <div className="parasut-label">
-            FATURA Ä°SMÄ°
+            FATURA İSMİ
           </div>
 
           <div className="parasut-control">
@@ -2627,7 +2627,7 @@ export default function NewInvoice() {
                   event.target.value
                 )
               }
-              placeholder="Fatura adÄ±"
+              placeholder="Fatura adı"
             />
 
           </div>
@@ -2635,20 +2635,20 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* MÃœÅTERÄ° / TEDARÄ°KÃ‡Ä° */}
+        {/* MÜŞTERİ / TEDARİKÇİ */}
 
         <div className="parasut-row customer-row">
 
           <div className="parasut-row-icon">
-            â–¦
+            ▦
           </div>
 
           <div className="parasut-label">
             {
               invoiceType ===
               "purchase"
-                ? "TEDARÄ°KÃ‡Ä°"
-                : "MÃœÅTERÄ°"
+                ? "TEDARİKÇİ"
+                : "MÜŞTERİ"
             }
           </div>
 
@@ -2687,7 +2687,7 @@ export default function NewInvoice() {
 
                   }}
                 >
-                  DeÄŸiÅŸtir
+                  Değiştir
                 </button>
 
               </div>
@@ -2712,8 +2712,8 @@ export default function NewInvoice() {
                   placeholder={
                     invoiceType ===
                     "purchase"
-                      ? "TedarikÃ§i ara..."
-                      : "MÃ¼ÅŸteri ara..."
+                      ? "Tedarikçi ara..."
+                      : "Müşteri ara..."
                   }
                 />
 
@@ -2780,10 +2780,10 @@ export default function NewInvoice() {
             <div className="parasut-help-text">
 
               <span>
-                â“˜
+                ⓘ
               </span>
 
-              KayÄ±tlÄ± bir cari seÃ§ebilir veya arama yapabilirsiniz.
+              Kayıtlı bir cari seçebilir veya arama yapabilirsiniz.
 
             </div>
 
@@ -2792,16 +2792,16 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* CARÄ° BÄ°LGÄ°LERÄ° */}
+        {/* CARİ BİLGİLERİ */}
 
         <div className="parasut-row customer-info-row">
 
           <div className="parasut-row-icon">
-            â–¤
+            ▤
           </div>
 
           <div className="parasut-label">
-            CARÄ° BÄ°LGÄ°LERÄ°
+            CARİ BİLGİLERİ
           </div>
 
           <div className="parasut-control">
@@ -2814,13 +2814,13 @@ export default function NewInvoice() {
                     selectedCustomer.phone ||
                     selectedCustomer.email ||
                     selectedCustomer.city ||
-                    "â€”"
+                    "—"
                   }
 
                 </div>
               ) : (
                 <div className="empty-value">
-                  â€”
+                  —
                 </div>
               )
             }
@@ -2830,7 +2830,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* TAHSÄ°LAT DURUMU */}
+        {/* TAHSİLAT DURUMU */}
 
         <div className="parasut-row payment-status-row">
 
@@ -2839,7 +2839,7 @@ export default function NewInvoice() {
           </div>
 
           <div className="parasut-label">
-            TAHSÄ°LAT DURUMU
+            TAHSİLAT DURUMU
           </div>
 
           <div className="parasut-control">
@@ -2862,10 +2862,10 @@ export default function NewInvoice() {
               >
 
                 <span className="radio-dot">
-                  âœ“
+                  ✓
                 </span>
 
-                TAHSÄ°L EDÄ°LECEK
+                TAHSİL EDİLECEK
 
               </button>
 
@@ -2874,22 +2874,22 @@ export default function NewInvoice() {
                 type="button"
                 className={
                   paymentMethod ===
-                  "PeÅŸin"
+                  "Peşin"
                     ? "selected"
                     : ""
                 }
                 onClick={() =>
                   setPaymentMethod(
-                    "PeÅŸin"
+                    "Peşin"
                   )
                 }
               >
 
                 <span className="radio-dot">
-                  âœ“
+                  ✓
                 </span>
 
-                TAHSÄ°L EDÄ°LDÄ°
+                TAHSİL EDİLDİ
 
               </button>
 
@@ -2900,7 +2900,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* TARÄ°H */}
+        {/* TARİH */}
 
         <div className="parasut-row">
 
@@ -2909,7 +2909,7 @@ export default function NewInvoice() {
           </div>
 
           <div className="parasut-label">
-            DÃœZENLEME TARÄ°HÄ°
+            DÜZENLEME TARİHİ
           </div>
 
           <div className="parasut-control">
@@ -2944,11 +2944,11 @@ export default function NewInvoice() {
         <div className="parasut-row">
 
           <div className="parasut-row-icon">
-            â—
+            ●
           </div>
 
           <div className="parasut-label">
-            VADE TARÄ°HÄ°
+            VADE TARİHİ
           </div>
 
           <div className="parasut-control">
@@ -2959,31 +2959,31 @@ export default function NewInvoice() {
                 [
                   {
                     label:
-                      "AYNI GÃœN",
+                      "AYNI GÜN",
                     days:
                       0,
                   },
                   {
                     label:
-                      "7 GÃœN",
+                      "7 GÜN",
                     days:
                       7,
                   },
                   {
                     label:
-                      "14 GÃœN",
+                      "14 GÜN",
                     days:
                       14,
                   },
                   {
                     label:
-                      "30 GÃœN",
+                      "30 GÜN",
                     days:
                       30,
                   },
                   {
                     label:
-                      "60 GÃœN",
+                      "60 GÜN",
                     days:
                       60,
                   },
@@ -3095,28 +3095,28 @@ export default function NewInvoice() {
           <button
             type="button"
           >
-            â‚º DÃ–VÄ°Z DEÄÄ°ÅTÄ°R
+            ₺ DÖVİZ DEĞİŞTİR
           </button>
 
           <button
             type="button"
           >
-            + SÄ°PARÄ°Å BÄ°LGÄ°SÄ° EKLE
+            + SİPARİŞ BİLGİSİ EKLE
           </button>
 
         </div>
 
 
-        {/* STOK TAKÄ°BÄ° */}
+        {/* STOK TAKİBİ */}
 
         <div className="parasut-stock-section">
 
           <div className="parasut-row-icon">
-            â–¦
+            ▦
           </div>
 
           <div className="parasut-label">
-            STOK TAKÄ°BÄ°
+            STOK TAKİBİ
           </div>
 
           <div className="parasut-stock-options">
@@ -3138,19 +3138,19 @@ export default function NewInvoice() {
               <span className="stock-radio">
                 {
                   stockTracking
-                    ? "âœ“"
-                    : "â—‹"
+                    ? "✓"
+                    : "○"
                 }
               </span>
 
               <div>
 
                 <strong>
-                  STOK Ã‡IKIÅI YAPILSIN
+                  STOK ÇIKIŞI YAPILSIN
                 </strong>
 
                 <small>
-                  Fatura kaydedildiÄŸinde stok hareketi oluÅŸturulur.
+                  Fatura kaydedildiğinde stok hareketi oluşturulur.
                 </small>
 
               </div>
@@ -3175,19 +3175,19 @@ export default function NewInvoice() {
               <span className="stock-radio">
                 {
                   !stockTracking
-                    ? "âœ“"
-                    : "â—‹"
+                    ? "✓"
+                    : "○"
                 }
               </span>
 
               <div>
 
                 <strong>
-                  STOK Ã‡IKIÅI YAPILMASIN
+                  STOK ÇIKIŞI YAPILMASIN
                 </strong>
 
                 <small>
-                  Fatura stok miktarÄ±nÄ± deÄŸiÅŸtirmeden kaydedilir.
+                  Fatura stok miktarını değiştirmeden kaydedilir.
                 </small>
 
               </div>
@@ -3202,7 +3202,7 @@ export default function NewInvoice() {
 
 
       {/* ===================================================
-          SAÄ PANEL
+          SAĞ PANEL
       =================================================== */}
 
       <aside className="parasut-side-column">
@@ -3210,13 +3210,13 @@ export default function NewInvoice() {
         <div className="parasut-side-card">
 
           <div className="side-card-title">
-            ğŸ“ FATURA KATEGORÄ°SÄ°
+            📂 FATURA KATEGORİSİ
           </div>
 
           <div className="side-select">
 
             <span>
-              KATEGORÄ°SÄ°Z
+              KATEGORİSİZ
             </span>
 
             <MdKeyboardArrowDown />
@@ -3224,8 +3224,8 @@ export default function NewInvoice() {
           </div>
 
           <p>
-            FaturalarÄ±n kategorilere gÃ¶re
-            daÄŸÄ±lÄ±mÄ±nÄ± raporlarda takip edebilirsiniz.
+            Faturaların kategorilere göre
+            dağılımını raporlarda takip edebilirsiniz.
           </p>
 
         </div>
@@ -3234,13 +3234,13 @@ export default function NewInvoice() {
         <div className="parasut-side-card">
 
           <div className="side-card-title">
-            ğŸ· ETÄ°KETLER
+           🏷️ ETİKETLER
           </div>
 
           <div className="side-select">
 
             <span>
-              ETÄ°KETSÄ°Z
+              ETİKETSİZ
             </span>
 
             <MdKeyboardArrowDown />
@@ -3248,7 +3248,7 @@ export default function NewInvoice() {
           </div>
 
           <p>
-            FaturalarÄ± etiket bazÄ±nda takip edebilirsiniz.
+            Faturaları etiket bazında takip edebilirsiniz.
           </p>
 
         </div>
@@ -3257,7 +3257,7 @@ export default function NewInvoice() {
 
 
       {/* ===================================================
-          ÃœRÃœNLER
+          ÜRÜNLER
       =================================================== */}
 
       <section className="parasut-products-card">
@@ -3265,23 +3265,23 @@ export default function NewInvoice() {
         <div className="parasut-products-header">
 
           <div className="product-header-title">
-            HÄ°ZMET / ÃœRÃœN
+            HİZMET / ÜRÜN
           </div>
 
           <div>
-            MÄ°KTAR
+            MİKTAR
           </div>
 
           <div>
-            BÄ°RÄ°M
+            BİRİM
           </div>
 
           <div>
-            BR. FÄ°YAT
+            BR. FİYAT
           </div>
 
           <div>
-            VERGÄ°
+            VERGİ
           </div>
 
           <div>
@@ -3293,7 +3293,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* ÃœRÃœN ARAMA */}
+        {/* ÜRÜN ARAMA */}
 
         <div className="parasut-product-entry">
 
@@ -3312,7 +3312,7 @@ export default function NewInvoice() {
                   event.target.value
                 )
               }
-              placeholder="ÃœrÃ¼n adÄ±, kodu veya barkod ara..."
+              placeholder="Ürün adı, kodu veya barkod ara..."
             />
 
 
@@ -3361,7 +3361,7 @@ export default function NewInvoice() {
                           </div>
 
                           <span>
-                            â‚º
+                            ₺
                             {
                               money(
                                 invoiceType ===
@@ -3421,7 +3421,7 @@ export default function NewInvoice() {
 
 
           <div className="product-total">
-            0,00â‚º
+            0,00₺
           </div>
 
 
@@ -3438,7 +3438,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* ÃœRÃœN SATIRLARI */}
+        {/* ÜRÜN SATIRLARI */}
 
         {
           calculated.calculatedItems.map(
@@ -3565,7 +3565,7 @@ export default function NewInvoice() {
                     money(
                       item.lineTotal
                     )
-                  }â‚º
+                  }₺
 
                 </div>
 
@@ -3591,7 +3591,7 @@ export default function NewInvoice() {
         }
 
 
-        {/* YENÄ° SATIR */}
+        {/* YENİ SATIR */}
 
         <button
           className="parasut-add-line"
@@ -3603,7 +3603,7 @@ export default function NewInvoice() {
 
           <MdAdd />
 
-          YENÄ° SATIR EKLE
+          YENİ SATIR EKLE
 
         </button>
 
@@ -3614,10 +3614,10 @@ export default function NewInvoice() {
 
           <div className="total-profit">
 
-            Toplam KÃ¢r:
+            Toplam Kâr:
 
             <strong>
-              â€”
+              —
             </strong>
 
           </div>
@@ -3636,7 +3636,7 @@ export default function NewInvoice() {
                   money(
                     calculated.subtotal
                   )
-                }â‚º
+                }₺
               </strong>
 
             </div>
@@ -3645,7 +3645,7 @@ export default function NewInvoice() {
             <div>
 
               <span>
-                Ä°SKONTO
+                İSKONTO
               </span>
 
 
@@ -3667,7 +3667,7 @@ export default function NewInvoice() {
                 />
 
                 <span>
-                  â‚º
+                  ₺
                 </span>
 
               </div>
@@ -3686,7 +3686,7 @@ export default function NewInvoice() {
                   money(
                     calculated.vatTotal
                   )
-                }â‚º
+                }₺
               </strong>
 
             </div>
@@ -3703,7 +3703,7 @@ export default function NewInvoice() {
                   money(
                     calculated.total
                   )
-                }â‚º
+                }₺
               </strong>
 
             </div>
@@ -3740,7 +3740,7 @@ export default function NewInvoice() {
                       money(
                         currentRemaining
                       )
-                    }â‚º
+                    }₺
                   </strong>
 
                 </div>
@@ -3768,7 +3768,7 @@ export default function NewInvoice() {
               "/invoices"
           }
         >
-          VAZGEÃ‡
+          VAZGEÇ
         </button>
 
 
@@ -3792,8 +3792,8 @@ export default function NewInvoice() {
               {
                 currentRemaining <=
                 0
-                  ? "TAHSÄ°L EDÄ°LDÄ°"
-                  : "+ TAHSÄ°LAT EKLE"
+                  ? "TAHSİL EDİLDİ"
+                  : "+ TAHSİLAT EKLE"
               }
             </button>
 
@@ -3821,8 +3821,8 @@ export default function NewInvoice() {
               {
                 currentRemaining <=
                 0
-                  ? "Ã–DENDÄ°"
-                  : "+ Ã–DEME EKLE"
+                  ? "ÖDENDİ"
+                  : "+ ÖDEME EKLE"
               }
             </button>
 
@@ -3845,7 +3845,7 @@ export default function NewInvoice() {
 
           {
             saving
-              ? "KAYDEDÄ°LÄ°YOR..."
+              ? "KAYDEDİLİYOR..."
               : "KAYDET"
           }
 
@@ -3855,7 +3855,7 @@ export default function NewInvoice() {
 
 
       {/* ===================================================
-          TAHSÄ°LAT / Ã–DEME MODALI
+          TAHSİLAT / ÖDEME MODALI
       =================================================== */}
 
       {
@@ -3947,8 +3947,8 @@ export default function NewInvoice() {
                     {
                       financeMode ===
                       "payment"
-                        ? "FATURA Ã–DEMESÄ°"
-                        : "FATURA TAHSÄ°LATI"
+                        ? "FATURA ÖDEMESİ"
+                        : "FATURA TAHSİLATI"
                     }
                   </div>
 
@@ -3966,7 +3966,7 @@ export default function NewInvoice() {
                     {
                       financeMode ===
                       "payment"
-                        ? "Ã–deme Ekle"
+                        ? "Ödeme Ekle"
                         : "Tahsilat Ekle"
                     }
                   </h2>
@@ -3984,7 +3984,7 @@ export default function NewInvoice() {
                   >
                     {
                       currentInvoice?.invoiceNo
-                    } numaralÄ± fatura
+                    } numaralı fatura
                   </p>
 
                 </div>
@@ -4014,13 +4014,13 @@ export default function NewInvoice() {
                       "pointer",
                   }}
                 >
-                  Ã—
+                  ×
                 </button>
 
               </div>
 
 
-              {/* Ã–ZET */}
+              {/* ÖZET */}
 
               <div
                 style={{
@@ -4109,8 +4109,8 @@ export default function NewInvoice() {
                     {
                       financeMode ===
                       "payment"
-                        ? "Ã–DENEN"
-                        : "TAHSÄ°L EDÄ°LEN"
+                        ? "ÖDENEN"
+                        : "TAHSİL EDİLEN"
                     }
                   </span>
 
@@ -4216,8 +4216,8 @@ export default function NewInvoice() {
                     {
                       financeMode ===
                       "payment"
-                        ? "TedarikÃ§i"
-                        : "MÃ¼ÅŸteri"
+                        ? "Tedarikçi"
+                        : "Müşteri"
                     }
                   </label>
 
@@ -4289,8 +4289,8 @@ export default function NewInvoice() {
                       {
                         financeMode ===
                         "payment"
-                          ? "Ã–deme TutarÄ±"
-                          : "Tahsilat TutarÄ±"
+                          ? "Ödeme Tutarı"
+                          : "Tahsilat Tutarı"
                       }
                     </label>
 
@@ -4446,7 +4446,7 @@ export default function NewInvoice() {
                           "#666",
                       }}
                     >
-                      Ã–deme YÃ¶ntemi
+                      Ödeme Yöntemi
                     </label>
 
 
@@ -4486,7 +4486,7 @@ export default function NewInvoice() {
                       </option>
 
                       <option>
-                        Kredi KartÄ±
+                        Kredi Kartı
                       </option>
 
                       <option>
@@ -4494,11 +4494,11 @@ export default function NewInvoice() {
                       </option>
 
                       <option>
-                        Ã‡ek
+                        Çek
                       </option>
 
                       <option>
-                        DiÄŸer
+                        Diğer
                       </option>
 
                     </select>
@@ -4554,7 +4554,7 @@ export default function NewInvoice() {
                     >
 
                       <option value="">
-                        Hesap seÃ§in
+                        Hesap seçin
                       </option>
 
 
@@ -4583,11 +4583,11 @@ export default function NewInvoice() {
                                 {
                                   account.name
                                 }
-                                {" â€” "}
+                                {" — "}
                                 {
                                   account.type
                                 }
-                                {" â€” â‚º"}
+                                {" — ₺"}
                                 {
                                   money(
                                     account.balance
@@ -4622,7 +4622,7 @@ export default function NewInvoice() {
                         "#666",
                     }}
                   >
-                    AÃ§Ä±klama
+                    Açıklama
                   </label>
 
 
@@ -4706,7 +4706,7 @@ export default function NewInvoice() {
                       "pointer",
                   }}
                 >
-                  VAZGEÃ‡
+                  VAZGEÇ
                 </button>
 
 
@@ -4743,11 +4743,11 @@ export default function NewInvoice() {
                 >
                   {
                     financeSaving
-                      ? "KAYDEDÄ°LÄ°YOR..."
+                      ? "KAYDEDİLİYOR..."
                       : financeMode ===
                         "payment"
-                      ? "Ã–DEMEYÄ° KAYDET"
-                      : "TAHSÄ°LATI KAYDET"
+                      ? "ÖDEMEYİ KAYDET"
+                      : "TAHSİLATI KAYDET"
                   }
                 </button>
 

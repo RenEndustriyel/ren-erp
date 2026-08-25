@@ -103,3 +103,9 @@ export const Finance = {
     };
   },
 };
+
+export const FINANCE_EVENT = "ren-finance-updated";
+
+export function notifyFinanceUpdate() {
+  window.dispatchEvent(new Event(FINANCE_EVENT));
+}
