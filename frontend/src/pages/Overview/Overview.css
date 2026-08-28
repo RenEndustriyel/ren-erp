@@ -68,7 +68,7 @@
 .ren-overview-header p {
   margin: 7px 0 0;
 
-  color: #7a8799;
+  color: #111827;
 
   font-size: 12px;
   line-height: 1.5;
@@ -85,7 +85,7 @@
   border: 1px solid #e2e8ef;
   border-radius: 9px;
 
-  background: #ffffff;
+  background:#F3F4F6;
 
   box-shadow:
     0 2px 8px rgba(
@@ -105,7 +105,7 @@
 .ren-date-box strong {
   display: block;
 
-  color: #344054;
+  color: #111827;
 
   font-size: 10px;
   font-weight: 700;
@@ -116,7 +116,7 @@
 
   margin-top: 2px;
 
-  color: #98a2b3;
+  color: #374151;
 
   font-size: 9px;
 }
@@ -136,34 +136,30 @@
   margin-bottom: 14px;
 }
 
-.ren-today-card {
-  min-height: 76px;
+.ren-today-card{
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-sizing:border-box;
+  padding:13px 16px;
 
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  box-sizing: border-box;
-
-  padding: 13px 16px;
-
-  border: 1px solid #e2e8ef;
-  border-radius: 10px;
-
-  background: #ffffff;
+  background:#F3F4F6;
+  border:1px solid #DCE3EC;
+  border-radius:14px;
 
   box-shadow:
-    0 2px 9px rgba(
-      15,
-      23,
-      42,
-      0.035
-    );
+    0 1px 2px rgba(15,23,42,.04),
+    0 6px 18px rgba(15,23,42,.05);
 
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
+  transition:all .18s ease;
+}
+
+.ren-today-card:hover{
+  border-color:#C9D4E3;
+  box-shadow:
+    0 4px 12px rgba(15,23,42,.07),
+    0 10px 24px rgba(15,23,42,.08);
 }
 
 .ren-today-card:hover {
@@ -215,7 +211,7 @@
 .ren-today-content span {
   display: block;
 
-  color: #738196;
+  color: #111827;
 
   font-size: 10px;
   font-weight: 600;
@@ -267,29 +263,27 @@
   margin-bottom: 16px;
 }
 
-.ren-finance-card {
-  min-height: 142px;
+.ren-finance-card{
+  min-height:142px;
+  box-sizing:border-box;
+  padding:16px;
 
-  box-sizing: border-box;
-
-  padding: 16px;
-
-  border: 1px solid #e2e8ef;
-  border-radius: 10px;
-
-  background: #ffffff;
+  background:#F3F4F6;
+  border:1px solid #DCE3EC;
+  border-radius:14px;
 
   box-shadow:
-    0 2px 9px rgba(
-      15,
-      23,
-      42,
-      0.035
-    );
+    0 1px 2px rgba(15,23,42,.04),
+    0 6px 18px rgba(15,23,42,.05);
 
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
+  transition:all .18s ease;
+}
+
+.ren-finance-card:hover{
+  border-color:#C9D4E3;
+  box-shadow:
+    0 4px 12px rgba(15,23,42,.07),
+    0 10px 24px rgba(15,23,42,.08);
 }
 
 .ren-finance-card:hover {
@@ -343,7 +337,7 @@
 .ren-finance-title {
   margin-top: 12px;
 
-  color: #738196;
+  color: #111827;
 
   font-size: 10px;
   font-weight: 600;
@@ -379,7 +373,7 @@
 .ren-finance-detail {
   margin-top: 8px;
 
-  color: #98a2b3;
+  color: #374151;
 
   font-size: 9px;
 }
@@ -388,21 +382,16 @@
    BUGÜNKÜ İŞLEMLER
 ========================================================= */
 
-.ren-transactions {
-  overflow: hidden;
+.ren-transactions{
+  overflow:hidden;
 
-  border: 1px solid #e2e8ef;
-  border-radius: 11px;
-
-  background: #ffffff;
+  background:#F3F4F6;
+  border:1px solid #DCE3EC;
+  border-radius:14px;
 
   box-shadow:
-    0 2px 10px rgba(
-      15,
-      23,
-      42,
-      0.035
-    );
+    0 1px 2px rgba(15,23,42,.04),
+    0 6px 18px rgba(15,23,42,.05);
 }
 
 .ren-transactions-header {
@@ -438,7 +427,7 @@
 .ren-transactions-header p {
   margin: 5px 0 0;
 
-  color: #8b97a8;
+  color: #111827;
 
   font-size: 9px;
 }
@@ -481,7 +470,7 @@
   border: 1px solid #d9e4f1;
   border-radius: 7px;
 
-  background: #ffffff;
+  background:#F3F4F6;
 
   color: #286fc7;
 
@@ -534,7 +523,7 @@
 
   background: #fafbfd;
 
-  color: #7a8799;
+  color: #111827;
 
   text-align: left;
 
@@ -570,7 +559,7 @@
 }
 
 .ren-time {
-  color: #66758a;
+  color: #111827;
 
   font-size: 10px;
   font-weight: 650;
@@ -619,14 +608,14 @@
 }
 
 .ren-description {
-  color: #344054;
+  color: #111827;
 
   font-size: 10px;
   font-weight: 600;
 }
 
 .ren-document {
-  color: #8b97a8;
+  color: #111827;
 
   font-size: 9px;
 }
@@ -716,7 +705,7 @@
   border: 0;
   border-top: 1px solid #edf1f5;
 
-  background: #ffffff;
+  background:#F3F4F6;
 
   color: #286fc7;
 
@@ -794,4 +783,17 @@
 
     justify-content: center;
   }
+}
+
+/* =========================================================
+   PREMIUM KART BOŞLUKLARI
+========================================================= */
+
+.ren-today-grid,
+.ren-finance-grid{
+  gap:16px;
+}
+
+.ren-overview>*:not(:last-child){
+  margin-bottom:18px;
 }

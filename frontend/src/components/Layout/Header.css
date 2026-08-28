@@ -1,0 +1,21 @@
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+}
+
+.search{
+  width:360px;
+  height:44px;
+  border:1px solid #E5E7EB;
+  border-radius:12px;
+  padding:0 16px;
+  background:white;
+}
+
+.user{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}

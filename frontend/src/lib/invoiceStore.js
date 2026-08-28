@@ -1,50 +1,19 @@
 /* =========================================================
-   REN ERP — FATURA STORE
-   Satış / Alış / İade
-   Ödeme / POS / Banka / Vade altyapısı
+   REN ERP V2 PREMIUM
+   INVOICE STORE
 ========================================================= */
 
-const STORAGE_KEY =
-  "ren_erp_invoices";
+const INVOICES_KEY = "ren_erp_invoices";
+const INVOICE_SEQUENCE_KEY = "ren_erp_invoice_sequence";
 
+const INVOICE_CHANGED_EVENT =
+  "ren-invoices-changed";
 
 /* =========================================================
-   YARDIMCI
+   TEMEL ARAÇLAR
 ========================================================= */
 
-function createId() {
-  return (
-    Date.now().toString(36) +
-    Math.random()
-      .toString(36)
-      .substring(2, 9)
-  );
-}
-
-
-function today() {
-  const date =
-    new Date();
-
-  const year =
-    date.getFullYear();
-
-  const month =
-    String(
-      date.getMonth() + 1
-    ).padStart(2, "0");
-
-  const day =
-    String(
-      date.getDate()
-    ).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-
-function number(value) {
-
+function normalizeNumber(value) {
   if (
     value === null ||
     value === undefined ||
@@ -53,268 +22,39 @@ function number(value) {
     return 0;
   }
 
-  if (
-    typeof value ===
-    "number"
-  ) {
-    return Number.isFinite(
-      value
-    )
+  if (typeof value === "number") {
+    return Number.isFinite(value)
       ? value
       : 0;
   }
 
-  let text =
-    String(value).trim();
+  let text = String(value).trim();
 
   if (
-    text.includes(",") &&
-    text.includes(".")
+    text.includes(".") &&
+    text.includes(",")
   ) {
-    text =
-      text
-        .replace(/\./g, "")
-        .replace(",", ".");
+    text = text
+      .replace(/\./g, "")
+      .replace(",", ".");
   } else if (
     text.includes(",")
   ) {
-    text =
-      text.replace(",", ".");
+    text = text.replace(",", ".");
   }
 
-  const parsed =
-    Number(text);
+  const result = Number(text);
 
-  return Number.isFinite(
-    parsed
-  )
-    ? parsed
+  return Number.isFinite(result)
+    ? result
     : 0;
 }
 
-
-/* =========================================================
-   FATURA TİPİ
-========================================================= */
-
-function normalizeType(type) {
-
-  const value =
-    String(
-      type || ""
-    )
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      );
-
-
-  if (
-    value === "purchase" ||
-    value === "purchases" ||
-    value === "buy" ||
-    value === "alış" ||
-    value === "alis" ||
-    value === "alış faturası" ||
-    value === "alis faturasi"
-  ) {
-    return "purchase";
-  }
-
-
-  if (
-    value === "return" ||
-    value === "returns" ||
-    value === "iade" ||
-    value === "iade faturası" ||
-    value === "iade faturasi"
-  ) {
-    return "return";
-  }
-
-
-  return "sales";
-}
-
-
-/* =========================================================
-   ÖDEME YÖNTEMİ
-========================================================= */
-
-export function normalizePaymentMethod(
-  method
-) {
-
-  const value =
-    String(
-      method || ""
-    )
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      );
-
-
-  if (
-    value === "nakit" ||
-    value === "cash"
-  ) {
-    return "cash";
-  }
-
-
-  if (
-    value.includes("pos") ||
-    value.includes("kredi") ||
-    value.includes("kart")
-  ) {
-    return "pos";
-  }
-
-
-  if (
-    value.includes("havale") ||
-    value.includes("eft") ||
-    value.includes("banka") ||
-    value === "bank"
-  ) {
-    return "bank";
-  }
-
-
-  if (
-    value.includes("vadeli") ||
-    value.includes("vade") ||
-    value === "credit"
-  ) {
-    return "credit";
-  }
-
-
-  return "credit";
-}
-
-
-/* =========================================================
-   ÖDEME YÖNTEMİ ETİKETİ
-========================================================= */
-
-export function getPaymentMethodLabel(
-  method
-) {
-
-  switch (
-    normalizePaymentMethod(
-      method
-    )
-  ) {
-
-    case "cash":
-      return "Nakit";
-
-    case "pos":
-      return "POS / Kredi Kartı";
-
-    case "bank":
-      return "Banka / Havale-EFT";
-
-    case "credit":
-    default:
-      return "Vadeli";
-
-  }
-}
-
-
-/* =========================================================
-   FATURA NUMARASI
-========================================================= */
-
-export function getNextInvoiceNumber(
-  type = "sales"
-) {
-
-  const invoices =
-    getInvoices();
-
-  const normalizedType =
-    normalizeType(
-      type
-    );
-
-  const prefix =
-    normalizedType ===
-    "purchase"
-      ? "AF"
-      : normalizedType ===
-        "return"
-      ? "IA"
-      : "SF";
-
-  let maxNumber =
-    0;
-
-  invoices.forEach(
-    (invoice) => {
-
-      if (
-        normalizeType(
-          invoice.type
-        ) !==
-        normalizedType
-      ) {
-        return;
-      }
-
-      const match =
-        String(
-          invoice.invoiceNo ||
-          ""
-        ).match(
-          /(\d+)$/
-        );
-
-      if (!match) {
-        return;
-      }
-
-      const current =
-        Number(
-          match[1]
-        );
-
-      if (
-        current >
-        maxNumber
-      ) {
-        maxNumber =
-          current;
-      }
-
-    }
-  );
-
-
-  return `${prefix}-${String(
-    maxNumber + 1
-  ).padStart(
-    6,
-    "0"
-  )}`;
-}
-
-
-/* =========================================================
-   OKUMA
-========================================================= */
-
-export function getInvoices() {
-
+function readInvoices() {
   try {
-
     const raw =
       localStorage.getItem(
-        STORAGE_KEY
+        INVOICES_KEY
       );
 
     if (!raw) {
@@ -322,138 +62,594 @@ export function getInvoices() {
     }
 
     const parsed =
-      JSON.parse(
-        raw
-      );
+      JSON.parse(raw);
 
-    if (
-      !Array.isArray(
-        parsed
-      )
-    ) {
-      return [];
-    }
-
-
-    return parsed.map(
-      (invoice) => {
-
-        const paymentMethod =
-          normalizePaymentMethod(
-            invoice.paymentMethod
-          );
-
-
-        return {
-
-          ...invoice,
-
-          type:
-            normalizeType(
-              invoice.type
-            ),
-
-          total:
-            number(
-              invoice.total
-            ),
-
-          subtotal:
-            number(
-              invoice.subtotal
-            ),
-
-          vatTotal:
-            number(
-              invoice.vatTotal
-            ),
-
-          discountTotal:
-            number(
-              invoice.discountTotal
-            ),
-
-          paymentMethod,
-
-          paymentMethodLabel:
-            getPaymentMethodLabel(
-              paymentMethod
-            ),
-
-          paymentStatus:
-            invoice.paymentStatus ||
-            (
-              paymentMethod ===
-              "credit"
-                ? "Bekliyor"
-                : "Ödendi"
-            ),
-
-          dueDate:
-            invoice.dueDate ||
-            "",
-
-          items:
-            Array.isArray(
-              invoice.items
-            )
-              ? invoice.items
-              : [],
-
-        };
-
-      }
-    );
-
-  } catch (
-    error
-  ) {
-
+    return Array.isArray(parsed)
+      ? parsed
+      : [];
+  } catch (error) {
     console.error(
       "REN ERP invoiceStore okuma hatası:",
       error
     );
 
     return [];
-
   }
 }
 
-
-/* =========================================================
-   KAYDET
-========================================================= */
-
-function saveInvoices(
+function writeInvoices(
   invoices
 ) {
-
   localStorage.setItem(
-    STORAGE_KEY,
+    INVOICES_KEY,
     JSON.stringify(
-      invoices
+      Array.isArray(invoices)
+        ? invoices
+        : []
     )
   );
 
-  window.dispatchEvent(
-    new Event(
-      "ren-invoices-updated"
-    )
-  );
+  notifyChange();
 
   return invoices;
 }
 
+function notifyChange() {
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+    return;
+  }
+
+  window.dispatchEvent(
+    new Event(
+      INVOICE_CHANGED_EVENT
+    )
+  );
+}
+
+function createId() {
+  return (
+    "INV-" +
+    Date.now() +
+    "-" +
+    Math.random()
+      .toString(36)
+      .slice(2, 8)
+  );
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
 
 /* =========================================================
-   FATURA GETİR
+   FATURA TİPİ
+========================================================= */
+
+export function normalizeType(
+  type
+) {
+  const value =
+    String(type || "")
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (
+    value.includes("alış") ||
+    value.includes("alis") ||
+    value.includes("purchase")
+  ) {
+    return "purchase";
+  }
+
+  if (
+    value.includes("iade") ||
+    value.includes("return")
+  ) {
+    return "return";
+  }
+
+  return "sales";
+}
+
+function getTypeTitle(
+  type
+) {
+  switch (
+    normalizeType(type)
+  ) {
+    case "purchase":
+      return "Alış Faturası";
+
+    case "return":
+      return "İade Faturası";
+
+    default:
+      return "Satış Faturası";
+  }
+}
+
+/* =========================================================
+   TARİH
+========================================================= */
+
+function normalizeDate(
+  value
+) {
+  if (!value) {
+    return nowIso();
+  }
+
+  if (
+    value instanceof Date
+  ) {
+    return value.toISOString();
+  }
+
+  const parsed =
+    new Date(value);
+
+  if (
+    !Number.isNaN(
+      parsed.getTime()
+    )
+  ) {
+    return parsed.toISOString();
+  }
+
+  return String(value);
+}
+
+/* =========================================================
+   FATURA SATIRI
+========================================================= */
+
+function normalizeItem(
+  item = {}
+) {
+  const quantity =
+    normalizeNumber(
+      item.quantity ??
+        item.qty ??
+        item.amount
+    );
+
+  const unitPrice =
+    normalizeNumber(
+      item.unitPrice ??
+        item.price ??
+        item.salesPrice ??
+        item.purchasePrice
+    );
+
+  const vatRate =
+    normalizeNumber(
+      item.vatRate ??
+        item.vat ??
+        item.taxRate
+    );
+
+  const discountRate =
+    normalizeNumber(
+      item.discountRate ??
+        item.discountPercent
+    );
+
+  const gross =
+    quantity *
+    unitPrice;
+
+  const discountAmount =
+    gross *
+    (discountRate / 100);
+
+  const net =
+    Math.max(
+      0,
+      gross -
+        discountAmount
+    );
+
+  const vatAmount =
+    net *
+    (vatRate / 100);
+
+  const total =
+    net + vatAmount;
+
+  return {
+    ...item,
+
+    id:
+      item.id ||
+      `ITEM-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 7)}`,
+
+    productId:
+      item.productId ??
+      item.stockId ??
+      "",
+
+    productCode:
+      item.productCode ??
+      item.code ??
+      "",
+
+    productName:
+      item.productName ??
+      item.name ??
+      "",
+
+    barcode:
+      item.barcode ??
+      "",
+
+    quantity,
+
+    qty: quantity,
+
+    unit:
+      item.unit ??
+      item.unitName ??
+      "Adet",
+
+    unitPrice,
+
+    price: unitPrice,
+
+    vatRate,
+
+    vat: vatRate,
+
+    discountRate,
+
+    discountAmount,
+
+    netAmount: net,
+
+    vatAmount,
+
+    total,
+  };
+}
+
+/* =========================================================
+   TOPLAM HESAPLAMA
+========================================================= */
+
+function calculateTotals(
+  items = [],
+  invoice = {}
+) {
+  const normalizedItems =
+    Array.isArray(items)
+      ? items.map(
+          normalizeItem
+        )
+      : [];
+
+  const subtotalBeforeDiscount =
+    normalizedItems.reduce(
+      (sum, item) =>
+        sum +
+        normalizeNumber(
+          item.quantity
+        ) *
+        normalizeNumber(
+          item.unitPrice
+        ),
+      0
+    );
+
+  const lineDiscount =
+    normalizedItems.reduce(
+      (sum, item) =>
+        sum +
+        normalizeNumber(
+          item.discountAmount
+        ),
+      0
+    );
+
+  const invoiceDiscount =
+    normalizeNumber(
+      invoice.discountAmount ??
+        invoice.discount
+    );
+
+  const subtotal =
+    Math.max(
+      0,
+      subtotalBeforeDiscount -
+        lineDiscount -
+        invoiceDiscount
+    );
+
+  const vatTotal =
+    normalizedItems.reduce(
+      (sum, item) =>
+        sum +
+        normalizeNumber(
+          item.vatAmount
+        ),
+      0
+    );
+
+  const additionalCharge =
+    normalizeNumber(
+      invoice.additionalCharge ??
+        invoice.extraCharge
+    );
+
+  const total =
+    Math.max(
+      0,
+      subtotal +
+        vatTotal +
+        additionalCharge
+    );
+
+  return {
+    items:
+      normalizedItems,
+
+    subtotal,
+
+    discount:
+      lineDiscount +
+      invoiceDiscount,
+
+    discountAmount:
+      lineDiscount +
+      invoiceDiscount,
+
+    vatTotal,
+
+    tax:
+      vatTotal,
+
+    additionalCharge,
+
+    total,
+
+    grandTotal:
+      total,
+
+    amount:
+      total,
+  };
+}
+
+/* =========================================================
+   FATURA NORMALİZASYONU
+========================================================= */
+
+function normalizeInvoice(
+  data = {},
+  existing = null
+) {
+  const source =
+    existing
+      ? {
+          ...existing,
+          ...data,
+        }
+      : {
+          ...data,
+        };
+
+  const type =
+    normalizeType(
+      source.type ??
+        source.invoiceType
+    );
+
+  const items =
+    Array.isArray(
+      source.items
+    )
+      ? source.items
+      : Array.isArray(
+          source.lines
+        )
+      ? source.lines
+      : [];
+
+  const totals =
+    calculateTotals(
+      items,
+      source
+    );
+
+  const invoiceNumber =
+    String(
+      source.invoiceNumber ??
+        source.invoiceNo ??
+        source.number ??
+        ""
+    ).trim();
+
+  const customerName =
+    source.customerName ??
+    source.partyName ??
+    source.customer ??
+    source.accountName ??
+    "";
+
+  const customerCode =
+    source.customerCode ??
+    source.partyCode ??
+    source.accountCode ??
+    "";
+
+  const supplierName =
+    source.supplierName ??
+    source.supplier ??
+    source.partyName ??
+    "";
+
+  const supplierCode =
+    source.supplierCode ??
+    source.partyCode ??
+    source.accountCode ??
+    "";
+
+  return {
+    ...source,
+
+    id:
+      source.id ||
+      createId(),
+
+    type,
+
+    invoiceType:
+      type,
+
+    typeTitle:
+      getTypeTitle(type),
+
+    invoiceNumber,
+
+    invoiceNo:
+      invoiceNumber,
+
+    number:
+      invoiceNumber,
+
+    invoiceDate:
+      normalizeDate(
+        source.invoiceDate ??
+          source.date ??
+          source.createdAt
+      ),
+
+    date:
+      normalizeDate(
+        source.invoiceDate ??
+          source.date ??
+          source.createdAt
+      ),
+
+    dueDate:
+      source.dueDate ??
+      source.vadeDate ??
+      "",
+
+    customerId:
+      source.customerId ??
+      source.accountId ??
+      "",
+
+    supplierId:
+      source.supplierId ??
+      "",
+
+    customerName,
+
+    customerCode,
+
+    supplierName,
+
+    supplierCode,
+
+    partyName:
+      customerName ||
+      supplierName,
+
+    partyCode:
+      customerCode ||
+      supplierCode,
+
+    items:
+      totals.items,
+
+    lines:
+      totals.items,
+
+    subtotal:
+      totals.subtotal,
+
+    discount:
+      totals.discount,
+
+    discountAmount:
+      totals.discountAmount,
+
+    vatTotal:
+      totals.vatTotal,
+
+    tax:
+      totals.tax,
+
+    additionalCharge:
+      totals.additionalCharge,
+
+    total:
+      totals.total,
+
+    grandTotal:
+      totals.grandTotal,
+
+    amount:
+      totals.amount,
+
+    status:
+      source.status ||
+      "Taslak",
+
+    paymentStatus:
+      source.paymentStatus ||
+      "Bekliyor",
+
+    paymentMethod:
+      source.paymentMethod ||
+      "",
+
+    notes:
+      source.notes ??
+      source.note ??
+      "",
+
+    note:
+      source.note ??
+      source.notes ??
+      "",
+
+    createdAt:
+      source.createdAt ||
+      nowIso(),
+
+    updatedAt:
+      nowIso(),
+  };
+}
+
+/* =========================================================
+   FATURA LİSTESİ
+========================================================= */
+
+export function getInvoices() {
+  return readInvoices();
+}
+
+/* =========================================================
+   FATURA BUL
 ========================================================= */
 
 export function getInvoiceById(
   id
 ) {
-
-  if (!id) {
+  if (
+    id === undefined ||
+    id === null ||
+    id === ""
+  ) {
     return null;
   }
 
@@ -463,301 +659,104 @@ export function getInvoiceById(
         String(
           invoice.id
         ) ===
-        String(
-          id
-        )
-    ) ||
-    null
+        String(id)
+    ) || null
   );
 }
 
+export function getInvoiceByNumber(
+  number
+) {
+  const target =
+    String(
+      number || ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (!target) {
+    return null;
+  }
+
+  return (
+    getInvoices().find(
+      (invoice) =>
+        String(
+          invoice.invoiceNumber ??
+            invoice.invoiceNo ??
+            ""
+        )
+          .trim()
+          .toLocaleLowerCase(
+            "tr-TR"
+          ) === target
+    ) || null
+  );
+}
 
 /* =========================================================
    FATURA EKLE
 ========================================================= */
 
 export function addInvoice(
-  data = {}
+  invoiceData
 ) {
-
-  const type =
-    normalizeType(
-      data.type
+  if (
+    !invoiceData ||
+    typeof invoiceData !==
+      "object"
+  ) {
+    throw new Error(
+      "Geçerli fatura verisi gerekli."
     );
-
-
-  const paymentMethod =
-    normalizePaymentMethod(
-      data.paymentMethod
-    );
-
-
-  const total =
-    number(
-      data.total
-    );
-
-
-  /*
-   * Vadeli faturada vade tarihi yoksa
-   * boş bırakılır.
-   *
-   * Nakit / POS / banka işlemleri
-   * doğrudan ödenmiş kabul edilir.
-   */
-
-  const defaultPaymentStatus =
-    paymentMethod ===
-    "credit"
-      ? "Bekliyor"
-      : "Ödendi";
-
-
-  const invoice = {
-
-    id:
-      data.id ||
-      createId(),
-
-    type,
-
-    invoiceNo:
-      data.invoiceNo ||
-      getNextInvoiceNumber(
-        type
-      ),
-
-    date:
-      data.date ||
-      today(),
-
-    dueDate:
-      data.dueDate ||
-      "",
-
-
-    /* CARİ */
-
-    customerId:
-      data.customerId ||
-      "",
-
-    customerName:
-      data.customerName ||
-      "",
-
-    customerCode:
-      data.customerCode ||
-      "",
-
-
-    supplierId:
-      data.supplierId ||
-      "",
-
-    supplierName:
-      data.supplierName ||
-      "",
-
-    supplierCode:
-      data.supplierCode ||
-      "",
-
-
-    /* FATURA */
-
-    title:
-      data.title ||
-      "",
-
-    description:
-      data.description ||
-      "",
-
-
-    /* ÖDEME */
-
-    paymentMethod,
-
-    paymentMethodLabel:
-      getPaymentMethodLabel(
-        paymentMethod
-      ),
-
-    paymentStatus:
-      data.paymentStatus ||
-      defaultPaymentStatus,
-
-    status:
-      data.status ||
-      (
-        paymentMethod ===
-        "credit"
-          ? "open"
-          : "paid"
-      ),
-
-
-    /*
-     * Finans bağlantısı için
-     * ayrıca tutulacak.
-     */
-
-    paymentAmount:
-      number(
-        data.paymentAmount ??
-        (
-          paymentMethod !==
-          "credit"
-            ? total
-            : 0
-        )
-      ),
-
-    paymentDate:
-      data.paymentDate ||
-      (
-        paymentMethod !==
-        "credit"
-          ? (
-              data.date ||
-              today()
-            )
-          : ""
-      ),
-
-    paymentReference:
-      data.paymentReference ||
-      "",
-
-    bankAccountId:
-      data.bankAccountId ||
-      "",
-
-    bankAccountName:
-      data.bankAccountName ||
-      "",
-
-    posAccountId:
-      data.posAccountId ||
-      "",
-
-    posAccountName:
-      data.posAccountName ||
-      "",
-
-    cashAccountId:
-      data.cashAccountId ||
-      "",
-
-    cashAccountName:
-      data.cashAccountName ||
-      "",
-
-    posCommissionRate:
-      number(
-        data.posCommissionRate
-      ),
-
-    posCommission:
-      number(
-        data.posCommission
-      ),
-
-    netPaymentAmount:
-      number(
-        data.netPaymentAmount ??
-        (
-          paymentMethod ===
-          "pos"
-            ? total -
-              number(
-                data.posCommission
-              )
-            : (
-                paymentMethod !==
-                "credit"
-                  ? total
-                  : 0
-              )
-        )
-      ),
-
-
-    /* TUTARLAR */
-
-    subtotal:
-      number(
-        data.subtotal
-      ),
-
-    discountTotal:
-      number(
-        data.discountTotal
-      ),
-
-    vatTotal:
-      number(
-        data.vatTotal
-      ),
-
-    total,
-
-
-    /* SATIRLAR */
-
-    items:
-      Array.isArray(
-        data.items
-      )
-        ? data.items
-        : [],
-
-
-    /* İADE */
-
-    returnType:
-      data.returnType ||
-      "",
-
-    originalInvoiceId:
-      data.originalInvoiceId ||
-      "",
-
-
-    /* DİĞER */
-
-    notes:
-      data.notes ||
-      "",
-
-    createdAt:
-      data.createdAt ||
-      new Date().toISOString(),
-
-    updatedAt:
-      new Date().toISOString(),
-
-  };
-
+  }
 
   const invoices =
     getInvoices();
 
+  const invoice =
+    normalizeInvoice(
+      invoiceData
+    );
 
-  invoices.unshift(
-    invoice
-  );
+  if (
+    invoice.invoiceNumber
+  ) {
+    const duplicate =
+      invoices.some(
+        (item) =>
+          String(
+            item.invoiceNumber ??
+              item.invoiceNo ??
+              ""
+          )
+            .trim()
+            .toLocaleLowerCase(
+              "tr-TR"
+            ) ===
+          invoice.invoiceNumber
+            .trim()
+            .toLocaleLowerCase(
+              "tr-TR"
+            )
+      );
 
+    if (duplicate) {
+      throw new Error(
+        `Bu fatura numarası zaten kullanılıyor: ${invoice.invoiceNumber}`
+      );
+    }
+  }
 
-  saveInvoices(
-    invoices
-  );
-
+  writeInvoices([
+    invoice,
+    ...invoices,
+  ]);
 
   return invoice;
 }
-
 
 /* =========================================================
    FATURA GÜNCELLE
@@ -765,12 +764,10 @@ export function addInvoice(
 
 export function updateInvoice(
   id,
-  data = {}
+  changes
 ) {
-
   const invoices =
     getInvoices();
-
 
   const index =
     invoices.findIndex(
@@ -778,308 +775,63 @@ export function updateInvoice(
         String(
           invoice.id
         ) ===
-        String(
-          id
-        )
+        String(id)
     );
 
+  if (index === -1) {
+    throw new Error(
+      "Fatura bulunamadı."
+    );
+  }
+
+  const updated =
+    normalizeInvoice(
+      changes,
+      invoices[index]
+    );
 
   if (
-    index === -1
+    updated.invoiceNumber
   ) {
-    return null;
-  }
-
-
-  const oldInvoice =
-    invoices[index];
-
-
-  const type =
-    data.type !==
-    undefined
-      ? normalizeType(
-          data.type
-        )
-      : normalizeType(
-          oldInvoice.type
-        );
-
-
-  const paymentMethod =
-    data.paymentMethod !==
-    undefined
-      ? normalizePaymentMethod(
-          data.paymentMethod
-        )
-      : normalizePaymentMethod(
-          oldInvoice.paymentMethod
-        );
-
-
-  const updatedTotal =
-    data.total !==
-    undefined
-      ? number(
-          data.total
-        )
-      : number(
-          oldInvoice.total
-        );
-
-
-  const updatedInvoice = {
-
-    ...oldInvoice,
-
-    ...data,
-
-    id:
-      oldInvoice.id,
-
-    type,
-
-    paymentMethod,
-
-    paymentMethodLabel:
-      getPaymentMethodLabel(
-        paymentMethod
-      ),
-
-    invoiceNo:
-      data.invoiceNo ||
-      oldInvoice.invoiceNo ||
-      getNextInvoiceNumber(
-        type
-      ),
-
-    subtotal:
-      data.subtotal !==
-      undefined
-        ? number(
-            data.subtotal
+    const duplicate =
+      invoices.some(
+        (invoice, i) =>
+          i !== index &&
+          String(
+            invoice.invoiceNumber ??
+              invoice.invoiceNo ??
+              ""
           )
-        : number(
-            oldInvoice.subtotal
-          ),
+            .trim()
+            .toLocaleLowerCase(
+              "tr-TR"
+            ) ===
+          updated.invoiceNumber
+            .trim()
+            .toLocaleLowerCase(
+              "tr-TR"
+            )
+      );
 
-    discountTotal:
-      data.discountTotal !==
-      undefined
-        ? number(
-            data.discountTotal
-          )
-        : number(
-            oldInvoice.discountTotal
-          ),
-
-    vatTotal:
-      data.vatTotal !==
-      undefined
-        ? number(
-            data.vatTotal
-          )
-        : number(
-            oldInvoice.vatTotal
-          ),
-
-    total:
-      updatedTotal,
-
-    paymentAmount:
-      data.paymentAmount !==
-      undefined
-        ? number(
-            data.paymentAmount
-          )
-        : number(
-            oldInvoice.paymentAmount
-          ),
-
-    posCommissionRate:
-      data.posCommissionRate !==
-      undefined
-        ? number(
-            data.posCommissionRate
-          )
-        : number(
-            oldInvoice.posCommissionRate
-          ),
-
-    posCommission:
-      data.posCommission !==
-      undefined
-        ? number(
-            data.posCommission
-          )
-        : number(
-            oldInvoice.posCommission
-          ),
-
-    netPaymentAmount:
-      data.netPaymentAmount !==
-      undefined
-        ? number(
-            data.netPaymentAmount
-          )
-        : number(
-            oldInvoice.netPaymentAmount
-          ),
-
-    items:
-      Array.isArray(
-        data.items
-      )
-        ? data.items
-        : Array.isArray(
-            oldInvoice.items
-          )
-        ? oldInvoice.items
-        : [],
-
-    updatedAt:
-      new Date().toISOString(),
-
-  };
-
-
-  /*
-   * Ödeme yöntemi değiştiğinde
-   * durum da mantıklı hale gelir.
-   */
-
-  if (
-    data.paymentStatus ===
-    undefined
-  ) {
-
-    updatedInvoice.paymentStatus =
-      paymentMethod ===
-      "credit"
-        ? (
-            oldInvoice.paymentStatus ||
-            "Bekliyor"
-          )
-        : "Ödendi";
-
-  }
-
-
-  if (
-    data.status ===
-    undefined
-  ) {
-
-    updatedInvoice.status =
-      paymentMethod ===
-      "credit"
-        ? (
-            oldInvoice.status ||
-            "open"
-          )
-        : "paid";
-
-  }
-
-
-  invoices[index] =
-    updatedInvoice;
-
-
-  saveInvoices(
-    invoices
-  );
-
-
-  return updatedInvoice;
-}
-
-
-/* =========================================================
-   ÖDEME DURUMUNU GÜNCELLE
-========================================================= */
-
-export function markInvoicePaid(
-  id,
-  paymentData = {}
-) {
-
-  const invoice =
-    getInvoiceById(
-      id
-    );
-
-
-  if (!invoice) {
-    return null;
-  }
-
-
-  const total =
-    number(
-      invoice.total
-    );
-
-
-  const paymentAmount =
-    number(
-      paymentData.amount ??
-      total
-    );
-
-
-  return updateInvoice(
-    id,
-    {
-
-      paymentStatus:
-        "Ödendi",
-
-      status:
-        "paid",
-
-      paymentAmount,
-
-      paymentDate:
-        paymentData.date ||
-        today(),
-
-      paymentReference:
-        paymentData.reference ||
-        "",
-
-      paymentMethod:
-        paymentData.method ||
-        invoice.paymentMethod,
-
-      bankAccountId:
-        paymentData.bankAccountId ||
-        invoice.bankAccountId,
-
-      bankAccountName:
-        paymentData.bankAccountName ||
-        invoice.bankAccountName,
-
-      posAccountId:
-        paymentData.posAccountId ||
-        invoice.posAccountId,
-
-      posAccountName:
-        paymentData.posAccountName ||
-        invoice.posAccountName,
-
-      cashAccountId:
-        paymentData.cashAccountId ||
-        invoice.cashAccountId,
-
-      cashAccountName:
-        paymentData.cashAccountName ||
-        invoice.cashAccountName,
-
+    if (duplicate) {
+      throw new Error(
+        `Bu fatura numarası başka bir faturada kullanılıyor: ${updated.invoiceNumber}`
+      );
     }
-  );
-}
+  }
 
+  const next =
+    [...invoices];
+
+  next[index] =
+    updated;
+
+  writeInvoices(
+    next
+  );
+
+  return updated;
+}
 
 /* =========================================================
    FATURA SİL
@@ -1088,730 +840,719 @@ export function markInvoicePaid(
 export function deleteInvoice(
   id
 ) {
-
   const invoices =
     getInvoices();
 
+  const exists =
+    invoices.some(
+      (invoice) =>
+        String(
+          invoice.id
+        ) ===
+        String(id)
+    );
 
-  const filtered =
+  if (!exists) {
+    return false;
+  }
+
+  const next =
     invoices.filter(
       (invoice) =>
         String(
           invoice.id
         ) !==
-        String(
-          id
-        )
+        String(id)
     );
 
-
-  saveInvoices(
-    filtered
+  writeInvoices(
+    next
   );
-
 
   return true;
 }
 
-
 /* =========================================================
-   TİP
+   TİP FİLTRELERİ
 ========================================================= */
 
-export function getInvoicesByType(
-  type
-) {
-
-  const normalizedType =
-    normalizeType(
-      type
-    );
-
-
+export function getSalesInvoices() {
   return getInvoices().filter(
     (invoice) =>
       normalizeType(
-        invoice.type
-      ) ===
-      normalizedType
+        invoice.type ??
+          invoice.invoiceType
+      ) === "sales"
   );
 }
-
-
-export function getSalesInvoices() {
-  return getInvoicesByType(
-    "sales"
-  );
-}
-
 
 export function getPurchaseInvoices() {
-  return getInvoicesByType(
-    "purchase"
+  return getInvoices().filter(
+    (invoice) =>
+      normalizeType(
+        invoice.type ??
+          invoice.invoiceType
+      ) === "purchase"
   );
 }
-
 
 export function getReturnInvoices() {
-  return getInvoicesByType(
-    "return"
+  return getInvoices().filter(
+    (invoice) =>
+      normalizeType(
+        invoice.type ??
+          invoice.invoiceType
+      ) === "return"
   );
 }
 
-
 /* =========================================================
-   SAYI / TOPLAM
+   FATURA TOPLAMI
 ========================================================= */
-
-export function getInvoiceCount(
-  type
-) {
-
-  return getInvoicesByType(
-    type
-  ).length;
-}
-
 
 export function getInvoiceTotal(
-  type
+  invoice
 ) {
+  if (!invoice) {
+    return 0;
+  }
 
-  return getInvoicesByType(
-    type
-  ).reduce(
-    (
-      total,
-      invoice
-    ) =>
-      total +
-      number(
-        invoice.total
-      ),
-    0
+  return normalizeNumber(
+    invoice.grandTotal ??
+      invoice.total ??
+      invoice.amount
   );
 }
-
 
 /* =========================================================
-   ÖDENEN / AÇIK
+   KAR HESABI
 ========================================================= */
 
-export function getPaidInvoices() {
+export function calculateInvoiceProfit(
+  invoice
+) {
+  if (!invoice) {
+    return {
+      revenue: 0,
+      cost: 0,
+      profit: 0,
+      margin: 0,
+    };
+  }
 
-  return getInvoices().filter(
-    (invoice) =>
-      invoice.status ===
-        "paid" ||
-      invoice.paymentStatus ===
-        "Ödendi" ||
-      invoice.paymentStatus ===
-        "Tahsil Edildi"
-  );
-}
+  const items =
+    Array.isArray(
+      invoice.items
+    )
+      ? invoice.items
+      : [];
 
+  let revenue = 0;
+  let cost = 0;
 
-export function getOpenInvoices() {
-
-  return getInvoices().filter(
-    (invoice) =>
-      invoice.status !==
-        "paid" &&
-      invoice.status !==
-        "cancelled" &&
-      invoice.status !==
-        "canceled" &&
-      invoice.paymentStatus !==
-        "Ödendi" &&
-      invoice.paymentStatus !==
-        "Tahsil Edildi"
-  );
-}
-
-
-/* =========================================================
-   VADELİ FATURALAR
-========================================================= */
-
-export function getCreditInvoices() {
-
-  return getInvoices().filter(
-    (invoice) =>
-      normalizePaymentMethod(
-        invoice.paymentMethod
-      ) === "credit"
-  );
-}
-
-
-/* =========================================================
-   VADESİ GEÇEN
-========================================================= */
-
-export function getOverdueInvoices() {
-
-  const currentDate =
-    new Date();
-
-  currentDate.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-
-  return getCreditInvoices()
-    .filter(
-      (invoice) => {
-
-        if (
-          !invoice.dueDate
-        ) {
-          return false;
-        }
-
-        if (
-          invoice.status ===
-          "paid"
-        ) {
-          return false;
-        }
-
-        const due =
-          new Date(
-            `${invoice.dueDate}T00:00:00`
-          );
-
-        return (
-          due <
-          currentDate
+  items.forEach(
+    (item) => {
+      const quantity =
+        normalizeNumber(
+          item.quantity ??
+            item.qty
         );
 
-      }
-    );
-
-}
-
-
-/* =========================================================
-   YAKLAŞAN VADELER
-========================================================= */
-
-export function getUpcomingDueInvoices(
-  days = 7
-) {
-
-  const currentDate =
-    new Date();
-
-  currentDate.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-
-  const endDate =
-    new Date(
-      currentDate
-    );
-
-  endDate.setDate(
-    endDate.getDate() +
-      number(days)
-  );
-
-
-  return getCreditInvoices()
-    .filter(
-      (invoice) => {
-
-        if (
-          !invoice.dueDate
-        ) {
-          return false;
-        }
-
-        if (
-          invoice.status ===
-          "paid"
-        ) {
-          return false;
-        }
-
-        const due =
-          new Date(
-            `${invoice.dueDate}T00:00:00`
-          );
-
-        return (
-          due >=
-            currentDate &&
-          due <=
-            endDate
+      const salePrice =
+        normalizeNumber(
+          item.unitPrice ??
+            item.price ??
+            item.salesPrice
         );
 
-      }
-    );
+      const purchasePrice =
+        normalizeNumber(
+          item.purchasePrice ??
+            item.purchaseNet ??
+            item.costPrice ??
+            item.cost
+        );
 
+      revenue +=
+        quantity *
+        salePrice;
+
+      cost +=
+        quantity *
+        purchasePrice;
+    }
+  );
+
+  const profit =
+    revenue - cost;
+
+  const margin =
+    revenue > 0
+      ? (profit /
+          revenue) *
+        100
+      : 0;
+
+  return {
+    revenue,
+    cost,
+    profit,
+    margin,
+    marginRate:
+      margin,
+  };
 }
 
-
 /* =========================================================
-   ÖDEME YÖNTEMİNE GÖRE
+   FATURA NUMARASI
 ========================================================= */
 
-export function getInvoicesByPaymentMethod(
-  method
+export function getNextInvoiceNumber(
+  type = "sales"
 ) {
+  const year =
+    new Date()
+      .getFullYear();
 
-  const normalized =
-    normalizePaymentMethod(
-      method
-    );
-
-
-  return getInvoices().filter(
-    (invoice) =>
-      normalizePaymentMethod(
-        invoice.paymentMethod
-      ) ===
-      normalized
-  );
-}
-
-
-export function getCashInvoices() {
-  return getInvoicesByPaymentMethod(
-    "cash"
-  );
-}
-
-
-export function getPosInvoices() {
-  return getInvoicesByPaymentMethod(
-    "pos"
-  );
-}
-
-
-export function getBankInvoices() {
-  return getInvoicesByPaymentMethod(
-    "bank"
-  );
-}
-
-
-/* =========================================================
-   FATURA ÖZETİ
-========================================================= */
-
-export function getInvoiceSummary() {
+  const prefix =
+    `REN-${year}-`;
 
   const invoices =
     getInvoices();
 
+  let highest = 0;
 
-  const sales =
-    invoices.filter(
-      (invoice) =>
-        invoice.type ===
-        "sales"
-    );
-
-
-  const purchases =
-    invoices.filter(
-      (invoice) =>
-        invoice.type ===
-        "purchase"
-    );
-
-
-  const returns =
-    invoices.filter(
-      (invoice) =>
-        invoice.type ===
-        "return"
-    );
-
-
-  const paid =
-    getPaidInvoices();
-
-
-  const open =
-    getOpenInvoices();
-
-
-  const credit =
-    getCreditInvoices();
-
-
-  const overdue =
-    getOverdueInvoices();
-
-
-  const upcoming =
-    getUpcomingDueInvoices(
-      7
-    );
-
-
-  return {
-
-    totalCount:
-      invoices.length,
-
-    salesCount:
-      sales.length,
-
-    purchaseCount:
-      purchases.length,
-
-    returnCount:
-      returns.length,
-
-    totalAmount:
-      invoices.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    salesTotal:
-      sales.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    purchaseTotal:
-      purchases.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    returnTotal:
-      returns.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    paidTotal:
-      paid.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    openTotal:
-      open.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    creditTotal:
-      credit.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    overdueTotal:
-      overdue.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-    upcomingDueTotal:
-      upcoming.reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          number(
-            invoice.total
-          ),
-        0
-      ),
-
-  };
-}
-
-
-/* =========================================================
-   SON FATURALAR
-========================================================= */
-
-export function getRecentInvoices(
-  limit = 10
-) {
-
-  return getInvoices()
-    .sort(
-      (
-        a,
-        b
-      ) =>
+  invoices.forEach(
+    (invoice) => {
+      const number =
         String(
-          b.date ||
-          ""
-        ).localeCompare(
-          String(
-            a.date ||
+          invoice.invoiceNumber ??
+            invoice.invoiceNo ??
             ""
-          )
+        ).trim();
+
+      if (
+        number.startsWith(
+          prefix
         )
-    )
-    .slice(
-      0,
-      limit
-    );
-}
+      ) {
+        const numeric =
+          normalizeNumber(
+            number.slice(
+              prefix.length
+            )
+          );
 
+        if (
+          numeric >
+          highest
+        ) {
+          highest =
+            numeric;
+        }
+      }
+    }
+  );
 
-/* =========================================================
-   TİP DEĞİŞTİR
-========================================================= */
+  /*
+   * Sequence localStorage'tan da okunur.
+   * Böylece mevcut numaraların gerisine düşülmez.
+   */
+  try {
+    const raw =
+      localStorage.getItem(
+        INVOICE_SEQUENCE_KEY
+      );
 
-export function changeInvoiceType(
-  id,
-  type
-) {
+    if (raw) {
+      const sequence =
+        JSON.parse(raw);
 
-  const invoice =
-    getInvoiceById(
-      id
-    );
+      const stored =
+        normalizeNumber(
+          sequence?.[year]
+        );
 
-
-  if (!invoice) {
-    return null;
+      if (
+        stored >
+        highest
+      ) {
+        highest =
+          stored;
+      }
+    }
+  } catch {
+    // Mevcut faturalar yeterli.
   }
 
+  const next =
+    highest + 1;
 
-  return updateInvoice(
-    id,
-    {
-      type:
-        normalizeType(
-          type
-        ),
+  try {
+    const raw =
+      localStorage.getItem(
+        INVOICE_SEQUENCE_KEY
+      );
+
+    const sequence =
+      raw
+        ? JSON.parse(raw)
+        : {};
+
+    sequence[year] =
+      next;
+
+    localStorage.setItem(
+      INVOICE_SEQUENCE_KEY,
+      JSON.stringify(
+        sequence
+      )
+    );
+  } catch {
+    // Numara yine üretilecek.
+  }
+
+  return (
+    prefix +
+    String(next)
+      .padStart(
+        6,
+        "0"
+      )
+  );
+}
+
+/* =========================================================
+   ARAMA
+========================================================= */
+
+export function searchInvoices(
+  query = ""
+) {
+  const text =
+    String(query)
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (!text) {
+    return getInvoices();
+  }
+
+  return getInvoices().filter(
+    (invoice) => {
+      const searchable = [
+        invoice.invoiceNumber,
+        invoice.invoiceNo,
+        invoice.customerName,
+        invoice.customerCode,
+        invoice.supplierName,
+        invoice.supplierCode,
+        invoice.partyName,
+        invoice.partyCode,
+        invoice.status,
+        invoice.paymentStatus,
+        invoice.notes,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase(
+          "tr-TR"
+        );
+
+      return searchable.includes(
+        text
+      );
     }
   );
 }
 
-
 /* =========================================================
-   DEMO
+   TARİH ARALIĞI
 ========================================================= */
 
-export function seedInvoiceDemoData() {
+export function getInvoicesByDateRange(
+  startDate,
+  endDate
+) {
+  let start = null;
+  let end = null;
 
-  const invoices =
-    getInvoices();
+  if (startDate) {
+    start =
+      new Date(
+        startDate
+      );
 
-
-  if (
-    invoices.length > 0
-  ) {
-    return invoices;
+    start.setHours(
+      0,
+      0,
+      0,
+      0
+    );
   }
 
+  if (endDate) {
+    end =
+      new Date(
+        endDate
+      );
 
-  const demoInvoices = [
+    end.setHours(
+      23,
+      59,
+      59,
+      999
+    );
+  }
 
-    {
-      id:
-        createId(),
+  return getInvoices().filter(
+    (invoice) => {
+      const date =
+        new Date(
+          invoice.invoiceDate ||
+            invoice.date ||
+            invoice.createdAt
+        );
 
-      type:
-        "sales",
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return false;
+      }
 
-      invoiceNo:
-        "SF-000001",
+      if (
+        start &&
+        date < start
+      ) {
+        return false;
+      }
 
-      date:
-        today(),
+      if (
+        end &&
+        date > end
+      ) {
+        return false;
+      }
 
-      dueDate:
-        today(),
-
-      customerName:
-        "Demo Müşteri",
-
-      customerCode:
-        "CR-0001",
-
-      paymentMethod:
-        "credit",
-
-      paymentMethodLabel:
-        "Vadeli",
-
-      paymentStatus:
-        "Bekliyor",
-
-      status:
-        "open",
-
-      subtotal:
-        1000,
-
-      discountTotal:
-        0,
-
-      vatTotal:
-        200,
-
-      total:
-        1200,
-
-      paymentAmount:
-        0,
-
-      items:
-        [],
-
-      notes:
-        "",
-
-      createdAt:
-        new Date().toISOString(),
-
-      updatedAt:
-        new Date().toISOString(),
-
-    },
-
-  ];
-
-
-  saveInvoices(
-    demoInvoices
+      return true;
+    }
   );
-
-
-  return demoInvoices;
 }
 
-
 /* =========================================================
-   DEFAULT
+   BUGÜN
 ========================================================= */
 
+export function getTodayInvoices() {
+  const today =
+    new Date();
+
+  return getInvoices().filter(
+    (invoice) => {
+      const date =
+        new Date(
+          invoice.invoiceDate ||
+            invoice.date ||
+            invoice.createdAt
+        );
+
+      return (
+        date.getFullYear() ===
+          today.getFullYear() &&
+        date.getMonth() ===
+          today.getMonth() &&
+        date.getDate() ===
+          today.getDate()
+      );
+    }
+  );
+}
+
+/* =========================================================
+   ÖZET
+========================================================= */
+
+export function getInvoiceSummary(
+  invoices = getInvoices()
+) {
+  const list =
+    Array.isArray(
+      invoices
+    )
+      ? invoices
+      : [];
+
+  let sales = 0;
+  let purchases = 0;
+  let returns = 0;
+
+  let salesCount = 0;
+  let purchaseCount = 0;
+  let returnCount = 0;
+
+  list.forEach(
+    (invoice) => {
+      const type =
+        normalizeType(
+          invoice.type ??
+            invoice.invoiceType
+        );
+
+      const total =
+        getInvoiceTotal(
+          invoice
+        );
+
+      if (
+        type === "sales"
+      ) {
+        sales += total;
+        salesCount += 1;
+      }
+
+      if (
+        type === "purchase"
+      ) {
+        purchases += total;
+        purchaseCount += 1;
+      }
+
+      if (
+        type === "return"
+      ) {
+        returns += total;
+        returnCount += 1;
+      }
+    }
+  );
+
+  return {
+    totalCount:
+      list.length,
+
+    sales,
+    purchases,
+    returns,
+
+    salesCount,
+    purchaseCount,
+    returnCount,
+
+    netSales:
+      sales - returns,
+
+    netAmount:
+      sales -
+      returns -
+      purchases,
+  };
+}
+
+/* =========================================================
+   EVENT
+========================================================= */
+
+export function onInvoicesChanged(
+  callback
+) {
+  if (
+    typeof window ===
+      "undefined" ||
+    typeof callback !==
+      "function"
+  ) {
+    return () => {};
+  }
+
+  window.addEventListener(
+    INVOICE_CHANGED_EVENT,
+    callback
+  );
+
+  return () => {
+    window.removeEventListener(
+      INVOICE_CHANGED_EVENT,
+      callback
+    );
+  };
+}
+
+/* =========================================================
+   DIŞA / İÇE AKTARMA
+========================================================= */
+
+export function exportInvoices() {
+  return JSON.stringify(
+    getInvoices(),
+    null,
+    2
+  );
+}
+
+export function importInvoices(
+  data,
+  options = {}
+) {
+  let imported;
+
+  if (
+    typeof data ===
+    "string"
+  ) {
+    try {
+      imported =
+        JSON.parse(data);
+    } catch {
+      throw new Error(
+        "Geçersiz JSON fatura verisi."
+      );
+    }
+  } else {
+    imported = data;
+  }
+
+  if (
+    !Array.isArray(
+      imported
+    )
+  ) {
+    throw new Error(
+      "Fatura listesi geçerli değil."
+    );
+  }
+
+  const normalized =
+    imported.map(
+      (invoice) =>
+        normalizeInvoice(
+          invoice
+        )
+    );
+
+  if (
+    options.replace ===
+    true
+  ) {
+    writeInvoices(
+      normalized
+    );
+
+    return normalized;
+  }
+
+  const existing =
+    getInvoices();
+
+  const byId =
+    new Map();
+
+  existing.forEach(
+    (invoice) => {
+      byId.set(
+        String(
+          invoice.id
+        ),
+        invoice
+      );
+    }
+  );
+
+  normalized.forEach(
+    (invoice) => {
+      byId.set(
+        String(
+          invoice.id
+        ),
+        invoice
+      );
+    }
+  );
+
+  const merged =
+    Array.from(
+      byId.values()
+    );
+
+  writeInvoices(
+    merged
+  );
+
+  return merged;
+}
+
+/* =========================================================
+   TEMİZLEME
+========================================================= */
+
+export function clearInvoices() {
+  localStorage.removeItem(
+    INVOICES_KEY
+  );
+
+  localStorage.removeItem(
+    INVOICE_SEQUENCE_KEY
+  );
+
+  notifyChange();
+
+  return true;
+}
+
+/* =========================================================
+   BAŞLANGIÇ
+========================================================= */
+
+export function initializeInvoiceStore() {
+  return getInvoices();
+}
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+export const INVOICE_KEYS = {
+  INVOICES_KEY,
+  INVOICE_SEQUENCE_KEY,
+};
+
+export const INVOICE_EVENTS = {
+  changed:
+    INVOICE_CHANGED_EVENT,
+};
+
 export default {
-
   getInvoices,
-
   getInvoiceById,
+  getInvoiceByNumber,
 
   addInvoice,
-
   updateInvoice,
-
   deleteInvoice,
 
-  getInvoicesByType,
-
   getSalesInvoices,
-
   getPurchaseInvoices,
-
   getReturnInvoices,
 
-  getInvoiceCount,
+  searchInvoices,
+  getInvoicesByDateRange,
+  getTodayInvoices,
 
   getInvoiceTotal,
-
-  getPaidInvoices,
-
-  getOpenInvoices,
-
-  getCreditInvoices,
-
-  getOverdueInvoices,
-
-  getUpcomingDueInvoices,
-
-  getInvoicesByPaymentMethod,
-
-  getCashInvoices,
-
-  getPosInvoices,
-
-  getBankInvoices,
-
+  calculateInvoiceProfit,
   getInvoiceSummary,
-
-  getRecentInvoices,
-
-  changeInvoiceType,
-
-  markInvoicePaid,
-
-  normalizePaymentMethod,
-
-  getPaymentMethodLabel,
-
-  seedInvoiceDemoData,
 
   getNextInvoiceNumber,
 
+  normalizeType,
+
+  exportInvoices,
+  importInvoices,
+  clearInvoices,
+
+  onInvoicesChanged,
+  initializeInvoiceStore,
 };
