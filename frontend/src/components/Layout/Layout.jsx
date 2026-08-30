@@ -54,6 +54,11 @@ export default function Layout() {
       "/cash-bank"
     );
 
+  const isQuickSalePage =
+    location.pathname.startsWith(
+      "/quick-sale"
+    );
+
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
@@ -137,6 +142,7 @@ export default function Layout() {
             GENEL
           </div>
 
+
           {/* GENEL BAKIŞ */}
 
           <NavLink
@@ -149,6 +155,7 @@ export default function Layout() {
               }`
             }
           >
+
             <span className="ren-menu-icon">
               ▦
             </span>
@@ -156,7 +163,33 @@ export default function Layout() {
             <span>
               Genel Bakış
             </span>
+
           </NavLink>
+
+
+          {/* HIZLI SATIŞ */}
+
+          <NavLink
+            to="/quick-sale"
+            className={
+              `ren-menu-item ${
+                isQuickSalePage
+                  ? "active"
+                  : ""
+              }`
+            }
+          >
+
+            <span className="ren-menu-icon">
+              ₺
+            </span>
+
+            <span>
+              Hızlı Satış
+            </span>
+
+          </NavLink>
+
 
           {/* STOK */}
 
@@ -174,6 +207,7 @@ export default function Layout() {
               )
             }
           >
+
             <span className="ren-menu-icon">
               ▣
             </span>
@@ -187,7 +221,9 @@ export default function Layout() {
                 ? "⌃"
                 : "⌄"}
             </span>
+
           </button>
+
 
           {stockOpen && (
             <div className="ren-submenu">
@@ -286,6 +322,7 @@ export default function Layout() {
             </div>
           )}
 
+
           {/* MÜŞTERİ - TEDARİKÇİ */}
 
           <button
@@ -302,6 +339,7 @@ export default function Layout() {
               )
             }
           >
+
             <span className="ren-menu-icon">
               ◉
             </span>
@@ -315,7 +353,9 @@ export default function Layout() {
                 ? "⌃"
                 : "⌄"}
             </span>
+
           </button>
+
 
           {customerOpen && (
             <div className="ren-submenu">
@@ -428,6 +468,7 @@ export default function Layout() {
             </div>
           )}
 
+
           {/* SİPARİŞ - TEKLİF */}
 
           <button
@@ -444,6 +485,7 @@ export default function Layout() {
               )
             }
           >
+
             <span className="ren-menu-icon">
               ▤
             </span>
@@ -457,7 +499,9 @@ export default function Layout() {
                 ? "⌃"
                 : "⌄"}
             </span>
+
           </button>
+
 
           {ordersOpen && (
             <div className="ren-submenu">
@@ -521,6 +565,7 @@ export default function Layout() {
             </div>
           )}
 
+
           {/* FATURALAR */}
 
           <button
@@ -537,6 +582,7 @@ export default function Layout() {
               )
             }
           >
+
             <span className="ren-menu-icon">
               ▥
             </span>
@@ -550,7 +596,9 @@ export default function Layout() {
                 ? "⌃"
                 : "⌄"}
             </span>
+
           </button>
+
 
           {invoiceOpen && (
             <div className="ren-submenu">
@@ -637,6 +685,7 @@ export default function Layout() {
             </div>
           )}
 
+
           {/* NAKİT */}
 
           <button
@@ -653,6 +702,7 @@ export default function Layout() {
               )
             }
           >
+
             <span className="ren-menu-icon">
               ₺
             </span>
@@ -666,7 +716,9 @@ export default function Layout() {
                 ? "⌃"
                 : "⌄"}
             </span>
+
           </button>
+
 
           {cashOpen && (
             <div className="ren-submenu">
@@ -726,6 +778,7 @@ export default function Layout() {
             </div>
           )}
 
+
           {/* RAPORLAR */}
 
           <NavLink
@@ -738,6 +791,7 @@ export default function Layout() {
               }`
             }
           >
+
             <span className="ren-menu-icon">
               ▥
             </span>
@@ -745,7 +799,9 @@ export default function Layout() {
             <span>
               Raporlar
             </span>
+
           </NavLink>
+
 
           {/* REN AI */}
 
@@ -759,6 +815,7 @@ export default function Layout() {
               }`
             }
           >
+
             <span className="ren-menu-icon">
               ✦
             </span>
@@ -766,7 +823,9 @@ export default function Layout() {
             <span>
               REN AI
             </span>
+
           </NavLink>
+
 
           {/* AYARLAR */}
 
@@ -780,6 +839,7 @@ export default function Layout() {
               }`
             }
           >
+
             <span className="ren-menu-icon">
               ⚙
             </span>
@@ -787,9 +847,11 @@ export default function Layout() {
             <span>
               Ayarlar
             </span>
+
           </NavLink>
 
         </nav>
+
 
         <div className="ren-sidebar-bottom">
 
@@ -817,6 +879,7 @@ export default function Layout() {
 
       </aside>
 
+
       <main className="ren-main">
 
         <header className="ren-topbar">
@@ -842,6 +905,7 @@ export default function Layout() {
 
           </div>
 
+
           <div className="ren-topbar-right">
 
             <button
@@ -850,6 +914,7 @@ export default function Layout() {
             >
               ?
             </button>
+
 
             <div className="ren-profile">
 
@@ -874,6 +939,7 @@ export default function Layout() {
           </div>
 
         </header>
+
 
         <div className="ren-content">
           <Outlet />

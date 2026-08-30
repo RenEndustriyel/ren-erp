@@ -1542,3 +1542,21 @@ b {
 .ren-table-footer select {
   font-size: 10px !important;
 }
+
+.stock-product-name-link {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: #303943;
+  font: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stock-product-name-link:hover {
+  color: #286fc7;
+  text-decoration: underline;
+}

@@ -3,6 +3,8 @@ const CATEGORIES_KEY = "ren_erp_categories";
 const BRANDS_KEY = "ren_erp_brands";
 const UNITS_KEY = "ren_erp_units";
 const MOVEMENTS_KEY = "ren_erp_stock_movements";
+const PRICE_HISTORY_KEY = "ren_erp_product_price_history";
+
 
 const DEFAULT_CATEGORIES = [
   {
@@ -37,6 +39,7 @@ const DEFAULT_CATEGORIES = [
   },
 ];
 
+
 const DEFAULT_BRANDS = [
   {
     id: 1,
@@ -69,6 +72,7 @@ const DEFAULT_BRANDS = [
     status: "Aktif",
   },
 ];
+
 
 const DEFAULT_UNITS = [
   {
@@ -115,32 +119,62 @@ const DEFAULT_UNITS = [
   },
 ];
 
-function read(key, fallback = []) {
+
+/* =========================================================
+   GENEL STORAGE
+========================================================= */
+
+function read(
+  key,
+  fallback = []
+) {
   try {
-    const raw = localStorage.getItem(key);
+    const raw =
+      localStorage.getItem(
+        key
+      );
 
     if (!raw) {
       return fallback;
     }
 
-    const parsed = JSON.parse(raw);
+    const parsed =
+      JSON.parse(
+        raw
+      );
 
-    return Array.isArray(parsed)
+    return Array.isArray(
+      parsed
+    )
       ? parsed
       : fallback;
+
   } catch {
     return fallback;
   }
 }
 
-function write(key, value) {
+
+function write(
+  key,
+  value
+) {
   localStorage.setItem(
     key,
-    JSON.stringify(value)
+    JSON.stringify(
+      value
+    )
   );
 }
 
-function normalizeNumber(value) {
+
+/* =========================================================
+   SAYI
+========================================================= */
+
+function normalizeNumber(
+  value
+) {
   if (
     value === null ||
     value === undefined ||
@@ -149,33 +183,63 @@ function normalizeNumber(value) {
     return 0;
   }
 
-  if (typeof value === "number") {
-    return Number.isFinite(value)
+  if (
+    typeof value ===
+    "number"
+  ) {
+    return Number.isFinite(
+      value
+    )
       ? value
       : 0;
   }
 
-  let text = String(value).trim();
+  let text =
+    String(
+      value
+    ).trim();
 
   if (
     text.includes(",") &&
     text.includes(".")
   ) {
-    text = text
-      .replace(/\./g, "")
-      .replace(",", ".");
+    text =
+      text
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
+
   } else if (
     text.includes(",")
   ) {
-    text = text.replace(",", ".");
+    text =
+      text.replace(
+        ",",
+        "."
+      );
   }
 
-  const result = Number(text);
+  const result =
+    Number(
+      text
+    );
 
-  return Number.isFinite(result)
+  return Number.isFinite(
+    result
+  )
     ? result
     : 0;
 }
+
+
+/* =========================================================
+   KÂR
+========================================================= */
 
 function calculateProfit(
   purchaseNet,
@@ -191,16 +255,29 @@ function calculateProfit(
       saleNet
     );
 
-  if (purchase <= 0) {
+  if (
+    purchase <=
+    0
+  ) {
     return 0;
   }
 
   return (
-    ((sale - purchase) /
-      purchase) *
+    (
+      (
+        sale -
+        purchase
+      ) /
+      purchase
+    ) *
     100
   );
 }
+
+
+/* =========================================================
+   STOK DURUMU
+========================================================= */
 
 function calculateStatus(
   stock,
@@ -212,7 +289,9 @@ function calculateStatus(
   }
 
   const quantity =
-    normalizeNumber(stock);
+    normalizeNumber(
+      stock
+    );
 
   const critical =
     normalizeNumber(
@@ -224,11 +303,17 @@ function calculateStatus(
       ? critical
       : 15;
 
-  if (quantity <= 0) {
+  if (
+    quantity <=
+    0
+  ) {
     return "empty";
   }
 
-  if (quantity <= threshold) {
+  if (
+    quantity <=
+    threshold
+  ) {
     return "low";
   }
 
@@ -247,6 +332,7 @@ export function getProducts() {
   );
 }
 
+
 export function saveProducts(
   products
 ) {
@@ -264,21 +350,31 @@ export function saveProducts(
   return products;
 }
 
+
 export function getProductById(
   id
 ) {
   return getProducts().find(
-    (product) =>
-      String(product.id) ===
-      String(id)
+    (
+      product
+    ) =>
+      String(
+        product.id
+      ) ===
+      String(
+        id
+      )
   );
 }
+
 
 export function getProductByCode(
   code
 ) {
   const normalized =
-    String(code || "")
+    String(
+      code || ""
+    )
       .trim()
       .toLocaleLowerCase(
         "tr-TR"
@@ -289,35 +385,48 @@ export function getProductByCode(
   }
 
   return getProducts().find(
-    (product) =>
+    (
+      product
+    ) =>
       String(
         product.code || ""
       )
         .trim()
         .toLocaleLowerCase(
           "tr-TR"
-        ) === normalized
+        ) ===
+      normalized
   );
 }
+
 
 export function getProductByBarcode(
   barcode
 ) {
   const normalized =
-    String(barcode || "")
-      .trim();
+    String(
+      barcode || ""
+    ).trim();
 
   if (!normalized) {
     return null;
   }
 
   return getProducts().find(
-    (product) =>
+    (
+      product
+    ) =>
       String(
         product.barcode || ""
-      ).trim() === normalized
+      ).trim() ===
+      normalized
   );
 }
+
+
+/* =========================================================
+   ÜRÜN OLUŞTUR
+========================================================= */
 
 export function createProduct(
   productData
@@ -335,11 +444,13 @@ export function createProduct(
       productData.code || ""
     ).trim();
 
+
   if (!name) {
     throw new Error(
       "Ürün adı zorunludur."
     );
   }
+
 
   if (!code) {
     throw new Error(
@@ -347,9 +458,12 @@ export function createProduct(
     );
   }
 
+
   const duplicateCode =
     products.some(
-      (product) =>
+      (
+        product
+      ) =>
         String(
           product.code || ""
         )
@@ -362,11 +476,13 @@ export function createProduct(
         )
     );
 
+
   if (duplicateCode) {
     throw new Error(
       "Bu ürün kodu zaten kullanılıyor."
     );
   }
+
 
   const purchaseNet =
     normalizeNumber(
@@ -401,6 +517,7 @@ export function createProduct(
   const active =
     productData.active !==
     false;
+
 
   const product = {
     id:
@@ -524,12 +641,18 @@ export function createProduct(
       new Date().toISOString(),
   };
 
+
   saveProducts([
     product,
     ...products,
   ]);
 
-  if (stock !== 0) {
+
+  if (
+    stock !==
+    0
+  ) {
+
     addStockMovement({
       productId:
         product.id,
@@ -543,9 +666,11 @@ export function createProduct(
       quantity:
         stock,
 
-      previousStock: 0,
+      previousStock:
+        0,
 
-      newStock: stock,
+      newStock:
+        stock,
 
       type:
         stock > 0
@@ -558,10 +683,17 @@ export function createProduct(
       description:
         "Yeni ürün açılış stok kaydı.",
     });
+
   }
+
 
   return product;
 }
+
+
+/* =========================================================
+   ÜRÜN GÜNCELLE
+========================================================= */
 
 export function updateProduct(
   id,
@@ -570,21 +702,34 @@ export function updateProduct(
   const products =
     getProducts();
 
+
   const index =
     products.findIndex(
-      (product) =>
-        String(product.id) ===
-        String(id)
+      (
+        product
+      ) =>
+        String(
+          product.id
+        ) ===
+        String(
+          id
+        )
     );
 
-  if (index === -1) {
+
+  if (
+    index ===
+    -1
+  ) {
     throw new Error(
       "Ürün bulunamadı."
     );
   }
 
+
   const current =
     products[index];
+
 
   const updated = {
     ...current,
@@ -593,12 +738,16 @@ export function updateProduct(
       new Date().toISOString(),
   };
 
+
   const stock =
     normalizeNumber(
       updated.stock
     );
 
-  updated.stock = stock;
+
+  updated.stock =
+    stock;
+
 
   updated.status =
     calculateStatus(
@@ -607,10 +756,13 @@ export function updateProduct(
       updated.active
     );
 
+
   updated.profitRate =
-    normalizeNumber(
-      updated.profitRate
+    calculateProfit(
+      updated.purchaseNet,
+      updated.salesNet
     );
+
 
   updated.grossProfit =
     normalizeNumber(
@@ -620,18 +772,29 @@ export function updateProduct(
       updated.purchaseNet
     );
 
+
   const nextProducts =
-    [...products];
+    [
+      ...products,
+    ];
+
 
   nextProducts[index] =
     updated;
+
 
   saveProducts(
     nextProducts
   );
 
+
   return updated;
 }
+
+
+/* =========================================================
+   ÜRÜN SİL
+========================================================= */
 
 export function deleteProduct(
   id
@@ -639,24 +802,40 @@ export function deleteProduct(
   const products =
     getProducts();
 
+
   const product =
     products.find(
-      (item) =>
-        String(item.id) ===
-        String(id)
+      (
+        item
+      ) =>
+        String(
+          item.id
+        ) ===
+        String(
+          id
+        )
     );
+
 
   if (!product) {
     return false;
   }
 
+
   saveProducts(
     products.filter(
-      (item) =>
-        String(item.id) !==
-        String(id)
+      (
+        item
+      ) =>
+        String(
+          item.id
+        ) !==
+        String(
+          id
+        )
     )
   );
+
 
   return true;
 }
@@ -673,19 +852,25 @@ export function getCategories() {
       []
     );
 
+
   if (
-    existing.length === 0
+    existing.length ===
+    0
   ) {
+
     write(
       CATEGORIES_KEY,
       DEFAULT_CATEGORIES
     );
 
     return DEFAULT_CATEGORIES;
+
   }
+
 
   return existing;
 }
+
 
 export function saveCategories(
   categories
@@ -695,11 +880,13 @@ export function saveCategories(
     categories
   );
 
+
   window.dispatchEvent(
     new Event(
       "ren-categories-changed"
     )
   );
+
 
   return categories;
 }
@@ -716,19 +903,25 @@ export function getBrands() {
       []
     );
 
+
   if (
-    existing.length === 0
+    existing.length ===
+    0
   ) {
+
     write(
       BRANDS_KEY,
       DEFAULT_BRANDS
     );
 
     return DEFAULT_BRANDS;
+
   }
+
 
   return existing;
 }
+
 
 export function saveBrands(
   brands
@@ -738,11 +931,13 @@ export function saveBrands(
     brands
   );
 
+
   window.dispatchEvent(
     new Event(
       "ren-brands-changed"
     )
   );
+
 
   return brands;
 }
@@ -759,19 +954,25 @@ export function getUnits() {
       []
     );
 
+
   if (
-    existing.length === 0
+    existing.length ===
+    0
   ) {
+
     write(
       UNITS_KEY,
       DEFAULT_UNITS
     );
 
     return DEFAULT_UNITS;
+
   }
+
 
   return existing;
 }
+
 
 export function saveUnits(
   units
@@ -781,11 +982,13 @@ export function saveUnits(
     units
   );
 
+
   window.dispatchEvent(
     new Event(
       "ren-units-changed"
     )
   );
+
 
   return units;
 }
@@ -802,6 +1005,7 @@ export function getStockMovements() {
   );
 }
 
+
 export function saveStockMovements(
   movements
 ) {
@@ -810,20 +1014,24 @@ export function saveStockMovements(
     movements
   );
 
+
   window.dispatchEvent(
     new Event(
       "ren-stock-movements-changed"
     )
   );
 
+
   return movements;
 }
+
 
 export function addStockMovement(
   movementData
 ) {
   const movements =
     getStockMovements();
+
 
   const movement = {
     id:
@@ -891,10 +1099,12 @@ export function addStockMovement(
       new Date().toISOString(),
   };
 
+
   saveStockMovements([
     movement,
     ...movements,
   ]);
+
 
   return movement;
 }
@@ -914,50 +1124,52 @@ export function changeStock(
       productId
     );
 
+
   if (!product) {
+
     throw new Error(
       "Stok değişikliği yapılacak ürün bulunamadı."
     );
+
   }
+
 
   const amount =
     normalizeNumber(
       quantity
     );
 
+
   const previousStock =
     normalizeNumber(
       product.stock
     );
 
+
   /*
-    SATIŞ MANTIĞI:
-
-    Stok yeterliyse normal şekilde düşer.
-
-    Stok yetersizse satış/fatura işlemi
-    yine devam eder ve stok 0'da kalır.
-
-    Örnek:
-    Stok 3
-    Satış 5
-    Son stok 0
-
-    Negatif stok oluşturulmaz.
+    SATIŞTA STOK YETERSİZSE:
+    Fatura işlemi durmaz.
+    Stok negatife inmez.
+    Minimum 0 olur.
   */
+
 
   const rawNewStock =
     previousStock +
     amount;
 
+
   const newStock =
-    rawNewStock < 0
+    rawNewStock <
+    0
       ? 0
       : rawNewStock;
+
 
   const actualChange =
     newStock -
     previousStock;
+
 
   const updated =
     updateProduct(
@@ -967,6 +1179,7 @@ export function changeStock(
           newStock,
       }
     );
+
 
   addStockMovement({
     productId:
@@ -987,9 +1200,12 @@ export function changeStock(
 
     type:
       options.type ||
-      (amount >= 0
-        ? "Stok Girişi"
-        : "Stok Çıkışı"),
+      (
+        amount >=
+        0
+          ? "Stok Girişi"
+          : "Stok Çıkışı"
+      ),
 
     source:
       options.source ||
@@ -998,8 +1214,10 @@ export function changeStock(
     description:
       options.description ||
       (
-        amount < 0 &&
-        newStock === 0 &&
+        amount <
+          0 &&
+        newStock ===
+          0 &&
         previousStock +
           amount <
           0
@@ -1008,7 +1226,176 @@ export function changeStock(
       ),
   });
 
+
   return updated;
+}
+
+
+/* =========================================================
+   FİYAT GEÇMİŞİ
+========================================================= */
+
+export function getProductPriceHistory(
+  productId
+) {
+  return read(
+    PRICE_HISTORY_KEY,
+    []
+  )
+    .filter(
+      (
+        item
+      ) =>
+        String(
+          item.productId
+        ) ===
+        String(
+          productId
+        )
+    )
+    .sort(
+      (
+        a,
+        b
+      ) =>
+        String(
+          b.date ||
+          b.createdAt ||
+          ""
+        ).localeCompare(
+          String(
+            a.date ||
+            a.createdAt ||
+            ""
+          )
+        )
+    );
+}
+
+
+export function getAllProductPriceHistory() {
+  return read(
+    PRICE_HISTORY_KEY,
+    []
+  );
+}
+
+
+export function addProductPriceHistory(
+  data
+) {
+  const history =
+    read(
+      PRICE_HISTORY_KEY,
+      []
+    );
+
+
+  const oldPrice =
+    normalizeNumber(
+      data.oldPrice
+    );
+
+
+  const newPrice =
+    normalizeNumber(
+      data.newPrice
+    );
+
+
+  const changeAmount =
+    newPrice -
+    oldPrice;
+
+
+  const changePercent =
+    oldPrice >
+    0
+      ? (
+          (
+            changeAmount /
+            oldPrice
+          ) *
+          100
+        )
+      : 0;
+
+
+  const record = {
+
+    id:
+      data.id ||
+      `PRICE-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+
+    productId:
+      data.productId ||
+      "",
+
+    productCode:
+      data.productCode ||
+      "",
+
+    productName:
+      data.productName ||
+      "",
+
+    priceType:
+      data.priceType ||
+      "purchase",
+
+    oldPrice,
+
+    newPrice,
+
+    changeAmount,
+
+    changePercent,
+
+    supplierId:
+      data.supplierId ||
+      "",
+
+    supplierName:
+      data.supplierName ||
+      "",
+
+    invoiceId:
+      data.invoiceId ||
+      "",
+
+    invoiceNo:
+      data.invoiceNo ||
+      "",
+
+    date:
+      data.date ||
+      new Date().toISOString(),
+
+    createdAt:
+      new Date().toISOString(),
+
+  };
+
+
+  write(
+    PRICE_HISTORY_KEY,
+    [
+      record,
+      ...history,
+    ]
+  );
+
+
+  window.dispatchEvent(
+    new Event(
+      "ren-product-price-history-changed"
+    )
+  );
+
+
+  return record;
 }
 
 
@@ -1021,11 +1408,17 @@ export function updateProductsBulk(
   changes
 ) {
   const selectedIds =
-    Array.isArray(ids)
-      ? ids.map((id) =>
-          String(id)
+    Array.isArray(
+      ids
+    )
+      ? ids.map(
+          (id) =>
+            String(
+              id
+            )
         )
       : [];
+
 
   if (
     selectedIds.length ===
@@ -1034,19 +1427,27 @@ export function updateProductsBulk(
     return [];
   }
 
+
   const products =
     getProducts();
 
+
   const updatedProducts =
     products.map(
-      (product) => {
+      (
+        product
+      ) => {
+
         if (
           !selectedIds.includes(
-            String(product.id)
+            String(
+              product.id
+            )
           )
         ) {
           return product;
         }
+
 
         const updated = {
           ...product,
@@ -1055,6 +1456,7 @@ export function updateProductsBulk(
             new Date().toISOString(),
         };
 
+
         updated.status =
           calculateStatus(
             updated.stock,
@@ -1062,11 +1464,13 @@ export function updateProductsBulk(
             updated.active
           );
 
+
         updated.profitRate =
           calculateProfit(
             updated.purchaseNet,
             updated.salesNet
           );
+
 
         updated.grossProfit =
           normalizeNumber(
@@ -1076,25 +1480,33 @@ export function updateProductsBulk(
             updated.purchaseNet
           );
 
+
         return updated;
+
       }
     );
+
 
   saveProducts(
     updatedProducts
   );
 
+
   return updatedProducts.filter(
-    (product) =>
+    (
+      product
+    ) =>
       selectedIds.includes(
-        String(product.id)
+        String(
+          product.id
+        )
       )
   );
 }
 
 
 /* =========================================================
-   YARDIMCI
+   YENİDEN HESAPLA
 ========================================================= */
 
 export function recalculateProduct(
@@ -1104,15 +1516,18 @@ export function recalculateProduct(
     return null;
   }
 
+
   const purchaseNet =
     normalizeNumber(
       product.purchaseNet
     );
 
+
   const salesNet =
     normalizeNumber(
       product.salesNet
     );
+
 
   const profitRate =
     calculateProfit(
@@ -1120,7 +1535,9 @@ export function recalculateProduct(
       salesNet
     );
 
+
   return {
+
     ...product,
 
     purchaseNet,
@@ -1149,8 +1566,14 @@ export function recalculateProduct(
         product.criticalStock,
         product.active
       ),
+
   };
 }
+
+
+/* =========================================================
+   BAŞLAT
+========================================================= */
 
 export function initializeStockStore() {
   getCategories();
@@ -1158,7 +1581,16 @@ export function initializeStockStore() {
   getUnits();
   getProducts();
   getStockMovements();
+  read(
+    PRICE_HISTORY_KEY,
+    []
+  );
 }
+
+
+/* =========================================================
+   KEY'LER
+========================================================= */
 
 export const STOCK_KEYS = {
   PRODUCTS_KEY,
@@ -1166,4 +1598,5 @@ export const STOCK_KEYS = {
   BRANDS_KEY,
   UNITS_KEY,
   MOVEMENTS_KEY,
+  PRICE_HISTORY_KEY,
 };

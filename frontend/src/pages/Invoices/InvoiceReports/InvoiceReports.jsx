@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -13,7 +14,12 @@ import {
   MdTrendingUp,
   MdTrendingDown,
   MdAccountBalance,
+  MdOpenInNew,
 } from "react-icons/md";
+
+import {
+  useNavigate,
+} from "react-router-dom";
 
 import {
   getInvoices,
@@ -23,7 +29,7 @@ import "./InvoiceReports.css";
 
 
 /* =========================================================
-   YARDIMCI FONKSİYONLAR
+   YARDIMCILAR
 ========================================================= */
 
 function money(value) {
@@ -51,8 +57,12 @@ function normalizeType(type) {
 
   if (
     value === "purchase" ||
+    value === "purchases" ||
+    value === "buy" ||
     value === "alış" ||
-    value === "alis"
+    value === "alis" ||
+    value === "alış faturası" ||
+    value === "alis faturasi"
   ) {
     return "purchase";
   }
@@ -60,7 +70,10 @@ function normalizeType(type) {
 
   if (
     value === "return" ||
-    value === "iade"
+    value === "returns" ||
+    value === "iade" ||
+    value === "iade faturası" ||
+    value === "iade faturasi"
   ) {
     return "return";
   }
@@ -79,14 +92,16 @@ function getTypeLabel(type) {
 
 
   if (
-    normalized === "purchase"
+    normalized ===
+    "purchase"
   ) {
     return "Alış";
   }
 
 
   if (
-    normalized === "return"
+    normalized ===
+    "return"
   ) {
     return "İade";
   }
@@ -105,14 +120,16 @@ function getTypeClass(type) {
 
 
   if (
-    normalized === "purchase"
+    normalized ===
+    "purchase"
   ) {
     return "purchase";
   }
 
 
   if (
-    normalized === "return"
+    normalized ===
+    "return"
   ) {
     return "return";
   }
@@ -122,12 +139,14 @@ function getTypeClass(type) {
 }
 
 
-function getInvoiceDate(invoice) {
+function getInvoiceDate(
+  invoice
+) {
 
   const value =
-    invoice.date ||
-    invoice.createdAt ||
-    invoice.createdDate;
+    invoice?.date ||
+    invoice?.createdAt ||
+    invoice?.createdDate;
 
 
   if (!value) {
@@ -154,12 +173,15 @@ function getInvoiceDate(invoice) {
 }
 
 
-function startOfDay(date) {
+function startOfDay(
+  date
+) {
 
   const result =
     new Date(
       date
     );
+
 
   result.setHours(
     0,
@@ -168,16 +190,20 @@ function startOfDay(date) {
     0
   );
 
+
   return result;
 }
 
 
-function endOfDay(date) {
+function endOfDay(
+  date
+) {
 
   const result =
     new Date(
       date
     );
+
 
   result.setHours(
     23,
@@ -186,54 +212,62 @@ function endOfDay(date) {
     999
   );
 
+
   return result;
 }
 
 
-function getDateRange(period) {
+function getDateRange(
+  period
+) {
 
-  const today =
+  const todayDate =
     new Date();
 
 
   const end =
     endOfDay(
-      today
+      todayDate
     );
 
 
   const start =
     startOfDay(
-      today
+      todayDate
     );
 
 
   if (
-    period === "today"
+    period ===
+    "today"
   ) {
+
     return {
       start,
       end,
     };
+
   }
 
 
   if (
-    period === "week"
+    period ===
+    "week"
   ) {
 
     const day =
-      today.getDay();
+      todayDate.getDay();
 
 
     const diff =
-      day === 0
+      day ===
+      0
         ? 6
         : day - 1;
 
 
     start.setDate(
-      today.getDate() -
+      todayDate.getDate() -
       diff
     );
 
@@ -242,11 +276,13 @@ function getDateRange(period) {
       start,
       end,
     };
+
   }
 
 
   if (
-    period === "month"
+    period ===
+    "month"
   ) {
 
     start.setDate(
@@ -258,36 +294,20 @@ function getDateRange(period) {
       start,
       end,
     };
+
   }
 
 
   if (
-    period === "3month"
-  ) {
-
-    start.setMonth(
-      today.getMonth() - 2
-    );
-
-    start.setDate(
-      1
-    );
-
-
-    return {
-      start,
-      end,
-    };
-  }
-
-
-  if (
-    period === "6month"
+    period ===
+    "3month"
   ) {
 
     start.setMonth(
-      today.getMonth() - 5
+      todayDate.getMonth() -
+      2
     );
+
 
     start.setDate(
       1
@@ -298,17 +318,44 @@ function getDateRange(period) {
       start,
       end,
     };
+
   }
 
 
   if (
-    period === "year"
+    period ===
+    "6month"
+  ) {
+
+    start.setMonth(
+      todayDate.getMonth() -
+      5
+    );
+
+
+    start.setDate(
+      1
+    );
+
+
+    return {
+      start,
+      end,
+    };
+
+  }
+
+
+  if (
+    period ===
+    "year"
   ) {
 
     start.setMonth(
       0
     );
 
+
     start.setDate(
       1
     );
@@ -318,6 +365,7 @@ function getDateRange(period) {
       start,
       end,
     };
+
   }
 
 
@@ -325,6 +373,102 @@ function getDateRange(period) {
     start,
     end,
   };
+
+}
+
+
+function getCustomerName(
+  invoice
+) {
+
+  return (
+    invoice?.customerName ||
+    invoice?.supplierName ||
+    "Cari belirtilmemiş"
+  );
+
+}
+
+
+function getInvoiceNumber(
+  invoice
+) {
+
+  return (
+    invoice?.invoiceNo ||
+    invoice?.number ||
+    invoice?.documentNo ||
+    `FAT-${invoice?.id || ""}`
+  );
+
+}
+
+
+function getStatusClass(
+  invoice
+) {
+
+  if (
+    invoice?.status ===
+      "paid" ||
+    invoice?.paymentStatus ===
+      "Ödendi" ||
+    invoice?.paymentStatus ===
+      "Tahsil Edildi"
+  ) {
+
+    return "paid";
+
+  }
+
+
+  if (
+    invoice?.status ===
+      "cancelled" ||
+    invoice?.status ===
+      "canceled" ||
+    invoice?.status ===
+      "iptal"
+  ) {
+
+    return "cancelled";
+
+  }
+
+
+  return "open";
+
+}
+
+
+function getStatusLabel(
+  invoice
+) {
+
+  const status =
+    getStatusClass(
+      invoice
+    );
+
+
+  if (
+    status ===
+    "paid"
+  ) {
+    return "Ödendi";
+  }
+
+
+  if (
+    status ===
+    "cancelled"
+  ) {
+    return "İptal";
+  }
+
+
+  return "Açık";
+
 }
 
 
@@ -334,12 +478,17 @@ function getDateRange(period) {
 
 export default function InvoiceReports() {
 
+  const navigate =
+    useNavigate();
+
+
   const [
     invoices,
     setInvoices,
   ] = useState(
     () =>
-      getInvoices()
+      getInvoices() ||
+      []
   );
 
 
@@ -359,9 +508,9 @@ export default function InvoiceReports() {
   );
 
 
-  /* =========================================================
-     TARİH FİLTRESİ
-  ========================================================= */
+  /* =======================================================
+     TARİH ARALIĞI
+  ======================================================= */
 
   const range =
     useMemo(
@@ -375,55 +524,91 @@ export default function InvoiceReports() {
     );
 
 
-  /* =========================================================
-     RAPOR VERİSİ
-  ========================================================= */
+  /* =======================================================
+     RAPOR FATURALARI
+  ======================================================= */
 
   const reportInvoices =
     useMemo(
       () => {
 
-        return invoices.filter(
-          (invoice) => {
+        return invoices
+          .filter(
+            (
+              invoice
+            ) => {
 
-            const date =
-              getInvoiceDate(
-                invoice
+              const date =
+                getInvoiceDate(
+                  invoice
+                );
+
+
+              if (!date) {
+                return false;
+              }
+
+
+              const type =
+                normalizeType(
+                  invoice.type
+                );
+
+
+              const dateMatch =
+                date >=
+                  range.start &&
+                date <=
+                  range.end;
+
+
+              const typeMatch =
+                typeFilter ===
+                  "all" ||
+                type ===
+                  typeFilter;
+
+
+              return (
+                dateMatch &&
+                typeMatch
               );
 
-
-            if (!date) {
-              return false;
             }
+          )
+          .sort(
+            (
+              a,
+              b
+            ) => {
+
+              const dateA =
+                getInvoiceDate(
+                  a
+                );
 
 
-            const type =
-              normalizeType(
-                invoice.type
+              const dateB =
+                getInvoiceDate(
+                  b
+                );
+
+
+              if (
+                !dateA ||
+                !dateB
+              ) {
+                return 0;
+              }
+
+
+              return (
+                dateB.getTime() -
+                dateA.getTime()
               );
 
-
-            const dateMatch =
-              date >=
-                range.start &&
-              date <=
-                range.end;
-
-
-            const typeMatch =
-              typeFilter ===
-                "all" ||
-              type ===
-                typeFilter;
-
-
-            return (
-              dateMatch &&
-              typeMatch
-            );
-
-          }
-        );
+            }
+          );
 
       },
       [
@@ -434,13 +619,15 @@ export default function InvoiceReports() {
     );
 
 
-  /* =========================================================
+  /* =======================================================
      TÜRLER
-  ========================================================= */
+  ======================================================= */
 
   const salesInvoices =
     reportInvoices.filter(
-      (invoice) =>
+      (
+        invoice
+      ) =>
         normalizeType(
           invoice.type
         ) ===
@@ -450,7 +637,9 @@ export default function InvoiceReports() {
 
   const purchaseInvoices =
     reportInvoices.filter(
-      (invoice) =>
+      (
+        invoice
+      ) =>
         normalizeType(
           invoice.type
         ) ===
@@ -460,7 +649,9 @@ export default function InvoiceReports() {
 
   const returnInvoices =
     reportInvoices.filter(
-      (invoice) =>
+      (
+        invoice
+      ) =>
         normalizeType(
           invoice.type
         ) ===
@@ -468,9 +659,9 @@ export default function InvoiceReports() {
     );
 
 
-  /* =========================================================
+  /* =======================================================
      TUTARLAR
-  ========================================================= */
+  ======================================================= */
 
   const salesTotal =
     salesInvoices.reduce(
@@ -525,9 +716,9 @@ export default function InvoiceReports() {
     purchaseTotal;
 
 
-  /* =========================================================
+  /* =======================================================
      KDV
-  ========================================================= */
+  ======================================================= */
 
   const salesVat =
     salesInvoices.reduce(
@@ -540,7 +731,8 @@ export default function InvoiceReports() {
           Number(
             invoice.vatTotal ??
             invoice.totalVat ??
-            invoice.taxTotal
+            invoice.taxTotal ??
+            0
           ) || 0
         ),
       0
@@ -558,7 +750,8 @@ export default function InvoiceReports() {
           Number(
             invoice.vatTotal ??
             invoice.totalVat ??
-            invoice.taxTotal
+            invoice.taxTotal ??
+            0
           ) || 0
         ),
       0
@@ -576,7 +769,8 @@ export default function InvoiceReports() {
           Number(
             invoice.vatTotal ??
             invoice.totalVat ??
-            invoice.taxTotal
+            invoice.taxTotal ??
+            0
           ) || 0
         ),
       0
@@ -589,13 +783,15 @@ export default function InvoiceReports() {
     returnVat;
 
 
-  /* =========================================================
+  /* =======================================================
      ÖDEME DURUMU
-  ========================================================= */
+  ======================================================= */
 
   const paidInvoices =
     reportInvoices.filter(
-      (invoice) =>
+      (
+        invoice
+      ) =>
         invoice.status ===
           "paid" ||
         invoice.paymentStatus ===
@@ -607,7 +803,9 @@ export default function InvoiceReports() {
 
   const openInvoices =
     reportInvoices.filter(
-      (invoice) =>
+      (
+        invoice
+      ) =>
         !(
           invoice.status ===
             "paid" ||
@@ -655,25 +853,57 @@ export default function InvoiceReports() {
     );
 
 
-  /* =========================================================
+  /* =======================================================
      YENİLE
-  ========================================================= */
+  ======================================================= */
 
   const refresh =
     () => {
 
       setInvoices(
-        getInvoices()
+        getInvoices() ||
+        []
       );
 
     };
 
 
-  /* =========================================================
-     RENDER
-  ========================================================= */
+  /* =======================================================
+     FATURA DETAYI
+  ======================================================= */
+
+  const openInvoice =
+    (
+      invoice
+    ) => {
+
+      navigate(
+        `/invoices/detail?id=${encodeURIComponent(
+          invoice.id
+        )}`
+      );
+
+    };
+
+
+  /* =======================================================
+     TİP FİLTRESİ
+  ======================================================= */
+
+  const setInvoiceType =
+    (
+      type
+    ) => {
+
+      setTypeFilter(
+        type
+      );
+
+    };
+
 
   return (
+
     <div className="ren-invoice-reports">
 
 
@@ -689,8 +919,9 @@ export default function InvoiceReports() {
             type="button"
             className="ren-invoice-reports-back"
             onClick={() =>
-              window.location.href =
+              navigate(
                 "/invoices"
+              )
             }
           >
 
@@ -738,20 +969,17 @@ export default function InvoiceReports() {
             refresh
           }
         >
-
           Raporu Yenile
-
         </button>
 
       </header>
 
 
       {/* =====================================================
-          FILTER
+          FİLTRE
       ===================================================== */}
 
       <section className="ren-invoice-reports-filter-card">
-
 
         <div className="ren-invoice-report-filter-title">
 
@@ -764,8 +992,7 @@ export default function InvoiceReports() {
             </strong>
 
             <span>
-              Hesaplamalarda seçilen tarih aralığı
-              kullanılır.
+              Hesaplamalarda seçilen tarih aralığı kullanılır.
             </span>
 
           </div>
@@ -775,142 +1002,141 @@ export default function InvoiceReports() {
 
         <div className="ren-invoice-report-periods">
 
-          <button
-            type="button"
-            className={
-              period === "today"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "today"
+          {
+            [
+              [
+                "today",
+                "Bugün",
+              ],
+              [
+                "week",
+                "Bu Hafta",
+              ],
+              [
+                "month",
+                "Bu Ay",
+              ],
+              [
+                "3month",
+                "Son 3 Ay",
+              ],
+              [
+                "6month",
+                "Son 6 Ay",
+              ],
+              [
+                "year",
+                "Bu Yıl",
+              ],
+            ].map(
+              (
+                [
+                  value,
+                  label,
+                ]
+              ) => (
+
+                <button
+                  type="button"
+                  key={
+                    value
+                  }
+                  className={
+                    period ===
+                    value
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    setPeriod(
+                      value
+                    )
+                  }
+                >
+                  {
+                    label
+                  }
+                </button>
+
               )
-            }
-          >
-            Bugün
-          </button>
-
-
-          <button
-            type="button"
-            className={
-              period === "week"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "week"
-              )
-            }
-          >
-            Bu Hafta
-          </button>
-
-
-          <button
-            type="button"
-            className={
-              period === "month"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "month"
-              )
-            }
-          >
-            Bu Ay
-          </button>
-
-
-          <button
-            type="button"
-            className={
-              period === "3month"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "3month"
-              )
-            }
-          >
-            3 Ay
-          </button>
-
-
-          <button
-            type="button"
-            className={
-              period === "6month"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "6month"
-              )
-            }
-          >
-            6 Ay
-          </button>
-
-
-          <button
-            type="button"
-            className={
-              period === "year"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setPeriod(
-                "year"
-              )
-            }
-          >
-            Bu Yıl
-          </button>
+            )
+          }
 
         </div>
 
 
-        <div className="ren-invoice-report-type">
+        <div className="ren-invoice-report-type-filters">
 
-          <select
-            value={
-              typeFilter
+          <button
+            type="button"
+            className={
+              typeFilter ===
+              "all"
+                ? "active"
+                : ""
             }
-            onChange={(
-              event
-            ) =>
-              setTypeFilter(
-                event.target.value
+            onClick={() =>
+              setInvoiceType(
+                "all"
               )
             }
           >
+            Tümü
+          </button>
 
-            <option value="all">
-              Tüm Faturalar
-            </option>
 
-            <option value="sales">
-              Sadece Satış
-            </option>
+          <button
+            type="button"
+            className={
+              typeFilter ===
+              "sales"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setInvoiceType(
+                "sales"
+              )
+            }
+          >
+            Satış
+          </button>
 
-            <option value="purchase">
-              Sadece Alış
-            </option>
 
-            <option value="return">
-              Sadece İade
-            </option>
+          <button
+            type="button"
+            className={
+              typeFilter ===
+              "purchase"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setInvoiceType(
+                "purchase"
+              )
+            }
+          >
+            Alış
+          </button>
 
-          </select>
+
+          <button
+            type="button"
+            className={
+              typeFilter ===
+              "return"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setInvoiceType(
+                "return"
+              )
+            }
+          >
+            İade
+          </button>
 
         </div>
 
@@ -921,13 +1147,13 @@ export default function InvoiceReports() {
           KPI
       ===================================================== */}
 
-      <section className="ren-invoice-report-kpis">
+      <section className="ren-invoice-report-kpi-grid">
 
 
         <div className="ren-invoice-report-kpi">
 
           <div className="kpi-icon sales">
-            <MdTrendingUp />
+            <MdShoppingCart />
           </div>
 
           <div>
@@ -956,7 +1182,7 @@ export default function InvoiceReports() {
         <div className="ren-invoice-report-kpi">
 
           <div className="kpi-icon purchase">
-            <MdTrendingDown />
+            <MdLocalShipping />
           </div>
 
           <div>
@@ -1071,26 +1297,27 @@ export default function InvoiceReports() {
 
           <div className="ren-invoice-report-breakdown">
 
-
             <div>
 
               <div className="breakdown-label">
 
                 <span className="dot sales" />
 
-                Satış
+                <span>
+                  Satış
+                </span>
+
+                <strong>
+                  {salesInvoices.length}
+                </strong>
 
               </div>
 
-              <strong>
-                {salesInvoices.length}
-              </strong>
-
-              <span>
+              <div className="breakdown-value">
                 ₺{money(
                   salesTotal
                 )}
-              </span>
+              </div>
 
             </div>
 
@@ -1101,19 +1328,21 @@ export default function InvoiceReports() {
 
                 <span className="dot purchase" />
 
-                Alış
+                <span>
+                  Alış
+                </span>
+
+                <strong>
+                  {purchaseInvoices.length}
+                </strong>
 
               </div>
 
-              <strong>
-                {purchaseInvoices.length}
-              </strong>
-
-              <span>
+              <div className="breakdown-value">
                 ₺{money(
                   purchaseTotal
                 )}
-              </span>
+              </div>
 
             </div>
 
@@ -1124,22 +1353,23 @@ export default function InvoiceReports() {
 
                 <span className="dot return" />
 
-                İade
+                <span>
+                  İade
+                </span>
+
+                <strong>
+                  {returnInvoices.length}
+                </strong>
 
               </div>
 
-              <strong>
-                {returnInvoices.length}
-              </strong>
-
-              <span>
+              <div className="breakdown-value">
                 ₺{money(
                   returnTotal
                 )}
-              </span>
+              </div>
 
             </div>
-
 
           </div>
 
@@ -1168,7 +1398,6 @@ export default function InvoiceReports() {
 
 
           <div className="ren-invoice-report-payment">
-
 
             <div>
 
@@ -1207,7 +1436,6 @@ export default function InvoiceReports() {
 
             </div>
 
-
           </div>
 
         </div>
@@ -1235,7 +1463,6 @@ export default function InvoiceReports() {
 
 
           <div className="ren-invoice-report-vat">
-
 
             <div>
 
@@ -1282,7 +1509,7 @@ export default function InvoiceReports() {
             </div>
 
 
-            <div className="vat-total">
+            <div className="total">
 
               <span>
                 Net KDV
@@ -1296,13 +1523,12 @@ export default function InvoiceReports() {
 
             </div>
 
-
           </div>
 
         </div>
 
 
-        {/* TOPLAM BELGE */}
+        {/* GENEL ÖZET */}
 
         <div className="ren-invoice-report-card">
 
@@ -1324,7 +1550,6 @@ export default function InvoiceReports() {
 
 
           <div className="ren-invoice-report-general">
-
 
             <div>
 
@@ -1385,17 +1610,15 @@ export default function InvoiceReports() {
 
             </div>
 
-
           </div>
 
         </div>
-
 
       </section>
 
 
       {/* =====================================================
-          SON FATURALAR
+          FATURALAR
       ===================================================== */}
 
       <section className="ren-invoice-report-card ren-invoice-report-recent">
@@ -1414,6 +1637,7 @@ export default function InvoiceReports() {
 
           </div>
 
+
           <strong>
             {reportInvoices.length}
             {" "}
@@ -1425,122 +1649,179 @@ export default function InvoiceReports() {
 
         <div className="ren-invoice-report-recent-list">
 
-          {reportInvoices.length >
-          0 ? (
+          {
+            reportInvoices.length >
+            0 ? (
 
-            reportInvoices
-              .slice(
-                0,
-                10
-              )
-              .map(
-                (
-                  invoice
-                ) => (
+              reportInvoices
+                .slice(
+                  0,
+                  10
+                )
+                .map(
+                  (
+                    invoice
+                  ) => (
 
-                  <div
-                    key={
-                      invoice.id
-                    }
-                    className="ren-invoice-report-recent-row"
-                  >
-
-                    <div className="recent-icon">
-
-                      <MdReceiptLong />
-
-                    </div>
-
-
-                    <div className="recent-main">
-
-                      <strong>
-                        {
-                          invoice.invoiceNo ||
-                          "-"
-                        }
-                      </strong>
-
-                      <span>
-                        {
-                          invoice.customerName ||
-                          invoice.supplierName ||
-                          "Cari belirtilmemiş"
-                        }
-                      </span>
-
-                    </div>
-
-
-                    <span
-                      className={
-                        `ren-invoice-type-badge ${
-                          getTypeClass(
-                            invoice.type
-                          )
-                        }`
+                    <button
+                      key={
+                        invoice.id
                       }
-                    >
-
-                      {
-                        getTypeLabel(
-                          invoice.type
-                        )
-                      }
-
-                    </span>
-
-
-                    <span className="recent-date">
-
-                      {
-                        getInvoiceDate(
+                      type="button"
+                      className="ren-invoice-report-recent-row"
+                      onClick={() =>
+                        openInvoice(
                           invoice
                         )
-                          ? new Intl.DateTimeFormat(
-                              "tr-TR"
-                            ).format(
-                              getInvoiceDate(
-                                invoice
-                              )
-                            )
-                          : "-"
                       }
+                      title="Fatura detayını aç"
+                    >
 
-                    </span>
+                      <div className="recent-icon">
+
+                        <MdReceiptLong />
+
+                      </div>
 
 
-                    <strong className="recent-total">
+                      <div className="recent-main">
 
-                      ₺{money(
-                        invoice.total
-                      )}
+                        <strong>
+                          {
+                            getInvoiceNumber(
+                              invoice
+                            )
+                          }
+                        </strong>
 
-                    </strong>
+                        <span>
+                          {
+                            getCustomerName(
+                              invoice
+                            )
+                          }
+                        </span>
 
-                  </div>
+                      </div>
 
+
+                      <span
+                        className={
+                          `ren-invoice-type-badge ${
+                            getTypeClass(
+                              invoice.type
+                            )
+                          }`
+                        }
+                      >
+
+                        {
+                          getTypeLabel(
+                            invoice.type
+                          )
+                        }
+
+                      </span>
+
+
+                      <span className="recent-date">
+
+                        {
+                          getInvoiceDate(
+                            invoice
+                          )
+                            ? new Intl.DateTimeFormat(
+                                "tr-TR"
+                              ).format(
+                                getInvoiceDate(
+                                  invoice
+                                )
+                              )
+                            : "-"
+                        }
+
+                      </span>
+
+
+                      <div
+                        style={{
+                          textAlign:
+                            "right",
+                        }}
+                      >
+
+                        <strong className="recent-total">
+
+                          ₺{money(
+                            invoice.total
+                          )}
+
+                        </strong>
+
+
+                        <span
+                          style={{
+                            display:
+                              "block",
+                            marginTop:
+                              "3px",
+                            fontSize:
+                              "9px",
+                            color:
+                              getStatusClass(
+                                invoice
+                              ) ===
+                              "paid"
+                                ? "#3d8b63"
+                                : "#c58b45",
+                          }}
+                        >
+
+                          {
+                            getStatusLabel(
+                              invoice
+                            )
+                          }
+
+                        </span>
+
+                      </div>
+
+
+                      <MdOpenInNew
+                        style={{
+                          marginLeft:
+                            "8px",
+                          color:
+                            "#a0a7ae",
+                          fontSize:
+                            "17px",
+                        }}
+                      />
+
+                    </button>
+
+                  )
                 )
-              )
 
-          ) : (
+            ) : (
 
-            <div className="ren-invoice-report-no-data">
+              <div className="ren-invoice-report-no-data">
 
-              <MdReceiptLong />
+                <MdReceiptLong />
 
-              <strong>
-                Bu dönemde fatura bulunamadı
-              </strong>
+                <strong>
+                  Bu dönemde fatura bulunamadı
+                </strong>
 
-              <span>
-                Seçtiğiniz tarih veya fatura türü
-                için kayıt bulunmuyor.
-              </span>
+                <span>
+                  Seçtiğiniz tarih veya fatura türü için kayıt bulunmuyor.
+                </span>
 
-            </div>
+              </div>
 
-          )}
+            )
+          }
 
         </div>
 

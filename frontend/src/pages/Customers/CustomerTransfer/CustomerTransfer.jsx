@@ -1,321 +1,1387 @@
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import "./CustomerTransfer.css";
 
-const customers = [
-  {
-    id: 1,
-    code: "CR-0001",
-    name: "Akın Ambalaj",
-  },
-  {
-    id: 2,
-    code: "CR-0002",
-    name: "Aykım Temizlik Maddeleri",
-  },
-  {
-    id: 3,
-    code: "CR-0003",
-    name: "Yörsan",
-  },
-  {
-    id: 4,
-    code: "CR-0004",
-    name: "Matlı Holding",
-  },
-];
 
-const initialTransfers = [
-  {
-    id: 1,
-    date: "18.08.2026",
-    document: "VRM-2026-0004",
-    source: "Akın Ambalaj",
-    target: "Yörsan",
-    amount: 2500,
-    description: "Cari bakiye aktarımı",
-  },
-  {
-    id: 2,
-    date: "15.08.2026",
-    document: "VRM-2026-0003",
-    source: "Aykım Temizlik Maddeleri",
-    target: "Akın Ambalaj",
-    amount: 1750,
-    description: "Cari virman",
-  },
-  {
-    id: 3,
-    date: "10.08.2026",
-    document: "VRM-2026-0002",
-    source: "Yörsan",
-    target: "Matlı Holding",
-    amount: 5000,
-    description: "Hesap aktarımı",
-  },
-];
+const TRANSFER_KEY =
+  "ren-customer-transfers";
 
-function money(value) {
-  return new Intl.NumberFormat("tr-TR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value);
+const CUSTOMER_KEY =
+  "ren-customers";
+
+
+/* =========================================================
+   YARDIMCI
+========================================================= */
+
+function readTransfers() {
+  try {
+    const raw =
+      localStorage.getItem(
+        TRANSFER_KEY
+      );
+
+    if (!raw) {
+      return [];
+    }
+
+    const parsed =
+      JSON.parse(
+        raw
+      );
+
+    return Array.isArray(
+      parsed
+    )
+      ? parsed
+      : [];
+  } catch {
+    return [];
+  }
 }
 
-function today() {
-  const date = new Date();
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+function saveTransfers(
+  transfers
+) {
+  localStorage.setItem(
+    TRANSFER_KEY,
+    JSON.stringify(
+      transfers
+    )
+  );
+
+  window.dispatchEvent(
+    new Event(
+      "ren-customer-transfers-updated"
+    )
+  );
+}
+
+
+function readCustomers() {
+  try {
+    const raw =
+      localStorage.getItem(
+        CUSTOMER_KEY
+      );
+
+    if (!raw) {
+      return [];
+    }
+
+    const parsed =
+      JSON.parse(
+        raw
+      );
+
+    return Array.isArray(
+      parsed
+    )
+      ? parsed
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+
+function saveCustomers(
+  customers
+) {
+  localStorage.setItem(
+    CUSTOMER_KEY,
+    JSON.stringify(
+      customers
+    )
+  );
+
+  window.dispatchEvent(
+    new Event(
+      "ren-customers-updated"
+    )
+  );
+}
+
+
+function money(value) {
+  return new Intl.NumberFormat(
+    "tr-TR",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(
+    Number(value) || 0
+  );
+}
+
+
+function numberValue(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (
+    typeof value ===
+    "number"
+  ) {
+    return Number.isFinite(
+      value
+    )
+      ? value
+      : 0;
+  }
+
+  let text =
+    String(
+      value
+    )
+      .trim()
+      .replace(
+        /\s/g,
+        ""
+      );
+
+  if (
+    text.includes(",") &&
+    text.includes(".")
+  ) {
+    text =
+      text
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
+  } else {
+    text =
+      text.replace(
+        ",",
+        "."
+      );
+  }
+
+  const result =
+    Number(
+      text
+    );
+
+  return Number.isFinite(
+    result
+  )
+    ? result
+    : 0;
+}
+
+
+function today() {
+  const date =
+    new Date();
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const year =
+    date.getFullYear();
 
   return `${day}.${month}.${year}`;
 }
 
-export default function CustomerTransfer() {
-  const [transfers, setTransfers] =
-    useState(initialTransfers);
 
-  const [source, setSource] = useState("");
-  const [target, setTarget] = useState("");
-  const [date, setDate] = useState(today());
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
+function nextTransferNumber(
+  transfers
+) {
+  let max =
+    0;
 
-  const [search, setSearch] = useState("");
-  const [activeMenu, setActiveMenu] =
-    useState(null);
+  transfers.forEach(
+    (
+      transfer
+    ) => {
 
-  const filteredTransfers = useMemo(() => {
-    const query = search
-      .trim()
-      .toLocaleLowerCase("tr-TR");
+      const value =
+        String(
+          transfer.document ||
+          ""
+        );
 
-    if (!query) {
-      return transfers;
+      const match =
+        value.match(
+          /^VRM-\d{4}-(\d+)$/i
+        );
+
+      if (!match) {
+        return;
+      }
+
+      const sequence =
+        Number(
+          match[1]
+        );
+
+      if (
+        Number.isFinite(
+          sequence
+        ) &&
+        sequence >
+        max
+      ) {
+        max =
+          sequence;
+      }
     }
-
-    return transfers.filter((item) => {
-      return (
-        item.document
-          .toLocaleLowerCase("tr-TR")
-          .includes(query) ||
-        item.source
-          .toLocaleLowerCase("tr-TR")
-          .includes(query) ||
-        item.target
-          .toLocaleLowerCase("tr-TR")
-          .includes(query) ||
-        item.description
-          .toLocaleLowerCase("tr-TR")
-          .includes(query)
-      );
-    });
-  }, [transfers, search]);
-
-  const selectedSource = customers.find(
-    (item) => item.id === Number(source)
   );
 
-  const selectedTarget = customers.find(
-    (item) => item.id === Number(target)
-  );
+  return `VRM-${new Date().getFullYear()}-${String(
+    max + 1
+  ).padStart(
+    4,
+    "0"
+  )}`;
+}
 
-  const saveTransfer = () => {
-    if (!source || !target) {
-      alert(
-        "Lütfen kaynak ve hedef cari hesapları seçin."
-      );
-      return;
-    }
 
-    if (source === target) {
-      alert(
-        "Kaynak ve hedef cari aynı olamaz."
-      );
-      return;
-    }
+/* =========================================================
+   CARİ BAKİYESİNE VİRMAN ETKİSİ
+========================================================= */
 
-    const numericAmount = Number(
-      String(amount)
-        .replace(/\./g, "")
-        .replace(",", ".")
+function applyTransferToCustomers(
+  customers,
+  transfer,
+  reverse = false
+) {
+  const amount =
+    numberValue(
+      transfer.amount
     );
 
-    if (
-      !numericAmount ||
-      numericAmount <= 0
-    ) {
-      alert(
-        "Lütfen geçerli bir virman tutarı girin."
-      );
-      return;
-    }
+  if (
+    amount <=
+    0
+  ) {
+    return customers;
+  }
 
-    const newTransfer = {
-      id: Date.now(),
-      date,
-      document: `VRM-2026-${String(
-        transfers.length + 5
-      ).padStart(4, "0")}`,
-      source: selectedSource.name,
-      target: selectedTarget.name,
-      amount: numericAmount,
-      description:
-        description.trim() ||
-        "Cari virman",
+  const sourceId =
+    String(
+      transfer.sourceCustomerId ||
+      transfer.sourceId ||
+      ""
+    );
+
+  const targetId =
+    String(
+      transfer.targetCustomerId ||
+      transfer.targetId ||
+      ""
+    );
+
+  if (
+    !sourceId ||
+    !targetId
+  ) {
+    return customers;
+  }
+
+  /*
+    Normal:
+    Kaynak - tutar
+    Hedef  + tutar
+
+    Reverse:
+    Kaynak + tutar
+    Hedef  - tutar
+  */
+
+  const factor =
+    reverse
+      ? -1
+      : 1;
+
+  return customers.map(
+    (
+      customer
+    ) => {
+
+      const id =
+        String(
+          customer.id
+        );
+
+      if (
+        id !==
+          sourceId &&
+        id !==
+          targetId
+      ) {
+        return customer;
+      }
+
+      let balance =
+        numberValue(
+          customer.balance
+        );
+
+      if (
+        id ===
+        sourceId
+      ) {
+        balance -=
+          amount *
+          factor;
+      }
+
+      if (
+        id ===
+        targetId
+      ) {
+        balance +=
+          amount *
+          factor;
+      }
+
+      return {
+        ...customer,
+        balance,
+        updatedAt:
+          new Date().toISOString(),
+      };
+    }
+  );
+}
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
+export default function CustomerTransfer() {
+
+  const [
+    customers,
+    setCustomers,
+  ] = useState(
+    readCustomers
+  );
+
+
+  const [
+    transfers,
+    setTransfers,
+  ] = useState(
+    readTransfers
+  );
+
+
+  const [
+    source,
+    setSource,
+  ] = useState(
+    ""
+  );
+
+
+  const [
+    target,
+    setTarget,
+  ] = useState(
+    ""
+  );
+
+
+  const [
+    date,
+    setDate,
+  ] = useState(
+    today()
+  );
+
+
+  const [
+    amount,
+    setAmount,
+  ] = useState(
+    ""
+  );
+
+
+  const [
+    description,
+    setDescription,
+  ] = useState(
+    ""
+  );
+
+
+  const [
+    search,
+    setSearch,
+  ] = useState(
+    ""
+  );
+
+
+  const [
+    activeMenu,
+    setActiveMenu,
+  ] = useState(
+    null
+  );
+
+
+  const [
+    editingTransfer,
+    setEditingTransfer,
+  ] = useState(
+    null
+  );
+
+
+  const [
+    detailTransferData,
+    setDetailTransferData,
+  ] = useState(
+    null
+  );
+
+
+  const [
+    showForm,
+    setShowForm,
+  ] = useState(
+    false
+  );
+
+
+  /* =======================================================
+     YENİLE
+  ======================================================= */
+
+  const refresh =
+    () => {
+
+      setCustomers(
+        readCustomers()
+      );
+
+      setTransfers(
+        readTransfers()
+      );
+
     };
 
-    setTransfers((prev) => [
-      newTransfer,
-      ...prev,
-    ]);
 
-    setSource("");
-    setTarget("");
-    setAmount("");
-    setDescription("");
+  useEffect(() => {
 
-    alert("Cari virman başarıyla kaydedildi.");
-  };
+    refresh();
 
-  const clearForm = () => {
-    setSource("");
-    setTarget("");
-    setAmount("");
-    setDescription("");
-  };
-
-  const detailTransfer = (transfer) => {
-    alert(
-      `Cari Virman Detayı\n\n` +
-        `Belge: ${transfer.document}\n` +
-        `Tarih: ${transfer.date}\n` +
-        `Kaynak: ${transfer.source}\n` +
-        `Hedef: ${transfer.target}\n` +
-        `Tutar: ${money(transfer.amount)} TL\n` +
-        `Açıklama: ${transfer.description}`
-    );
-
-    setActiveMenu(null);
-  };
-
-  const editTransfer = (transfer) => {
-    alert(
-      `${transfer.document} virman düzenleme ekranı hazırlanacak.`
-    );
-
-    setActiveMenu(null);
-  };
-
-  const deleteTransfer = (transfer) => {
-    const confirmed = window.confirm(
-      `"${transfer.document}" virmanını silmek istediğinize emin misiniz?`
-    );
-
-    if (!confirmed) {
-      setActiveMenu(null);
-      return;
-    }
-
-    setTransfers((prev) =>
-      prev.filter(
-        (item) => item.id !== transfer.id
-      )
-    );
-
-    setActiveMenu(null);
-  };
-
-  const exportExcel = () => {
-    const headers = [
-      "Tarih",
-      "Belge No",
-      "Kaynak Cari",
-      "Hedef Cari",
-      "Tutar",
-      "Açıklama",
+    const events = [
+      "ren-customer-transfers-updated",
+      "ren-customers-updated",
+      "storage",
     ];
 
-    const rows = filteredTransfers.map(
-      (item) => [
-        item.date,
-        item.document,
-        item.source,
-        item.target,
-        item.amount,
-        item.description,
-      ]
-    );
+    events.forEach(
+      (
+        event
+      ) => {
 
-    const csv = [
-      headers.join(";"),
-      ...rows.map((row) =>
-        row
-          .map(
-            (value) =>
-              `"${String(
-                value ?? ""
-              ).replace(/"/g, '""')}"`
-          )
-          .join(";")
-      ),
-    ].join("\n");
+        window.addEventListener(
+          event,
+          refresh
+        );
 
-    const blob = new Blob(
-      ["\ufeff" + csv],
-      {
-        type: "text/csv;charset=utf-8;",
       }
     );
 
-    const url =
-      URL.createObjectURL(blob);
 
-    const link =
-      document.createElement("a");
+    return () => {
 
-    link.href = url;
-    link.download =
-      "REN-ERP-Cari-Virmanlar.csv";
+      events.forEach(
+        (
+          event
+        ) => {
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+          window.removeEventListener(
+            event,
+            refresh
+          );
 
-    URL.revokeObjectURL(url);
+        }
+      );
 
-    setActiveMenu(null);
-  };
+    };
 
-  const exportPdf = () => {
-    window.print();
-    setActiveMenu(null);
-  };
+  }, []);
+
+
+  /* =======================================================
+     FİLTRE
+  ======================================================= */
+
+  const filteredTransfers =
+    useMemo(() => {
+
+      const query =
+        search
+          .trim()
+          .toLocaleLowerCase(
+            "tr-TR"
+          );
+
+
+      if (!query) {
+        return transfers;
+      }
+
+
+      return transfers.filter(
+        (
+          item
+        ) => {
+
+          return (
+
+            String(
+              item.document ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              item.source ||
+              item.sourceCustomerName ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              item.target ||
+              item.targetCustomerName ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              item.description ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              )
+
+          );
+
+        }
+      );
+
+    }, [
+      transfers,
+      search,
+    ]);
+
+
+  const selectedSource =
+    customers.find(
+      (
+        item
+      ) =>
+        String(
+          item.id
+        ) ===
+        String(
+          source
+        )
+    );
+
+
+  const selectedTarget =
+    customers.find(
+      (
+        item
+      ) =>
+        String(
+          item.id
+        ) ===
+        String(
+          target
+        )
+    );
+
+
+  /* =======================================================
+     FORM TEMİZLE
+  ======================================================= */
+
+  const clearForm =
+    () => {
+
+      setSource(
+        ""
+      );
+
+      setTarget(
+        ""
+      );
+
+      setDate(
+        today()
+      );
+
+      setAmount(
+        ""
+      );
+
+      setDescription(
+        ""
+      );
+
+      setEditingTransfer(
+        null
+      );
+
+      setShowForm(
+        false
+      );
+
+    };
+
+
+  /* =======================================================
+     FORM DOLDUR
+  ======================================================= */
+
+  const loadTransferToForm =
+    (
+      transfer
+    ) => {
+
+      const sourceId =
+        transfer.sourceCustomerId ||
+        transfer.sourceId ||
+        customers.find(
+          (
+            customer
+          ) =>
+            customer.name ===
+            transfer.source
+        )?.id ||
+        "";
+
+
+      const targetId =
+        transfer.targetCustomerId ||
+        transfer.targetId ||
+        customers.find(
+          (
+            customer
+          ) =>
+            customer.name ===
+            transfer.target
+        )?.id ||
+        "";
+
+
+      setSource(
+        String(
+          sourceId
+        )
+      );
+
+      setTarget(
+        String(
+          targetId
+        )
+      );
+
+      setDate(
+        transfer.date ||
+        today()
+      );
+
+      setAmount(
+        transfer.amount ??
+        ""
+      );
+
+      setDescription(
+        transfer.description ||
+        ""
+      );
+
+      setEditingTransfer(
+        transfer
+      );
+
+      setShowForm(
+        true
+      );
+
+      setActiveMenu(
+        null
+      );
+
+      setDetailTransferData(
+        null
+      );
+
+    };
+
+
+  /* =======================================================
+     KAYDET
+  ======================================================= */
+
+  const saveTransfer =
+    () => {
+
+      if (
+        !source ||
+        !target
+      ) {
+
+        alert(
+          "Lütfen kaynak ve hedef cari hesapları seçin."
+        );
+
+        return;
+
+      }
+
+
+      if (
+        String(
+          source
+        ) ===
+        String(
+          target
+        )
+      ) {
+
+        alert(
+          "Kaynak ve hedef cari aynı olamaz."
+        );
+
+        return;
+
+      }
+
+
+      const numericAmount =
+        numberValue(
+          amount
+        );
+
+
+      if (
+        numericAmount <=
+        0
+      ) {
+
+        alert(
+          "Lütfen geçerli bir virman tutarı girin."
+        );
+
+        return;
+
+      }
+
+
+      const sourceCustomer =
+        customers.find(
+          (
+            customer
+          ) =>
+            String(
+              customer.id
+            ) ===
+            String(
+              source
+            )
+        );
+
+
+      const targetCustomer =
+        customers.find(
+          (
+            customer
+          ) =>
+            String(
+              customer.id
+            ) ===
+            String(
+              target
+            )
+        );
+
+
+      if (
+        !sourceCustomer ||
+        !targetCustomer
+      ) {
+
+        alert(
+          "Kaynak veya hedef cari bulunamadı."
+        );
+
+        return;
+
+      }
+
+
+      /* =================================================
+         DÜZENLE
+      ================================================= */
+
+      if (
+        editingTransfer
+      ) {
+
+        /*
+          Önce eski virmanın cari etkisini
+          tamamen geri alıyoruz.
+        */
+
+        let updatedCustomers =
+          applyTransferToCustomers(
+            customers,
+            editingTransfer,
+            true
+          );
+
+
+        const updatedTransfer = {
+
+          ...editingTransfer,
+
+          date,
+
+          sourceCustomerId:
+            sourceCustomer.id,
+
+          sourceCustomerName:
+            sourceCustomer.name,
+
+          source:
+            sourceCustomer.name,
+
+          targetCustomerId:
+            targetCustomer.id,
+
+          targetCustomerName:
+            targetCustomer.name,
+
+          target:
+            targetCustomer.name,
+
+          amount:
+            numericAmount,
+
+          description:
+            description.trim() ||
+            "Cari virman",
+
+          updatedAt:
+            new Date()
+              .toISOString(),
+
+        };
+
+
+        /*
+          Yeni virmanı uygula.
+        */
+
+        updatedCustomers =
+          applyTransferToCustomers(
+            updatedCustomers,
+            updatedTransfer,
+            false
+          );
+
+
+        const updatedTransfers =
+          transfers.map(
+            (
+              item
+            ) =>
+              String(
+                item.id
+              ) ===
+              String(
+                editingTransfer.id
+              )
+                ? updatedTransfer
+                : item
+          );
+
+
+        saveCustomers(
+          updatedCustomers
+        );
+
+        saveTransfers(
+          updatedTransfers
+        );
+
+
+        setCustomers(
+          updatedCustomers
+        );
+
+        setTransfers(
+          updatedTransfers
+        );
+
+
+        clearForm();
+
+
+        alert(
+          `${updatedTransfer.document} numaralı virman güncellendi.`
+        );
+
+
+        return;
+
+      }
+
+
+      /* =================================================
+         YENİ
+      ================================================= */
+
+      const newTransfer = {
+
+        id:
+          `TR-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 8)}`,
+
+        date,
+
+        document:
+          nextTransferNumber(
+            transfers
+          ),
+
+        sourceCustomerId:
+          sourceCustomer.id,
+
+        sourceCustomerName:
+          sourceCustomer.name,
+
+        source:
+          sourceCustomer.name,
+
+        targetCustomerId:
+          targetCustomer.id,
+
+        targetCustomerName:
+          targetCustomer.name,
+
+        target:
+          targetCustomer.name,
+
+        amount:
+          numericAmount,
+
+        description:
+          description.trim() ||
+          "Cari virman",
+
+        sourceType:
+          "customer-transfer",
+
+        createdAt:
+          new Date()
+            .toISOString(),
+
+      };
+
+
+      const updatedCustomers =
+        applyTransferToCustomers(
+          customers,
+          newTransfer,
+          false
+        );
+
+
+      const updatedTransfers = [
+        newTransfer,
+        ...transfers,
+      ];
+
+
+      saveCustomers(
+        updatedCustomers
+      );
+
+      saveTransfers(
+        updatedTransfers
+      );
+
+
+      setCustomers(
+        updatedCustomers
+      );
+
+      setTransfers(
+        updatedTransfers
+      );
+
+
+      clearForm();
+
+
+      alert(
+        `${newTransfer.document} numaralı cari virman kaydedildi.`
+      );
+
+    };
+
+
+  /* =======================================================
+     DETAY
+  ======================================================= */
+
+  const detailTransfer =
+    (
+      transfer
+    ) => {
+
+      setDetailTransferData(
+        transfer
+      );
+
+      setActiveMenu(
+        null
+      );
+
+    };
+
+
+  /* =======================================================
+     SİL
+  ======================================================= */
+
+  const deleteTransfer =
+    (
+      transfer
+    ) => {
+
+      const confirmed =
+        window.confirm(
+          `"${transfer.document}" virmanını silmek istediğinize emin misiniz?\n\n` +
+          `${transfer.source || transfer.sourceCustomerName} → ` +
+          `${transfer.target || transfer.targetCustomerName}\n` +
+          `${money(
+            transfer.amount
+          )} TL`
+        );
+
+
+      if (
+        !confirmed
+      ) {
+
+        setActiveMenu(
+          null
+        );
+
+        return;
+
+      }
+
+
+      /*
+        Önce cari etkisini geri al.
+      */
+
+      const updatedCustomers =
+        applyTransferToCustomers(
+          customers,
+          transfer,
+          true
+        );
+
+
+      const updatedTransfers =
+        transfers.filter(
+          (
+            item
+          ) =>
+            String(
+              item.id
+            ) !==
+            String(
+              transfer.id
+            )
+        );
+
+
+      saveCustomers(
+        updatedCustomers
+      );
+
+      saveTransfers(
+        updatedTransfers
+      );
+
+
+      setCustomers(
+        updatedCustomers
+      );
+
+      setTransfers(
+        updatedTransfers
+      );
+
+
+      setActiveMenu(
+        null
+      );
+
+
+      setDetailTransferData(
+        null
+      );
+
+
+      alert(
+        `${transfer.document} numaralı virman silindi.`
+      );
+
+    };
+
+
+  /* =======================================================
+     EXPORT EXCEL
+  ======================================================= */
+
+  const exportExcel =
+    () => {
+
+      const headers = [
+        "Tarih",
+        "Belge No",
+        "Kaynak Cari",
+        "Hedef Cari",
+        "Tutar",
+        "Açıklama",
+      ];
+
+
+      const rows =
+        filteredTransfers.map(
+          (
+            item
+          ) => [
+
+            item.date,
+
+            item.document,
+
+            item.source ||
+            item.sourceCustomerName ||
+            "",
+
+            item.target ||
+            item.targetCustomerName ||
+            "",
+
+            item.amount,
+
+            item.description ||
+            "",
+
+          ]
+        );
+
+
+      const csv = [
+        headers.join(";"),
+
+        ...rows.map(
+          (
+            row
+          ) =>
+            row
+              .map(
+                (
+                  value
+                ) =>
+                  `"${String(
+                    value ??
+                    ""
+                  ).replace(
+                    /"/g,
+                    '""'
+                  )}"`
+              )
+              .join(";")
+        ),
+
+      ].join("\n");
+
+
+      const blob =
+        new Blob(
+          [
+            "\ufeff" +
+            csv,
+          ],
+          {
+            type:
+              "text/csv;charset=utf-8;",
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href =
+        url;
+
+
+      link.download =
+        "REN-ERP-Cari-Virmanlar.csv";
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      document.body.removeChild(
+        link
+      );
+
+
+      URL.revokeObjectURL(
+        url
+      );
+
+
+      setActiveMenu(
+        null
+      );
+
+    };
+
+
+  /* =======================================================
+     PDF
+  ======================================================= */
+
+  const exportPdf =
+    () => {
+
+      window.print();
+
+      setActiveMenu(
+        null
+      );
+
+    };
+
 
   return (
+
     <div
       className="customer-transfer-page"
       onClick={() =>
-        setActiveMenu(null)
+        setActiveMenu(
+          null
+        )
       }
     >
+
       <div className="customer-transfer-container">
 
-        {/* HEADER */}
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="customer-transfer-header">
 
           <div>
 
             <div className="customer-transfer-breadcrumb">
+
               Müşteri - Tedarikçi
-              <span>/</span>
+
+              <span>
+                /
+              </span>
+
               Cari Virman
+
             </div>
+
 
             <h1>
               Cari Virman
             </h1>
+
 
             <p>
               Bir cari hesaptan diğer cari hesaba
@@ -324,23 +1390,33 @@ export default function CustomerTransfer() {
 
           </div>
 
+
           <div className="customer-transfer-header-actions">
 
             <button
               className="transfer-header-button"
+              type="button"
               onClick={(event) => {
+
                 event.stopPropagation();
+
                 exportPdf();
+
               }}
             >
               PDF
             </button>
 
+
             <button
               className="transfer-header-button"
+              type="button"
               onClick={(event) => {
+
                 event.stopPropagation();
+
                 exportExcel();
+
               }}
             >
               Excel
@@ -351,21 +1427,29 @@ export default function CustomerTransfer() {
         </div>
 
 
-        {/* VİRMAN FORMU */}
+        {/* =================================================
+            VİRMAN FORMU
+        ================================================= */}
 
         <div className="customer-transfer-form-card">
 
           <div className="transfer-card-title">
 
             <div>
+
               <strong>
-                Yeni Cari Virman
+                {
+                  editingTransfer
+                    ? "Cari Virmanı Düzenle"
+                    : "Yeni Cari Virman"
+                }
               </strong>
 
               <span>
                 Kaynak ve hedef cari hesapları
                 seçerek aktarım oluşturun.
               </span>
+
             </div>
 
           </div>
@@ -380,26 +1464,55 @@ export default function CustomerTransfer() {
               </label>
 
               <select
-                value={source}
+                value={
+                  source
+                }
                 onChange={(event) =>
                   setSource(
                     event.target.value
                   )
                 }
               >
+
                 <option value="">
                   Cari hesap seçin
                 </option>
 
-                {customers.map((customer) => (
-                  <option
-                    key={customer.id}
-                    value={customer.id}
-                  >
-                    {customer.name} —{" "}
-                    {customer.code}
-                  </option>
-                ))}
+
+                {
+                  customers.map(
+                    (
+                      customer
+                    ) => (
+
+                      <option
+                        key={
+                          customer.id
+                        }
+                        value={
+                          customer.id
+                        }
+                      >
+
+                        {
+                          customer.name ||
+                          customer.title ||
+                          customer.companyName
+                        }
+
+                        {" — "}
+
+                        {
+                          customer.code ||
+                          ""
+                        }
+
+                      </option>
+
+                    )
+                  )
+                }
+
               </select>
 
             </div>
@@ -417,26 +1530,55 @@ export default function CustomerTransfer() {
               </label>
 
               <select
-                value={target}
+                value={
+                  target
+                }
                 onChange={(event) =>
                   setTarget(
                     event.target.value
                   )
                 }
               >
+
                 <option value="">
                   Cari hesap seçin
                 </option>
 
-                {customers.map((customer) => (
-                  <option
-                    key={customer.id}
-                    value={customer.id}
-                  >
-                    {customer.name} —{" "}
-                    {customer.code}
-                  </option>
-                ))}
+
+                {
+                  customers.map(
+                    (
+                      customer
+                    ) => (
+
+                      <option
+                        key={
+                          customer.id
+                        }
+                        value={
+                          customer.id
+                        }
+                      >
+
+                        {
+                          customer.name ||
+                          customer.title ||
+                          customer.companyName
+                        }
+
+                        {" — "}
+
+                        {
+                          customer.code ||
+                          ""
+                        }
+
+                      </option>
+
+                    )
+                  )
+                }
+
               </select>
 
             </div>
@@ -449,7 +1591,9 @@ export default function CustomerTransfer() {
               </label>
 
               <input
-                value={date}
+                value={
+                  date
+                }
                 onChange={(event) =>
                   setDate(
                     event.target.value
@@ -470,7 +1614,9 @@ export default function CustomerTransfer() {
               <div className="transfer-amount-input">
 
                 <input
-                  value={amount}
+                  value={
+                    amount
+                  }
                   onChange={(event) =>
                     setAmount(
                       event.target.value
@@ -496,7 +1642,9 @@ export default function CustomerTransfer() {
               </label>
 
               <input
-                value={description}
+                value={
+                  description
+                }
                 onChange={(event) =>
                   setDescription(
                     event.target.value
@@ -513,17 +1661,32 @@ export default function CustomerTransfer() {
           <div className="transfer-form-footer">
 
             <button
+              type="button"
               className="transfer-cancel"
-              onClick={clearForm}
+              onClick={
+                clearForm
+              }
             >
-              Temizle
+              {
+                editingTransfer
+                  ? "İptal"
+                  : "Temizle"
+              }
             </button>
 
+
             <button
+              type="button"
               className="transfer-save"
-              onClick={saveTransfer}
+              onClick={
+                saveTransfer
+              }
             >
-              Virmanı Kaydet
+              {
+                editingTransfer
+                  ? "Değişiklikleri Kaydet"
+                  : "Virmanı Kaydet"
+              }
             </button>
 
           </div>
@@ -531,7 +1694,9 @@ export default function CustomerTransfer() {
         </div>
 
 
-        {/* GEÇMİŞ VİRMANLAR */}
+        {/* =================================================
+            GEÇMİŞ
+        ================================================= */}
 
         <div className="customer-transfer-list-card">
 
@@ -549,6 +1714,7 @@ export default function CustomerTransfer() {
 
             </div>
 
+
             <div className="transfer-list-tools">
 
               <div className="transfer-search">
@@ -558,7 +1724,9 @@ export default function CustomerTransfer() {
                 </span>
 
                 <input
-                  value={search}
+                  value={
+                    search
+                  }
                   onChange={(event) =>
                     setSearch(
                       event.target.value
@@ -569,16 +1737,24 @@ export default function CustomerTransfer() {
 
               </div>
 
+
               <button
                 className="transfer-tool-button"
-                onClick={exportExcel}
+                type="button"
+                onClick={
+                  exportExcel
+                }
               >
                 Excel
               </button>
 
+
               <button
                 className="transfer-tool-button"
-                onClick={exportPdf}
+                type="button"
+                onClick={
+                  exportPdf
+                }
               >
                 PDF
               </button>
@@ -631,217 +1807,377 @@ export default function CustomerTransfer() {
 
               <tbody>
 
-                {filteredTransfers.length === 0 ? (
+                {
+                  filteredTransfers.length ===
+                  0 ? (
 
-                  <tr>
+                    <tr>
 
-                    <td
-                      colSpan="7"
-                      className="transfer-empty"
-                    >
-
-                      <div>
-                        ⌕
-                      </div>
-
-                      <strong>
-                        Virman bulunamadı
-                      </strong>
-
-                      <span>
-                        Arama kriterlerini
-                        değiştirerek tekrar deneyin.
-                      </span>
-
-                    </td>
-
-                  </tr>
-
-                ) : (
-
-                  filteredTransfers.map(
-                    (transfer) => (
-
-                      <tr
-                        key={transfer.id}
+                      <td
+                        colSpan="7"
+                        className="transfer-empty"
                       >
 
-                        <td>
-                          {transfer.date}
-                        </td>
+                        <div>
+                          ⌕
+                        </div>
 
-                        <td>
+                        <strong>
+                          Virman bulunamadı
+                        </strong>
 
-                          <span className="transfer-document">
-                            {transfer.document}
-                          </span>
+                        <span>
+                          Arama kriterlerini
+                          değiştirerek tekrar deneyin.
+                        </span>
 
-                        </td>
+                      </td>
 
-                        <td>
+                    </tr>
 
-                          <div className="transfer-party">
+                  ) : (
 
-                            <span className="transfer-party-icon">
-                              {transfer.source
-                                .charAt(0)
-                                .toUpperCase()}
-                            </span>
+                    filteredTransfers.map(
+                      (
+                        transfer
+                      ) => (
 
-                            <strong>
-                              {transfer.source}
-                            </strong>
+                        <tr
+                          key={
+                            transfer.id
+                          }
+                        >
 
-                          </div>
-
-                        </td>
-
-                        <td>
-
-                          <div className="transfer-party">
-
-                            <span className="transfer-party-icon target">
-                              {transfer.target
-                                .charAt(0)
-                                .toUpperCase()}
-                            </span>
-
-                            <strong>
-                              {transfer.target}
-                            </strong>
-
-                          </div>
-
-                        </td>
-
-                        <td className="transfer-money">
-                          {money(
-                            transfer.amount
-                          )} TL
-                        </td>
-
-                        <td>
-                          {transfer.description}
-                        </td>
+                          <td>
+                            {
+                              transfer.date
+                            }
+                          </td>
 
 
-                        <td className="transfer-actions">
-
-                          <div className="transfer-action-wrapper">
+                          <td>
 
                             <button
-                              className="transfer-more"
+                              type="button"
+                              className="transfer-document-button"
                               onClick={(event) => {
+
                                 event.stopPropagation();
 
-                                setActiveMenu(
-                                  activeMenu ===
-                                    transfer.id
-                                    ? null
-                                    : transfer.id
+                                detailTransfer(
+                                  transfer
                                 );
+
                               }}
                             >
-                              ⋮
+
+                              {
+                                transfer.document
+                              }
+
                             </button>
 
+                          </td>
 
-                            {activeMenu ===
-                              transfer.id && (
 
-                              <div
-                                className="transfer-row-menu"
-                                onClick={(event) =>
-                                  event.stopPropagation()
+                          <td>
+
+                            <button
+                              type="button"
+                              className="transfer-party transfer-party-button"
+                              onClick={(event) => {
+
+                                event.stopPropagation();
+
+                                const customer =
+                                  customers.find(
+                                    (
+                                      item
+                                    ) =>
+                                      String(
+                                        item.id
+                                      ) ===
+                                      String(
+                                        transfer.sourceCustomerId ||
+                                        transfer.sourceId
+                                      )
+                                  );
+
+                                if (
+                                  customer
+                                ) {
+
+                                  window.location.href =
+                                    `/customers/detail?id=${encodeURIComponent(
+                                      customer.id
+                                    )}`;
+
                                 }
+
+                              }}
+                            >
+
+                              <span className="transfer-party-icon">
+
+                                {
+                                  (
+                                    transfer.source ||
+                                    transfer.sourceCustomerName ||
+                                    "?"
+                                  )
+                                    .charAt(
+                                      0
+                                    )
+                                    .toUpperCase()
+                                }
+
+                              </span>
+
+
+                              <strong>
+                                {
+                                  transfer.source ||
+                                  transfer.sourceCustomerName ||
+                                  "—"
+                                }
+                              </strong>
+
+                            </button>
+
+                          </td>
+
+
+                          <td>
+
+                            <button
+                              type="button"
+                              className="transfer-party transfer-party-button"
+                              onClick={(event) => {
+
+                                event.stopPropagation();
+
+                                const customer =
+                                  customers.find(
+                                    (
+                                      item
+                                    ) =>
+                                      String(
+                                        item.id
+                                      ) ===
+                                      String(
+                                        transfer.targetCustomerId ||
+                                        transfer.targetId
+                                      )
+                                  );
+
+                                if (
+                                  customer
+                                ) {
+
+                                  window.location.href =
+                                    `/customers/detail?id=${encodeURIComponent(
+                                      customer.id
+                                    )}`;
+
+                                }
+
+                              }}
+                            >
+
+                              <span className="transfer-party-icon target">
+
+                                {
+                                  (
+                                    transfer.target ||
+                                    transfer.targetCustomerName ||
+                                    "?"
+                                  )
+                                    .charAt(
+                                      0
+                                    )
+                                    .toUpperCase()
+                                }
+
+                              </span>
+
+
+                              <strong>
+                                {
+                                  transfer.target ||
+                                  transfer.targetCustomerName ||
+                                  "—"
+                                }
+                              </strong>
+
+                            </button>
+
+                          </td>
+
+
+                          <td className="transfer-money">
+
+                            {
+                              money(
+                                transfer.amount
+                              )
+                            } TL
+
+                          </td>
+
+
+                          <td>
+
+                            {
+                              transfer.description ||
+                              "—"
+                            }
+
+                          </td>
+
+
+                          <td className="transfer-actions">
+
+                            <div className="transfer-action-wrapper">
+
+                              <button
+                                type="button"
+                                className="transfer-more"
+                                onClick={(event) => {
+
+                                  event.stopPropagation();
+
+                                  setActiveMenu(
+                                    activeMenu ===
+                                    transfer.id
+                                      ? null
+                                      : transfer.id
+                                  );
+
+                                }}
                               >
-
-                                <button
-                                  onClick={() =>
-                                    detailTransfer(
-                                      transfer
-                                    )
-                                  }
-                                >
-                                  <span>
-                                    ↗
-                                  </span>
-                                  Detay
-                                </button>
+                                ⋮
+                              </button>
 
 
-                                <button
-                                  onClick={() =>
-                                    editTransfer(
-                                      transfer
-                                    )
-                                  }
-                                >
-                                  <span>
-                                    ✎
-                                  </span>
-                                  Düzenle
-                                </button>
+                              {
+                                activeMenu ===
+                                transfer.id && (
+
+                                  <div
+                                    className="transfer-row-menu"
+                                    onClick={(event) =>
+                                      event.stopPropagation()
+                                    }
+                                  >
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        detailTransfer(
+                                          transfer
+                                        )
+                                      }
+                                    >
+
+                                      <span>
+                                        ↗
+                                      </span>
+
+                                      Detay
+
+                                    </button>
 
 
-                                <div className="transfer-menu-divider" />
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        loadTransferToForm(
+                                          transfer
+                                        )
+                                      }
+                                    >
+
+                                      <span>
+                                        ✎
+                                      </span>
+
+                                      Düzenle
+
+                                    </button>
 
 
-                                <button
-                                  onClick={
-                                    exportPdf
-                                  }
-                                >
-                                  <span>
-                                    ▣
-                                  </span>
-                                  PDF
-                                </button>
+                                    <div className="transfer-menu-divider" />
 
 
-                                <button
-                                  onClick={
-                                    exportExcel
-                                  }
-                                >
-                                  <span>
-                                    ▤
-                                  </span>
-                                  Excel
-                                </button>
+                                    <button
+                                      type="button"
+                                      onClick={
+                                        exportPdf
+                                      }
+                                    >
+
+                                      <span>
+                                        ▣
+                                      </span>
+
+                                      PDF
+
+                                    </button>
 
 
-                                <div className="transfer-menu-divider" />
+                                    <button
+                                      type="button"
+                                      onClick={
+                                        exportExcel
+                                      }
+                                    >
+
+                                      <span>
+                                        ▤
+                                      </span>
+
+                                      Excel
+
+                                    </button>
 
 
-                                <button
-                                  className="transfer-delete"
-                                  onClick={() =>
-                                    deleteTransfer(
-                                      transfer
-                                    )
-                                  }
-                                >
-                                  <span>
-                                    ×
-                                  </span>
-                                  Sil
-                                </button>
+                                    <div className="transfer-menu-divider" />
 
-                              </div>
 
-                            )}
+                                    <button
+                                      type="button"
+                                      className="transfer-delete"
+                                      onClick={() =>
+                                        deleteTransfer(
+                                          transfer
+                                        )
+                                      }
+                                    >
 
-                          </div>
+                                      <span>
+                                        ×
+                                      </span>
 
-                        </td>
+                                      Sil
 
-                      </tr>
+                                    </button>
 
+                                  </div>
+
+                                )
+                              }
+
+                            </div>
+
+                          </td>
+
+                        </tr>
+
+                      )
                     )
-                  )
 
-                )}
+                  )
+                }
 
               </tbody>
 
@@ -853,28 +2189,47 @@ export default function CustomerTransfer() {
           <div className="transfer-list-footer">
 
             <span>
+
               Toplam{" "}
+
               <strong>
-                {filteredTransfers.length}
-              </strong>{" "}
+                {
+                  filteredTransfers.length
+                }
+              </strong>
+
+              {" "}
+
               virman
+
             </span>
+
 
             <div className="transfer-pagination">
 
-              <button disabled>
+              <button
+                type="button"
+                disabled
+              >
                 ‹
               </button>
 
-              <button className="active">
+              <button
+                type="button"
+                className="active"
+              >
                 1
               </button>
 
-              <button disabled>
+              <button
+                type="button"
+                disabled
+              >
                 ›
               </button>
 
             </div>
+
 
             <span>
               25 / sayfa
@@ -885,6 +2240,219 @@ export default function CustomerTransfer() {
         </div>
 
       </div>
+
+
+      {/* =================================================
+          DETAY MODALI
+      ================================================= */}
+
+      {
+        detailTransferData && (
+
+          <div
+            className="customer-transfer-modal-overlay"
+            onMouseDown={(event) => {
+
+              if (
+                event.target ===
+                event.currentTarget
+              ) {
+
+                setDetailTransferData(
+                  null
+                );
+
+              }
+
+            }}
+          >
+
+            <div
+              className="customer-transfer-detail-modal"
+              onMouseDown={(event) =>
+                event.stopPropagation()
+              }
+            >
+
+              <div className="customer-transfer-modal-header">
+
+                <div>
+
+                  <strong>
+                    Cari Virman Detayı
+                  </strong>
+
+                  <span>
+                    {
+                      detailTransferData.document
+                    }
+                  </span>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDetailTransferData(
+                      null
+                    )
+                  }
+                >
+                  ×
+                </button>
+
+              </div>
+
+
+              <div className="customer-transfer-detail-body">
+
+                <div>
+
+                  <span>
+                    TARİH
+                  </span>
+
+                  <strong>
+                    {
+                      detailTransferData.date
+                    }
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    BELGE NO
+                  </span>
+
+                  <strong>
+                    {
+                      detailTransferData.document
+                    }
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    KAYNAK CARİ
+                  </span>
+
+                  <strong>
+                    {
+                      detailTransferData.source ||
+                      detailTransferData.sourceCustomerName
+                    }
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    HEDEF CARİ
+                  </span>
+
+                  <strong>
+                    {
+                      detailTransferData.target ||
+                      detailTransferData.targetCustomerName
+                    }
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    TUTAR
+                  </span>
+
+                  <strong>
+                    {
+                      money(
+                        detailTransferData.amount
+                      )
+                    } TL
+                  </strong>
+
+                </div>
+
+
+                <div>
+
+                  <span>
+                    AÇIKLAMA
+                  </span>
+
+                  <strong>
+                    {
+                      detailTransferData.description ||
+                      "—"
+                    }
+                  </strong>
+
+                </div>
+
+              </div>
+
+
+              <div className="customer-transfer-modal-footer">
+
+                <button
+                  type="button"
+                  className="transfer-cancel"
+                  onClick={() =>
+                    setDetailTransferData(
+                      null
+                    )
+                  }
+                >
+                  Kapat
+                </button>
+
+
+                <button
+                  type="button"
+                  className="transfer-save"
+                  onClick={() =>
+                    loadTransferToForm(
+                      detailTransferData
+                    )
+                  }
+                >
+                  Düzenle
+                </button>
+
+
+                <button
+                  type="button"
+                  className="transfer-delete-button"
+                  onClick={() =>
+                    deleteTransfer(
+                      detailTransferData
+                    )
+                  }
+                >
+                  Sil
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )
+      }
+
     </div>
   );
 }

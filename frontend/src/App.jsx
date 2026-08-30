@@ -6,7 +6,18 @@ import {
 } from "react-router-dom";
 
 import Layout from "./components/Layout/Layout";
+
+/* =========================================================
+   ANA SAYFA
+========================================================= */
+
 import Overview from "./pages/Overview/Overview";
+
+/* =========================================================
+   HIZLI SATIŞ
+========================================================= */
+
+import QuickSale from "./pages/QuickSale/QuickSale";
 
 /* =========================================================
    STOK
@@ -22,7 +33,7 @@ import BulkOperations from "./pages/Stock/Bulk/BulkOperations";
 import EditStock from "./pages/Stock/EditStock/EditStock";
 
 /* =========================================================
-   MÜŞTERİ / TEDARİKÇİ
+   CARİ
 ========================================================= */
 
 import CustomerList from "./pages/Customers/CustomerList/CustomerList";
@@ -37,7 +48,7 @@ import DueTracking from "./pages/Customers/DueTracking/DueTracking";
 import CustomerReports from "./pages/Customers/CustomerReports/CustomerReports";
 
 /* =========================================================
-   NAKİT
+   KASA / BANKA
 ========================================================= */
 
 import CashBank from "./pages/CashBank/CashBank";
@@ -61,7 +72,14 @@ import InvoiceReports from "./pages/Invoices/InvoiceReports/InvoiceReports";
 import Orders from "./pages/Orders/Orders";
 
 /* =========================================================
-   BOŞ MODÜL
+   RAPORLAR
+========================================================= */
+
+import Reports from "./pages/Reports/Reports";
+
+
+/* =========================================================
+   GEÇİCİ BOŞ MODÜL
 ========================================================= */
 
 function EmptyModule({
@@ -71,68 +89,103 @@ function EmptyModule({
   return (
     <div
       style={{
-        minHeight: "100vh",
-        padding: "40px",
-        boxSizing: "border-box",
+        minHeight:
+          "100vh",
+        padding:
+          "40px",
+        boxSizing:
+          "border-box",
         background:
           "linear-gradient(180deg,#f8fafc,#f3f6f9)",
         fontFamily:
           'Inter,"Segoe UI",Arial,sans-serif',
       }}
     >
+
       <div
         style={{
-          background: "#fff",
-          border: "1px solid #e0e7ef",
-          borderRadius: "10px",
-          padding: "28px",
-          maxWidth: "700px",
+          background:
+            "#fff",
+          border:
+            "1px solid #e0e7ef",
+          borderRadius:
+            "10px",
+          padding:
+            "28px",
+          maxWidth:
+            "700px",
         }}
       >
+
         <div
           style={{
-            fontSize: "11px",
-            color: "#286fc7",
-            fontWeight: 700,
-            marginBottom: "8px",
+            fontSize:
+              "11px",
+            color:
+              "#286fc7",
+            fontWeight:
+              700,
+            marginBottom:
+              "8px",
           }}
         >
           REN ERP
         </div>
 
+
         <h1
           style={{
-            margin: 0,
-            fontSize: "24px",
-            color: "#172033",
+            margin:
+              0,
+            fontSize:
+              "24px",
+            color:
+              "#172033",
           }}
         >
-          {title}
+          {
+            title
+          }
         </h1>
+
 
         <p
           style={{
-            color: "#8793a3",
-            fontSize: "11px",
+            color:
+              "#8793a3",
+            fontSize:
+              "11px",
           }}
         >
-          {description}
+          {
+            description
+          }
         </p>
+
       </div>
+
     </div>
   );
 }
+
 
 /* =========================================================
    APP
 ========================================================= */
 
 export default function App() {
+
   return (
+
     <BrowserRouter>
+
       <Routes>
 
-        <Route element={<Layout />}>
+        <Route
+          element={
+            <Layout />
+          }
+        >
 
           {/* =================================================
               ANA SAYFA
@@ -152,6 +205,18 @@ export default function App() {
             path="/dashboard"
             element={
               <Overview />
+            }
+          />
+
+
+          {/* =================================================
+              HIZLI SATIŞ
+          ================================================= */}
+
+          <Route
+            path="/quick-sale"
+            element={
+              <QuickSale />
             }
           />
 
@@ -218,7 +283,7 @@ export default function App() {
 
 
           {/* =================================================
-              MÜŞTERİ / TEDARİKÇİ
+              CARİ
           ================================================= */}
 
           <Route
@@ -320,16 +385,12 @@ export default function App() {
             }
           />
 
-          {/* GERÇEK KASA / BANKA RAPORU */}
-
           <Route
             path="/cash-bank/reports"
             element={
               <CashBankReports />
             }
           />
-
-          {/* GERÇEK NAKİT AKIŞI */}
 
           <Route
             path="/cash-bank/cash-flow"
@@ -415,16 +476,13 @@ export default function App() {
 
 
           {/* =================================================
-              RAPORLAR
+              RAPORLAR MERKEZİ
           ================================================= */}
 
           <Route
             path="/reports"
             element={
-              <EmptyModule
-                title="Raporlar"
-                description="REN ERP raporlama merkezi."
-              />
+              <Reports />
             }
           />
 
@@ -476,6 +534,8 @@ export default function App() {
         />
 
       </Routes>
+
     </BrowserRouter>
+
   );
 }

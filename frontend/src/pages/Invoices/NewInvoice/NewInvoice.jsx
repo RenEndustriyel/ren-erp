@@ -1,4 +1,5 @@
 import { Finance } from "../../../lib/finance";
+
 import {
   useEffect,
   useMemo,
@@ -29,13 +30,15 @@ import {
 import {
   getProducts,
   changeStock,
+  updateProduct,
+  addProductPriceHistory,
 } from "../../../lib/stockStore";
 
 import "./NewInvoice.css";
 
 
 /* =========================================================
-   YARDIMCI
+   GENEL YARDIMCILAR
 ========================================================= */
 
 function money(value) {
@@ -60,8 +63,21 @@ function numberValue(value) {
     return 0;
   }
 
+  if (
+    typeof value ===
+    "number"
+  ) {
+    return Number.isFinite(
+      value
+    )
+      ? value
+      : 0;
+  }
+
   let text =
-    String(value).trim();
+    String(
+      value
+    ).trim();
 
   if (
     text.includes(",") &&
@@ -69,19 +85,32 @@ function numberValue(value) {
   ) {
     text =
       text
-        .replace(/\./g, "")
-        .replace(",", ".");
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
   } else if (
     text.includes(",")
   ) {
     text =
-      text.replace(",", ".");
+      text.replace(
+        ",",
+        "."
+      );
   }
 
   const result =
-    Number(text);
+    Number(
+      text
+    );
 
-  return Number.isFinite(result)
+  return Number.isFinite(
+    result
+  )
     ? result
     : 0;
 }
@@ -90,7 +119,10 @@ function numberValue(value) {
 function today() {
   return new Date()
     .toISOString()
-    .slice(0, 10);
+    .slice(
+      0,
+      10
+    );
 }
 
 
@@ -140,9 +172,15 @@ function safeIsoDate(
 }
 
 
+/* =========================================================
+   FATURA TİPİ
+========================================================= */
+
 function normalizeType(type) {
   const value =
-    String(type || "")
+    String(
+      type || ""
+    )
       .trim()
       .toLowerCase();
 
@@ -191,7 +229,13 @@ function getTypeTitle(type) {
 }
 
 
-function productName(product) {
+/* =========================================================
+   ÜRÜN
+========================================================= */
+
+function productName(
+  product
+) {
   return (
     product?.name ||
     product?.productName ||
@@ -201,7 +245,9 @@ function productName(product) {
 }
 
 
-function productCode(product) {
+function productCode(
+  product
+) {
   return (
     product?.code ||
     product?.stockCode ||
@@ -211,7 +257,21 @@ function productCode(product) {
 }
 
 
-function productPurchasePrice(product) {
+function productUnit(
+  product
+) {
+  return (
+    product?.unit ||
+    product?.unitName ||
+    product?.sellingUnit ||
+    "Adet"
+  );
+}
+
+
+function productPurchasePrice(
+  product
+) {
   return numberValue(
     product?.purchaseNet ??
     product?.purchasePrice ??
@@ -223,7 +283,9 @@ function productPurchasePrice(product) {
 }
 
 
-function productSalePrice(product) {
+function productSalePrice(
+  product
+) {
   return numberValue(
     product?.salesNet ??
     product?.salePrice ??
@@ -235,7 +297,9 @@ function productSalePrice(product) {
 }
 
 
-function productVat(product) {
+function productVat(
+  product
+) {
   return numberValue(
     product?.salesVat ??
     product?.vatRate ??
@@ -269,21 +333,30 @@ function readAccounts() {
     }
 
     const parsed =
-      JSON.parse(saved);
+      JSON.parse(
+        saved
+      );
 
-    return Array.isArray(parsed)
+    return Array.isArray(
+      parsed
+    )
       ? parsed
       : [];
+
   } catch {
     return [];
   }
 }
 
 
-function saveAccounts(accounts) {
+function saveAccounts(
+  accounts
+) {
   localStorage.setItem(
     ACCOUNT_STORAGE_KEY,
-    JSON.stringify(accounts)
+    JSON.stringify(
+      accounts
+    )
   );
 
   window.dispatchEvent(
@@ -306,21 +379,30 @@ function readMovements() {
     }
 
     const parsed =
-      JSON.parse(saved);
+      JSON.parse(
+        saved
+      );
 
-    return Array.isArray(parsed)
+    return Array.isArray(
+      parsed
+    )
       ? parsed
       : [];
+
   } catch {
     return [];
   }
 }
 
 
-function saveMovements(movements) {
+function saveMovements(
+  movements
+) {
   localStorage.setItem(
     MOVEMENT_STORAGE_KEY,
-    JSON.stringify(movements)
+    JSON.stringify(
+      movements
+    )
   );
 
   window.dispatchEvent(
@@ -328,6 +410,44 @@ function saveMovements(movements) {
       "ren-cash-bank-updated"
     )
   );
+}
+
+
+/* =========================================================
+   YENİ ÜRÜN SATIRI
+========================================================= */
+
+function createItem() {
+  return {
+    id:
+      `INV-ITEM-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 9)}`,
+
+    productId:
+      "",
+
+    productName:
+      "",
+
+    productCode:
+      "",
+
+    unit:
+      "Adet",
+
+    quantity:
+      1,
+
+    unitPrice:
+      "",
+
+    vatRate:
+      20,
+
+    discount:
+      0,
+  };
 }
 
 
@@ -342,15 +462,21 @@ export default function NewInvoice() {
       window.location.search
     );
 
+
   const editId =
-    params.get("id");
+    params.get(
+      "id"
+    );
+
 
   const queryType =
-    params.get("type");
+    params.get(
+      "type"
+    );
 
 
   /* =======================================================
-     STATE
+     TEMEL STATE
   ======================================================= */
 
   const [
@@ -368,7 +494,7 @@ export default function NewInvoice() {
     setCustomers,
   ] = useState(
     () =>
-      getCustomers()
+      getCustomers() || []
   );
 
 
@@ -377,7 +503,7 @@ export default function NewInvoice() {
     setProducts,
   ] = useState(
     () =>
-      getProducts()
+      getProducts() || []
   );
 
 
@@ -396,7 +522,9 @@ export default function NewInvoice() {
   const [
     selectedCustomer,
     setSelectedCustomer,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
 
 
   const [
@@ -438,41 +566,55 @@ export default function NewInvoice() {
   const [
     items,
     setItems,
-  ] = useState([]);
+  ] = useState(
+    [
+      createItem(),
+    ]
+  );
 
 
   const [
     discount,
     setDiscount,
-  ] = useState(0);
+  ] = useState(
+    0
+  );
 
 
   const [
     stockTracking,
     setStockTracking,
-  ] = useState(true);
+  ] = useState(
+    true
+  );
 
 
   const [
     saving,
     setSaving,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   /* =======================================================
-     FATURA TAHSİLAT / ÖDEME
+     FİNANS
   ======================================================= */
 
   const [
     detailInvoice,
     setDetailInvoice,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
 
 
   const [
     showFinanceModal,
     setShowFinanceModal,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   const [
@@ -494,7 +636,9 @@ export default function NewInvoice() {
   const [
     financeAmount,
     setFinanceAmount,
-  ] = useState("");
+  ] = useState(
+    ""
+  );
 
 
   const [
@@ -516,19 +660,25 @@ export default function NewInvoice() {
   const [
     financeAccountId,
     setFinanceAccountId,
-  ] = useState("");
+  ] = useState(
+    ""
+  );
 
 
   const [
     financeDescription,
     setFinanceDescription,
-  ] = useState("");
+  ] = useState(
+    ""
+  );
 
 
   const [
     financeSaving,
     setFinanceSaving,
-  ] = useState(false);
+  ] = useState(
+    false
+  );
 
 
   /* =======================================================
@@ -537,9 +687,12 @@ export default function NewInvoice() {
 
   useEffect(() => {
 
-    if (editId) {
+    if (
+      editId
+    ) {
       return;
     }
+
 
     setInvoiceNo(
       getNextInvoiceNumber(
@@ -563,25 +716,33 @@ export default function NewInvoice() {
 
     const refreshCustomers =
       () => {
+
         setCustomers(
-          getCustomers()
+          getCustomers() ||
+          []
         );
+
       };
 
 
     const refreshProducts =
       () => {
+
         setProducts(
-          getProducts()
+          getProducts() ||
+          []
         );
+
       };
 
 
     const refreshAccounts =
       () => {
+
         setAccounts(
           readAccounts()
         );
+
       };
 
 
@@ -590,15 +751,18 @@ export default function NewInvoice() {
       refreshCustomers
     );
 
+
     window.addEventListener(
       "ren-products-changed",
       refreshProducts
     );
 
+
     window.addEventListener(
       "ren-stock-updated",
       refreshProducts
     );
+
 
     window.addEventListener(
       "ren-cash-bank-updated",
@@ -613,15 +777,18 @@ export default function NewInvoice() {
         refreshCustomers
       );
 
+
       window.removeEventListener(
         "ren-products-changed",
         refreshProducts
       );
 
+
       window.removeEventListener(
         "ren-stock-updated",
         refreshProducts
       );
+
 
       window.removeEventListener(
         "ren-cash-bank-updated",
@@ -634,12 +801,14 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     DÜZENLEME
+     DÜZENLENEN FATURA
   ======================================================= */
 
   useEffect(() => {
 
-    if (!editId) {
+    if (
+      !editId
+    ) {
       return;
     }
 
@@ -647,12 +816,18 @@ export default function NewInvoice() {
     const invoice =
       getInvoices().find(
         (item) =>
-          String(item.id) ===
-          String(editId)
+          String(
+            item.id
+          ) ===
+          String(
+            editId
+          )
       );
 
 
-    if (!invoice) {
+    if (
+      !invoice
+    ) {
       return;
     }
 
@@ -709,28 +884,34 @@ export default function NewInvoice() {
 
 
     setStockTracking(
-      invoice.stockTracking !== false
+      invoice.stockTracking !==
+      false
     );
 
 
     const customer =
       customers.find(
         (item) =>
-          String(item.id) ===
           String(
-            invoice.customerId
+            item.id
+          ) ===
+          String(
+            invoice.customerId ||
+            invoice.supplierId
           )
       );
 
 
-    if (customer) {
+    if (
+      customer
+    ) {
       setSelectedCustomer(
         customer
       );
     }
 
 
-    setItems(
+    const loadedItems =
       Array.isArray(
         invoice.items
       )
@@ -739,9 +920,10 @@ export default function NewInvoice() {
               item,
               index
             ) => ({
+
               id:
                 item.id ||
-                `item-${index}-${Date.now()}`,
+                `INV-EDIT-${index}-${Date.now()}`,
 
               productId:
                 item.productId ||
@@ -756,6 +938,10 @@ export default function NewInvoice() {
                 item.productCode ||
                 item.code ||
                 "",
+
+              unit:
+                item.unit ||
+                "Adet",
 
               quantity:
                 numberValue(
@@ -779,9 +965,19 @@ export default function NewInvoice() {
                 numberValue(
                   item.discount
                 ),
+
             })
           )
-        : []
+        : [];
+
+
+    setItems(
+      loadedItems.length >
+      0
+        ? loadedItems
+        : [
+            createItem(),
+          ]
     );
 
   }, [
@@ -805,14 +1001,18 @@ export default function NewInvoice() {
           );
 
 
-      if (!query) {
+      if (
+        !query
+      ) {
         return [];
       }
 
 
       return customers
         .filter(
-          (customer) => {
+          (
+            customer
+          ) => {
 
             const name =
               String(
@@ -873,14 +1073,18 @@ export default function NewInvoice() {
           );
 
 
-      if (!query) {
+      if (
+        !query
+      ) {
         return [];
       }
 
 
       return products
         .filter(
-          (product) => {
+          (
+            product
+          ) => {
 
             const name =
               productName(
@@ -926,7 +1130,7 @@ export default function NewInvoice() {
         )
         .slice(
           0,
-          10
+          12
         );
 
     }, [
@@ -936,15 +1140,43 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     ÜRÜN EKLE
+     CARİ SEÇ
   ======================================================= */
 
-  const addProduct =
+  const selectCustomer =
+    (
+      customer
+    ) => {
+
+      setSelectedCustomer(
+        customer
+      );
+
+
+      setCustomerSearch(
+        ""
+      );
+
+    };
+
+
+  /* =======================================================
+     ÜRÜNÜ SATIRA EKLE
+  ======================================================= */
+
+  const addProductToInvoice =
     (product) => {
+
+      /*
+        Aynı ürün zaten varsa
+        miktarını 1 artır.
+      */
 
       const existing =
         items.find(
-          (item) =>
+          (
+            item
+          ) =>
             String(
               item.productId
             ) ===
@@ -954,32 +1186,34 @@ export default function NewInvoice() {
         );
 
 
-      if (existing) {
+      if (
+        existing
+      ) {
 
         setItems(
           items.map(
-            (item) =>
-              String(
-                item.productId
-              ) ===
-              String(
-                product.id
-              )
+            (
+              item
+            ) =>
+              item.id ===
+              existing.id
                 ? {
                     ...item,
 
                     quantity:
                       numberValue(
                         item.quantity
-                      ) + 1,
+                      ) +
+                      1,
                   }
                 : item
           )
         );
 
+
       } else {
 
-        const price =
+        const defaultPrice =
           invoiceType ===
           "purchase"
             ? productPurchasePrice(
@@ -990,46 +1224,237 @@ export default function NewInvoice() {
               );
 
 
-        setItems([
-          ...items,
+        /*
+          Boş bir satır varsa,
+          önce o satırı doldur.
+        */
 
-          {
-            id:
-              `${Date.now()}-${Math.random()}`,
+        const emptyIndex =
+          items.findIndex(
+            (
+              item
+            ) =>
+              !item.productId &&
+              !item.productName
+          );
 
-            productId:
-              product.id,
 
-            productName:
-              productName(
-                product
-              ),
+        const newItem = {
 
-            productCode:
-              productCode(
-                product
-              ),
+          id:
+            `INV-ITEM-${Date.now()}-${Math.random()
+              .toString(36)
+              .slice(2, 9)}`,
 
-            quantity:
-              1,
+          productId:
+            product.id,
 
-            unitPrice:
-              price,
+          productName:
+            productName(
+              product
+            ),
 
-            vatRate:
-              productVat(
-                product
-              ),
+          productCode:
+            productCode(
+              product
+            ),
 
-            discount:
-              0,
-          },
-        ]);
+          unit:
+            productUnit(
+              product
+            ),
+
+          quantity:
+            1,
+
+          unitPrice:
+            defaultPrice,
+
+          vatRate:
+            productVat(
+              product
+            ),
+
+          discount:
+            0,
+        };
+
+
+        if (
+          emptyIndex !==
+          -1
+        ) {
+
+          setItems(
+            items.map(
+              (
+                item,
+                index
+              ) =>
+                index ===
+                emptyIndex
+                  ? newItem
+                  : item
+            )
+          );
+
+        } else {
+
+          setItems([
+            ...items,
+            newItem,
+          ]);
+
+        }
 
       }
 
 
-      setProductSearch("");
+      setProductSearch(
+        ""
+      );
+
+    };
+
+
+  /* =======================================================
+     BOŞ YENİ SATIR
+  ======================================================= */
+
+  const addEmptyLine =
+    () => {
+
+      setItems([
+        ...items,
+        createItem(),
+      ]);
+
+    };
+
+
+  /* =======================================================
+     SATIRDA ÜRÜN DEĞİŞTİR
+  ======================================================= */
+
+  const changeLineProduct =
+    (
+      itemId,
+      productId
+    ) => {
+
+      if (
+        !productId
+      ) {
+
+        setItems(
+          items.map(
+            (
+              item
+            ) =>
+              item.id ===
+              itemId
+                ? {
+                    ...item,
+
+                    productId:
+                      "",
+
+                    productName:
+                      "",
+
+                    productCode:
+                      "",
+
+                    unit:
+                      "Adet",
+
+                    unitPrice:
+                      "",
+
+                    vatRate:
+                      20,
+                  }
+                : item
+          )
+        );
+
+        return;
+      }
+
+
+      const product =
+        products.find(
+          (
+            item
+          ) =>
+            String(
+              item.id
+            ) ===
+            String(
+              productId
+            )
+        );
+
+
+      if (
+        !product
+      ) {
+        return;
+      }
+
+
+      const defaultPrice =
+        invoiceType ===
+        "purchase"
+          ? productPurchasePrice(
+              product
+            )
+          : productSalePrice(
+              product
+            );
+
+
+      setItems(
+        items.map(
+          (
+            item
+          ) =>
+            item.id ===
+            itemId
+              ? {
+
+                  ...item,
+
+                  productId:
+                    product.id,
+
+                  productName:
+                    productName(
+                      product
+                    ),
+
+                  productCode:
+                    productCode(
+                      product
+                    ),
+
+                  unit:
+                    productUnit(
+                      product
+                    ),
+
+                  unitPrice:
+                    defaultPrice,
+
+                  vatRate:
+                    productVat(
+                      product
+                    ),
+
+                }
+              : item
+        )
+      );
 
     };
 
@@ -1047,8 +1472,11 @@ export default function NewInvoice() {
 
       setItems(
         items.map(
-          (item) =>
-            item.id === id
+          (
+            item
+          ) =>
+            item.id ===
+            id
               ? {
                   ...item,
                   [field]:
@@ -1070,10 +1498,29 @@ export default function NewInvoice() {
 
       setItems(
         items.filter(
-          (item) =>
-            item.id !== id
+          (
+            item
+          ) =>
+            item.id !==
+            id
         )
       );
+
+
+      /*
+        Tamamen boş kalmasın.
+      */
+
+      if (
+        items.length ===
+        1
+      ) {
+
+        setItems([
+          createItem(),
+        ]);
+
+      }
 
     };
 
@@ -1085,13 +1532,18 @@ export default function NewInvoice() {
   const calculated =
     useMemo(() => {
 
-      let subtotal = 0;
-      let vatTotal = 0;
+      let subtotal =
+        0;
+
+      let vatTotal =
+        0;
 
 
       const calculatedItems =
         items.map(
-          (item) => {
+          (
+            item
+          ) => {
 
             const quantity =
               numberValue(
@@ -1105,15 +1557,19 @@ export default function NewInvoice() {
               );
 
 
-            const lineDiscount =
-              numberValue(
-                item.discount
-              );
-
-
             const lineGross =
               quantity *
               unitPrice;
+
+
+            const lineDiscount =
+              lineGross *
+              (
+                numberValue(
+                  item.discount
+                ) /
+                100
+              );
 
 
             const lineNet =
@@ -1145,6 +1601,7 @@ export default function NewInvoice() {
 
 
             return {
+
               ...item,
 
               quantity,
@@ -1162,6 +1619,7 @@ export default function NewInvoice() {
               lineTotal:
                 lineNet +
                 lineVat,
+
             };
 
           }
@@ -1190,8 +1648,10 @@ export default function NewInvoice() {
 
 
       if (
-        subtotal > 0 &&
-        invoiceDiscount > 0
+        subtotal >
+          0 &&
+        invoiceDiscount >
+          0
       ) {
 
         finalVat =
@@ -1228,13 +1688,15 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FATURA FİNANS DURUMU
+     MEVCUT FATURA FİNANSI
   ======================================================= */
 
   const currentInvoice =
     editId
       ? getInvoices().find(
-          (invoice) =>
+          (
+            invoice
+          ) =>
             String(
               invoice.id
             ) ===
@@ -1268,7 +1730,7 @@ export default function NewInvoice() {
     Math.max(
       0,
       currentTotal -
-        currentPaidAmount
+      currentPaidAmount
     );
 
 
@@ -1287,11 +1749,724 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FİNANS MODALINI AÇ
+     FİYAT DEĞİŞİKLİĞİ BUL
+  ======================================================= */
+
+  const detectPriceChanges =
+    () => {
+
+      const priceChanges =
+        [];
+
+
+      calculated.calculatedItems.forEach(
+        (
+          item
+        ) => {
+
+          if (
+            !item.productId
+          ) {
+            return;
+          }
+
+
+          const product =
+            products.find(
+              (
+                productItem
+              ) =>
+                String(
+                  productItem.id
+                ) ===
+                String(
+                  item.productId
+                )
+            );
+
+
+          if (
+            !product
+          ) {
+            return;
+          }
+
+
+          const oldPrice =
+            invoiceType ===
+            "purchase"
+              ? productPurchasePrice(
+                  product
+                )
+              : productSalePrice(
+                  product
+                );
+
+
+          const newPrice =
+            numberValue(
+              item.unitPrice
+            );
+
+
+          if (
+            oldPrice <= 0 ||
+            newPrice <= 0
+          ) {
+            return;
+          }
+
+
+          if (
+            Math.abs(
+              oldPrice -
+              newPrice
+            ) <
+            0.005
+          ) {
+            return;
+          }
+
+
+          const difference =
+            newPrice -
+            oldPrice;
+
+
+          const percent =
+            (
+              difference /
+              oldPrice
+            ) *
+            100;
+
+
+          priceChanges.push({
+
+            item,
+
+            product,
+
+            oldPrice,
+
+            newPrice,
+
+            difference,
+
+            percent,
+
+          });
+
+        }
+      );
+
+
+      return priceChanges;
+
+    };
+
+
+  /* =======================================================
+     FİYAT UYARISI VE KAYDETME
+  ======================================================= */
+
+  const handlePriceChanges =
+    (
+      priceChanges
+    ) => {
+
+      if (
+        priceChanges.length ===
+        0
+      ) {
+        return;
+      }
+
+
+      const increaseCount =
+        priceChanges.filter(
+          (
+            item
+          ) =>
+            item.difference >
+            0
+        ).length;
+
+
+      const decreaseCount =
+        priceChanges.filter(
+          (
+            item
+          ) =>
+            item.difference <
+            0
+        ).length;
+
+
+      const detail =
+        priceChanges
+          .map(
+            (
+              change
+            ) => {
+
+              const arrow =
+                change.difference >
+                0
+                  ? "↑"
+                  : "↓";
+
+
+              return (
+
+                `${arrow} ${productName(
+                  change.product
+                )}\n` +
+
+                `Eski ${
+                  invoiceType ===
+                  "purchase"
+                    ? "alış"
+                    : "satış"
+                }: ${money(
+                  change.oldPrice
+                )} TL\n` +
+
+                `Yeni ${
+                  invoiceType ===
+                  "purchase"
+                    ? "alış"
+                    : "satış"
+                }: ${money(
+                  change.newPrice
+                )} TL\n` +
+
+                `Değişim: ${
+                  change.difference >
+                  0
+                    ? "+"
+                    : ""
+                }${money(
+                  change.difference
+                )} TL / %${Math.abs(
+                  change.percent
+                ).toFixed(
+                  1
+                )}`
+
+              );
+
+            }
+          )
+          .join(
+            "\n\n"
+          );
+
+
+      const headline =
+        invoiceType ===
+        "purchase" &&
+        increaseCount >
+          0
+          ? "🚨 TEDARİKÇİ FİYAT ARTIŞI TESPİT EDİLDİ"
+          : "⚠️ FİYAT DEĞİŞİKLİĞİ TESPİT EDİLDİ";
+
+
+      const message =
+        `${headline}\n\n` +
+
+        detail +
+
+        "\n\n" +
+
+        `${
+          increaseCount
+        } fiyat artışı` +
+
+        (
+          decreaseCount >
+          0
+            ? `, ${decreaseCount} fiyat düşüşü`
+            : ""
+        ) +
+
+        ` bulundu.\n\n` +
+
+        `Yeni fiyatları ürün kartına kaydetmek istiyor musunuz?\n\n` +
+
+        `TAMAM = Yeni fiyatları kaydet\n` +
+
+        `İPTAL = Eski ürün fiyatlarını koru`;
+
+      const confirmed =
+        window.confirm(
+          message
+        );
+
+
+      if (
+        !confirmed
+      ) {
+        return;
+      }
+
+
+      priceChanges.forEach(
+        (
+          change
+        ) => {
+
+          const product =
+            change.product;
+
+
+          const isPurchase =
+            invoiceType ===
+            "purchase";
+
+
+          const vat =
+            isPurchase
+              ? numberValue(
+                  product.purchaseVat
+                )
+              : numberValue(
+                  product.salesVat
+                );
+
+
+          const grossPrice =
+            change.newPrice *
+            (
+              1 +
+              vat /
+              100
+            );
+
+
+          if (
+            isPurchase
+          ) {
+
+            updateProduct(
+              product.id,
+              {
+                purchaseNet:
+                  change.newPrice,
+
+                purchaseGross:
+                  grossPrice,
+              }
+            );
+
+          } else {
+
+            updateProduct(
+              product.id,
+              {
+                salesNet:
+                  change.newPrice,
+
+                salesGross:
+                  grossPrice,
+              }
+            );
+
+          }
+
+
+          addProductPriceHistory({
+            productId:
+              product.id,
+
+            productCode:
+              productCode(
+                product
+              ),
+
+            productName:
+              productName(
+                product
+              ),
+
+            priceType:
+              isPurchase
+                ? "purchase"
+                : "sales",
+
+            oldPrice:
+              change.oldPrice,
+
+            newPrice:
+              change.newPrice,
+
+            supplierId:
+              isPurchase
+                ? selectedCustomer?.id ||
+                  ""
+                : "",
+
+            supplierName:
+              isPurchase
+                ? (
+                    selectedCustomer?.name ||
+                    selectedCustomer?.title ||
+                    selectedCustomer?.companyName ||
+                    ""
+                  )
+                : "",
+
+            invoiceId:
+              editId ||
+              "",
+
+            invoiceNo:
+              invoiceNo,
+
+            date:
+              invoiceDate,
+
+          });
+
+        }
+      );
+
+
+      setProducts(
+        getProducts()
+      );
+
+    };
+
+
+  /* =======================================================
+     STOK YETERLİLİK KONTROLÜ
+  ======================================================= */
+
+  const checkSalesStock =
+    () => {
+
+      if (
+        invoiceType !==
+        "sales"
+      ) {
+        return null;
+      }
+
+
+      if (
+        !stockTracking
+      ) {
+        return null;
+      }
+
+
+      return calculated.calculatedItems.find(
+        (
+          item
+        ) => {
+
+          if (
+            !item.productId
+          ) {
+            return null;
+          }
+
+
+          const product =
+            products.find(
+              (
+                p
+              ) =>
+                String(
+                  p.id
+                ) ===
+                String(
+                  item.productId
+                )
+            );
+
+
+          if (
+            !product
+          ) {
+            return null;
+          }
+
+
+          const currentStock =
+            numberValue(
+              product.stock
+            );
+
+
+          const requested =
+            numberValue(
+              item.quantity
+            );
+
+
+          /*
+            Burada artık satış
+            stok nedeniyle engellenmiyor.
+
+            Sadece bilgi amacıyla
+            kontrol ediyoruz.
+          */
+
+          if (
+            requested >
+            currentStock
+          ) {
+
+            return {
+              ...item,
+
+              currentStock,
+
+              requested,
+
+            };
+
+          }
+
+
+          return null;
+
+        }
+      );
+
+    };
+
+
+  /* =======================================================
+     STOK UYGULA
+  ======================================================= */
+
+  const applyStockMovement =
+    (
+      invoice
+    ) => {
+
+      if (
+        !stockTracking
+      ) {
+        return;
+      }
+
+
+      const type =
+        normalizeType(
+          invoiceType
+        );
+
+
+      calculated.calculatedItems.forEach(
+        (
+          item
+        ) => {
+
+          const quantity =
+            numberValue(
+              item.quantity
+            );
+
+
+          if (
+            quantity <=
+              0 ||
+            !item.productId
+          ) {
+            return;
+          }
+
+
+          if (
+            type ===
+            "sales"
+          ) {
+
+            changeStock(
+              item.productId,
+              -quantity,
+              {
+
+                type:
+                  "Satış Faturası",
+
+                source:
+                  "Fatura",
+
+                sourceId:
+                  invoice.id,
+
+                description:
+                  `${invoice.invoiceNo} numaralı satış faturası.`,
+
+              }
+            );
+
+            return;
+          }
+
+
+          if (
+            type ===
+            "purchase"
+          ) {
+
+            changeStock(
+              item.productId,
+              quantity,
+              {
+
+                type:
+                  "Alış Faturası",
+
+                source:
+                  "Fatura",
+
+                sourceId:
+                  invoice.id,
+
+                description:
+                  `${invoice.invoiceNo} numaralı alış faturası.`,
+
+              }
+            );
+
+            return;
+          }
+
+
+          if (
+            type ===
+            "return"
+          ) {
+
+            changeStock(
+              item.productId,
+              quantity,
+              {
+
+                type:
+                  "İade Faturası",
+
+                source:
+                  "Fatura",
+
+                sourceId:
+                  invoice.id,
+
+                description:
+                  `${invoice.invoiceNo} numaralı iade faturası.`,
+
+              }
+            );
+
+          }
+
+        }
+      );
+
+    };
+
+
+  /* =======================================================
+     CARİ HAREKET
+  ======================================================= */
+
+  const applyCustomerMovement =
+    (
+      invoice
+    ) => {
+
+      if (
+        paymentMethod !==
+        "Vadeli"
+      ) {
+        return;
+      }
+
+
+      if (
+        !selectedCustomer
+      ) {
+        return;
+      }
+
+
+      const total =
+        numberValue(
+          calculated.total
+        );
+
+
+      if (
+        total <=
+        0
+      ) {
+        return;
+      }
+
+
+      const type =
+        normalizeType(
+          invoiceType
+        );
+
+
+      if (
+        type ===
+        "sales"
+      ) {
+
+        updateCustomerBalance(
+          selectedCustomer.id,
+          -total
+        );
+
+        return;
+      }
+
+
+      if (
+        type ===
+        "purchase"
+      ) {
+
+        updateCustomerBalance(
+          selectedCustomer.id,
+          total
+        );
+
+        return;
+      }
+
+
+      if (
+        type ===
+        "return"
+      ) {
+
+        updateCustomerBalance(
+          selectedCustomer.id,
+          total
+        );
+
+      }
+
+    };
+
+
+  /* =======================================================
+     FİNANS MODALI
   ======================================================= */
 
   const openFinanceModal =
-    (mode) => {
+    (
+      mode
+    ) => {
 
       if (
         !currentInvoice
@@ -1313,7 +2488,8 @@ export default function NewInvoice() {
 
 
       if (
-        remaining <= 0
+        remaining <=
+        0
       ) {
 
         alert(
@@ -1386,14 +2562,18 @@ export default function NewInvoice() {
   const refreshFinanceDetail =
     () => {
 
-      if (!editId) {
+      if (
+        !editId
+      ) {
         return;
       }
 
 
       const fresh =
         getInvoices().find(
-          (invoice) =>
+          (
+            invoice
+          ) =>
             String(
               invoice.id
             ) ===
@@ -1403,11 +2583,14 @@ export default function NewInvoice() {
         );
 
 
-      if (fresh) {
+      if (
+        fresh
+      ) {
 
         setDetailInvoice(
           fresh
         );
+
 
         setAccounts(
           readAccounts()
@@ -1419,7 +2602,7 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     FİNANS KAYDET
+     FİNANS İŞLEMİ KAYDET
   ======================================================= */
 
   const saveFinanceTransaction =
@@ -1467,7 +2650,8 @@ export default function NewInvoice() {
 
 
       if (
-        amount <= 0
+        amount <=
+        0
       ) {
 
         alert(
@@ -1510,7 +2694,9 @@ export default function NewInvoice() {
 
       const account =
         readAccounts().find(
-          (item) =>
+          (
+            item
+          ) =>
             String(
               item.id
             ) ===
@@ -1520,7 +2706,9 @@ export default function NewInvoice() {
         );
 
 
-      if (!account) {
+      if (
+        !account
+      ) {
 
         alert(
           "Finans hesabı bulunamadı."
@@ -1605,13 +2793,16 @@ export default function NewInvoice() {
                 amount,
 
               updatedAt:
-                new Date().toISOString(),
+                new Date()
+                  .toISOString(),
 
             }
           );
 
 
-        if (!updatedInvoice) {
+        if (
+          !updatedInvoice
+        ) {
 
           throw new Error(
             "Fatura ödeme/tahsilat bilgisi güncellenemedi."
@@ -1620,9 +2811,7 @@ export default function NewInvoice() {
         }
 
 
-        /* =================================================
-           CARİ
-        ================================================= */
+        /* CARİ */
 
         const normalizedType =
           normalizeType(
@@ -1632,9 +2821,9 @@ export default function NewInvoice() {
 
         if (
           financeMode ===
-          "collection" &&
+            "collection" &&
           normalizedType ===
-          "sales"
+            "sales"
         ) {
 
           updateCustomerBalance(
@@ -1647,9 +2836,9 @@ export default function NewInvoice() {
 
         if (
           financeMode ===
-          "payment" &&
+            "payment" &&
           normalizedType ===
-          "purchase"
+            "purchase"
         ) {
 
           updateCustomerBalance(
@@ -1660,9 +2849,7 @@ export default function NewInvoice() {
         }
 
 
-        /* =================================================
-           FİNANS HESABI
-        ================================================= */
+        /* HESAP */
 
         const currentAccounts =
           readAccounts();
@@ -1670,7 +2857,9 @@ export default function NewInvoice() {
 
         const updatedAccounts =
           currentAccounts.map(
-            (item) => {
+            (
+              item
+            ) => {
 
               if (
                 String(
@@ -1686,22 +2875,24 @@ export default function NewInvoice() {
               }
 
 
-              const currentBalance =
+              const balance =
                 numberValue(
                   item.balance
                 );
 
 
               return {
+
                 ...item,
 
                 balance:
                   financeMode ===
                   "payment"
-                    ? currentBalance -
+                    ? balance -
                       amount
-                    : currentBalance +
+                    : balance +
                       amount,
+
               };
 
             }
@@ -1713,9 +2904,7 @@ export default function NewInvoice() {
         );
 
 
-        /* =================================================
-           FİNANS HAREKETİ
-        ================================================= */
+        /* FİNANS HAREKETİ */
 
         const existingMovements =
           readMovements();
@@ -1783,7 +2972,8 @@ export default function NewInvoice() {
             "",
 
           createdAt:
-            new Date().toISOString(),
+            new Date()
+              .toISOString(),
 
         };
 
@@ -1878,313 +3068,15 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     STOK KONTROLÜ
-  ======================================================= */
-
-  const checkSalesStock =
-    () => {
-
-      if (
-        invoiceType !==
-        "sales"
-      ) {
-        return null;
-      }
-
-
-      if (
-        !stockTracking
-      ) {
-        return null;
-      }
-
-
-      return calculated
-        .calculatedItems
-        .find(
-          (item) => {
-
-            const product =
-              products.find(
-                (p) =>
-                  String(
-                    p.id
-                  ) ===
-                  String(
-                    item.productId
-                  )
-              );
-
-
-            if (!product) {
-              return null;
-            }
-
-
-            const currentStock =
-              numberValue(
-                product.stock
-              );
-
-
-            const requested =
-              numberValue(
-                item.quantity
-              );
-
-
-            if (
-              requested >
-              currentStock
-            ) {
-
-              return {
-                ...item,
-
-                currentStock,
-
-                requested,
-              };
-
-            }
-
-
-            return null;
-
-          }
-        );
-
-    };
-
-
-  /* =======================================================
-     STOK HAREKETİ
-  ======================================================= */
-
-  const applyStockMovement =
-    (
-      invoice
-    ) => {
-
-      if (
-        !stockTracking
-      ) {
-        return;
-      }
-
-
-      const type =
-        normalizeType(
-          invoiceType
-        );
-
-
-      calculated
-        .calculatedItems
-        .forEach(
-          (item) => {
-
-            const quantity =
-              numberValue(
-                item.quantity
-              );
-
-
-            if (
-              quantity <= 0 ||
-              !item.productId
-            ) {
-              return;
-            }
-
-
-            if (
-              type ===
-              "sales"
-            ) {
-
-              changeStock(
-                item.productId,
-                -quantity,
-                {
-
-                  type:
-                    "Satış Faturası",
-
-                  source:
-                    "Fatura",
-
-                  sourceId:
-                    invoice.id,
-
-                  description:
-                    `${invoice.invoiceNo} numaralı satış faturası.`,
-
-                }
-              );
-
-              return;
-            }
-
-
-            if (
-              type ===
-              "purchase"
-            ) {
-
-              changeStock(
-                item.productId,
-                quantity,
-                {
-
-                  type:
-                    "Alış Faturası",
-
-                  source:
-                    "Fatura",
-
-                  sourceId:
-                    invoice.id,
-
-                  description:
-                    `${invoice.invoiceNo} numaralı alış faturası.`,
-
-                }
-              );
-
-              return;
-            }
-
-
-            if (
-              type ===
-              "return"
-            ) {
-
-              changeStock(
-                item.productId,
-                quantity,
-                {
-
-                  type:
-                    "İade Faturası",
-
-                  source:
-                    "Fatura",
-
-                  sourceId:
-                    invoice.id,
-
-                  description:
-                    `${invoice.invoiceNo} numaralı iade faturası.`,
-
-                }
-              );
-
-            }
-
-          }
-        );
-
-    };
-
-
-  /* =======================================================
-     CARİ HAREKET
-  ======================================================= */
-
-  const applyCustomerMovement =
-    (
-      invoice
-    ) => {
-
-      const credit =
-        paymentMethod ===
-        "Vadeli";
-
-
-      if (!credit) {
-        return;
-      }
-
-
-      if (
-        !selectedCustomer
-      ) {
-        return;
-      }
-
-
-      const total =
-        numberValue(
-          calculated.total
-        );
-
-
-      if (
-        total <= 0
-      ) {
-        return;
-      }
-
-
-      const type =
-        normalizeType(
-          invoiceType
-        );
-
-
-      if (
-        type ===
-        "sales"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          -total
-        );
-
-        return;
-      }
-
-
-      if (
-        type ===
-        "purchase"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          total
-        );
-
-        return;
-      }
-
-
-      if (
-        type ===
-        "return"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          total
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     KAYDET
+     FATURA KAYDET
   ======================================================= */
 
   const handleSave =
     () => {
 
-      if (saving) {
+      if (
+        saving
+      ) {
         return;
       }
 
@@ -2204,8 +3096,30 @@ export default function NewInvoice() {
       }
 
 
+      /*
+        Tamamen boş satırları
+        fatura hesabından çıkarıyoruz.
+      */
+
+      const validItems =
+        calculated.calculatedItems.filter(
+          (
+            item
+          ) =>
+            item.productId &&
+            numberValue(
+              item.quantity
+            ) >
+              0 &&
+            numberValue(
+              item.unitPrice
+            ) >=
+              0
+        );
+
+
       if (
-        items.length ===
+        validItems.length ===
         0
       ) {
 
@@ -2230,27 +3144,89 @@ export default function NewInvoice() {
       }
 
 
-      const invalidStock =
+      /*
+        Stok yalnızca uyarı için kontrol edilir.
+        Artık stok yetersizliği fatura kaydını
+        engellemez.
+      */
+
+      const stockWarning =
         checkSalesStock();
 
 
       if (
-        invalidStock
+        stockWarning
       ) {
 
-        alert(
-          `"${invalidStock.productName}" için mevcut stok yetersiz.\n\nMevcut stok: ${money(
-            invalidStock.currentStock
-          )}\nİstenen çıkış: ${money(
-            invalidStock.requested
-          )}`
-        );
+        const approved =
+          window.confirm(
+            `⚠️ STOK UYARISI\n\n` +
 
-        return;
+            `${stockWarning.productName}\n\n` +
+
+            `Mevcut stok: ${
+              money(
+                stockWarning.currentStock
+              )
+            }\n` +
+
+            `Faturadaki miktar: ${
+              money(
+                stockWarning.requested
+              )
+            }\n\n` +
+
+            `Stok satış miktarını karşılamıyor.\n` +
+
+            `Faturayı yine de kaydetmek ister misiniz?\n\n` +
+
+            `Stok 0'ın altına düşmeyecek.`
+          );
+
+
+        if (
+          !approved
+        ) {
+          return;
+        }
+
       }
 
 
-      setSaving(true);
+      /*
+        FİYAT KONTROLÜ
+
+        İlk kez kaydedilen faturada fiyat farklıysa
+        kullanıcıya soruyoruz.
+
+        Kullanıcı yeni fiyatı kabul ederse:
+        - ürün kartı güncellenir
+        - geçmişe kayıt düşer
+
+        Reddederse:
+        - fatura yeni fiyatıyla kaydolur
+        - ürün kartındaki eski fiyat korunur
+      */
+
+      const priceChanges =
+        detectPriceChanges();
+
+
+      if (
+        priceChanges.length >
+        0
+      ) {
+
+        handlePriceChanges(
+          priceChanges
+        );
+
+      }
+
+
+      setSaving(
+        true
+      );
 
 
       try {
@@ -2266,16 +3242,19 @@ export default function NewInvoice() {
         ================================================= */
 
         const financeInvoice = {
+
           id:
+            editId ||
             Date.now(),
 
           customerId:
             selectedCustomer.id,
 
           customerName:
-            selectedCustomer.unvan ||
             selectedCustomer.name ||
+            selectedCustomer.unvan ||
             selectedCustomer.firmaAdi ||
+            selectedCustomer.title ||
             "",
 
           total:
@@ -2311,14 +3290,15 @@ export default function NewInvoice() {
             invoiceDate,
 
           items:
-            items.map(
-              (item) => ({
+            validItems.map(
+              (
+                item
+              ) => ({
                 productId:
                   item.productId,
 
                 productName:
-                  item.productName ||
-                  item.name,
+                  item.productName,
 
                 quantity:
                   Number(
@@ -2327,18 +3307,16 @@ export default function NewInvoice() {
 
                 unitPrice:
                   Number(
-                    item.unitPrice ||
-                    item.price
+                    item.unitPrice
                   ),
 
                 total:
                   Number(
-                    item.total ||
-                    item.lineTotal ||
-                    0
+                    item.lineTotal
                   ),
               })
             ),
+
         };
 
 
@@ -2352,6 +3330,7 @@ export default function NewInvoice() {
             financeInvoice
           );
 
+
           window.dispatchEvent(
             new Event(
               "ren-finance-updated"
@@ -2361,10 +3340,15 @@ export default function NewInvoice() {
         }
 
 
+        /* =================================================
+           FATURA KAYDI
+        ================================================= */
+
         const customerName =
           selectedCustomer.name ||
           selectedCustomer.title ||
           selectedCustomer.companyName ||
+          selectedCustomer.unvan ||
           "";
 
 
@@ -2430,7 +3414,7 @@ export default function NewInvoice() {
           stockTracking,
 
           items:
-            calculated.calculatedItems,
+            validItems,
 
           subtotal:
             calculated.subtotal,
@@ -2449,13 +3433,19 @@ export default function NewInvoice() {
 
           notes,
 
+          updatedAt:
+            new Date()
+              .toISOString(),
+
         };
 
 
         let saved;
 
 
-        if (editId) {
+        if (
+          editId
+        ) {
 
           saved =
             updateInvoice(
@@ -2473,7 +3463,9 @@ export default function NewInvoice() {
         }
 
 
-        if (!saved) {
+        if (
+          !saved
+        ) {
 
           throw new Error(
             "Fatura kaydedilemedi."
@@ -2482,7 +3474,15 @@ export default function NewInvoice() {
         }
 
 
-        if (!editId) {
+        /*
+          Yeni faturada hareket oluştur.
+          Mevcut faturayı düzenlerken
+          tekrar stok/cari hareketi yaratma.
+        */
+
+        if (
+          !editId
+        ) {
 
           applyStockMovement(
             saved
@@ -2524,6 +3524,13 @@ export default function NewInvoice() {
         );
 
 
+        window.dispatchEvent(
+          new Event(
+            "ren-cash-bank-updated"
+          )
+        );
+
+
         alert(
           `${saved.invoiceNo} numaralı fatura başarıyla kaydedildi.`
         );
@@ -2560,7 +3567,20 @@ export default function NewInvoice() {
 
 
   /* =======================================================
-     GÖRÜNÜM
+     ÇIKIŞ
+  ======================================================= */
+
+  const closeInvoice =
+    () => {
+
+      window.location.href =
+        "/invoices";
+
+    };
+
+
+  /* =======================================================
+     RENDER
   ======================================================= */
 
   return (
@@ -2602,13 +3622,15 @@ export default function NewInvoice() {
 
 
           <h1>
+
             {
               editId
-                ? "Fatura Düzenle"
+                ? "Fatura Detayı"
                 : getTypeTitle(
                     invoiceType
                   )
             }
+
           </h1>
 
         </div>
@@ -2616,7 +3638,8 @@ export default function NewInvoice() {
 
         <div className="parasut-header-actions">
 
-          {isDetailInvoice &&
+          {
+            isDetailInvoice &&
             isSalesInvoice && (
 
               <button
@@ -2640,10 +3663,12 @@ export default function NewInvoice() {
                 }
               </button>
 
-            )}
+            )
+          }
 
 
-          {isDetailInvoice &&
+          {
+            isDetailInvoice &&
             isPurchaseInvoice && (
 
               <button
@@ -2667,41 +3692,47 @@ export default function NewInvoice() {
                 }
               </button>
 
-            )}
+            )
+          }
 
 
           <button
             type="button"
             className="parasut-cancel-button"
-            onClick={() =>
-              window.location.href =
-                "/invoices"
+            onClick={
+              closeInvoice
             }
           >
             VAZGEÇ
           </button>
 
 
-          <button
-            type="button"
-            className="parasut-save-button"
-            disabled={
-              saving
-            }
-            onClick={
-              handleSave
-            }
-          >
+          {
+            !isDetailInvoice && (
 
-            <MdSave />
+              <button
+                type="button"
+                className="parasut-save-button"
+                disabled={
+                  saving
+                }
+                onClick={
+                  handleSave
+                }
+              >
 
-            {
-              saving
-                ? "KAYDEDİLİYOR..."
-                : "KAYDET"
-            }
+                <MdSave />
 
-          </button>
+                {
+                  saving
+                    ? "KAYDEDİLİYOR..."
+                    : "KAYDET"
+                }
+
+              </button>
+
+            )
+          }
 
 
           <button
@@ -2717,12 +3748,13 @@ export default function NewInvoice() {
 
 
       {/* ===================================================
-          ANA FATURA KARTI
+          ANA FATURA BİLGİLERİ
       =================================================== */}
 
       <div className="parasut-invoice-card">
 
-        {/* FATURA İSMİ */}
+
+        {/* FATURA NO */}
 
         <div className="parasut-row parasut-invoice-name-row">
 
@@ -2731,7 +3763,7 @@ export default function NewInvoice() {
           </div>
 
           <div className="parasut-label">
-            FATURA İSMİ
+            FATURA NO
           </div>
 
           <div className="parasut-control">
@@ -2748,7 +3780,11 @@ export default function NewInvoice() {
                   event.target.value
                 )
               }
-              placeholder="Fatura adı"
+              readOnly={
+                Boolean(
+                  editId
+                )
+              }
             />
 
           </div>
@@ -2756,7 +3792,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* MÜŞTERİ / TEDARİKÇİ */}
+        {/* CARİ */}
 
         <div className="parasut-row customer-row">
 
@@ -2765,137 +3801,146 @@ export default function NewInvoice() {
           </div>
 
           <div className="parasut-label">
+
             {
               invoiceType ===
               "purchase"
                 ? "TEDARİKÇİ"
                 : "MÜŞTERİ"
             }
+
           </div>
+
 
           <div className="parasut-control customer-control">
 
-            {selectedCustomer ? (
+            {
+              selectedCustomer ? (
 
-              <div className="selected-customer">
+                <div className="selected-customer">
 
-                <strong>
-                  {
-                    selectedCustomer.name ||
-                    selectedCustomer.title ||
-                    selectedCustomer.companyName
-                  }
-                </strong>
+                  <strong>
+                    {
+                      selectedCustomer.name ||
+                      selectedCustomer.title ||
+                      selectedCustomer.companyName
+                    }
+                  </strong>
 
-                <span>
-                  {
-                    selectedCustomer.code ||
-                    ""
-                  }
-                </span>
 
-                <button
-                  type="button"
-                  onClick={() => {
-
-                    setSelectedCustomer(
-                      null
-                    );
-
-                    setCustomerSearch(
+                  <span>
+                    {
+                      selectedCustomer.code ||
                       ""
-                    );
+                    }
+                  </span>
 
-                  }}
-                >
-                  Değiştir
-                </button>
 
-              </div>
+                  {
+                    !editId && (
 
-            ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
 
-              <div className="parasut-search-box">
+                          setSelectedCustomer(
+                            null
+                          );
 
-                <MdSearch />
+                          setCustomerSearch(
+                            ""
+                          );
 
-                <input
-                  value={
-                    customerSearch
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setCustomerSearch(
-                      event.target.value
+                        }}
+                      >
+                        Değiştir
+                      </button>
+
                     )
                   }
-                  placeholder={
-                    invoiceType ===
-                    "purchase"
-                      ? "Tedarikçi ara..."
-                      : "Müşteri ara..."
-                  }
-                />
 
+                </div>
 
-                {customerResults.length >
-                  0 && (
+              ) : (
 
-                  <div className="parasut-dropdown">
+                <div className="parasut-search-box">
 
-                    {
-                      customerResults.map(
-                        (
-                          customer
-                        ) => (
+                  <MdSearch />
 
-                          <button
-                            type="button"
-                            key={
-                              customer.id
-                            }
-                            onClick={() => {
-
-                              setSelectedCustomer(
-                                customer
-                              );
-
-                              setCustomerSearch(
-                                ""
-                              );
-
-                            }}
-                          >
-
-                            <strong>
-                              {
-                                customer.name ||
-                                customer.title ||
-                                customer.companyName
-                              }
-                            </strong>
-
-                            <span>
-                              {
-                                customer.code ||
-                                ""
-                              }
-                            </span>
-
-                          </button>
-
-                        )
+                  <input
+                    value={
+                      customerSearch
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      setCustomerSearch(
+                        event.target.value
                       )
                     }
+                    placeholder={
+                      invoiceType ===
+                      "purchase"
+                        ? "Tedarikçi ara..."
+                        : "Müşteri ara..."
+                    }
+                  />
 
-                  </div>
 
-                )}
+                  {
+                    customerResults.length >
+                    0 && (
 
-              </div>
+                      <div className="parasut-dropdown">
 
-            )}
+                        {
+                          customerResults.map(
+                            (
+                              customer
+                            ) => (
+
+                              <button
+                                type="button"
+                                key={
+                                  customer.id
+                                }
+                                onClick={() =>
+                                  selectCustomer(
+                                    customer
+                                  )
+                                }
+                              >
+
+                                <strong>
+                                  {
+                                    customer.name ||
+                                    customer.title ||
+                                    customer.companyName
+                                  }
+                                </strong>
+
+                                <span>
+                                  {
+                                    customer.code ||
+                                    ""
+                                  }
+                                </span>
+
+                              </button>
+
+                            )
+                          )
+                        }
+
+                      </div>
+
+                    )
+                  }
+
+                </div>
+
+              )
+            }
 
 
             <div className="parasut-help-text">
@@ -2904,7 +3949,7 @@ export default function NewInvoice() {
                 ⓘ
               </span>
 
-              Kayıtlı bir cari seçebilir veya arama yapabilirsiniz.
+              Kayıtlı bir cari seçebilirsiniz.
 
             </div>
 
@@ -2913,7 +3958,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* CARİ BİLGİLERİ */}
+        {/* CARİ BİLGİSİ */}
 
         <div className="parasut-row customer-info-row">
 
@@ -2929,6 +3974,7 @@ export default function NewInvoice() {
 
             {
               selectedCustomer ? (
+
                 <div className="customer-information">
 
                   {
@@ -2939,10 +3985,13 @@ export default function NewInvoice() {
                   }
 
                 </div>
+
               ) : (
+
                 <div className="empty-value">
                   —
                 </div>
+
               )
             }
 
@@ -2980,6 +4029,11 @@ export default function NewInvoice() {
                     "Vadeli"
                   )
                 }
+                disabled={
+                  Boolean(
+                    editId
+                  )
+                }
               >
 
                 <span className="radio-dot">
@@ -3002,6 +4056,11 @@ export default function NewInvoice() {
                 onClick={() =>
                   setPaymentMethod(
                     "Peşin"
+                  )
+                }
+                disabled={
+                  Boolean(
+                    editId
                   )
                 }
               >
@@ -3047,6 +4106,11 @@ export default function NewInvoice() {
                 ) =>
                   setInvoiceDate(
                     event.target.value
+                  )
+                }
+                disabled={
+                  Boolean(
+                    editId
                   )
                 }
               />
@@ -3127,16 +4191,19 @@ export default function NewInvoice() {
                           ? "active"
                           : ""
                       }
-                      onClick={() => {
-
+                      onClick={() =>
                         setDueDate(
                           safeIsoDate(
                             invoiceDate,
                             option.days
                           )
-                        );
-
-                      }}
+                        )
+                      }
+                      disabled={
+                        Boolean(
+                          editId
+                        )
+                      }
                     >
                       {
                         option.label
@@ -3164,6 +4231,11 @@ export default function NewInvoice() {
                     event.target.value
                   )
                 }
+                disabled={
+                  Boolean(
+                    editId
+                  )
+                }
               />
 
               <MdCalendarToday />
@@ -3175,7 +4247,7 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* EK BUTONLAR */}
+        {/* EXTRA */}
 
         <div className="parasut-extra-buttons">
 
@@ -3212,6 +4284,7 @@ export default function NewInvoice() {
             STOK TAKİBİ
           </div>
 
+
           <div className="parasut-stock-options">
 
             <button
@@ -3226,20 +4299,28 @@ export default function NewInvoice() {
                   true
                 )
               }
+              disabled={
+                Boolean(
+                  editId
+                )
+              }
             >
 
               <span className="stock-radio">
+
                 {
                   stockTracking
                     ? "✓"
                     : "○"
                 }
+
               </span>
+
 
               <div>
 
                 <strong>
-                  STOK ÇIKIŞI YAPILSIN
+                  STOK HAREKETİ OLUŞTUR
                 </strong>
 
                 <small>
@@ -3263,20 +4344,28 @@ export default function NewInvoice() {
                   false
                 )
               }
+              disabled={
+                Boolean(
+                  editId
+                )
+              }
             >
 
               <span className="stock-radio">
+
                 {
                   !stockTracking
                     ? "✓"
                     : "○"
                 }
+
               </span>
+
 
               <div>
 
                 <strong>
-                  STOK ÇIKIŞI YAPILMASIN
+                  STOK HAREKETİ OLUŞTURMA
                 </strong>
 
                 <small>
@@ -3317,8 +4406,7 @@ export default function NewInvoice() {
           </div>
 
           <p>
-            Faturaların kategorilere göre
-            dağılımını raporlarda takip edebilirsiniz.
+            Faturalarınızı kategori bazında takip edebilirsiniz.
           </p>
 
         </div>
@@ -3327,7 +4415,7 @@ export default function NewInvoice() {
         <div className="parasut-side-card">
 
           <div className="side-card-title">
-           🏷️ ETİKETLER
+            🏷️ ETİKETLER
           </div>
 
           <div className="side-select">
@@ -3345,6 +4433,123 @@ export default function NewInvoice() {
           </p>
 
         </div>
+
+
+        {
+          isDetailInvoice && (
+
+            <div className="parasut-side-card">
+
+              <div className="side-card-title">
+                FATURA DURUMU
+              </div>
+
+
+              <div
+                style={{
+                  padding:
+                    "12px 0",
+                }}
+              >
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    marginBottom:
+                      "8px",
+                  }}
+                >
+
+                  <span>
+                    Toplam
+                  </span>
+
+                  <strong>
+                    {
+                      money(
+                        currentTotal
+                      )
+                    } TL
+                  </strong>
+
+                </div>
+
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    marginBottom:
+                      "8px",
+                  }}
+                >
+
+                  <span>
+                    Ödenen
+                  </span>
+
+                  <strong
+                    style={{
+                      color:
+                        "#3d8b63",
+                    }}
+                  >
+                    {
+                      money(
+                        currentPaidAmount
+                      )
+                    } TL
+                  </strong>
+
+                </div>
+
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    paddingTop:
+                      "9px",
+                    borderTop:
+                      "1px solid #eee",
+                  }}
+                >
+
+                  <span>
+                    Kalan
+                  </span>
+
+                  <strong
+                    style={{
+                      color:
+                        currentRemaining >
+                        0
+                          ? "#c84d48"
+                          : "#3d8b63",
+                    }}
+                  >
+                    {
+                      money(
+                        currentRemaining
+                      )
+                    } TL
+                  </strong>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )
+        }
 
       </aside>
 
@@ -3386,152 +4591,168 @@ export default function NewInvoice() {
         </div>
 
 
-        {/* ÜRÜN ARAMA */}
+        {/* =================================================
+            HIZLI ÜRÜN ARAMA
+        ================================================= */}
 
-        <div className="parasut-product-entry">
+        {
+          !editId && (
 
-          <div className="parasut-product-search">
+            <div className="parasut-product-entry">
 
-            <MdSearch />
+              <div className="parasut-product-search">
 
-            <input
-              value={
-                productSearch
-              }
-              onChange={(
-                event
-              ) =>
-                setProductSearch(
-                  event.target.value
-                )
-              }
-              placeholder="Ürün adı, kodu veya barkod ara..."
-            />
+                <MdSearch />
 
-
-            {
-              productResults.length >
-              0 && (
-
-                <div className="parasut-product-dropdown">
-
-                  {
-                    productResults.map(
-                      (
-                        product
-                      ) => (
-
-                        <button
-                          type="button"
-                          key={
-                            product.id
-                          }
-                          onClick={() =>
-                            addProduct(
-                              product
-                            )
-                          }
-                        >
-
-                          <div>
-
-                            <strong>
-                              {
-                                productName(
-                                  product
-                                )
-                              }
-                            </strong>
-
-                            <small>
-                              {
-                                productCode(
-                                  product
-                                )
-                              }
-                            </small>
-
-                          </div>
-
-                          <span>
-                            ₺
-                            {
-                              money(
-                                invoiceType ===
-                                "purchase"
-                                  ? productPurchasePrice(
-                                      product
-                                    )
-                                  : productSalePrice(
-                                      product
-                                    )
-                              )
-                            }
-                          </span>
-
-                        </button>
-
-                      )
+                <input
+                  value={
+                    productSearch
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setProductSearch(
+                      event.target.value
                     )
                   }
-
-                </div>
-
-              )
-            }
-
-          </div>
+                  placeholder="Ürün adı, kodu veya barkod ara..."
+                />
 
 
-          <input
-            className="product-quantity-input"
-            value="1"
-            readOnly
-          />
+                {
+                  productResults.length >
+                  0 && (
+
+                    <div className="parasut-product-dropdown">
+
+                      {
+                        productResults.map(
+                          (
+                            product
+                          ) => (
+
+                            <button
+                              type="button"
+                              key={
+                                product.id
+                              }
+                              onClick={() =>
+                                addProductToInvoice(
+                                  product
+                                )
+                              }
+                            >
+
+                              <div>
+
+                                <strong>
+                                  {
+                                    productName(
+                                      product
+                                    )
+                                  }
+                                </strong>
+
+                                <small>
+                                  {
+                                    productCode(
+                                      product
+                                    )
+                                  }
+                                </small>
+
+                              </div>
 
 
-          <div className="product-unit">
-            Adet
-          </div>
+                              <span>
+
+                                ₺
+                                {
+                                  money(
+                                    invoiceType ===
+                                    "purchase"
+                                      ? productPurchasePrice(
+                                          product
+                                        )
+                                      : productSalePrice(
+                                          product
+                                        )
+                                  )
+                                }
+
+                              </span>
+
+                            </button>
+
+                          )
+                        )
+                      }
+
+                    </div>
+
+                  )
+                }
+
+              </div>
 
 
-          <input
-            className="product-price-input"
-            value="0,00"
-            readOnly
-          />
+              <div
+                className="product-quantity-input"
+                style={{
+                  display:
+                    "flex",
+                  alignItems:
+                    "center",
+                  justifyContent:
+                    "center",
+                  color:
+                    "#9a",
+                }}
+              >
+                1
+              </div>
 
 
-          <div className="product-vat">
-
-            KDV
-
-            <span>
-              %20
-            </span>
-
-          </div>
+              <div className="product-unit">
+                Adet
+              </div>
 
 
-          <div className="product-total">
-            0,00₺
-          </div>
+              <div className="product-price-input">
+                0,00
+              </div>
 
 
-          <button
-            className="product-plus-button"
-            type="button"
-            onClick={() =>
-              setProductSearch("")
-            }
-          >
-            +
-          </button>
-
-        </div>
+              <div className="product-vat">
+                KDV
+              </div>
 
 
-        {/* ÜRÜN SATIRLARI */}
+              <div className="product-total">
+                0,00₺
+              </div>
+
+
+              <button
+                className="product-plus-button"
+                type="button"
+                onClick={
+                  addEmptyLine
+                }
+                title="Yeni ürün satırı ekle"
+              >
+                +
+              </button>
+
+            </div>
+
+          )
+        }
+
+
+        {/* =================================================
+            ÜRÜN SATIRLARI
+        ================================================= */}
 
         {
           calculated.calculatedItems.map(
@@ -3546,29 +4767,110 @@ export default function NewInvoice() {
                 }
               >
 
+
+                {/* ÜRÜN */}
+
                 <div className="product-name-cell">
 
-                  <strong>
-                    {
-                      item.productName
-                    }
-                  </strong>
+                  {
+                    editId ? (
 
-                  <small>
-                    {
-                      item.productCode ||
-                      ""
-                    }
-                  </small>
+                      <div>
+
+                        <strong>
+                          {
+                            item.productName ||
+                            "Ürün"
+                          }
+                        </strong>
+
+                        <small>
+                          {
+                            item.productCode ||
+                            ""
+                          }
+                        </small>
+
+                      </div>
+
+                    ) : (
+
+                      <select
+                        value={
+                          item.productId
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          changeLineProduct(
+                            item.id,
+                            event.target.value
+                          )
+                        }
+                        style={{
+                          width:
+                            "100%",
+                          minHeight:
+                            "36px",
+                          border:
+                            "1px solid #ddd",
+                          borderRadius:
+                            "4px",
+                          background:
+                            "#fff",
+                          fontSize:
+                            "11px",
+                        }}
+                      >
+
+                        <option value="">
+                          Ürün seçin
+                        </option>
+
+
+                        {
+                          products.map(
+                            (
+                              product
+                            ) => (
+
+                              <option
+                                key={
+                                  product.id
+                                }
+                                value={
+                                  product.id
+                                }
+                              >
+
+                                {
+                                  productName(
+                                    product
+                                  )
+                                }
+
+                              </option>
+
+                            )
+                          )
+                        }
+
+                      </select>
+
+                    )
+                  }
 
                 </div>
 
+
+                {/* MİKTAR */}
 
                 <div>
 
                   <input
                     type="number"
-                    min="1"
+                    min="0.01"
+                    step="0.01"
                     value={
                       item.quantity
                     }
@@ -3581,15 +4883,29 @@ export default function NewInvoice() {
                         event.target.value
                       )
                     }
+                    disabled={
+                      Boolean(
+                        editId
+                      )
+                    }
                   />
 
                 </div>
 
 
+                {/* BİRİM */}
+
                 <div>
-                  Adet
+
+                  {
+                    item.unit ||
+                    "Adet"
+                  }
+
                 </div>
 
+
+                {/* BİRİM FİYAT */}
 
                 <div>
 
@@ -3609,10 +4925,17 @@ export default function NewInvoice() {
                         event.target.value
                       )
                     }
+                    disabled={
+                      Boolean(
+                        editId
+                      )
+                    }
                   />
 
                 </div>
 
+
+                {/* KDV */}
 
                 <div>
 
@@ -3627,6 +4950,11 @@ export default function NewInvoice() {
                         item.id,
                         "vatRate",
                         event.target.value
+                      )
+                    }
+                    disabled={
+                      Boolean(
+                        editId
                       )
                     }
                   >
@@ -3652,6 +4980,8 @@ export default function NewInvoice() {
                 </div>
 
 
+                {/* TOPLAM */}
+
                 <div className="product-total strong">
 
                   {
@@ -3663,12 +4993,19 @@ export default function NewInvoice() {
                 </div>
 
 
+                {/* SİL */}
+
                 <button
                   className="product-delete-button"
                   type="button"
                   onClick={() =>
                     removeItem(
                       item.id
+                    )
+                  }
+                  disabled={
+                    Boolean(
+                      editId
                     )
                   }
                 >
@@ -3684,30 +5021,45 @@ export default function NewInvoice() {
         }
 
 
-        {/* YENİ SATIR */}
+        {/* =================================================
+            YENİ SATIR
+        ================================================= */}
 
-        <button
-          className="parasut-add-line"
-          type="button"
-          onClick={() =>
-            setProductSearch("")
-          }
-        >
+        {
+          !editId && (
 
-          <MdAdd />
+            <button
+              className="parasut-add-line"
+              type="button"
+              onClick={
+                addEmptyLine
+              }
+            >
 
-          YENİ SATIR EKLE
+              <MdAdd />
 
-        </button>
+              YENİ SATIR EKLE
+
+            </button>
+
+          )
+        }
 
 
-        {/* TOPLAM */}
+        {/* =================================================
+            TOPLAMLAR
+        ================================================= */}
 
         <div className="parasut-total-area">
 
           <div className="total-profit">
 
-            Toplam Kâr:
+            {
+              invoiceType ===
+              "purchase"
+                ? "Toplam Maliyet:"
+                : "Toplam Kâr:"
+            }
 
             <strong>
               —
@@ -3747,6 +5099,7 @@ export default function NewInvoice() {
                 <input
                   type="number"
                   min="0"
+                  step="0.01"
                   value={
                     discount
                   }
@@ -3755,6 +5108,11 @@ export default function NewInvoice() {
                   ) =>
                     setDiscount(
                       event.target.value
+                    )
+                  }
+                  disabled={
+                    Boolean(
+                      editId
                     )
                   }
                 />
@@ -3804,6 +5162,7 @@ export default function NewInvoice() {
 
             {
               isDetailInvoice && (
+
                 <div
                   className="grand-total"
                   style={{
@@ -3820,23 +5179,27 @@ export default function NewInvoice() {
                     KALAN
                   </span>
 
+
                   <strong
                     style={{
                       color:
                         currentRemaining >
                         0
-                          ? "#c84a43"
-                          : "#3f8f62",
+                          ? "#c84d48"
+                          : "#3d8b63",
                     }}
                   >
+
                     {
                       money(
                         currentRemaining
                       )
                     }₺
+
                   </strong>
 
                 </div>
+
               )
             }
 
@@ -3856,9 +5219,8 @@ export default function NewInvoice() {
         <button
           type="button"
           className="bottom-cancel"
-          onClick={() =>
-            window.location.href =
-              "/invoices"
+          onClick={
+            closeInvoice
           }
         >
           VAZGEÇ
@@ -3923,26 +5285,32 @@ export default function NewInvoice() {
         }
 
 
-        <button
-          type="button"
-          className="bottom-save"
-          disabled={
-            saving
-          }
-          onClick={
-            handleSave
-          }
-        >
+        {
+          !isDetailInvoice && (
 
-          <MdSave />
+            <button
+              type="button"
+              className="bottom-save"
+              disabled={
+                saving
+              }
+              onClick={
+                handleSave
+              }
+            >
 
-          {
-            saving
-              ? "KAYDEDİLİYOR..."
-              : "KAYDET"
-          }
+              <MdSave />
 
-        </button>
+              {
+                saving
+                  ? "KAYDEDİLİYOR..."
+                  : "KAYDET"
+              }
+
+            </button>
+
+          )
+        }
 
       </div>
 
@@ -3981,9 +5349,11 @@ export default function NewInvoice() {
                 event.target ===
                 event.currentTarget
               ) {
+
                 setShowFinanceModal(
                   false
                 );
+
               }
 
             }}
@@ -4005,8 +5375,6 @@ export default function NewInvoice() {
                   "hidden",
               }}
             >
-
-              {/* HEADER */}
 
               <div
                 style={{
@@ -4037,12 +5405,14 @@ export default function NewInvoice() {
                         "5px",
                     }}
                   >
+
                     {
                       financeMode ===
                       "payment"
                         ? "FATURA ÖDEMESİ"
                         : "FATURA TAHSİLATI"
                     }
+
                   </div>
 
 
@@ -4056,12 +5426,14 @@ export default function NewInvoice() {
                         "#242b34",
                     }}
                   >
+
                     {
                       financeMode ===
                       "payment"
                         ? "Ödeme Ekle"
                         : "Tahsilat Ekle"
                     }
+
                   </h2>
 
 
@@ -4075,9 +5447,11 @@ export default function NewInvoice() {
                         "#8a95a3",
                     }}
                   >
+
                     {
                       currentInvoice?.invoiceNo
                     } numaralı fatura
+
                   </p>
 
                 </div>
@@ -4199,26 +5573,30 @@ export default function NewInvoice() {
                         "4px",
                     }}
                   >
+
                     {
                       financeMode ===
                       "payment"
                         ? "ÖDENEN"
                         : "TAHSİL EDİLEN"
                     }
+
                   </span>
 
 
                   <strong
                     style={{
                       color:
-                        "#3f8f62",
+                        "#3d8b63",
                     }}
                   >
+
                     {
                       money(
                         currentPaidAmount
                       )
                     } TL
+
                   </strong>
 
                 </div>
@@ -4261,14 +5639,16 @@ export default function NewInvoice() {
                         currentRemaining >
                         0
                           ? "#c84a43"
-                          : "#3f8f62",
+                          : "#3d8b63",
                     }}
                   >
+
                     {
                       money(
                         currentRemaining
                       )
                     } TL
+
                   </strong>
 
                 </div>
@@ -4306,12 +5686,14 @@ export default function NewInvoice() {
                         "#666",
                     }}
                   >
+
                     {
                       financeMode ===
                       "payment"
                         ? "Tedarikçi"
                         : "Müşteri"
                     }
+
                   </label>
 
 
@@ -4337,12 +5719,14 @@ export default function NewInvoice() {
                   >
 
                     <strong>
+
                       {
                         currentInvoice?.customerName ||
                         currentInvoice?.supplierName ||
                         selectedCustomer?.name ||
                         "Cari"
                       }
+
                     </strong>
 
                   </div>
@@ -4379,78 +5763,47 @@ export default function NewInvoice() {
                           "#666",
                       }}
                     >
+
                       {
                         financeMode ===
                         "payment"
                           ? "Ödeme Tutarı"
                           : "Tahsilat Tutarı"
                       }
+
                     </label>
 
 
-                    <div
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={
+                        financeAmount
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setFinanceAmount(
+                          event.target.value
+                        )
+                      }
                       style={{
-                        position:
-                          "relative",
+                        width:
+                          "100%",
+                        boxSizing:
+                          "border-box",
+                        height:
+                          "42px",
+                        border:
+                          "1px solid #ddd",
+                        borderRadius:
+                          "5px",
+                        padding:
+                          "0 12px",
+                        fontSize:
+                          "13px",
                       }}
-                    >
-
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={
-                          financeAmount
-                        }
-                        onChange={(
-                          event
-                        ) =>
-                          setFinanceAmount(
-                            event.target.value
-                          )
-                        }
-                        style={{
-                          width:
-                            "100%",
-                          boxSizing:
-                            "border-box",
-                          height:
-                            "42px",
-                          border:
-                            "1px solid #ddd",
-                          borderRadius:
-                            "5px",
-                          padding:
-                            "0 48px 0 12px",
-                          fontSize:
-                            "13px",
-                          outline:
-                            "none",
-                        }}
-                      />
-
-
-                      <span
-                        style={{
-                          position:
-                            "absolute",
-                          right:
-                            "12px",
-                          top:
-                            "50%",
-                          transform:
-                            "translateY(-50%)",
-                          color:
-                            "#888",
-                          fontSize:
-                            "11px",
-                          fontWeight:
-                            700,
-                        }}
-                      >
-                        TL
-                      </span>
-
-                    </div>
+                    />
 
                   </div>
 
@@ -4652,44 +6005,42 @@ export default function NewInvoice() {
 
 
                       {
-                        accounts
-                          .filter(
-                            (
-                              account
-                            ) =>
-                              account.status !==
-                              "Pasif"
-                          )
-                          .map(
-                            (
-                              account
-                            ) => (
+                        accounts.map(
+                          (
+                            account
+                          ) => (
 
-                              <option
-                                key={
-                                  account.id
-                                }
-                                value={
-                                  account.id
-                                }
-                              >
-                                {
-                                  account.name
-                                }
-                                {" — "}
-                                {
-                                  account.type
-                                }
-                                {" — ₺"}
-                                {
-                                  money(
-                                    account.balance
-                                  )
-                                }
-                              </option>
+                            <option
+                              key={
+                                account.id
+                              }
+                              value={
+                                account.id
+                              }
+                            >
 
-                            )
+                              {
+                                account.name
+                              }
+
+                              {" — "}
+
+                              {
+                                account.type
+                              }
+
+                              {" — ₺"}
+
+                              {
+                                money(
+                                  account.balance
+                                )
+                              }
+
+                            </option>
+
                           )
+                        )
                       }
 
                     </select>
@@ -4834,6 +6185,7 @@ export default function NewInvoice() {
                         : 1,
                   }}
                 >
+
                   {
                     financeSaving
                       ? "KAYDEDİLİYOR..."
@@ -4842,6 +6194,7 @@ export default function NewInvoice() {
                       ? "ÖDEMEYİ KAYDET"
                       : "TAHSİLATI KAYDET"
                   }
+
                 </button>
 
               </div>
@@ -4854,5 +6207,6 @@ export default function NewInvoice() {
       }
 
     </div>
+
   );
 }

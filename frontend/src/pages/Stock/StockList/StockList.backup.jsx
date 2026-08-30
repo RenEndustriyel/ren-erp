@@ -9,14 +9,29 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import {
-  getProducts,
-  saveProducts,
-  deleteProduct,
-  updateProduct,
-} from "../../../lib/stockStore";
-
 import "./StockList.css";
+
+
+const STORAGE_KEY =
+  "ren_erp_products";
+
+
+const DEFAULT_PRODUCTS = [
+  {
+    id: 1,
+    code: "STK-0001",
+    name: "Örnek Temizlik Ürünü",
+    category: "Temizlik",
+    brand: "REN",
+    unit: "Adet",
+    stock: 25,
+    minStock: 5,
+    purchasePrice: 100,
+    salePrice: 150,
+    vat: 20,
+    status: "Aktif",
+  },
+];
 
 
 /* =========================================================
@@ -35,8 +50,10 @@ const safeNumber = (
     return 0;
   }
 
+
   if (
-    typeof value === "number"
+    typeof value ===
+    "number"
   ) {
 
     return Number.isFinite(
@@ -46,6 +63,7 @@ const safeNumber = (
       : 0;
 
   }
+
 
   let text =
     String(
@@ -134,11 +152,17 @@ const getPurchasePrice = (
   return safeNumber(
 
     product?.purchaseNet ??
+
     product?.purchasePrice ??
+
     product?.buyPrice ??
+
     product?.cost ??
+
     product?.purchase ??
+
     product?.buyingPrice ??
+
     0
 
   );
@@ -157,11 +181,17 @@ const getSalePrice = (
   return safeNumber(
 
     product?.salesNet ??
+
     product?.salePrice ??
+
     product?.sellingPrice ??
+
     product?.salesPrice ??
+
     product?.price ??
+
     product?.retailPrice ??
+
     0
 
   );
@@ -180,9 +210,13 @@ const getVat = (
   return safeNumber(
 
     product?.salesVat ??
+
     product?.vatRate ??
+
     product?.vat ??
+
     product?.kdv ??
+
     0
 
   );
@@ -200,22 +234,20 @@ const getStockStatus = (
 
   const stock =
     safeNumber(
-      product?.stock
+      product.stock
     );
 
 
   const minStock =
     safeNumber(
-      product?.minStock ??
-      product?.criticalStock
+      product.minStock ??
+      product.criticalStock
     );
 
 
   if (
-    product?.status ===
-    "Pasif" ||
-    product?.active ===
-    false
+    product.status ===
+    "Pasif"
   ) {
 
     return "passive";
@@ -338,42 +370,51 @@ export default function StockList() {
 
 
   /* =======================================================
-     ÜRÜNLERİ STOCK STORE'DAN OKU
+     ÜRÜNLERİ OKU
   ======================================================= */
 
   useEffect(() => {
-
-    let mounted =
-      true;
-
 
     const loadProducts =
       () => {
 
         try {
 
-          const freshProducts =
-            getProducts();
+          const saved =
+            localStorage.getItem(
+              STORAGE_KEY
+            );
 
 
           if (
-            !mounted
+            saved
           ) {
-            return;
+
+            const parsed =
+              JSON.parse(
+                saved
+              );
+
+
+            if (
+              Array.isArray(
+                parsed
+              )
+            ) {
+
+              setProducts(
+                parsed
+              );
+
+              return;
+
+            }
+
           }
 
 
-          /*
-           * Asla null/undefined bırakma.
-           * Ama mevcut ürünleri de ezme.
-           */
-
           setProducts(
-            Array.isArray(
-              freshProducts
-            )
-              ? freshProducts
-              : []
+            []
           );
 
         } catch (
@@ -385,15 +426,10 @@ export default function StockList() {
             error
           );
 
-          if (
-            mounted
-          ) {
 
-            setProducts(
-              []
-            );
-
-          }
+          setProducts(
+            []
+          );
 
         }
 
@@ -403,44 +439,41 @@ export default function StockList() {
     loadProducts();
 
 
-    const events = [
+    window.addEventListener(
       "ren-products-changed",
+      loadProducts
+    );
+
+
+    window.addEventListener(
       "ren-stock-updated",
+      loadProducts
+    );
+
+
+    window.addEventListener(
       "storage",
-    ];
-
-
-    events.forEach(
-      (
-        eventName
-      ) => {
-
-        window.addEventListener(
-          eventName,
-          loadProducts
-        );
-
-      }
+      loadProducts
     );
 
 
     return () => {
 
-      mounted =
-        false;
+      window.removeEventListener(
+        "ren-products-changed",
+        loadProducts
+      );
 
 
-      events.forEach(
-        (
-          eventName
-        ) => {
+      window.removeEventListener(
+        "ren-stock-updated",
+        loadProducts
+      );
 
-          window.removeEventListener(
-            eventName,
-            loadProducts
-          );
 
-        }
+      window.removeEventListener(
+        "storage",
+        loadProducts
       );
 
     };
@@ -448,344 +481,334 @@ export default function StockList() {
   }, []);
 
 
-  /* =========================================================
+  /* =======================================================
+     DEĞİŞİNCE KAYDET
+  ======================================================= */
+
+  useEffect(() => {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        products
+      )
+    );
+
+  }, [
+    products,
+  ]);
+
+
+  /* =======================================================
      KATEGORİLER
-  ========================================================= */
+  ======================================================= */
 
   const categories =
-    useMemo(
-      () => {
+    useMemo(() => {
 
-        return [
-          ...new Set(
+      return [
+        ...new Set(
 
-            products
-              .map(
-                (
-                  product
-                ) =>
-                  product?.category
-              )
-              .filter(
-                Boolean
-              )
+          products
+            .map(
+              (
+                product
+              ) =>
+                product.category
+            )
+            .filter(
+              Boolean
+            )
 
-          ),
-        ];
+        ),
+      ];
 
-      },
-      [
-        products,
-      ]
-    );
+    }, [
+      products,
+    ]);
 
 
-  /* =========================================================
+  /* =======================================================
      MARKALAR
-  ========================================================= */
+  ======================================================= */
 
   const brands =
-    useMemo(
-      () => {
+    useMemo(() => {
 
-        return [
-          ...new Set(
+      return [
+        ...new Set(
 
-            products
-              .map(
-                (
-                  product
-                ) =>
-                  product?.brand
-              )
-              .filter(
-                Boolean
-              )
+          products
+            .map(
+              (
+                product
+              ) =>
+                product.brand
+            )
+            .filter(
+              Boolean
+            )
 
-          ),
-        ];
+        ),
+      ];
 
-      },
-      [
-        products,
-      ]
-    );
+    }, [
+      products,
+    ]);
 
 
-  /* =========================================================
+  /* =======================================================
      ÖZET
-  ========================================================= */
+  ======================================================= */
 
   const stats =
-    useMemo(
-      () => {
+    useMemo(() => {
 
-        let totalStock =
-          0;
+      let totalStock =
+        0;
 
-        let lowStock =
-          0;
+      let lowStock =
+        0;
 
-        let emptyStock =
-          0;
+      let emptyStock =
+        0;
 
-        let activeProducts =
-          0;
-
-
-        products.forEach(
-          (
-            product
-          ) => {
-
-            const stock =
-              safeNumber(
-                product?.stock
-              );
+      let activeProducts =
+        0;
 
 
-            const minStock =
-              safeNumber(
-                product?.minStock ??
-                product?.criticalStock
-              );
+      products.forEach(
+        (
+          product
+        ) => {
+
+          const stock =
+            safeNumber(
+              product.stock
+            );
 
 
-            totalStock +=
-              stock;
+          const minStock =
+            safeNumber(
+              product.minStock ??
+              product.criticalStock
+            );
 
 
-            if (
-              product?.status !==
-                "Pasif" &&
-              product?.active !==
-                false
-            ) {
-
-              activeProducts +=
-                1;
-
-            }
+          totalStock +=
+            stock;
 
 
-            if (
-              stock <=
-              0
-            ) {
+          if (
+            product.status !==
+            "Pasif"
+          ) {
 
-              emptyStock +=
-                1;
-
-            } else if (
-              minStock > 0 &&
-              stock <=
-              minStock
-            ) {
-
-              lowStock +=
-                1;
-
-            }
+            activeProducts +=
+              1;
 
           }
-        );
 
 
-        return {
+          if (
+            stock <=
+            0
+          ) {
 
-          totalProducts:
-            products.length,
+            emptyStock +=
+              1;
 
-          activeProducts,
+          } else if (
+            minStock > 0 &&
+            stock <=
+            minStock
+          ) {
 
-          totalStock,
+            lowStock +=
+              1;
 
-          lowStock,
+          }
 
-          emptyStock,
-
-        };
-
-      },
-      [
-        products,
-      ]
-    );
+        }
+      );
 
 
-  /* =========================================================
+      return {
+
+        totalProducts:
+          products.length,
+
+        activeProducts,
+
+        totalStock,
+
+        lowStock,
+
+        emptyStock,
+
+      };
+
+    }, [
+      products,
+    ]);
+
+
+  /* =======================================================
      FİLTRE
-  ========================================================= */
+  ======================================================= */
 
   const filteredProducts =
-    useMemo(
-      () => {
+    useMemo(() => {
 
-        const query =
-          search
-            .trim()
-            .toLocaleLowerCase(
-              "tr-TR"
+      const query =
+        search
+          .trim()
+          .toLocaleLowerCase(
+            "tr-TR"
+          );
+
+
+      return products.filter(
+        (
+          product
+        ) => {
+
+          const matchesSearch =
+            !query ||
+
+            String(
+              product.name ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              product.code ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              product.category ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+
+            String(
+              product.brand ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              );
+
+
+          const matchesCategory =
+            !categoryFilter ||
+            product.category ===
+              categoryFilter;
+
+
+          const matchesBrand =
+            !brandFilter ||
+            product.brand ===
+              brandFilter;
+
+
+          const matchesStatus =
+            !statusFilter ||
+            product.status ===
+              statusFilter;
+
+
+          const stockStatus =
+            getStockStatus(
+              product
             );
 
 
-        return products.filter(
-          (
-            product
-          ) => {
+          const matchesTab =
 
-            const matchesSearch =
-              !query ||
+            activeTab ===
+              "all" ||
 
-              String(
-                product?.name ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                )
-                .includes(
-                  query
-                ) ||
-
-              String(
-                product?.code ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                )
-                .includes(
-                  query
-                ) ||
-
-              String(
-                product?.category ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                )
-                .includes(
-                  query
-                ) ||
-
-              String(
-                product?.brand ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                )
-                .includes(
-                  query
-                );
-
-
-            const matchesCategory =
-              !categoryFilter ||
-              product?.category ===
-                categoryFilter;
-
-
-            const matchesBrand =
-              !brandFilter ||
-              product?.brand ===
-                brandFilter;
-
-
-            const matchesStatus =
-              !statusFilter ||
-              (
-                statusFilter ===
-                "Aktif"
-                  ? (
-                      product?.status !==
-                        "Pasif" &&
-                      product?.active !==
-                        false
-                    )
-                  : (
-                      product?.status ===
-                        "Pasif" ||
-                      product?.active ===
-                        false
-                    )
-              );
-
-
-            const stockStatus =
-              getStockStatus(
-                product
-              );
-
-
-            const matchesTab =
-
+            (
               activeTab ===
-                "all" ||
+                "normal" &&
+              stockStatus ===
+                "normal"
+            ) ||
 
-              (
-                activeTab ===
-                  "normal" &&
-                stockStatus ===
-                  "normal"
-              ) ||
+            (
+              activeTab ===
+                "low" &&
+              stockStatus ===
+                "low"
+            ) ||
 
-              (
-                activeTab ===
-                  "low" &&
-                stockStatus ===
-                  "low"
-              ) ||
+            (
+              activeTab ===
+                "empty" &&
+              stockStatus ===
+                "empty"
+            ) ||
 
-              (
-                activeTab ===
-                  "empty" &&
-                stockStatus ===
-                  "empty"
-              ) ||
-
-              (
-                activeTab ===
-                  "passive" &&
-                stockStatus ===
-                  "passive"
-              );
-
-
-            return (
-
-              matchesSearch &&
-
-              matchesCategory &&
-
-              matchesBrand &&
-
-              matchesStatus &&
-
-              matchesTab
-
+            (
+              activeTab ===
+                "passive" &&
+              stockStatus ===
+                "passive"
             );
 
-          }
-        );
 
-      },
-      [
-        products,
-        search,
-        categoryFilter,
-        brandFilter,
-        statusFilter,
-        activeTab,
-      ]
-    );
+          return (
+
+            matchesSearch &&
+
+            matchesCategory &&
+
+            matchesBrand &&
+
+            matchesStatus &&
+
+            matchesTab
+
+          );
+
+        }
+      );
+
+    }, [
+      products,
+      search,
+      categoryFilter,
+      brandFilter,
+      statusFilter,
+      activeTab,
+    ]);
 
 
-  /* =========================================================
-     SEÇİM
-  ========================================================= */
+  /* =======================================================
+     TÜMÜNÜ SEÇ
+  ======================================================= */
 
   const allVisibleSelected =
     filteredProducts.length >
@@ -809,9 +832,7 @@ export default function StockList() {
       ) {
 
         setSelectedIds(
-          (
-            prev
-          ) =>
+          (prev) =>
             prev.filter(
               (
                 id
@@ -829,9 +850,7 @@ export default function StockList() {
       } else {
 
         setSelectedIds(
-          (
-            prev
-          ) => [
+          (prev) => [
 
             ...new Set([
 
@@ -854,15 +873,17 @@ export default function StockList() {
     };
 
 
+  /* =======================================================
+     SEÇ
+  ======================================================= */
+
   const toggleSelect =
     (
       id
     ) => {
 
       setSelectedIds(
-        (
-          prev
-        ) =>
+        (prev) =>
 
           prev.includes(
             id
@@ -880,14 +901,15 @@ export default function StockList() {
                 ...prev,
                 id,
               ]
+
       );
 
     };
 
 
-  /* =========================================================
+  /* =======================================================
      FİLTRE TEMİZLE
-  ========================================================= */
+  ======================================================= */
 
   const clearFilters =
     () => {
@@ -915,24 +937,23 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      ÜRÜN DETAY
-  ========================================================= */
+  ======================================================= */
 
   const openProductDetail =
     (
       product
     ) => {
 
-      if (
-        product?.id ===
-          undefined ||
-        product?.id ===
-          null
-      ) {
-        return;
-      }
+      /*
+        Projede mevcut ürün düzenleme route'u:
+        /stock/edit/:id
 
+        Ayrı bir detay route'u bulunmadığı için
+        ürün adına tıklama doğrudan mevcut ürün
+        detay/düzenleme ekranını açar.
+      */
 
       navigate(
         `/stock/edit/${encodeURIComponent(
@@ -943,9 +964,9 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      SİL
-  ========================================================= */
+  ======================================================= */
 
   const handleDelete =
     (
@@ -965,203 +986,112 @@ export default function StockList() {
       }
 
 
-      try {
-
-        deleteProduct(
-          product.id
-        );
-
-
-        setProducts(
-          getProducts()
-        );
-
-
-        setSelectedIds(
-          (
-            prev
-          ) =>
-            prev.filter(
-              (
-                id
-              ) =>
-                id !==
-                product.id
-            )
-        );
-
-      } catch (
-        error
-      ) {
-
-        console.error(
-          "Ürün silinemedi:",
-          error
-        );
+      setProducts(
+        (prev) =>
+          prev.filter(
+            (
+              item
+            ) =>
+              item.id !==
+              product.id
+          )
+      );
 
 
-        alert(
-          error?.message ||
-          "Ürün silinemedi."
-        );
-
-      }
+      setSelectedIds(
+        (prev) =>
+          prev.filter(
+            (
+              id
+            ) =>
+              id !==
+              product.id
+          )
+      );
 
     };
 
 
-  /* =========================================================
+  /* =======================================================
      AKTİF / PASİF
-  ========================================================= */
+  ======================================================= */
 
   const handleDeactivate =
     (
       product
     ) => {
 
-      try {
+      setProducts(
+        (prev) =>
+          prev.map(
+            (
+              item
+            ) =>
 
-        const nextActive =
-          product?.active ===
-          false;
+              item.id ===
+                product.id
 
+                ? {
+                    ...item,
 
-        updateProduct(
-          product.id,
-          {
-            active:
-              nextActive,
+                    status:
+                      item.status ===
+                      "Pasif"
+                        ? "Aktif"
+                        : "Pasif",
+                  }
 
-            status:
-              nextActive
-                ? "Aktif"
-                : "Pasif",
-          }
-        );
-
-
-        setProducts(
-          getProducts()
-        );
-
-      } catch (
-        error
-      ) {
-
-        console.error(
-          "Ürün durumu değiştirilemedi:",
-          error
-        );
-
-
-        alert(
-          error?.message ||
-          "Ürün durumu değiştirilemedi."
-        );
-
-      }
+                : item
+          )
+      );
 
     };
 
 
-  /* =========================================================
+  /* =======================================================
      KOPYALA
-  ========================================================= */
+  ======================================================= */
 
   const handleDuplicate =
     (
       product
     ) => {
 
-      const baseCode =
-        String(
-          product?.code ||
-          "STK"
-        )
-          .trim();
-
-
-      let copyCode =
-        `${baseCode}-KOPYA`;
-
-
-      const currentProducts =
-        getProducts() || [];
-
-
-      let counter =
-        2;
-
-
-      while (
-        currentProducts.some(
-          (
-            item
-          ) =>
-            String(
-              item?.code ||
-              ""
-            )
-              .trim()
-              .toLocaleLowerCase(
-                "tr-TR"
-              ) ===
-            copyCode
-              .toLocaleLowerCase(
-                "tr-TR"
-              )
-        )
-      ) {
-
-        copyCode =
-          `${baseCode}-KOPYA-${counter}`;
-
-        counter +=
-          1;
-
-      }
-
-
       const copy = {
 
         ...product,
 
         id:
-          `PRD-${Date.now()}-${Math.random()
-            .toString(36)
-            .slice(2, 7)}`,
+          Date.now(),
 
         code:
-          copyCode,
+          `${
+            product.code ||
+            "STK"
+          }-KOPYA`,
 
         name:
           `${product.name} - Kopya`,
 
-        createdAt:
-          new Date().toISOString(),
-
-        updatedAt:
-          new Date().toISOString(),
-
       };
 
 
-      saveProducts([
-        copy,
-        ...currentProducts,
-      ]);
-
-
       setProducts(
-        getProducts() || []
+        (prev) => [
+
+          copy,
+
+          ...prev,
+
+        ]
       );
 
     };
 
 
-  /* =========================================================
-     EXCEL
-  ========================================================= */
+  /* =======================================================
+     EXCEL İÇE AKTAR
+  ======================================================= */
 
   const handleExcelImport =
     (
@@ -1180,7 +1110,7 @@ export default function StockList() {
 
 
       alert(
-        `"${file.name}" seçildi. Excel aktarım modülü ayrıca işlenecek.`
+        `"${file.name}" seçildi. Excel aktarım modülü mevcut yapıya göre ayrıca işlenecek.`
       );
 
 
@@ -1190,9 +1120,9 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      EXPORT
-  ========================================================= */
+  ======================================================= */
 
   const handleExport =
     () => {
@@ -1200,15 +1130,25 @@ export default function StockList() {
       const headers = [
 
         "Kod",
+
         "Ürün",
+
         "Kategori",
+
         "Marka",
+
         "Birim",
+
         "Stok",
+
         "Min. Stok",
+
         "Alış Fiyatı",
+
         "Satış Fiyatı",
+
         "KDV",
+
         "Durum",
 
       ];
@@ -1220,28 +1160,28 @@ export default function StockList() {
             product
           ) => [
 
-            product?.code ||
+            product.code ||
               "",
 
-            product?.name ||
+            product.name ||
               "",
 
-            product?.category ||
+            product.category ||
               "",
 
-            product?.brand ||
+            product.brand ||
               "",
 
-            product?.unit ||
+            product.unit ||
               "",
 
             safeNumber(
-              product?.stock
+              product.stock
             ),
 
             safeNumber(
-              product?.minStock ??
-              product?.criticalStock
+              product.minStock ??
+              product.criticalStock
             ),
 
             getPurchasePrice(
@@ -1256,7 +1196,7 @@ export default function StockList() {
               product
             ),
 
-            product?.status ||
+            product.status ||
               "",
 
           ]
@@ -1266,6 +1206,7 @@ export default function StockList() {
       const csv = [
 
         headers,
+
         ...rows,
 
       ]
@@ -1349,9 +1290,9 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      YAZDIR
-  ========================================================= */
+  ======================================================= */
 
   const handlePrint =
     () => {
@@ -1361,9 +1302,9 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      YENİ ÜRÜN
-  ========================================================= */
+  ======================================================= */
 
   const goNewProduct =
     () => {
@@ -1375,18 +1316,18 @@ export default function StockList() {
     };
 
 
-  /* =========================================================
+  /* =======================================================
      RENDER
-  ========================================================= */
+  ======================================================= */
 
   return (
 
     <div className="ren-stock-list">
 
 
-      {/* =====================================================
+      {/* =================================================
           HEADER
-      ===================================================== */}
+      ================================================= */}
 
       <div className="ren-stock-list-header">
 
@@ -1552,7 +1493,9 @@ export default function StockList() {
       </div>
 
 
-      {/* SUMMARY */}
+      {/* =================================================
+          SUMMARY
+      ================================================= */}
 
       <div className="ren-stock-summary">
 
@@ -1677,7 +1620,9 @@ export default function StockList() {
       </div>
 
 
-      {/* TABS */}
+      {/* =================================================
+          TABS
+      ================================================= */}
 
       <div className="ren-stock-tabs">
 
@@ -1773,7 +1718,9 @@ export default function StockList() {
       </div>
 
 
-      {/* TOOLBAR */}
+      {/* =================================================
+          TOOLBAR
+      ================================================= */}
 
       <div className="ren-stock-toolbar">
 
@@ -1846,14 +1793,11 @@ export default function StockList() {
           0 && (
 
             <div className="ren-selected-info">
-
               {
                 selectedIds.length
               }
-
               {" "}
               ürün seçildi
-
             </div>
 
           )
@@ -1862,12 +1806,15 @@ export default function StockList() {
       </div>
 
 
-      {/* FILTERS */}
+      {/* =================================================
+          FILTERS
+      ================================================= */}
 
       {
         showFilters && (
 
           <div className="ren-filter-panel">
+
 
             <div>
 
@@ -1908,11 +1855,9 @@ export default function StockList() {
                           category
                         }
                       >
-
                         {
                           category
                         }
-
                       </option>
 
                     )
@@ -1963,11 +1908,9 @@ export default function StockList() {
                           brand
                         }
                       >
-
                         {
                           brand
                         }
-
                       </option>
 
                     )
@@ -2031,7 +1974,9 @@ export default function StockList() {
       }
 
 
-      {/* TABLE */}
+      {/* =================================================
+          TABLO
+      ================================================= */}
 
       <div className="ren-stock-table-card">
 
@@ -2190,6 +2135,8 @@ export default function StockList() {
                         >
 
 
+                          {/* CHECK */}
+
                           <td className="check-column">
 
                             <input
@@ -2211,7 +2158,15 @@ export default function StockList() {
 
                           <td>
 
-                            <div className="ren-product-cell">
+                            <div
+                              className="ren-product-cell"
+                              style={{
+                                display:
+                                  "flex",
+                                alignItems:
+                                  "center",
+                              }}
+                            >
 
                               <div>
 
@@ -2227,7 +2182,7 @@ export default function StockList() {
                                 >
 
                                   {
-                                    product?.name ||
+                                    product.name ||
                                     "İsimsiz Ürün"
                                   }
 
@@ -2235,7 +2190,7 @@ export default function StockList() {
 
 
                                 {
-                                  product?.model && (
+                                  product.model && (
 
                                     <small
                                       style={{
@@ -2262,35 +2217,41 @@ export default function StockList() {
                           </td>
 
 
+                          {/* KOD */}
+
                           <td>
 
                             <span className="ren-code">
-
                               {
-                                product?.code ||
+                                product.code ||
                                 "-"
                               }
-
                             </span>
 
                           </td>
 
 
+                          {/* KATEGORİ */}
+
                           <td>
                             {
-                              product?.category ||
+                              product.category ||
                               "-"
                             }
                           </td>
 
 
+                          {/* MARKA */}
+
                           <td>
                             {
-                              product?.brand ||
+                              product.brand ||
                               "-"
                             }
                           </td>
 
+
+                          {/* STOK */}
 
                           <td>
 
@@ -2314,7 +2275,7 @@ export default function StockList() {
 
                               {
                                 formatMoney(
-                                  product?.stock
+                                  product.stock
                                 )
                               }
 
@@ -2322,7 +2283,7 @@ export default function StockList() {
 
 
                             {
-                              product?.unit && (
+                              product.unit && (
 
                                 <small>
                                   {" "}
@@ -2336,6 +2297,8 @@ export default function StockList() {
 
                           </td>
 
+
+                          {/* ALIŞ */}
 
                           <td>
 
@@ -2351,6 +2314,8 @@ export default function StockList() {
                           </td>
 
 
+                          {/* SATIŞ */}
+
                           <td>
 
                             <strong>
@@ -2365,6 +2330,8 @@ export default function StockList() {
                           </td>
 
 
+                          {/* KDV */}
+
                           <td>
 
                             %
@@ -2374,6 +2341,8 @@ export default function StockList() {
 
                           </td>
 
+
+                          {/* DURUM */}
 
                           <td>
 
@@ -2409,6 +2378,8 @@ export default function StockList() {
                           </td>
 
 
+                          {/* İŞLEMLER */}
+
                           <td>
 
                             <div className="ren-row-actions">
@@ -2443,8 +2414,8 @@ export default function StockList() {
                               <button
                                 type="button"
                                 title={
-                                  product?.active ===
-                                  false
+                                  product.status ===
+                                  "Pasif"
                                     ? "Aktifleştir"
                                     : "Pasife Al"
                                 }
@@ -2491,7 +2462,9 @@ export default function StockList() {
         </div>
 
 
-        {/* FOOTER */}
+        {/* =================================================
+            FOOTER
+        ================================================= */}
 
         <div className="ren-stock-list-footer">
 
@@ -2529,8 +2502,8 @@ export default function StockList() {
 
       </div>
 
+
     </div>
 
   );
-
 }

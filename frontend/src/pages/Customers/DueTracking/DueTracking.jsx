@@ -1,244 +1,866 @@
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
 
 import { Link } from "react-router-dom";
 
+import {
+  getInvoices,
+} from "../../../lib/invoiceStore";
+
+import {
+  getCustomers,
+} from "../../../lib/customerStore";
+
 import "./DueTracking.css";
 
-const demoDueItems = [
-  {
-    id: 1,
-    customer: "Akın Ambalaj",
-    type: "Müşteri",
-    document: "SAT-2026-0048",
-    date: "2026-08-18",
-    amount: 3250,
-  },
-  {
-    id: 2,
-    customer: "Yörsan Tedarik",
-    type: "Tedarikçi",
-    document: "ALI-2026-0031",
-    date: "2026-08-15",
-    amount: 5800,
-  },
-  {
-    id: 3,
-    customer: "ABC Gıda",
-    type: "Müşteri",
-    document: "SAT-2026-0045",
-    date: "2026-08-20",
-    amount: 4200,
-  },
-  {
-    id: 4,
-    customer: "Susurluk Cafe",
-    type: "Müşteri",
-    document: "SAT-2026-0042",
-    date: "2026-08-24",
-    amount: 1850,
-  },
-  {
-    id: 5,
-    customer: "Poyraz Gıda",
-    type: "Tedarikçi",
-    document: "ALI-2026-0028",
-    date: "2026-08-27",
-    amount: 6900,
-  },
-];
+
+/* =========================================================
+   YARDIMCI
+========================================================= */
+
+function numberValue(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (
+    typeof value === "number"
+  ) {
+    return Number.isFinite(
+      value
+    )
+      ? value
+      : 0;
+  }
+
+  let text =
+    String(value)
+      .trim()
+      .replace(/\s/g, "");
+
+  if (
+    text.includes(",") &&
+    text.includes(".")
+  ) {
+    text =
+      text
+        .replace(/\./g, "")
+        .replace(",", ".");
+  } else if (
+    text.includes(",")
+  ) {
+    text =
+      text.replace(",", ".");
+  }
+
+  const result =
+    Number(text);
+
+  return Number.isFinite(
+    result
+  )
+    ? result
+    : 0;
+}
+
 
 function money(value) {
-  return new Intl.NumberFormat("tr-TR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value) || 0);
+  return new Intl.NumberFormat(
+    "tr-TR",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(
+    numberValue(value)
+  );
 }
+
+
+function normalizeType(type) {
+  const value =
+    String(type || "")
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (
+    value === "purchase" ||
+    value === "purchases" ||
+    value === "alış" ||
+    value === "alis" ||
+    value.includes("alış") ||
+    value.includes("alis")
+  ) {
+    return "purchase";
+  }
+
+  if (
+    value === "return" ||
+    value === "returns" ||
+    value === "iade" ||
+    value.includes("iade")
+  ) {
+    return "return";
+  }
+
+  return "sales";
+}
+
+
+function normalizeDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const text =
+    String(value);
+
+  if (
+    /^\d{4}-\d{2}-\d{2}$/.test(
+      text
+    )
+  ) {
+    return text;
+  }
+
+  const date =
+    new Date(text);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+  return [
+    date.getFullYear(),
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    ),
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    ),
+  ].join("-");
+}
+
 
 function formatDate(value) {
-  if (!value) return "—";
+  const normalized =
+    normalizeDate(value);
 
-  return new Intl.DateTimeFormat("tr-TR").format(
-    new Date(`${value}T00:00:00`)
+  if (!normalized) {
+    return "—";
+  }
+
+  const date =
+    new Date(
+      `${normalized}T12:00:00`
+    );
+
+  return new Intl.DateTimeFormat(
+    "tr-TR"
+  ).format(
+    date
   );
 }
+
+
+function getTodayString() {
+  const date =
+    new Date();
+
+  return [
+    date.getFullYear(),
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    ),
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    ),
+  ].join("-");
+}
+
 
 function getDayDifference(date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today =
+    new Date(
+      `${getTodayString()}T00:00:00`
+    );
 
-  const target = new Date(`${date}T00:00:00`);
-  target.setHours(0, 0, 0, 0);
+  const targetDate =
+    new Date(
+      `${date}T00:00:00`
+    );
+
+  if (
+    Number.isNaN(
+      targetDate.getTime()
+    )
+  ) {
+    return 0;
+  }
 
   return Math.round(
-    (target - today) /
-      (1000 * 60 * 60 * 24)
+    (
+      targetDate.getTime() -
+      today.getTime()
+    ) /
+    (
+      1000 *
+      60 *
+      60 *
+      24
+    )
   );
 }
 
+
 function getStatus(days) {
-  if (days < 0) {
+  if (
+    days < 0
+  ) {
     return {
-      label: "Gecikmiş",
-      className: "due-status overdue",
+      label:
+        "Gecikmiş",
+
+      className:
+        "due-status overdue",
     };
   }
 
-  if (days === 0) {
+  if (
+    days === 0
+  ) {
     return {
-      label: "Bugün",
-      className: "due-status today",
+      label:
+        "Bugün",
+
+      className:
+        "due-status today",
     };
   }
 
-  if (days <= 7) {
+  if (
+    days <= 7
+  ) {
     return {
-      label: "Yaklaşıyor",
-      className: "due-status soon",
+      label:
+        "Yaklaşıyor",
+
+      className:
+        "due-status soon",
     };
   }
 
   return {
-    label: "Planlandı",
-    className: "due-status planned",
+    label:
+      "Planlandı",
+
+    className:
+      "due-status planned",
   };
 }
 
-export default function DueTracking() {
-  const [search, setSearch] =
-    useState("");
 
-  const [typeFilter, setTypeFilter] =
-    useState("Tümü");
+function customerName(
+  invoice,
+  customer
+) {
+  return (
+    customer?.name ||
+    customer?.title ||
+    customer?.companyName ||
+    invoice?.customerName ||
+    invoice?.supplierName ||
+    "Cari belirtilmemiş"
+  );
+}
 
-  const [statusFilter, setStatusFilter] =
-    useState("Tümü");
 
-  const filteredItems = useMemo(() => {
-    return demoDueItems.filter((item) => {
-      const days = getDayDifference(
-        item.date
+function customerId(
+  invoice
+) {
+  return (
+    invoice?.customerId ||
+    invoice?.supplierId ||
+    ""
+  );
+}
+
+
+function customerType(
+  invoice,
+  customer
+) {
+  const raw =
+    String(
+      customer?.type ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
       );
 
-      const status =
-        days < 0
-          ? "Gecikmiş"
-          : days === 0
-          ? "Bugün"
-          : days <= 7
-          ? "Yaklaşıyor"
-          : "Planlandı";
+  if (
+    raw.includes(
+      "tedarik"
+    )
+  ) {
+    return "Tedarikçi";
+  }
+
+  return normalizeType(
+    invoice?.type
+  ) ===
+    "purchase"
+    ? "Tedarikçi"
+    : "Müşteri";
+}
+
+
+function invoiceNumber(
+  invoice
+) {
+  return (
+    invoice?.invoiceNo ||
+    invoice?.number ||
+    invoice?.documentNo ||
+    "-"
+  );
+}
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
+export default function DueTracking() {
+
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
+
+  const [
+    typeFilter,
+    setTypeFilter,
+  ] = useState(
+    "Tümü"
+  );
+
+
+  const [
+    statusFilter,
+    setStatusFilter,
+  ] = useState(
+    "Tümü"
+  );
+
+
+  const [
+    invoices,
+    setInvoices,
+  ] = useState(
+    () =>
+      getInvoices() || []
+  );
+
+
+  const [
+    customers,
+    setCustomers,
+  ] = useState(
+    () =>
+      getCustomers() || []
+  );
+
+
+  /* =======================================================
+     YENİLEME
+  ======================================================= */
+
+  const refresh =
+    () => {
+
+      setInvoices(
+        getInvoices() || []
+      );
+
+      setCustomers(
+        getCustomers() || []
+      );
+
+    };
+
+
+  useEffect(() => {
+
+    refresh();
+
+
+    const events = [
+      "ren-invoices-updated",
+      "ren-customers-updated",
+      "ren-customer-movements-updated",
+      "ren-cash-bank-updated",
+      "storage",
+    ];
+
+
+    events.forEach(
+      (
+        eventName
+      ) => {
+
+        window.addEventListener(
+          eventName,
+          refresh
+        );
+
+      }
+    );
+
+
+    return () => {
+
+      events.forEach(
+        (
+          eventName
+        ) => {
+
+          window.removeEventListener(
+            eventName,
+            refresh
+          );
+
+        }
+      );
+
+    };
+
+  }, []);
+
+
+  /* =======================================================
+     CARİ HARİTASI
+  ======================================================= */
+
+  const customerMap =
+    useMemo(() => {
+
+      const map =
+        new Map();
+
+
+      customers.forEach(
+        (
+          customer
+        ) => {
+
+          map.set(
+            String(
+              customer.id
+            ),
+            customer
+          );
+
+        }
+      );
+
+
+      return map;
+
+    }, [
+      customers,
+    ]);
+
+
+  /* =======================================================
+     GERÇEK VADE KAYITLARI
+  ======================================================= */
+
+  const dueItems =
+    useMemo(() => {
+
+      return invoices
+        .map(
+          (
+            invoice
+          ) => {
+
+            const type =
+              normalizeType(
+                invoice.type
+              );
+
+
+            /*
+             * Sadece satış ve alış faturaları
+             * vade takibine girer.
+             */
+            if (
+              type !== "sales" &&
+              type !== "purchase"
+            ) {
+              return null;
+            }
+
+
+            const dueDate =
+              normalizeDate(
+                invoice.dueDate
+              );
+
+
+            if (
+              !dueDate
+            ) {
+              return null;
+            }
+
+
+            const total =
+              numberValue(
+                invoice.total
+              );
+
+
+            const paid =
+              numberValue(
+                invoice.paidAmount
+              );
+
+
+            const remaining =
+              Math.max(
+                0,
+                total -
+                paid
+              );
+
+
+            /*
+             * Tamamen tahsil edilmiş /
+             * ödenmiş faturayı gösterme.
+             */
+            if (
+              remaining <=
+              0
+            ) {
+              return null;
+            }
+
+
+            const id =
+              customerId(
+                invoice
+              );
+
+
+            const customer =
+              customerMap.get(
+                String(id)
+              );
+
+
+            const days =
+              getDayDifference(
+                dueDate
+              );
+
+
+            return {
+
+              id:
+                invoice.id,
+
+              customer:
+                customerName(
+                  invoice,
+                  customer
+                ),
+
+              customerId:
+                id,
+
+              type:
+                type ===
+                "purchase"
+                  ? "Tedarikçi"
+                  : "Müşteri",
+
+              document:
+                invoiceNumber(
+                  invoice
+                ),
+
+              date:
+                dueDate,
+
+              amount:
+                remaining,
+
+              total,
+
+              paid,
+
+              days,
+
+              status:
+                getStatus(
+                  days
+                ),
+
+              invoice,
+
+            };
+
+          }
+        )
+        .filter(
+          Boolean
+        )
+        .sort(
+          (
+            a,
+            b
+          ) => {
+
+            const dateA =
+              a.date;
+
+            const dateB =
+              b.date;
+
+            return dateA.localeCompare(
+              dateB
+            );
+
+          }
+        );
+
+    }, [
+      invoices,
+      customerMap,
+    ]);
+
+
+  /* =======================================================
+     FİLTRELENMİŞ
+  ======================================================= */
+
+  const filteredItems =
+    useMemo(() => {
 
       const query =
         search
           .trim()
-          .toLocaleLowerCase("tr-TR");
+          .toLocaleLowerCase(
+            "tr-TR"
+          );
 
-      const matchesSearch =
-        !query ||
-        item.customer
-          .toLocaleLowerCase("tr-TR")
-          .includes(query) ||
-        item.document
-          .toLocaleLowerCase("tr-TR")
-          .includes(query);
 
-      const matchesType =
-        typeFilter === "Tümü" ||
-        item.type === typeFilter;
+      return dueItems.filter(
+        (
+          item
+        ) => {
 
-      const matchesStatus =
-        statusFilter === "Tümü" ||
-        status === statusFilter;
+          const matchesSearch =
+            !query ||
+            item.customer
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              ) ||
+            item.document
+              .toLocaleLowerCase(
+                "tr-TR"
+              )
+              .includes(
+                query
+              );
 
-      return (
-        matchesSearch &&
-        matchesType &&
-        matchesStatus
+
+          const matchesType =
+            typeFilter ===
+              "Tümü" ||
+            item.type ===
+              typeFilter;
+
+
+          const matchesStatus =
+            statusFilter ===
+              "Tümü" ||
+            item.status.label ===
+              statusFilter;
+
+
+          return (
+            matchesSearch &&
+            matchesType &&
+            matchesStatus
+          );
+
+        }
       );
-    });
-  }, [
-    search,
-    typeFilter,
-    statusFilter,
-  ]);
 
-  const totalOpen = demoDueItems.reduce(
-    (total, item) =>
-      total + item.amount,
-    0
-  );
+    }, [
+      dueItems,
+      search,
+      typeFilter,
+      statusFilter,
+    ]);
+
+
+  /* =======================================================
+     ÖZETLER
+  ======================================================= */
+
+  const totalOpen =
+    dueItems.reduce(
+      (
+        total,
+        item
+      ) =>
+        total +
+        item.amount,
+      0
+    );
+
 
   const overdueTotal =
-    demoDueItems
+    dueItems
       .filter(
-        (item) =>
-          getDayDifference(item.date) < 0
+        (
+          item
+        ) =>
+          item.days <
+          0
       )
       .reduce(
-        (total, item) =>
-          total + item.amount,
+        (
+          total,
+          item
+        ) =>
+          total +
+          item.amount,
         0
       );
+
 
   const todayTotal =
-    demoDueItems
+    dueItems
       .filter(
-        (item) =>
-          getDayDifference(item.date) === 0
+        (
+          item
+        ) =>
+          item.days ===
+          0
       )
       .reduce(
-        (total, item) =>
-          total + item.amount,
+        (
+          total,
+          item
+        ) =>
+          total +
+          item.amount,
         0
       );
+
 
   const nextSevenTotal =
-    demoDueItems
-      .filter((item) => {
-        const days = getDayDifference(
-          item.date
-        );
-
-        return days > 0 && days <= 7;
-      })
+    dueItems
+      .filter(
+        (
+          item
+        ) =>
+          item.days >
+            0 &&
+          item.days <=
+            7
+      )
       .reduce(
-        (total, item) =>
-          total + item.amount,
+        (
+          total,
+          item
+        ) =>
+          total +
+          item.amount,
         0
       );
 
+
   return (
+
     <div className="due-page">
+
       <div className="due-container">
 
-        {/* HEADER */}
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="due-header">
+
           <div>
+
             <div className="due-breadcrumb">
+
               <span>
                 Müşteri - Tedarikçi
               </span>
 
-              <span>/</span>
+              <span>
+                /
+              </span>
 
               <strong>
                 Vade Takibi
               </strong>
+
             </div>
+
 
             <h1>
               Vade Takibi
             </h1>
 
+
             <p>
               Yaklaşan ve geciken cari
               vadeleri tek ekrandan takip edin.
             </p>
+
           </div>
+
 
           <Link
             to="/customers"
@@ -246,71 +868,112 @@ export default function DueTracking() {
           >
             Hesap Listesi
           </Link>
+
         </div>
 
 
-        {/* SUMMARY */}
+        {/* =================================================
+            SUMMARY
+        ================================================= */}
 
         <div className="due-summary">
 
           <div className="due-summary-card">
+
             <span>
               TOPLAM AÇIK VADESİZ
             </span>
 
             <strong>
-              {money(totalOpen)} TL
+              {
+                money(
+                  totalOpen
+                )
+              } TL
             </strong>
+
           </div>
 
+
           <div className="due-summary-card overdue-card">
+
             <span>
               TOPLAM GECİKEN
             </span>
 
             <strong>
-              {money(overdueTotal)} TL
+              {
+                money(
+                  overdueTotal
+                )
+              } TL
             </strong>
+
           </div>
 
+
           <div className="due-summary-card today-card">
+
             <span>
               BUGÜN VADESİ GELEN
             </span>
 
             <strong>
-              {money(todayTotal)} TL
+              {
+                money(
+                  todayTotal
+                )
+              } TL
             </strong>
+
           </div>
 
+
           <div className="due-summary-card soon-card">
+
             <span>
               7 GÜN İÇİNDE
             </span>
 
             <strong>
-              {money(nextSevenTotal)} TL
+              {
+                money(
+                  nextSevenTotal
+                )
+              } TL
             </strong>
+
           </div>
 
         </div>
 
 
-        {/* MAIN CARD */}
+        {/* =================================================
+            MAIN CARD
+        ================================================= */}
 
         <div className="due-card">
+
 
           {/* TOOLBAR */}
 
           <div className="due-toolbar">
 
             <div className="due-search">
-              <span>⌕</span>
+
+              <span>
+                ⌕
+              </span>
+
 
               <input
                 type="text"
-                value={search}
-                onChange={(event) =>
+                value={
+                  search
+                }
+                onChange={(
+                  event
+                ) =>
                   setSearch(
                     event.target.value
                   )
@@ -318,27 +981,41 @@ export default function DueTracking() {
                 placeholder="Cari veya belge no ara..."
               />
 
-              {search && (
-                <button
-                  onClick={() =>
-                    setSearch("")
-                  }
-                >
-                  ×
-                </button>
-              )}
+
+              {
+                search && (
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSearch(
+                        ""
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+
+                )
+              }
+
             </div>
 
 
             <select
-              value={typeFilter}
-              onChange={(event) =>
+              value={
+                typeFilter
+              }
+              onChange={(
+                event
+              ) =>
                 setTypeFilter(
                   event.target.value
                 )
               }
               className="due-filter"
             >
+
               <option value="Tümü">
                 Tüm Cari Tipleri
               </option>
@@ -350,18 +1027,24 @@ export default function DueTracking() {
               <option value="Tedarikçi">
                 Tedarikçi
               </option>
+
             </select>
 
 
             <select
-              value={statusFilter}
-              onChange={(event) =>
+              value={
+                statusFilter
+              }
+              onChange={(
+                event
+              ) =>
                 setStatusFilter(
                   event.target.value
                 )
               }
               className="due-filter"
             >
+
               <option value="Tümü">
                 Tüm Durumlar
               </option>
@@ -381,23 +1064,41 @@ export default function DueTracking() {
               <option value="Planlandı">
                 Planlandı
               </option>
+
             </select>
 
 
-            {(search ||
-              typeFilter !== "Tümü" ||
-              statusFilter !== "Tümü") && (
-              <button
-                className="due-clear"
-                onClick={() => {
-                  setSearch("");
-                  setTypeFilter("Tümü");
-                  setStatusFilter("Tümü");
-                }}
-              >
-                Temizle
-              </button>
-            )}
+            {
+              (
+                search ||
+                typeFilter !== "Tümü" ||
+                statusFilter !== "Tümü"
+              ) && (
+
+                <button
+                  type="button"
+                  className="due-clear"
+                  onClick={() => {
+
+                    setSearch(
+                      ""
+                    );
+
+                    setTypeFilter(
+                      "Tümü"
+                    );
+
+                    setStatusFilter(
+                      "Tümü"
+                    );
+
+                  }}
+                >
+                  Temizle
+                </button>
+
+              )
+            }
 
           </div>
 
@@ -405,26 +1106,48 @@ export default function DueTracking() {
           {/* RESULT BAR */}
 
           <div className="due-result-bar">
-            <span>
-              <strong>
-                {filteredItems.length}
-              </strong>{" "}
-              vade gösteriliyor
-            </span>
 
             <span>
-              Açık toplam:{" "}
+
               <strong>
-                {money(
-                  filteredItems.reduce(
-                    (total, item) =>
-                      total + item.amount,
-                    0
-                  )
-                )}{" "}
-                TL
+                {
+                  filteredItems.length
+                }
               </strong>
+
+              {" "}
+              vade gösteriliyor
+
             </span>
+
+
+            <span>
+
+              Açık toplam:{" "}
+
+              <strong>
+
+                {
+                  money(
+                    filteredItems.reduce(
+                      (
+                        total,
+                        item
+                      ) =>
+                        total +
+                        item.amount,
+                      0
+                    )
+                  )
+                }
+
+                {" "}
+                TL
+
+              </strong>
+
+            </span>
+
           </div>
 
 
@@ -435,7 +1158,9 @@ export default function DueTracking() {
             <table className="due-table">
 
               <thead>
+
                 <tr>
+
                   <th>
                     CARİ
                   </th>
@@ -463,72 +1188,114 @@ export default function DueTracking() {
                   <th className="due-actions-head">
                     İŞLEM
                   </th>
+
                 </tr>
+
               </thead>
 
 
               <tbody>
 
-                {filteredItems.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="due-empty"
-                    >
-                      <div>◷</div>
+                {
+                  filteredItems.length ===
+                  0 ? (
 
-                      <strong>
-                        Vade bulunamadı
-                      </strong>
+                    <tr>
 
-                      <span>
-                        Seçtiğiniz filtrelere
-                        uygun kayıt bulunmuyor.
-                      </span>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredItems.map(
-                    (item) => {
-                      const days =
-                        getDayDifference(
-                          item.date
-                        );
+                      <td
+                        colSpan="7"
+                        className="due-empty"
+                      >
 
-                      const status =
-                        getStatus(days);
+                        <div>
+                          ◷
+                        </div>
 
-                      return (
-                        <tr key={item.id}>
+
+                        <strong>
+                          Vade bulunamadı
+                        </strong>
+
+
+                        <span>
+                          Seçtiğiniz filtrelere
+                          uygun kayıt bulunmuyor.
+                        </span>
+
+                      </td>
+
+                    </tr>
+
+                  ) : (
+
+                    filteredItems.map(
+                      (
+                        item
+                      ) => (
+
+                        <tr
+                          key={
+                            item.id
+                          }
+                        >
 
                           {/* CARİ */}
 
                           <td>
-                            <div className="due-customer">
+
+                            <Link
+                              to={
+                                item.customerId
+                                  ? `/customers/detail?id=${encodeURIComponent(
+                                      item.customerId
+                                    )}`
+                                  : "/customers"
+                              }
+                              className="due-customer"
+                              style={{
+                                textDecoration:
+                                  "none",
+                              }}
+                            >
 
                               <span className="due-avatar">
-                                {item.customer
-                                  .charAt(0)
-                                  .toUpperCase()}
+
+                                {
+                                  item.customer
+                                    .charAt(
+                                      0
+                                    )
+                                    .toUpperCase()
+                                }
+
                               </span>
 
+
                               <div>
+
                                 <strong>
-                                  {item.customer}
+                                  {
+                                    item.customer
+                                  }
                                 </strong>
 
                                 <small>
-                                  {item.type}
+                                  {
+                                    item.type
+                                  }
                                 </small>
+
                               </div>
 
-                            </div>
+                            </Link>
+
                           </td>
 
 
                           {/* TÜR */}
 
                           <td>
+
                             <span
                               className={
                                 item.type ===
@@ -537,28 +1304,54 @@ export default function DueTracking() {
                                   : "due-type supplier"
                               }
                             >
-                              {item.type}
+                              {
+                                item.type
+                              }
                             </span>
+
                           </td>
 
 
                           {/* BELGE */}
 
                           <td>
-                            <span className="due-document">
-                              {item.document}
-                            </span>
+
+                            <Link
+                              to={
+                                `/invoices/detail?id=${encodeURIComponent(
+                                  item.invoice.id
+                                )}`
+                              }
+                              className="due-document"
+                              style={{
+                                textDecoration:
+                                  "none",
+                              }}
+                            >
+
+                              {
+                                item.document
+                              }
+
+                            </Link>
+
                           </td>
 
 
                           {/* TARİH */}
 
                           <td>
+
                             <strong className="due-date">
-                              {formatDate(
-                                item.date
-                              )}
+
+                              {
+                                formatDate(
+                                  item.date
+                                )
+                              }
+
                             </strong>
+
                           </td>
 
 
@@ -570,20 +1363,30 @@ export default function DueTracking() {
 
                               <span
                                 className={
-                                  status.className
+                                  item.status.className
                                 }
                               >
-                                {status.label}
+
+                                {
+                                  item.status.label
+                                }
+
                               </span>
 
+
                               <small>
-                                {days < 0
-                                  ? `${Math.abs(
-                                      days
-                                    )} gün gecikmiş`
-                                  : days === 0
-                                  ? "Vadesi bugün"
-                                  : `${days} gün kaldı`}
+
+                                {
+                                  item.days < 0
+                                    ? `${Math.abs(
+                                        item.days
+                                      )} gün gecikmiş`
+                                    : item.days ===
+                                      0
+                                    ? "Vadesi bugün"
+                                    : `${item.days} gün kaldı`
+                                }
+
                               </small>
 
                             </div>
@@ -595,11 +1398,24 @@ export default function DueTracking() {
 
                           <td className="due-money">
 
-                            <strong>
-                              {money(
-                                item.amount
-                              )}{" "}
+                            <strong
+                              className={
+                                item.days <
+                                0
+                                  ? "danger"
+                                  : ""
+                              }
+                            >
+
+                              {
+                                money(
+                                  item.amount
+                                )
+                              }
+
+                              {" "}
                               TL
+
                             </strong>
 
                           </td>
@@ -610,24 +1426,29 @@ export default function DueTracking() {
                           <td className="due-actions">
 
                             <Link
-                              to="/customers/detail"
-                              state={{
-                                customer: {
-                                  name: item.customer,
-                                },
-                              }}
+                              to={
+                                item.customerId
+                                  ? `/customers/detail?id=${encodeURIComponent(
+                                      item.customerId
+                                    )}`
+                                  : "/customers"
+                              }
                               className="due-detail-button"
                             >
+
                               Cariyi Gör
+
                             </Link>
 
                           </td>
 
                         </tr>
-                      );
-                    }
+
+                      )
+                    )
+
                   )
-                )}
+                }
 
               </tbody>
 
@@ -641,12 +1462,20 @@ export default function DueTracking() {
           <div className="due-footer">
 
             <span>
+
               Toplam{" "}
+
               <strong>
-                {filteredItems.length}
-              </strong>{" "}
+                {
+                  filteredItems.length
+                }
+              </strong>
+
+              {" "}
               kayıt
+
             </span>
+
 
             <span>
               REN ERP
@@ -657,6 +1486,8 @@ export default function DueTracking() {
         </div>
 
       </div>
+
     </div>
+
   );
 }

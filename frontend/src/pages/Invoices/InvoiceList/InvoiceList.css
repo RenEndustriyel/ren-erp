@@ -707,3 +707,31 @@
     padding: 8px 14px;
   }
 }
+
+.ren-invoice-list-customer-link {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.ren-invoice-list-customer-link:disabled {
+  cursor: default;
+}
+
+.ren-invoice-list-customer-link:not(:disabled):hover strong {
+  color: #286fc7;
+  text-decoration: underline;
+}
+
+.ren-invoice-list-number {
+  transition: 0.15s ease;
+}
+
+.ren-invoice-list-number:hover {
+  text-decoration: underline;
+}

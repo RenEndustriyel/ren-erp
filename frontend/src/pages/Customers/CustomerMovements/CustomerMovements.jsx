@@ -19,6 +19,10 @@ import {
   getCustomerMovementsWithBalance,
 } from "../../../lib/movementStore";
 
+import {
+  getInvoices,
+} from "../../../lib/invoiceStore";
+
 import "./CustomerMovements.css";
 
 
@@ -114,9 +118,96 @@ function formatDate(value) {
 }
 
 
-/* =========================================================
-   HAREKET TUTARI
-========================================================= */
+function normalizeInvoiceType(type) {
+  const value =
+    String(
+      type || ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (
+    value === "purchase" ||
+    value === "purchases" ||
+    value.includes("alış") ||
+    value.includes("alis")
+  ) {
+    return "purchase";
+  }
+
+  if (
+    value === "return" ||
+    value === "returns" ||
+    value.includes("iade")
+  ) {
+    return "return";
+  }
+
+  return "sales";
+}
+
+
+function getInvoiceCustomerId(invoice) {
+  return (
+    invoice?.customerId ||
+    invoice?.supplierId ||
+    invoice?.cariId ||
+    invoice?.accountId ||
+    ""
+  );
+}
+
+
+function getInvoiceNumber(invoice) {
+  return (
+    invoice?.invoiceNo ||
+    invoice?.number ||
+    invoice?.documentNo ||
+    invoice?.no ||
+    "—"
+  );
+}
+
+
+function getInvoiceTotal(invoice) {
+  return numberValue(
+    invoice?.total ??
+    invoice?.grandTotal ??
+    invoice?.amount
+  );
+}
+
+
+function getInvoicePaid(invoice) {
+  return numberValue(
+    invoice?.paidAmount
+  );
+}
+
+
+function normalizeCustomerType(type) {
+  const value =
+    String(
+      type || ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  if (
+    value === "tedarikçi" ||
+    value === "tedarikci" ||
+    value === "supplier"
+  ) {
+    return "Tedarikçi";
+  }
+
+  return "Müşteri";
+}
+
 
 function getMovementAmount(
   movement
@@ -146,6 +237,238 @@ function getMovementAmount(
 
 
 /* =========================================================
+   FATURALARDAN CARİ HAREKET ÜRET
+========================================================= */
+
+function buildInvoiceMovements(
+  invoices,
+  customerId,
+  customer
+) {
+  if (
+    !customerId
+  ) {
+    return [];
+  }
+
+  const customerType =
+    normalizeCustomerType(
+      customer?.type
+    );
+
+
+  return invoices
+    .filter(
+      (
+        invoice
+      ) =>
+        String(
+          getInvoiceCustomerId(
+            invoice
+          )
+        ) ===
+        String(
+          customerId
+        )
+    )
+    .map(
+      (
+        invoice
+      ) => {
+
+        const type =
+          normalizeInvoiceType(
+            invoice?.type
+          );
+
+
+        /*
+         * Tamamen boş / geçersiz kayıtları alma.
+         */
+
+        const total =
+          getInvoiceTotal(
+            invoice
+          );
+
+
+        if (
+          total <= 0
+        ) {
+          return null;
+        }
+
+
+        let movementType =
+          "Satış";
+
+
+        let debt =
+          0;
+
+        let credit =
+          0;
+
+
+        /*
+         * MÜŞTERİ
+         *
+         * Satış = Borç
+         * Tahsilat = Alacak
+         *
+         * İade = Alacak
+         */
+
+        if (
+          customerType ===
+          "Müşteri"
+        ) {
+
+          if (
+            type ===
+            "sales"
+          ) {
+
+            movementType =
+              "Satış";
+
+            debt =
+              total;
+
+          } else if (
+            type ===
+            "return"
+          ) {
+
+            movementType =
+              "İade";
+
+            credit =
+              total;
+
+          } else {
+
+            return null;
+
+          }
+
+        }
+
+
+        /*
+         * TEDARİKÇİ
+         *
+         * Alış = Borç
+         * İade = Alacak
+         */
+
+        if (
+          customerType ===
+          "Tedarikçi"
+        ) {
+
+          if (
+            type ===
+            "purchase"
+          ) {
+
+            movementType =
+              "Alış";
+
+            debt =
+              total;
+
+          } else if (
+            type ===
+            "return"
+          ) {
+
+            movementType =
+              "İade";
+
+            credit =
+              total;
+
+          } else {
+
+            return null;
+
+          }
+
+        }
+
+
+        return {
+
+          id:
+            `invoice-${invoice.id}`,
+
+          invoiceId:
+            invoice.id,
+
+          customerId:
+            customerId,
+
+          customerName:
+            customer?.name ||
+            customer?.title ||
+            customer?.companyName ||
+            invoice?.customerName ||
+            invoice?.supplierName ||
+            "Cari",
+
+          document:
+            getInvoiceNumber(
+              invoice
+            ),
+
+          type:
+            movementType,
+
+          description:
+            `${getInvoiceNumber(
+              invoice
+            )} numaralı ${
+              movementType
+                .toLocaleLowerCase(
+                  "tr-TR"
+                )
+            } faturası`,
+
+          debt,
+
+          credit,
+
+          amount:
+            total,
+
+          date:
+            invoice?.date ||
+            invoice?.invoiceDate ||
+            invoice?.createdAt ||
+            new Date().toISOString(),
+
+          method:
+            invoice?.paymentMethod ||
+            "",
+
+          source:
+            "Fatura",
+
+          isInvoiceMovement:
+            true,
+
+        };
+
+      }
+    )
+    .filter(
+      Boolean
+    );
+}
+
+
+/* =========================================================
    CARİ HAREKET
 ========================================================= */
 
@@ -161,6 +484,15 @@ export default function CustomerMovements() {
   ] = useState(
     () =>
       getCustomers() || []
+  );
+
+
+  const [
+    invoices,
+    setInvoices,
+  ] = useState(
+    () =>
+      getInvoices() || []
   );
 
 
@@ -215,36 +547,140 @@ export default function CustomerMovements() {
       const freshCustomers =
         getCustomers() || [];
 
+
+      const freshInvoices =
+        getInvoices() || [];
+
+
       setCustomers(
         freshCustomers
       );
 
 
+      setInvoices(
+        freshInvoices
+      );
+
+
       if (
-        selectedCustomerId !==
+        selectedCustomerId ===
         "all"
       ) {
-
-        const freshMovements =
-          getCustomerMovementsWithBalance(
-            selectedCustomerId
-          ) || [];
-
-        setMovements(
-          Array.isArray(
-            freshMovements
-          )
-            ? freshMovements
-            : []
-        );
-
-      } else {
 
         setMovements(
           []
         );
 
+        return;
+
       }
+
+
+      const customer =
+        freshCustomers.find(
+          (
+            item
+          ) =>
+            String(
+              item.id
+            ) ===
+            String(
+              selectedCustomerId
+            )
+        );
+
+
+      const storedMovements =
+        getCustomerMovementsWithBalance(
+          selectedCustomerId
+        ) || [];
+
+
+      const manualMovements =
+        Array.isArray(
+          storedMovements
+        )
+          ? storedMovements
+          : [];
+
+
+      /*
+       * Faturalardan gerçek cari hareket üret.
+       */
+
+      const invoiceMovements =
+        buildInvoiceMovements(
+          freshInvoices,
+          selectedCustomerId,
+          customer
+        );
+
+
+      /*
+       * Eğer movementStore faturayı zaten içeriyorsa
+       * ikinci kez saymamak için belge numarası + tip
+       * üzerinden tekrarları filtrele.
+       */
+
+      const existingKeys =
+        new Set(
+          manualMovements
+            .filter(
+              (
+                movement
+              ) =>
+                movement?.type ===
+                  "Satış" ||
+                movement?.type ===
+                  "Alış" ||
+                movement?.type ===
+                  "İade"
+            )
+            .map(
+              (
+                movement
+              ) =>
+                `${movement.document || ""}|${movement.type || ""}`
+            )
+        );
+
+
+      const filteredInvoiceMovements =
+        invoiceMovements.filter(
+          (
+            movement
+          ) =>
+            !existingKeys.has(
+              `${movement.document || ""}|${movement.type || ""}`
+            )
+        );
+
+
+      const combined = [
+        ...manualMovements,
+        ...filteredInvoiceMovements,
+      ];
+
+
+      combined.sort(
+        (
+          a,
+          b
+        ) =>
+          new Date(
+            a.date ||
+            0
+          ).getTime() -
+          new Date(
+            b.date ||
+            0
+          ).getTime()
+      );
+
+
+      setMovements(
+        combined
+      );
 
     };
 
@@ -261,33 +697,7 @@ export default function CustomerMovements() {
     const onRefresh =
       () => {
 
-        const freshCustomers =
-          getCustomers() || [];
-
-        setCustomers(
-          freshCustomers
-        );
-
-
-        if (
-          selectedCustomerId !==
-          "all"
-        ) {
-
-          const freshMovements =
-            getCustomerMovementsWithBalance(
-              selectedCustomerId
-            ) || [];
-
-          setMovements(
-            Array.isArray(
-              freshMovements
-            )
-              ? freshMovements
-              : []
-          );
-
-        }
+        refresh();
 
       };
 
@@ -298,11 +708,14 @@ export default function CustomerMovements() {
       "ren-invoices-updated",
       "ren-cash-bank-updated",
       "ren-finance-updated",
+      "storage",
     ];
 
 
     events.forEach(
-      (eventName) => {
+      (
+        eventName
+      ) => {
 
         window.addEventListener(
           eventName,
@@ -316,7 +729,9 @@ export default function CustomerMovements() {
     return () => {
 
       events.forEach(
-        (eventName) => {
+        (
+          eventName
+        ) => {
 
           window.removeEventListener(
             eventName,
@@ -339,7 +754,9 @@ export default function CustomerMovements() {
 
   const selectedCustomer =
     customers.find(
-      (customer) =>
+      (
+        customer
+      ) =>
         String(
           customer.id
         ) ===
@@ -350,7 +767,7 @@ export default function CustomerMovements() {
 
 
   /* =======================================================
-     FİLTRELENMİŞ HAREKETLER
+     FİLTRELENMİŞ
   ======================================================= */
 
   const filteredMovements =
@@ -364,81 +781,87 @@ export default function CustomerMovements() {
           );
 
 
-      return movements.filter(
-        (movement) => {
+      return movements
+        .filter(
+          (
+            movement
+          ) => {
 
-          const matchesSearch =
-            !query ||
-            String(
-              movement.customerName ||
-              ""
-            )
-              .toLocaleLowerCase(
-                "tr-TR"
+            const matchesSearch =
+              !query ||
+
+              String(
+                movement.customerName ||
+                ""
               )
-              .includes(
-                query
-              ) ||
-            String(
-              movement.document ||
-              ""
-            )
-              .toLocaleLowerCase(
-                "tr-TR"
+                .toLocaleLowerCase(
+                  "tr-TR"
+                )
+                .includes(
+                  query
+                ) ||
+
+              String(
+                movement.document ||
+                ""
               )
-              .includes(
-                query
-              ) ||
-            String(
-              movement.description ||
-              ""
-            )
-              .toLocaleLowerCase(
-                "tr-TR"
+                .toLocaleLowerCase(
+                  "tr-TR"
+                )
+                .includes(
+                  query
+                ) ||
+
+              String(
+                movement.description ||
+                ""
               )
-              .includes(
-                query
+                .toLocaleLowerCase(
+                  "tr-TR"
+                )
+                .includes(
+                  query
+                );
+
+
+            const matchesType =
+              typeFilter ===
+                "Tümü" ||
+              movement.type ===
+                typeFilter;
+
+
+            const movementDate =
+              String(
+                movement.date ||
+                ""
+              ).slice(
+                0,
+                10
               );
 
 
-          const matchesType =
-            typeFilter ===
-              "Tümü" ||
-            movement.type ===
-              typeFilter;
+            const matchesFrom =
+              !dateFrom ||
+              movementDate >=
+                dateFrom;
 
 
-          const movementDate =
-            String(
-              movement.date ||
-              ""
-            ).slice(
-              0,
-              10
+            const matchesTo =
+              !dateTo ||
+              movementDate <=
+                dateTo;
+
+
+            return (
+              matchesSearch &&
+              matchesType &&
+              matchesFrom &&
+              matchesTo
             );
 
-
-          const matchesFrom =
-            !dateFrom ||
-            movementDate >=
-              dateFrom;
-
-
-          const matchesTo =
-            !dateTo ||
-            movementDate <=
-              dateTo;
-
-
-          return (
-            matchesSearch &&
-            matchesType &&
-            matchesFrom &&
-            matchesTo
-          );
-
-        }
-      );
+          }
+        );
 
     }, [
       movements,
@@ -450,33 +873,45 @@ export default function CustomerMovements() {
 
 
   /* =======================================================
-     CARİ ÖZETLERİ
+     ÖZET
   ======================================================= */
 
   const summary =
     useMemo(() => {
 
-      let totalDebt = 0;
-      let totalCredit = 0;
-      let totalCollection = 0;
-      let totalPayment = 0;
+      let totalDebt =
+        0;
+
+      let totalCredit =
+        0;
+
+      let totalCollection =
+        0;
+
+      let totalPayment =
+        0;
 
 
       filteredMovements.forEach(
-        (movement) => {
+        (
+          movement
+        ) => {
 
           const debt =
             numberValue(
               movement.debt
             );
 
+
           const credit =
             numberValue(
               movement.credit
             );
 
+
           totalDebt +=
             debt;
+
 
           totalCredit +=
             credit;
@@ -511,27 +946,23 @@ export default function CustomerMovements() {
       );
 
 
-      /*
-        Cari kalan:
-
-        Borç - Alacak
-
-        Örnek:
-        62.325 - 30.000
-        = 32.325
-      */
-
       const balance =
         totalDebt -
         totalCredit;
 
 
       return {
+
         totalDebt,
+
         totalCredit,
+
         totalCollection,
+
         totalPayment,
+
         balance,
+
       };
 
     }, [
@@ -540,7 +971,7 @@ export default function CustomerMovements() {
 
 
   /* =======================================================
-     CARİ DURUMU
+     CARİ DURUM
   ======================================================= */
 
   const currentStatus =
@@ -564,7 +995,7 @@ export default function CustomerMovements() {
 
 
   /* =======================================================
-     FİLTRE TEMİZLE
+     TEMİZLE
   ======================================================= */
 
   const clearFilters =
@@ -590,9 +1021,7 @@ export default function CustomerMovements() {
       <div className="customer-movements-container">
 
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
+        {/* HEADER */}
 
         <div className="customer-movements-header">
 
@@ -639,9 +1068,7 @@ export default function CustomerMovements() {
         </div>
 
 
-        {/* =================================================
-            CARİ SEÇİMİ
-        ================================================= */}
+        {/* CARİ SEÇİMİ */}
 
         <div className="customer-movements-selector">
 
@@ -670,36 +1097,40 @@ export default function CustomerMovements() {
               </option>
 
 
-              {customers.map(
-                (
-                  customer
-                ) => (
+              {
+                customers.map(
+                  (
+                    customer
+                  ) => (
 
-                  <option
-                    key={
-                      customer.id
-                    }
-                    value={
-                      customer.id
-                    }
-                  >
-                    {
-                      customer.code ||
-                      ""
-                    }
+                    <option
+                      key={
+                        customer.id
+                      }
+                      value={
+                        customer.id
+                      }
+                    >
 
-                    {" — "}
+                      {
+                        customer.code ||
+                        ""
+                      }
 
-                    {
-                      customer.name ||
-                      customer.title ||
-                      customer.companyName ||
-                      "Cari"
-                    }
-                  </option>
+                      {" — "}
 
+                      {
+                        customer.name ||
+                        customer.title ||
+                        customer.companyName ||
+                        "Cari"
+                      }
+
+                    </option>
+
+                  )
                 )
-              )}
+              }
 
             </select>
 
@@ -739,10 +1170,12 @@ export default function CustomerMovements() {
                   </strong>
 
                   <small>
+
                     {
                       selectedCustomer.code ||
                       ""
                     }
+
                   </small>
 
                 </div>
@@ -755,14 +1188,9 @@ export default function CustomerMovements() {
         </div>
 
 
-        {/* =================================================
-            ÖZET KARTLARI
-        ================================================= */}
+        {/* ÖZET */}
 
         <div className="customer-movements-summary">
-
-
-          {/* BORÇ */}
 
           <div className="customer-movement-summary-card">
 
@@ -776,7 +1204,10 @@ export default function CustomerMovements() {
                 money(
                   summary.totalDebt
                 )
-              } TL
+              }
+
+              {" "}
+              TL
 
             </strong>
 
@@ -786,8 +1217,6 @@ export default function CustomerMovements() {
 
           </div>
 
-
-          {/* ALACAK */}
 
           <div className="customer-movement-summary-card">
 
@@ -801,7 +1230,10 @@ export default function CustomerMovements() {
                 money(
                   summary.totalCredit
                 )
-              } TL
+              }
+
+              {" "}
+              TL
 
             </strong>
 
@@ -811,8 +1243,6 @@ export default function CustomerMovements() {
 
           </div>
 
-
-          {/* TAHSİLAT */}
 
           <div className="customer-movement-summary-card">
 
@@ -826,7 +1256,10 @@ export default function CustomerMovements() {
                 money(
                   summary.totalCollection
                 )
-              } TL
+              }
+
+              {" "}
+              TL
 
             </strong>
 
@@ -836,8 +1269,6 @@ export default function CustomerMovements() {
 
           </div>
 
-
-          {/* ÖDEME */}
 
           <div className="customer-movement-summary-card">
 
@@ -851,7 +1282,10 @@ export default function CustomerMovements() {
                 money(
                   summary.totalPayment
                 )
-              } TL
+              }
+
+              {" "}
+              TL
 
             </strong>
 
@@ -861,8 +1295,6 @@ export default function CustomerMovements() {
 
           </div>
 
-
-          {/* KALAN */}
 
           <div className="customer-movement-summary-card">
 
@@ -892,18 +1324,23 @@ export default function CustomerMovements() {
                 money(
                   summary.balance
                 )
-              } TL
+              }
+
+              {" "}
+              TL
 
             </strong>
 
             <small>
+
               {
                 summary.balance > 0
-                  ? "Müşteriden alacak"
+                  ? "Açık borç"
                   : summary.balance < 0
-                  ? "Müşteriye borç"
+                  ? "Alacak"
                   : "Cari kapalı"
               }
+
             </small>
 
           </div>
@@ -911,9 +1348,7 @@ export default function CustomerMovements() {
         </div>
 
 
-        {/* =================================================
-            ANA KART
-        ================================================= */}
+        {/* ANA KART */}
 
         <div className="customer-movements-card">
 
@@ -1073,7 +1508,7 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* SONUÇ BAR */}
+          {/* SONUÇ */}
 
           <div className="customer-movements-result">
 
@@ -1083,7 +1518,9 @@ export default function CustomerMovements() {
                 {
                   filteredMovements.length
                 }
-              </strong>{" "}
+              </strong>
+
+              {" "}
               hareket gösteriliyor
 
             </span>
@@ -1103,20 +1540,27 @@ export default function CustomerMovements() {
                       currentStatusClass
                     }
                   >
+
                     {
                       currentStatus ||
                       "Bakiyesi Yok"
                     }
+
                   </strong>
 
                   {" — "}
 
                   <strong>
+
                     {
                       money(
                         summary.balance
                       )
-                    } TL
+                    }
+
+                    {" "}
+                    TL
+
                   </strong>
 
                 </span>
@@ -1127,9 +1571,7 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* =================================================
-              TABLO
-          ================================================= */}
+          {/* TABLO */}
 
           <div className="customer-movements-table-wrapper">
 
@@ -1214,6 +1656,11 @@ export default function CustomerMovements() {
                         index
                       ) => {
 
+                        /*
+                         * Tablo kronolojik listelendiği için
+                         * satır bazında birikimli bakiye.
+                         */
+
                         const runningBalance =
                           filteredMovements
                             .slice(
@@ -1279,6 +1726,7 @@ export default function CustomerMovements() {
                                   }
 
                                 </span>
+
 
                                 <strong>
 
@@ -1373,7 +1821,10 @@ export default function CustomerMovements() {
                                       money(
                                         movement.debt
                                       )
-                                    } TL
+                                    }
+
+                                    {" "}
+                                    TL
 
                                   </strong>
 
@@ -1402,7 +1853,10 @@ export default function CustomerMovements() {
                                       money(
                                         movement.credit
                                       )
-                                    } TL
+                                    }
+
+                                    {" "}
+                                    TL
 
                                   </strong>
 
@@ -1442,7 +1896,10 @@ export default function CustomerMovements() {
                                   money(
                                     runningBalance
                                   )
-                                } TL
+                                }
+
+                                {" "}
+                                TL
 
                               </strong>
 
@@ -1465,9 +1922,7 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* =================================================
-              FOOTER
-          ================================================= */}
+          {/* FOOTER */}
 
           <div className="customer-movements-footer">
 
@@ -1479,8 +1934,9 @@ export default function CustomerMovements() {
                 {
                   filteredMovements.length
                 }
-              </strong>{" "}
+              </strong>
 
+              {" "}
               hareket
 
             </span>
@@ -1497,7 +1953,10 @@ export default function CustomerMovements() {
                   money(
                     summary.totalDebt
                   )
-                } TL
+                }
+
+                {" "}
+                TL
               </strong>
 
             </span>
@@ -1514,7 +1973,10 @@ export default function CustomerMovements() {
                   money(
                     summary.totalCredit
                   )
-                } TL
+                }
+
+                {" "}
+                TL
               </strong>
 
             </span>
@@ -1528,5 +1990,4 @@ export default function CustomerMovements() {
     </div>
 
   );
-
 }

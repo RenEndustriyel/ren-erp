@@ -17,6 +17,10 @@ import {
 } from "react-icons/md";
 
 import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
   getInvoices,
   deleteInvoice,
 } from "../../../lib/invoiceStore";
@@ -47,10 +51,18 @@ function formatDate(value) {
     return "-";
   }
 
+
+  const text =
+    String(value);
+
+
   const date =
     new Date(
-      `${value}T12:00:00`
+      text.includes("T")
+        ? text
+        : `${text}T12:00:00`
     );
+
 
   if (
     Number.isNaN(
@@ -60,11 +72,13 @@ function formatDate(value) {
     return value;
   }
 
+
   return new Intl.DateTimeFormat(
     "tr-TR"
   ).format(
     date
   );
+
 }
 
 
@@ -80,6 +94,7 @@ function normalizeType(type) {
 
   if (
     value === "purchase" ||
+    value === "purchases" ||
     value === "alış" ||
     value === "alis"
   ) {
@@ -89,6 +104,7 @@ function normalizeType(type) {
 
   if (
     value === "return" ||
+    value === "returns" ||
     value === "iade"
   ) {
     return "return";
@@ -96,6 +112,7 @@ function normalizeType(type) {
 
 
   return "sales";
+
 }
 
 
@@ -124,6 +141,7 @@ function getTypeLabel(type) {
 
 
   return "Satış";
+
 }
 
 
@@ -152,30 +170,52 @@ function getTypeClass(type) {
 
 
   return "sales";
+
 }
 
 
-function getCustomerName(invoice) {
+function getCustomerName(
+  invoice
+) {
 
   return (
     invoice.customerName ||
     invoice.supplierName ||
     "Cari belirtilmemiş"
   );
+
 }
 
 
-function getCustomerCode(invoice) {
+function getCustomerCode(
+  invoice
+) {
 
   return (
     invoice.customerCode ||
     invoice.supplierCode ||
     "-"
   );
+
 }
 
 
-function getStatusClass(invoice) {
+function getCustomerId(
+  invoice
+) {
+
+  return (
+    invoice.customerId ||
+    invoice.supplierId ||
+    ""
+  );
+
+}
+
+
+function getStatusClass(
+  invoice
+) {
 
   if (
     invoice.status ===
@@ -193,17 +233,22 @@ function getStatusClass(invoice) {
     invoice.status ===
       "cancelled" ||
     invoice.status ===
-      "canceled"
+      "canceled" ||
+    invoice.status ===
+      "iptal"
   ) {
     return "cancelled";
   }
 
 
   return "open";
+
 }
 
 
-function getStatusLabel(invoice) {
+function getStatusLabel(
+  invoice
+) {
 
   const status =
     getStatusClass(
@@ -228,6 +273,7 @@ function getStatusLabel(invoice) {
 
 
   return "Açık";
+
 }
 
 
@@ -236,6 +282,10 @@ function getStatusLabel(invoice) {
 ========================================================= */
 
 export default function InvoiceList() {
+
+  const navigate =
+    useNavigate();
+
 
   const [
     search,
@@ -246,13 +296,17 @@ export default function InvoiceList() {
   const [
     typeFilter,
     setTypeFilter,
-  ] = useState("all");
+  ] = useState(
+    "all"
+  );
 
 
   const [
     statusFilter,
     setStatusFilter,
-  ] = useState("all");
+  ] = useState(
+    "all"
+  );
 
 
   const [
@@ -260,118 +314,118 @@ export default function InvoiceList() {
     setInvoices,
   ] = useState(
     () =>
-      getInvoices()
+      getInvoices() || []
   );
 
 
-  /* =========================================================
-     FİLTRELENMİŞ LİSTE
-========================================================= */
+  /* =======================================================
+     FİLTRE
+  ======================================================= */
 
   const filteredInvoices =
-    useMemo(
-      () => {
+    useMemo(() => {
 
-        const query =
-          search
-            .trim()
-            .toLocaleLowerCase(
-              "tr-TR"
+      const query =
+        search
+          .trim()
+          .toLocaleLowerCase(
+            "tr-TR"
+          );
+
+
+      return invoices.filter(
+        (
+          invoice
+        ) => {
+
+          const invoiceNo =
+            String(
+              invoice.invoiceNo ||
+              invoice.number ||
+              ""
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              );
+
+
+          const customer =
+            getCustomerName(
+              invoice
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              );
+
+
+          const code =
+            getCustomerCode(
+              invoice
+            )
+              .toLocaleLowerCase(
+                "tr-TR"
+              );
+
+
+          const matchesSearch =
+            !query ||
+            invoiceNo.includes(
+              query
+            ) ||
+            customer.includes(
+              query
+            ) ||
+            code.includes(
+              query
             );
 
 
-        return invoices.filter(
-          (invoice) => {
-
-            const invoiceNo =
-              String(
-                invoice.invoiceNo ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const customer =
-              getCustomerName(
-                invoice
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const code =
-              getCustomerCode(
-                invoice
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const matchesSearch =
-              !query ||
-              invoiceNo.includes(
-                query
-              ) ||
-              customer.includes(
-                query
-              ) ||
-              code.includes(
-                query
-              );
-
-
-            const type =
-              normalizeType(
-                invoice.type
-              );
-
-
-            const matchesType =
-              typeFilter ===
-                "all" ||
-              type ===
-                typeFilter;
-
-
-            const status =
-              getStatusClass(
-                invoice
-              );
-
-
-            const matchesStatus =
-              statusFilter ===
-                "all" ||
-              status ===
-                statusFilter;
-
-
-            return (
-              matchesSearch &&
-              matchesType &&
-              matchesStatus
+          const type =
+            normalizeType(
+              invoice.type
             );
 
-          }
-        );
 
-      },
-      [
-        invoices,
-        search,
-        typeFilter,
-        statusFilter,
-      ]
-    );
+          const matchesType =
+            typeFilter ===
+              "all" ||
+            type ===
+              typeFilter;
 
 
-  /* =========================================================
-     ÖZETLER
-========================================================= */
+          const status =
+            getStatusClass(
+              invoice
+            );
+
+
+          const matchesStatus =
+            statusFilter ===
+              "all" ||
+            status ===
+              statusFilter;
+
+
+          return (
+            matchesSearch &&
+            matchesType &&
+            matchesStatus
+          );
+
+        }
+      );
+
+    }, [
+      invoices,
+      search,
+      typeFilter,
+      statusFilter,
+    ]);
+
+
+  /* =======================================================
+     ÖZET
+  ======================================================= */
 
   const totalAmount =
     filteredInvoices.reduce(
@@ -419,57 +473,106 @@ export default function InvoiceList() {
     ).length;
 
 
-  /* =========================================================
+  /* =======================================================
      YENİ FATURA
-========================================================= */
+  ======================================================= */
 
   const handleNewInvoice =
     () => {
 
-      window.location.href =
-        "/invoices/new";
+      navigate(
+        "/invoices/new"
+      );
 
     };
 
-
-  /* =========================================================
-     TİPİNE GÖRE YENİ
-========================================================= */
 
   const handleNewByType =
     (type) => {
 
-      window.location.href =
-        `/invoices/new?type=${type}`;
+      navigate(
+        `/invoices/new?type=${encodeURIComponent(
+          type
+        )}`
+      );
 
     };
 
 
-  /* =========================================================
+  /* =======================================================
+     FATURA DETAYI
+  ======================================================= */
+
+  const handleDetail =
+    (invoice) => {
+
+      navigate(
+        `/invoices/detail?id=${encodeURIComponent(
+          invoice.id
+        )}`
+      );
+
+    };
+
+
+  /* =======================================================
      DÜZENLE
-========================================================= */
+  ======================================================= */
 
   const handleEdit =
     (invoice) => {
 
-      window.location.href =
+      navigate(
         `/invoices/new?id=${encodeURIComponent(
           invoice.id
-        )}`;
+        )}`
+      );
 
     };
 
 
-  /* =========================================================
+  /* =======================================================
+     CARİ DETAYI
+  ======================================================= */
+
+  const handleCustomerDetail =
+    (invoice) => {
+
+      const customerId =
+        getCustomerId(
+          invoice
+        );
+
+
+      if (!customerId) {
+
+        return;
+
+      }
+
+
+      navigate(
+        `/customers/detail?id=${encodeURIComponent(
+          customerId
+        )}`
+      );
+
+    };
+
+
+  /* =======================================================
      SİL
-========================================================= */
+  ======================================================= */
 
   const handleDelete =
     (invoice) => {
 
       const confirmed =
         window.confirm(
-          `${invoice.invoiceNo || "Bu fatura"} silinsin mi?`
+          `${
+            invoice.invoiceNo ||
+            "Bu fatura"
+          } silinsin mi?`
         );
 
 
@@ -484,17 +587,15 @@ export default function InvoiceList() {
 
 
       setInvoices(
-        getInvoices()
+        getInvoices() ||
+        []
       );
 
     };
 
 
-  /* =========================================================
-     RENDER
-========================================================= */
-
   return (
+
     <div className="ren-invoice-list">
 
 
@@ -510,8 +611,9 @@ export default function InvoiceList() {
             type="button"
             className="ren-invoice-list-back"
             onClick={() =>
-              window.location.href =
+              navigate(
                 "/dashboard"
+              )
             }
           >
 
@@ -570,7 +672,7 @@ export default function InvoiceList() {
 
 
       {/* =====================================================
-          ÖZET KARTLARI
+          ÖZET
       ===================================================== */}
 
       <section className="ren-invoice-list-summary">
@@ -606,7 +708,9 @@ export default function InvoiceList() {
             </span>
 
             <strong>
-              {filteredInvoices.length}
+              {
+                filteredInvoices.length
+              }
             </strong>
 
           </div>
@@ -644,7 +748,9 @@ export default function InvoiceList() {
             </span>
 
             <strong>
-              {salesCount}
+              {
+                salesCount
+              }
             </strong>
 
           </div>
@@ -682,7 +788,9 @@ export default function InvoiceList() {
             </span>
 
             <strong>
-              {purchaseCount}
+              {
+                purchaseCount
+              }
             </strong>
 
           </div>
@@ -720,7 +828,9 @@ export default function InvoiceList() {
             </span>
 
             <strong>
-              {returnCount}
+              {
+                returnCount
+              }
             </strong>
 
           </div>
@@ -732,7 +842,7 @@ export default function InvoiceList() {
 
 
       {/* =====================================================
-          HIZLI FATURA TİPLERİ
+          HIZLI İŞLEMLER
       ===================================================== */}
 
       <section className="ren-invoice-list-quick">
@@ -804,7 +914,6 @@ export default function InvoiceList() {
 
         <div className="ren-invoice-list-toolbar">
 
-
           <div className="ren-invoice-list-search">
 
             <MdSearch />
@@ -827,7 +936,6 @@ export default function InvoiceList() {
 
 
           <div className="ren-invoice-list-filters">
-
 
             <select
               value={
@@ -892,13 +1000,12 @@ export default function InvoiceList() {
 
             </select>
 
-
           </div>
 
         </div>
 
 
-        {/* TABLE */}
+        {/* TABLO */}
 
         <div className="ren-invoice-list-table-wrapper">
 
@@ -951,310 +1058,348 @@ export default function InvoiceList() {
 
             <tbody>
 
-              {filteredInvoices.length >
-              0 ? (
+              {
+                filteredInvoices.length >
+                0 ? (
 
-                filteredInvoices.map(
-                  (
-                    invoice
-                  ) => {
+                  filteredInvoices.map(
+                    (
+                      invoice
+                    ) => {
 
-                    const type =
-                      normalizeType(
-                        invoice.type
-                      );
+                      const type =
+                        normalizeType(
+                          invoice.type
+                        );
 
 
-                    return (
+                      return (
 
-                      <tr
-                        key={
-                          invoice.id
-                        }
-                      >
+                        <tr
+                          key={
+                            invoice.id
+                          }
+                        >
 
-                        {/* FATURA NO */}
 
-                        <td>
+                          {/* FATURA NO */}
 
-                          <button
-                            type="button"
-                            className="ren-invoice-list-number"
-                            onClick={() =>
-                              handleEdit(
-                                invoice
-                              )
-                            }
-                          >
+                          <td>
 
-                            <MdReceiptLong />
+                            <button
+                              type="button"
+                              className="ren-invoice-list-number"
+                              onClick={() =>
+                                handleDetail(
+                                  invoice
+                                )
+                              }
+                              title="Fatura detayını aç"
+                            >
+
+                              <MdReceiptLong />
+
+                              {
+                                invoice.invoiceNo ||
+                                "-"
+                              }
+
+                            </button>
+
+                          </td>
+
+
+                          {/* TÜR */}
+
+                          <td>
+
+                            <span
+                              className={
+                                `ren-invoice-type-badge ${
+                                  getTypeClass(
+                                    type
+                                  )
+                                }`
+                              }
+                            >
+
+                              {
+                                getTypeLabel(
+                                  type
+                                )
+                              }
+
+                            </span>
+
+                          </td>
+
+
+                          {/* CARİ */}
+
+                          <td>
+
+                            <button
+                              type="button"
+                              className="ren-invoice-list-customer-link"
+                              onClick={() =>
+                                handleCustomerDetail(
+                                  invoice
+                                )
+                              }
+                              disabled={
+                                !getCustomerId(
+                                  invoice
+                                )
+                              }
+                              title={
+                                getCustomerId(
+                                  invoice
+                                )
+                                  ? "Cari detayı aç"
+                                  : "Cari kaydı bağlı değil"
+                              }
+                            >
+
+                              <div className="ren-invoice-list-customer">
+
+                                <div className="ren-invoice-list-avatar">
+
+                                  {
+                                    getCustomerName(
+                                      invoice
+                                    )
+                                      .charAt(
+                                        0
+                                      )
+                                      .toLocaleUpperCase(
+                                        "tr-TR"
+                                      )
+                                  }
+
+                                </div>
+
+
+                                <div>
+
+                                  <strong>
+                                    {
+                                      getCustomerName(
+                                        invoice
+                                      )
+                                    }
+                                  </strong>
+
+                                  <span>
+                                    {
+                                      getCustomerCode(
+                                        invoice
+                                      )
+                                    }
+                                  </span>
+
+                                </div>
+
+                              </div>
+
+                            </button>
+
+                          </td>
+
+
+                          {/* TARİH */}
+
+                          <td>
 
                             {
-                              invoice.invoiceNo ||
+                              formatDate(
+                                invoice.date
+                              )
+                            }
+
+                          </td>
+
+
+                          {/* VADE */}
+
+                          <td>
+
+                            {
+                              formatDate(
+                                invoice.dueDate
+                              )
+                            }
+
+                          </td>
+
+
+                          {/* ÖDEME */}
+
+                          <td>
+
+                            {
+                              invoice.paymentMethod ||
                               "-"
                             }
 
-                          </button>
-
-                        </td>
+                          </td>
 
 
-                        {/* TÜR */}
+                          {/* DURUM */}
 
-                        <td>
+                          <td>
 
-                          <span
-                            className={
-                              `ren-invoice-type-badge ${
-                                getTypeClass(
-                                  type
-                                )
-                              }`
-                            }
-                          >
-
-                            {
-                              getTypeLabel(
-                                type
-                              )
-                            }
-
-                          </span>
-
-                        </td>
-
-
-                        {/* CARİ */}
-
-                        <td>
-
-                          <div className="ren-invoice-list-customer">
-
-                            <div className="ren-invoice-list-avatar">
+                            <span
+                              className={
+                                `ren-invoice-list-status ${
+                                  getStatusClass(
+                                    invoice
+                                  )
+                                }`
+                              }
+                            >
 
                               {
-                                getCustomerName(
+                                getStatusLabel(
                                   invoice
                                 )
-                                  .charAt(
-                                    0
-                                  )
-                                  .toLocaleUpperCase(
-                                    "tr-TR"
-                                  )
                               }
 
-                            </div>
+                            </span>
+
+                          </td>
 
 
-                            <div>
+                          {/* TUTAR */}
 
-                              <strong>
-                                {
-                                  getCustomerName(
+                          <td>
+
+                            <strong className="ren-invoice-list-total">
+
+                              ₺
+                              {
+                                money(
+                                  invoice.total
+                                )
+                              }
+
+                            </strong>
+
+                          </td>
+
+
+                          {/* İŞLEM */}
+
+                          <td>
+
+                            <div className="ren-invoice-list-actions">
+
+
+                              {/* DÜZENLE */}
+
+                              <button
+                                type="button"
+                                title="Düzenle"
+                                onClick={() =>
+                                  handleEdit(
                                     invoice
                                   )
                                 }
-                              </strong>
+                              >
 
-                              <span>
-                                {
-                                  getCustomerCode(
+                                <MdEdit />
+
+                              </button>
+
+
+                              {/* DETAY */}
+
+                              <button
+                                type="button"
+                                title="Detay"
+                                onClick={() =>
+                                  handleDetail(
                                     invoice
                                   )
                                 }
-                              </span>
+                              >
+
+                                <MdOpenInNew />
+
+                              </button>
+
+
+                              {/* SİL */}
+
+                              <button
+                                type="button"
+                                title="Sil"
+                                className="danger"
+                                onClick={() =>
+                                  handleDelete(
+                                    invoice
+                                  )
+                                }
+                              >
+
+                                <MdDeleteOutline />
+
+                              </button>
 
                             </div>
 
-                          </div>
+                          </td>
 
-                        </td>
+                        </tr>
+
+                      );
+
+                    }
+                  )
+
+                ) : (
+
+                  <tr>
+
+                    <td
+                      colSpan="9"
+                      className="ren-invoice-list-empty"
+                    >
+
+                      <div>
+
+                        <MdReceiptLong />
+
+                        <strong>
+                          Fatura bulunamadı
+                        </strong>
+
+                        <span>
+                          Seçtiğiniz filtrelere uygun
+                          fatura bulunmuyor.
+                        </span>
 
 
-                        {/* TARİH */}
-
-                        <td>
-
-                          {
-                            formatDate(
-                              invoice.date
-                            )
+                        <button
+                          type="button"
+                          onClick={
+                            handleNewInvoice
                           }
+                        >
 
-                        </td>
+                          <MdAdd />
 
+                          Yeni Fatura
 
-                        {/* VADE */}
+                        </button>
 
-                        <td>
+                      </div>
 
-                          {
-                            formatDate(
-                              invoice.dueDate
-                            )
-                          }
+                    </td>
 
-                        </td>
+                  </tr>
 
-
-                        {/* ÖDEME */}
-
-                        <td>
-
-                          {
-                            invoice.paymentMethod ||
-                            "-"
-                          }
-
-                        </td>
-
-
-                        {/* DURUM */}
-
-                        <td>
-
-                          <span
-                            className={
-                              `ren-invoice-list-status ${
-                                getStatusClass(
-                                  invoice
-                                )
-                              }`
-                            }
-                          >
-
-                            {
-                              getStatusLabel(
-                                invoice
-                              )
-                            }
-
-                          </span>
-
-                        </td>
-
-
-                        {/* TUTAR */}
-
-                        <td>
-
-                          <strong className="ren-invoice-list-total">
-
-                            ₺{money(
-                              invoice.total
-                            )}
-
-                          </strong>
-
-                        </td>
-
-
-                        {/* İŞLEM */}
-
-                        <td>
-
-                          <div className="ren-invoice-list-actions">
-
-                            <button
-                              type="button"
-                              title="Düzenle"
-                              onClick={() =>
-                                handleEdit(
-                                  invoice
-                                )
-                              }
-                            >
-
-                              <MdEdit />
-
-                            </button>
-
-
-                            <button
-                              type="button"
-                              title="Detay"
-                              onClick={() =>
-                                handleEdit(
-                                  invoice
-                                )
-                              }
-                            >
-
-                              <MdOpenInNew />
-
-                            </button>
-
-
-                            <button
-                              type="button"
-                              title="Sil"
-                              className="danger"
-                              onClick={() =>
-                                handleDelete(
-                                  invoice
-                                )
-                              }
-                            >
-
-                              <MdDeleteOutline />
-
-                            </button>
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    );
-
-                  }
                 )
-
-              ) : (
-
-                <tr>
-
-                  <td
-                    colSpan="9"
-                    className="ren-invoice-list-empty"
-                  >
-
-                    <div>
-
-                      <MdReceiptLong />
-
-                      <strong>
-                        Fatura bulunamadı
-                      </strong>
-
-                      <span>
-                        Seçtiğiniz filtrelere uygun
-                        fatura bulunmuyor.
-                      </span>
-
-
-                      <button
-                        type="button"
-                        onClick={
-                          handleNewInvoice
-                        }
-                      >
-
-                        <MdAdd />
-
-                        Yeni Fatura
-
-                      </button>
-
-                    </div>
-
-                  </td>
-
-                </tr>
-
-              )}
+              }
 
             </tbody>
 
@@ -1268,31 +1413,47 @@ export default function InvoiceList() {
         <footer className="ren-invoice-list-footer">
 
           <span>
+
             Gösterilen:
+
             {" "}
+
             <strong>
-              {filteredInvoices.length}
+              {
+                filteredInvoices.length
+              }
             </strong>
+
             {" "}
+
             fatura
+
           </span>
 
 
           <span>
+
             Toplam:
+
             {" "}
+
             <strong>
-              ₺{money(
-                totalAmount
-              )}
+              ₺
+              {
+                money(
+                  totalAmount
+                )
+              }
             </strong>
+
           </span>
 
         </footer>
 
-
       </section>
 
     </div>
+
   );
+
 }

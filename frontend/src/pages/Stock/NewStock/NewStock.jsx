@@ -24,7 +24,12 @@ import {
   getUnits,
 } from "../../../lib/stockStore";
 
+import {
+  getCustomers,
+} from "../../../lib/customerStore";
+
 import "./NewStock.css";
+
 
 const VAT_OPTIONS = [
   0,
@@ -32,6 +37,7 @@ const VAT_OPTIONS = [
   10,
   20,
 ];
+
 
 const INITIAL_FORM = {
   name: "",
@@ -59,6 +65,7 @@ const INITIAL_FORM = {
   salesVat: 20,
 
   supplier: "",
+
   origin: "",
   description: "",
   active: true,
@@ -70,33 +77,45 @@ const INITIAL_FORM = {
 ========================================================= */
 
 function getNextStockCode() {
-  const products =
-    getProducts();
 
-  let highestNumber = 0;
+  const products =
+    getProducts() || [];
+
+
+  let highestNumber =
+    0;
+
 
   products.forEach(
-    (product) => {
+    (
+      product
+    ) => {
+
       const code =
         String(
-          product?.code || ""
+          product?.code ||
+          ""
         )
           .trim()
           .toUpperCase();
+
 
       const match =
         code.match(
           /^STK-(\d{4})$/
         );
 
+
       if (!match) {
         return;
       }
+
 
       const number =
         Number(
           match[1]
         );
+
 
       if (
         Number.isFinite(
@@ -105,15 +124,22 @@ function getNextStockCode() {
         number >
           highestNumber
       ) {
+
         highestNumber =
           number;
+
       }
+
     }
   );
 
+
   return `STK-${String(
     highestNumber + 1
-  ).padStart(4, "0")}`;
+  ).padStart(
+    4,
+    "0"
+  )}`;
 }
 
 
@@ -124,6 +150,7 @@ function getNextStockCode() {
 function parseNumber(
   value
 ) {
+
   if (
     value === null ||
     value === undefined ||
@@ -132,28 +159,47 @@ function parseNumber(
     return 0;
   }
 
+
   let text =
-    String(value).trim();
+    String(
+      value
+    ).trim();
+
 
   if (
     text.includes(",") &&
     text.includes(".")
   ) {
-    text = text
-      .replace(/\./g, "")
-      .replace(",", ".");
+
+    text =
+      text
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
+
   } else if (
     text.includes(",")
   ) {
+
     text =
       text.replace(
         ",",
         "."
       );
+
   }
 
+
   const number =
-    Number(text);
+    Number(
+      text
+    );
+
 
   return Number.isFinite(
     number
@@ -170,20 +216,27 @@ function parseNumber(
 function formatMoney(
   value
 ) {
+
   return new Intl.NumberFormat(
     "tr-TR",
     {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits:
+        2,
+
+      maximumFractionDigits:
+        2,
     }
   ).format(
-    Number(value) || 0
+    Number(
+      value
+    ) || 0
   );
+
 }
 
 
 /* =========================================================
-   KDV HESAPLARI
+   KDV
 ========================================================= */
 
 function getNetPrice(
@@ -191,22 +244,38 @@ function getNetPrice(
   mode,
   vat
 ) {
+
   const value =
-    parseNumber(price);
+    parseNumber(
+      price
+    );
+
 
   const rate =
-    Number(vat) / 100;
+    Number(
+      vat
+    ) /
+    100;
+
 
   if (
-    mode === "inclusive"
+    mode ===
+    "inclusive"
   ) {
+
     return rate > 0
       ? value /
-          (1 + rate)
+          (
+            1 +
+            rate
+          )
       : value;
+
   }
 
+
   return value;
+
 }
 
 
@@ -214,14 +283,20 @@ function getGrossPrice(
   netPrice,
   vat
 ) {
+
   return (
-    Number(netPrice || 0) *
+    Number(
+      netPrice || 0
+    ) *
     (
       1 +
-      Number(vat || 0) /
-        100
+      Number(
+        vat || 0
+      ) /
+      100
     )
   );
+
 }
 
 
@@ -233,6 +308,7 @@ function calculateSaleFromProfit(
   purchaseNet,
   profitRate
 ) {
+
   return (
     Number(
       purchaseNet || 0
@@ -241,9 +317,11 @@ function calculateSaleFromProfit(
       1 +
       Number(
         profitRate || 0
-      ) / 100
+      ) /
+      100
     )
   );
+
 }
 
 
@@ -251,12 +329,16 @@ function calculateProfitRate(
   purchaseNet,
   saleNet
 ) {
+
   if (
     !purchaseNet ||
     purchaseNet <= 0
   ) {
+
     return 0;
+
   }
+
 
   return (
     (
@@ -270,6 +352,7 @@ function calculateProfitRate(
     ) *
     100
   );
+
 }
 
 
@@ -281,17 +364,23 @@ function FieldLabel({
   children,
   required = false,
 }) {
+
   return (
+
     <label className="ren-field-label">
 
       {children}
 
       {required && (
-        <b>*</b>
+        <b>
+          *
+        </b>
       )}
 
     </label>
+
   );
+
 }
 
 
@@ -303,7 +392,9 @@ function PriceTypeSelector({
   value,
   onChange,
 }) {
+
   return (
+
     <div className="ren-price-type-selector">
 
       <button
@@ -350,7 +441,9 @@ function PriceTypeSelector({
       </button>
 
     </div>
+
   );
+
 }
 
 
@@ -362,13 +455,17 @@ function MoneyInput({
   value,
   onChange,
 }) {
+
   return (
+
     <div className="ren-money-input">
 
       <input
         type="text"
         inputMode="decimal"
-        value={value}
+        value={
+          value
+        }
         onChange={(event) =>
           onChange(
             event.target.value
@@ -382,7 +479,9 @@ function MoneyInput({
       </span>
 
     </div>
+
   );
+
 }
 
 
@@ -395,55 +494,86 @@ export default function NewStock() {
   const [
     form,
     setForm,
-  ] = useState(
-    () => ({
-      ...INITIAL_FORM,
-      code:
-        getNextStockCode(),
-    })
-  );
+  ] =
+    useState(
+      () => ({
+        ...INITIAL_FORM,
+        code:
+          getNextStockCode(),
+      })
+    );
 
 
   const [
     imagePreview,
     setImagePreview,
-  ] = useState("");
+  ] =
+    useState(
+      ""
+    );
 
 
   const [
     saved,
     setSaved,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
 
 
   const [
     error,
     setError,
-  ] = useState("");
+  ] =
+    useState(
+      ""
+    );
 
 
   const [
     saving,
     setSaving,
-  ] = useState(false);
+  ] =
+    useState(
+      false
+    );
 
 
   const [
     categories,
     setCategories,
-  ] = useState([]);
+  ] =
+    useState(
+      []
+    );
 
 
   const [
     brands,
     setBrands,
-  ] = useState([]);
+  ] =
+    useState(
+      []
+    );
 
 
   const [
     units,
     setUnits,
-  ] = useState([]);
+  ] =
+    useState(
+      []
+    );
+
+
+  const [
+    suppliers,
+    setSuppliers,
+  ] =
+    useState(
+      []
+    );
 
 
   /* =========================================================
@@ -456,23 +586,75 @@ export default function NewStock() {
       try {
 
         setCategories(
-          getCategories()
+          getCategories() ||
+          []
         );
+
 
         setBrands(
-          getBrands()
+          getBrands() ||
+          []
         );
+
 
         setUnits(
-          getUnits()
+          getUnits() ||
+          []
         );
 
-      } catch (err) {
+
+        const customers =
+          getCustomers() ||
+          [];
+
+
+        const supplierList =
+          customers.filter(
+            (
+              customer
+            ) => {
+
+              const type =
+                String(
+                  customer?.type ||
+                  ""
+                )
+                  .trim()
+                  .toLocaleLowerCase(
+                    "tr-TR"
+                  );
+
+
+              return (
+                type ===
+                  "tedarikçi" ||
+                type ===
+                  "tedarikci" ||
+                type ===
+                  "supplier"
+              );
+
+            }
+          );
+
+
+        setSuppliers(
+          supplierList
+        );
+
+      } catch (
+        err
+      ) {
 
         console.error(
           "Stok tanımları yüklenemedi:",
           err
         );
+
+        setCategories([]);
+        setBrands([]);
+        setUnits([]);
+        setSuppliers([]);
 
       }
 
@@ -483,41 +665,51 @@ export default function NewStock() {
 
     loadDefinitions();
 
+
     const refresh =
       () => {
+
         loadDefinitions();
+
       };
 
-    window.addEventListener(
+
+    const events = [
       "ren-categories-changed",
-      refresh
-    );
-
-    window.addEventListener(
       "ren-brands-changed",
-      refresh
+      "ren-units-changed",
+      "ren-customers-updated",
+      "storage",
+    ];
+
+
+    events.forEach(
+      (
+        eventName
+      ) => {
+
+        window.addEventListener(
+          eventName,
+          refresh
+        );
+
+      }
     );
 
-    window.addEventListener(
-      "ren-units-changed",
-      refresh
-    );
 
     return () => {
 
-      window.removeEventListener(
-        "ren-categories-changed",
-        refresh
-      );
+      events.forEach(
+        (
+          eventName
+        ) => {
 
-      window.removeEventListener(
-        "ren-brands-changed",
-        refresh
-      );
+          window.removeEventListener(
+            eventName,
+            refresh
+          );
 
-      window.removeEventListener(
-        "ren-units-changed",
-        refresh
+        }
       );
 
     };
@@ -529,22 +721,33 @@ export default function NewStock() {
      FIELD
   ========================================================= */
 
-  const updateField = (
-    field,
-    value
-  ) => {
+  const updateField =
+    (
+      field,
+      value
+    ) => {
 
-    setForm(
-      (current) => ({
-        ...current,
-        [field]: value,
-      })
-    );
+      setForm(
+        (
+          current
+        ) => ({
+          ...current,
+          [field]:
+            value,
+        })
+      );
 
-    setSaved(false);
-    setError("");
 
-  };
+      setSaved(
+        false
+      );
+
+
+      setError(
+        ""
+      );
+
+    };
 
 
   /* =========================================================
@@ -647,17 +850,14 @@ export default function NewStock() {
     );
 
 
-  const actualGrossProfit =
-    saleNet -
-    purchaseNet;
-
-
   /* =========================================================
      ALIŞ FİYATI
   ========================================================= */
 
   const handlePurchasePriceChange =
-    (value) => {
+    (
+      value
+    ) => {
 
       const newPurchaseNet =
         getNetPrice(
@@ -666,23 +866,31 @@ export default function NewStock() {
           form.purchaseVat
         );
 
+
       const newSaleNet =
         calculateSaleFromProfit(
           newPurchaseNet,
           form.profitRate
         );
 
+
       const newSalePrice =
         form.salesMode ===
         "inclusive"
+
           ? getGrossPrice(
               newSaleNet,
               form.salesVat
             )
+
           : newSaleNet;
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           purchasePrice:
@@ -692,27 +900,40 @@ export default function NewStock() {
             newSaleNet > 0
               ? newSalePrice
               : "",
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
 
   /* =========================================================
-     ALIŞ KDV TÜRÜ
+     ALIŞ MODU
   ========================================================= */
 
   const handlePurchaseModeChange =
-    (mode) => {
+    (
+      mode
+    ) => {
 
       const currentNet =
         purchaseNet;
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           purchaseMode:
@@ -720,37 +941,54 @@ export default function NewStock() {
 
           purchasePrice:
             currentNet > 0
+
               ? mode ===
                 "inclusive"
+
                 ? getGrossPrice(
                     currentNet,
                     current.purchaseVat
                   )
+
                 : currentNet
+
               : current.purchasePrice,
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
 
   /* =========================================================
-     SATIŞ KDV TÜRÜ
+     SATIŞ MODU
   ========================================================= */
 
   const handleSalesModeChange =
-    (mode) => {
+    (
+      mode
+    ) => {
 
       const currentNet =
         saleNet > 0
           ? saleNet
           : calculatedSaleNet;
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           salesMode:
@@ -758,19 +996,30 @@ export default function NewStock() {
 
           salesPrice:
             currentNet > 0
+
               ? mode ===
                 "inclusive"
+
                 ? getGrossPrice(
                     currentNet,
                     current.salesVat
                   )
+
                 : currentNet
+
               : current.salesPrice,
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
@@ -780,13 +1029,19 @@ export default function NewStock() {
   ========================================================= */
 
   const handlePurchaseVatChange =
-    (vat) => {
+    (
+      vat
+    ) => {
 
       const currentNet =
         purchaseNet;
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           purchaseVat:
@@ -794,19 +1049,30 @@ export default function NewStock() {
 
           purchasePrice:
             currentNet > 0
+
               ? current.purchaseMode ===
                 "inclusive"
+
                 ? getGrossPrice(
                     currentNet,
                     vat
                   )
+
                 : currentNet
+
               : current.purchasePrice,
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
@@ -816,15 +1082,21 @@ export default function NewStock() {
   ========================================================= */
 
   const handleSalesVatChange =
-    (vat) => {
+    (
+      vat
+    ) => {
 
       const currentNet =
         saleNet > 0
           ? saleNet
           : calculatedSaleNet;
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           salesVat:
@@ -832,19 +1104,30 @@ export default function NewStock() {
 
           salesPrice:
             currentNet > 0
+
               ? current.salesMode ===
                 "inclusive"
+
                 ? getGrossPrice(
                     currentNet,
                     vat
                   )
+
                 : currentNet
+
               : current.salesPrice,
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
@@ -854,7 +1137,9 @@ export default function NewStock() {
   ========================================================= */
 
   const handleProfitChange =
-    (value) => {
+    (
+      value
+    ) => {
 
       const newSaleNet =
         calculateSaleFromProfit(
@@ -862,19 +1147,28 @@ export default function NewStock() {
           value
         );
 
+
       const newSalePrice =
         newSaleNet > 0
+
           ? form.salesMode ===
             "inclusive"
+
             ? getGrossPrice(
                 newSaleNet,
                 form.salesVat
               )
+
             : newSaleNet
+
           : "";
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           profitRate:
@@ -882,11 +1176,18 @@ export default function NewStock() {
 
           salesPrice:
             newSalePrice,
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
@@ -896,7 +1197,9 @@ export default function NewStock() {
   ========================================================= */
 
   const handleSalesPriceChange =
-    (value) => {
+    (
+      value
+    ) => {
 
       const newSaleNet =
         getNetPrice(
@@ -905,14 +1208,19 @@ export default function NewStock() {
           form.salesVat
         );
 
+
       const newProfit =
         calculateProfitRate(
           purchaseNet,
           newSaleNet
         );
 
+
       setForm(
-        (current) => ({
+        (
+          current
+        ) => ({
+
           ...current,
 
           salesPrice:
@@ -922,11 +1230,18 @@ export default function NewStock() {
             newProfit.toFixed(
               2
             ),
+
         })
       );
 
-      setSaved(false);
-      setError("");
+
+      setSaved(
+        false
+      );
+
+      setError(
+        ""
+      );
 
     };
 
@@ -936,14 +1251,18 @@ export default function NewStock() {
   ========================================================= */
 
   const handleImageChange =
-    (event) => {
+    (
+      event
+    ) => {
 
       const file =
         event.target.files?.[0];
 
+
       if (!file) {
         return;
       }
+
 
       if (
         file.size >
@@ -955,17 +1274,29 @@ export default function NewStock() {
         );
 
         return;
+
       }
+
 
       const url =
         URL.createObjectURL(
           file
         );
 
-      setImagePreview(url);
 
-      setSaved(false);
-      setError("");
+      setImagePreview(
+        url
+      );
+
+
+      setSaved(
+        false
+      );
+
+
+      setError(
+        ""
+      );
 
     };
 
@@ -977,8 +1308,15 @@ export default function NewStock() {
   const handleSave =
     () => {
 
-      setError("");
-      setSaved(false);
+      setError(
+        ""
+      );
+
+
+      setSaved(
+        false
+      );
+
 
       if (
         !form.name.trim()
@@ -989,16 +1327,9 @@ export default function NewStock() {
         );
 
         return;
+
       }
 
-
-      /*
-       * Kod boş bırakılmışsa
-       * otomatik oluştur.
-       *
-       * Kullanıcı elle değiştirdiyse
-       * yazdığı kod korunur.
-       */
 
       const finalCode =
         form.code.trim()
@@ -1006,7 +1337,10 @@ export default function NewStock() {
           : getNextStockCode();
 
 
-      setSaving(true);
+      setSaving(
+        true
+      );
+
 
       try {
 
@@ -1015,10 +1349,12 @@ export default function NewStock() {
             ? saleNet
             : calculatedSaleNet;
 
+
         const finalSaleGross =
           saleNet > 0
             ? saleGross
             : calculatedSaleGross;
+
 
         const finalProfitRate =
           finalSaleNet > 0
@@ -1030,6 +1366,7 @@ export default function NewStock() {
                 form.profitRate
               );
 
+
         const openingStock =
           parseNumber(
             form.openingStock
@@ -1038,6 +1375,7 @@ export default function NewStock() {
 
         const product =
           createProduct({
+
             ...form,
 
             code:
@@ -1099,9 +1437,13 @@ export default function NewStock() {
                 )
               ),
 
+            supplier:
+              form.supplier,
+
             image:
               imagePreview ||
               null,
+
           });
 
 
@@ -1111,39 +1453,48 @@ export default function NewStock() {
         );
 
 
-        setSaved(true);
+        setSaved(
+          true
+        );
 
 
-        /*
-         * Yeni ürün formu temizleniyor.
-         * Yeni ürün için bir sonraki STK kodu
-         * otomatik oluşturuluyor.
-         */
+        setForm(
+          {
+            ...INITIAL_FORM,
 
-        setForm({
-          ...INITIAL_FORM,
-          code:
-            getNextStockCode(),
-        });
+            code:
+              getNextStockCode(),
+          }
+        );
 
 
-        setImagePreview("");
+        setImagePreview(
+          ""
+        );
 
-      } catch (err) {
+
+        loadDefinitions();
+
+      } catch (
+        err
+      ) {
 
         console.error(
           "Ürün kaydedilemedi:",
           err
         );
 
+
         setError(
           err?.message ||
-            "Ürün kaydedilirken bir hata oluştu."
+          "Ürün kaydedilirken bir hata oluştu."
         );
 
       } finally {
 
-        setSaving(false);
+        setSaving(
+          false
+        );
 
       }
 
@@ -1184,8 +1535,8 @@ export default function NewStock() {
   ========================================================= */
 
   return (
-    <div className="ren-new-stock">
 
+    <div className="ren-new-stock">
 
       {/* =====================================================
           HEADER
@@ -1257,9 +1608,11 @@ export default function NewStock() {
 
             <MdSave />
 
-            {saving
-              ? "Kaydediliyor..."
-              : "Kaydet"}
+            {
+              saving
+                ? "Kaydediliyor..."
+                : "Kaydet"
+            }
 
           </button>
 
@@ -1268,40 +1621,50 @@ export default function NewStock() {
       </header>
 
 
-      {/* =====================================================
-          MESAJ
-      ===================================================== */}
+      {/* MESAJ */}
 
-      {saved && (
-        <div className="ren-save-message">
+      {
+        saved && (
 
-          <MdCheckCircle />
+          <div className="ren-save-message">
 
-          Ürün bilgileri kaydedildi.
+            <MdCheckCircle />
 
-        </div>
-      )}
+            Ürün bilgileri kaydedildi.
+
+          </div>
+
+        )
+      }
 
 
-      {error && (
-        <div
-          className="ren-save-message"
-          style={{
-            color:
-              "#c83d3d",
-            background:
-              "#fff3f3",
-            borderColor:
-              "#f0cccc",
-          }}
-        >
+      {
+        error && (
 
-          <MdInfo />
+          <div
+            className="ren-save-message"
+            style={{
+              color:
+                "#c83d3d",
 
-          {error}
+              background:
+                "#fff3f3",
 
-        </div>
-      )}
+              borderColor:
+                "#f0cccc",
+            }}
+          >
+
+            <MdInfo />
+
+            {
+              error
+            }
+
+          </div>
+
+        )
+      }
 
 
       {/* =====================================================
@@ -1313,7 +1676,9 @@ export default function NewStock() {
         <div className="ren-card-title">
 
           <div className="ren-section-icon blue">
+
             <MdInventory2 />
+
           </div>
 
 
@@ -1334,6 +1699,7 @@ export default function NewStock() {
 
         <div className="ren-basic-layout">
 
+
           <div className="ren-basic-fields">
 
 
@@ -1342,6 +1708,7 @@ export default function NewStock() {
               <FieldLabel required>
                 Ürün Adı
               </FieldLabel>
+
 
               <input
                 type="text"
@@ -1360,44 +1727,24 @@ export default function NewStock() {
             </div>
 
 
-            {/* =================================================
-                OTOMATİK STOK KODU
-            ================================================= */}
-
             <div className="ren-field">
 
               <FieldLabel required>
                 Ürün Kodu
               </FieldLabel>
 
+
               <input
                 type="text"
                 value={
                   form.code
                 }
-                onChange={(event) =>
-                  updateField(
-                    "code",
-                    event.target.value
-                  )
-                }
-                placeholder="Otomatik oluşturulur"
+                readOnly
               />
 
-              <small
-                style={{
-                  display:
-                    "block",
-                  marginTop:
-                    "5px",
-                  color:
-                    "#8a96a6",
-                  fontSize:
-                    "9px",
-                }}
-              >
-                Yeni ürünlerde STK-0001
-                formatında otomatik oluşturulur.
+
+              <small>
+                STK kodu otomatik oluşturulur.
               </small>
 
             </div>
@@ -1408,6 +1755,7 @@ export default function NewStock() {
               <FieldLabel>
                 Barkod
               </FieldLabel>
+
 
               <input
                 type="text"
@@ -1426,15 +1774,12 @@ export default function NewStock() {
             </div>
 
 
-            {/* =================================================
-                KATEGORİ
-            ================================================= */}
-
             <div className="ren-field">
 
               <FieldLabel required>
                 Kategori
               </FieldLabel>
+
 
               <select
                 value={
@@ -1452,37 +1797,43 @@ export default function NewStock() {
                   Kategori seçiniz
                 </option>
 
-                {categories.map(
-                  (category) => (
-                    <option
-                      key={
-                        category.id
-                      }
-                      value={
-                        category.name
-                      }
-                    >
-                      {
-                        category.name
-                      }
-                    </option>
+
+                {
+                  categories.map(
+                    (
+                      category
+                    ) => (
+
+                      <option
+                        key={
+                          category.id
+                        }
+                        value={
+                          category.name
+                        }
+                      >
+
+                        {
+                          category.name
+                        }
+
+                      </option>
+
+                    )
                   )
-                )}
+                }
 
               </select>
 
             </div>
 
 
-            {/* =================================================
-                MARKA
-            ================================================= */}
-
             <div className="ren-field">
 
               <FieldLabel>
                 Marka
               </FieldLabel>
+
 
               <select
                 value={
@@ -1500,22 +1851,31 @@ export default function NewStock() {
                   Marka seçiniz
                 </option>
 
-                {brands.map(
-                  (brand) => (
-                    <option
-                      key={
-                        brand.id
-                      }
-                      value={
-                        brand.name
-                      }
-                    >
-                      {
-                        brand.name
-                      }
-                    </option>
+
+                {
+                  brands.map(
+                    (
+                      brand
+                    ) => (
+
+                      <option
+                        key={
+                          brand.id
+                        }
+                        value={
+                          brand.name
+                        }
+                      >
+
+                        {
+                          brand.name
+                        }
+
+                      </option>
+
+                    )
                   )
-                )}
+                }
 
               </select>
 
@@ -1527,6 +1887,7 @@ export default function NewStock() {
               <FieldLabel>
                 Model
               </FieldLabel>
+
 
               <input
                 type="text"
@@ -1545,15 +1906,12 @@ export default function NewStock() {
             </div>
 
 
-            {/* =================================================
-                BİRİM
-            ================================================= */}
-
             <div className="ren-field">
 
               <FieldLabel required>
                 Birim
               </FieldLabel>
+
 
               <select
                 value={
@@ -1567,29 +1925,41 @@ export default function NewStock() {
                 }
               >
 
-                {units.length ===
-                0 ? (
-                  <option value="Adet">
-                    Adet
-                  </option>
-                ) : (
-                  units.map(
-                    (unit) => (
-                      <option
-                        key={
-                          unit.id
-                        }
-                        value={
-                          unit.name
-                        }
-                      >
-                        {
-                          unit.name
-                        }
-                      </option>
+                {
+                  units.length ===
+                  0 ? (
+
+                    <option value="Adet">
+                      Adet
+                    </option>
+
+                  ) : (
+
+                    units.map(
+                      (
+                        unit
+                      ) => (
+
+                        <option
+                          key={
+                            unit.id
+                          }
+                          value={
+                            unit.name
+                          }
+                        >
+
+                          {
+                            unit.name
+                          }
+
+                        </option>
+
+                      )
                     )
+
                   )
-                )}
+                }
 
               </select>
 
@@ -1601,6 +1971,7 @@ export default function NewStock() {
               <FieldLabel>
                 Alış / Satış Birimi
               </FieldLabel>
+
 
               <select
                 value={
@@ -1614,29 +1985,41 @@ export default function NewStock() {
                 }
               >
 
-                {units.length ===
-                0 ? (
-                  <option value="Adet">
-                    Adet
-                  </option>
-                ) : (
-                  units.map(
-                    (unit) => (
-                      <option
-                        key={
-                          unit.id
-                        }
-                        value={
-                          unit.name
-                        }
-                      >
-                        {
-                          unit.name
-                        }
-                      </option>
+                {
+                  units.length ===
+                  0 ? (
+
+                    <option value="Adet">
+                      Adet
+                    </option>
+
+                  ) : (
+
+                    units.map(
+                      (
+                        unit
+                      ) => (
+
+                        <option
+                          key={
+                            unit.id
+                          }
+                          value={
+                            unit.name
+                          }
+                        >
+
+                          {
+                            unit.name
+                          }
+
+                        </option>
+
+                      )
                     )
+
                   )
-                )}
+                }
 
               </select>
 
@@ -1645,9 +2028,7 @@ export default function NewStock() {
           </div>
 
 
-          {/* =================================================
-              FOTOĞRAF
-          ================================================= */}
+          {/* FOTOĞRAF */}
 
           <div className="ren-photo-box">
 
@@ -1655,34 +2036,41 @@ export default function NewStock() {
               Ürün Fotoğrafı
             </FieldLabel>
 
+
             <label className="ren-photo-upload">
 
-              {imagePreview ? (
-                <img
-                  src={
-                    imagePreview
-                  }
-                  alt="Ürün"
-                />
-              ) : (
-                <>
+              {
+                imagePreview ? (
 
-                  <MdCloudUpload />
+                  <img
+                    src={
+                      imagePreview
+                    }
+                    alt="Ürün"
+                  />
 
-                  <strong>
-                    Fotoğraf Yükle
-                  </strong>
+                ) : (
 
-                  <span>
-                    veya sürükleyip bırakın
-                  </span>
+                  <>
 
-                  <small>
-                    JPG, PNG · Maks. 2 MB
-                  </small>
+                    <MdCloudUpload />
 
-                </>
-              )}
+                    <strong>
+                      Fotoğraf Yükle
+                    </strong>
+
+                    <span>
+                      veya sürükleyip bırakın
+                    </span>
+
+                    <small>
+                      JPG, PNG · Maks. 2 MB
+                    </small>
+
+                  </>
+
+                )
+              }
 
 
               <input
@@ -1714,6 +2102,7 @@ export default function NewStock() {
             <MdInventory2 />
           </div>
 
+
           <div>
 
             <h2>
@@ -1736,6 +2125,7 @@ export default function NewStock() {
             <FieldLabel>
               Stok Takibi
             </FieldLabel>
+
 
             <div className="ren-radio-box">
 
@@ -1789,6 +2179,7 @@ export default function NewStock() {
               Başlangıç Stok Miktarı
             </FieldLabel>
 
+
             <input
               type="text"
               inputMode="decimal"
@@ -1812,6 +2203,7 @@ export default function NewStock() {
             <FieldLabel>
               Kritik Stok Seviyesi
             </FieldLabel>
+
 
             <input
               type="text"
@@ -1839,6 +2231,7 @@ export default function NewStock() {
             <FieldLabel>
               Kritik Stok Uyarısı
             </FieldLabel>
+
 
             <label className="ren-checkbox">
 
@@ -1878,6 +2271,7 @@ export default function NewStock() {
             <MdSell />
           </div>
 
+
           <div>
 
             <h2>
@@ -1896,9 +2290,7 @@ export default function NewStock() {
         <div className="ren-price-chain">
 
 
-          {/* =================================================
-              ALIŞ
-          ================================================= */}
+          {/* ALIŞ */}
 
           <div className="ren-price-chain-item">
 
@@ -1941,6 +2333,7 @@ export default function NewStock() {
                 KDV Oranı
               </span>
 
+
               <select
                 value={
                   form.purchaseVat
@@ -1954,16 +2347,30 @@ export default function NewStock() {
                 }
               >
 
-                {VAT_OPTIONS.map(
-                  (vat) => (
-                    <option
-                      key={vat}
-                      value={vat}
-                    >
-                      %{vat}
-                    </option>
+                {
+                  VAT_OPTIONS.map(
+                    (
+                      vat
+                    ) => (
+
+                      <option
+                        key={
+                          vat
+                        }
+                        value={
+                          vat
+                        }
+                      >
+
+                        %{
+                          vat
+                        }
+
+                      </option>
+
+                    )
                   )
-                )}
+                }
 
               </select>
 
@@ -2013,9 +2420,7 @@ export default function NewStock() {
           </div>
 
 
-          {/* =================================================
-              KÂR
-          ================================================= */}
+          {/* KÂR */}
 
           <div className="ren-price-chain-item profit">
 
@@ -2058,6 +2463,7 @@ export default function NewStock() {
 
               <MdPercent />
 
+
               <div>
 
                 <span>
@@ -2068,7 +2474,7 @@ export default function NewStock() {
                   {
                     formatMoney(
                       calculatedSaleNet -
-                        purchaseNet
+                      purchaseNet
                     )
                   } TL
                 </strong>
@@ -2095,9 +2501,7 @@ export default function NewStock() {
           </div>
 
 
-          {/* =================================================
-              SATIŞ
-          ================================================= */}
+          {/* SATIŞ */}
 
           <div className="ren-price-chain-item sale">
 
@@ -2140,6 +2544,7 @@ export default function NewStock() {
                 KDV Oranı
               </span>
 
+
               <select
                 value={
                   form.salesVat
@@ -2153,16 +2558,30 @@ export default function NewStock() {
                 }
               >
 
-                {VAT_OPTIONS.map(
-                  (vat) => (
-                    <option
-                      key={vat}
-                      value={vat}
-                    >
-                      %{vat}
-                    </option>
+                {
+                  VAT_OPTIONS.map(
+                    (
+                      vat
+                    ) => (
+
+                      <option
+                        key={
+                          vat
+                        }
+                        value={
+                          vat
+                        }
+                      >
+
+                        %{
+                          vat
+                        }
+
+                      </option>
+
+                    )
                   )
-                )}
+                }
 
               </select>
 
@@ -2212,11 +2631,13 @@ export default function NewStock() {
           <MdInfo />
 
           <span>
+
             Alış, kâr ve satış fiyatlarının üçü
             de manuel olarak değiştirilebilir.
             Alış veya kâr değiştiğinde satış,
             satış değiştiğinde gerçek kâr oranı
             otomatik hesaplanır.
+
           </span>
 
         </div>
@@ -2233,8 +2654,11 @@ export default function NewStock() {
         <div className="ren-card-title">
 
           <div className="ren-section-icon blue">
+
             <MdSell />
+
           </div>
+
 
           <div>
 
@@ -2370,8 +2794,11 @@ export default function NewStock() {
         <div className="ren-card-title">
 
           <div className="ren-section-icon blue">
+
             <MdTag />
+
           </div>
+
 
           <div>
 
@@ -2391,11 +2818,16 @@ export default function NewStock() {
         <div className="ren-extra-grid">
 
 
+          {/* =================================================
+              TEDARİKÇİ
+          ================================================= */}
+
           <div className="ren-field">
 
             <FieldLabel>
               Tedarikçi
             </FieldLabel>
+
 
             <select
               value={
@@ -2410,31 +2842,62 @@ export default function NewStock() {
             >
 
               <option value="">
-                Tedarikçi seçiniz
+                {
+                  suppliers.length >
+                  0
+                    ? "Tedarikçi seçiniz"
+                    : "Kayıtlı tedarikçi yok"
+                }
               </option>
 
-              <option>
-                Poyraz Gıda
-              </option>
 
-              <option>
-                FCS Tedarik
-              </option>
+              {
+                suppliers.map(
+                  (
+                    supplier
+                  ) => (
 
-              <option>
-                Diğer
-              </option>
+                    <option
+                      key={
+                        supplier.id
+                      }
+                      value={
+                        supplier.id
+                      }
+                    >
+
+                      {
+                        supplier.name ||
+                        supplier.title ||
+                        supplier.companyName ||
+                        "Tedarikçi"
+                      }
+
+                      {
+                        supplier.code
+                          ? ` — ${supplier.code}`
+                          : ""
+                      }
+
+                    </option>
+
+                  )
+                )
+              }
 
             </select>
 
           </div>
 
 
+          {/* MENŞEİ */}
+
           <div className="ren-field">
 
             <FieldLabel>
               Menşei
             </FieldLabel>
+
 
             <select
               value={
@@ -2465,11 +2928,14 @@ export default function NewStock() {
           </div>
 
 
+          {/* AÇIKLAMA */}
+
           <div className="ren-field">
 
             <FieldLabel>
               Açıklama
             </FieldLabel>
+
 
             <textarea
               value={
@@ -2482,8 +2948,11 @@ export default function NewStock() {
                 )
               }
               placeholder="Ürün hakkında açıklama giriniz..."
-              maxLength={500}
+              maxLength={
+                500
+              }
             />
+
 
             <small className="ren-character-count">
 
@@ -2533,13 +3002,16 @@ export default function NewStock() {
         <MdInfo />
 
         <span>
+
           Fiyatlar ürün kartında saklanacak ve
           ileride satış, teklif ve fatura
           işlemlerinde kullanılacaktır.
+
         </span>
 
       </div>
 
     </div>
+
   );
 }

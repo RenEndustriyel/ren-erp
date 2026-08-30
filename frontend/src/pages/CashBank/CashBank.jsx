@@ -1,16 +1,17 @@
 import {
-  useEffect,
   useMemo,
   useState,
 } from "react";
 
 import "./CashBank.css";
 
+
 const ACCOUNT_STORAGE_KEY =
   "ren-erp-cash-bank-accounts";
 
 const MOVEMENT_STORAGE_KEY =
   "ren-erp-cash-bank-movements";
+
 
 const defaultAccounts = [
   {
@@ -33,12 +34,23 @@ const defaultAccounts = [
   },
 ];
 
+
+/* =========================================================
+   YARDIMCI
+========================================================= */
+
 function money(value) {
-  return new Intl.NumberFormat("tr-TR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value) || 0);
+  return new Intl.NumberFormat(
+    "tr-TR",
+    {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }
+  ).format(
+    Number(value) || 0
+  );
 }
+
 
 function number(value) {
   if (
@@ -49,190 +61,188 @@ function number(value) {
     return 0;
   }
 
-  if (typeof value === "number") {
-    return Number.isFinite(value)
+
+  if (
+    typeof value ===
+    "number"
+  ) {
+    return Number.isFinite(
+      value
+    )
       ? value
       : 0;
   }
 
-  let text = String(value).trim();
+
+  let text =
+    String(
+      value
+    )
+      .trim()
+      .replace(
+        /\s/g,
+        ""
+      );
+
 
   if (
     text.includes(",") &&
     text.includes(".")
   ) {
-    text = text
-      .replace(/\./g, "")
-      .replace(",", ".");
+
+    text =
+      text
+        .replace(
+          /\./g,
+          ""
+        )
+        .replace(
+          ",",
+          "."
+        );
+
   } else {
-    text = text.replace(",", ".");
+
+    text =
+      text.replace(
+        ",",
+        "."
+      );
+
   }
 
-  const parsed = Number(text);
 
-  return Number.isFinite(parsed)
+  const parsed =
+    Number(
+      text
+    );
+
+
+  return Number.isFinite(
+    parsed
+  )
     ? parsed
     : 0;
 }
 
-function normalizeAccountType(
-  account
-) {
-  if (!account) {
-    return "Banka";
-  }
-
-  const currentType =
-    String(
-      account.type || ""
-    ).trim();
-
-  const name =
-    String(
-      account.name || ""
-    ).toLocaleLowerCase(
-      "tr-TR"
-    );
-
-  const bank =
-    String(
-      account.bank || ""
-    ).toLocaleLowerCase(
-      "tr-TR"
-    );
-
-  const combined =
-    `${name} ${bank}`
-      .toLocaleLowerCase(
-        "tr-TR"
-      );
-
-  /*
-    Eski kayıtlarda POS hesapları
-    yanlışlıkla "Banka" olarak tutulmuşsa
-    otomatik olarak POS'a çeviriyoruz.
-  */
-  if (
-    currentType === "POS" ||
-    combined.includes("pos")
-  ) {
-    return "POS";
-  }
-
-  if (
-    currentType === "Kasa"
-  ) {
-    return "Kasa";
-  }
-
-  return "Banka";
-}
-
-function normalizeAccounts(
-  accounts
-) {
-  if (
-    !Array.isArray(accounts)
-  ) {
-    return [];
-  }
-
-  return accounts.map(
-    (account) => ({
-      ...account,
-      type:
-        normalizeAccountType(
-          account
-        ),
-      balance:
-        number(
-          account.balance
-        ),
-      status:
-        account.status ||
-        "Aktif",
-    })
-  );
-}
 
 function readAccounts() {
+
   try {
+
     const saved =
       localStorage.getItem(
         ACCOUNT_STORAGE_KEY
       );
 
-    if (saved) {
+
+    if (
+      saved
+    ) {
+
       const parsed =
-        JSON.parse(saved);
+        JSON.parse(
+          saved
+        );
+
 
       if (
-        Array.isArray(parsed)
-      ) {
-        return normalizeAccounts(
+        Array.isArray(
           parsed
-        );
+        )
+      ) {
+        return parsed;
       }
+
     }
-  } catch (error) {
+
+  } catch (
+    error
+  ) {
+
     console.error(
       "REN ERP hesapları okunamadı:",
       error
     );
+
   }
+
 
   return defaultAccounts;
 }
 
+
 function readMovements() {
+
   try {
+
     const saved =
       localStorage.getItem(
         MOVEMENT_STORAGE_KEY
       );
 
-    if (saved) {
+
+    if (
+      saved
+    ) {
+
       const parsed =
-        JSON.parse(saved);
+        JSON.parse(
+          saved
+        );
+
 
       if (
-        Array.isArray(parsed)
+        Array.isArray(
+          parsed
+        )
       ) {
         return parsed;
       }
+
     }
-  } catch (error) {
+
+  } catch (
+    error
+  ) {
+
     console.error(
       "REN ERP finans hareketleri okunamadı:",
       error
     );
+
   }
+
 
   return [];
 }
 
+
 function saveAccounts(
   accounts
 ) {
+
   localStorage.setItem(
     ACCOUNT_STORAGE_KEY,
     JSON.stringify(
-      normalizeAccounts(
-        accounts
-      )
+      accounts
     )
   );
+
 
   window.dispatchEvent(
     new Event(
       "ren-cash-bank-updated"
     )
   );
+
 }
+
 
 function saveMovements(
   movements
 ) {
+
   localStorage.setItem(
     MOVEMENT_STORAGE_KEY,
     JSON.stringify(
@@ -240,34 +250,148 @@ function saveMovements(
     )
   );
 
+
   window.dispatchEvent(
     new Event(
       "ren-cash-bank-updated"
     )
   );
+
 }
+
 
 function accountIcon(
   type
 ) {
-  if (type === "POS") {
+
+  if (
+    type ===
+    "POS"
+  ) {
     return "▣";
   }
 
-  if (type === "Banka") {
+  if (
+    type ===
+    "Banka"
+  ) {
     return "₺";
   }
 
   return "▤";
+
 }
 
+
+function signedAmount(
+  movement
+) {
+
+  const amount =
+    number(
+      movement.amount
+    );
+
+
+  return movement.direction ===
+    "Giriş"
+    ? amount
+    : -amount;
+
+}
+
+
+function formatDate(
+  value
+) {
+
+  if (!value) {
+    return "—";
+  }
+
+
+  const text =
+    String(
+      value
+    );
+
+
+  const date =
+    new Date(
+      /^\d{4}-\d{2}-\d{2}$/.test(
+        text
+      )
+        ? `${text}T12:00:00`
+        : text
+    );
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return text;
+  }
+
+
+  return new Intl.DateTimeFormat(
+    "tr-TR"
+  ).format(
+    date
+  );
+
+}
+
+
+function sourceLabel(
+  source
+) {
+
+  switch (
+    String(
+      source ||
+      ""
+    ).toLowerCase()
+  ) {
+
+    case "invoice":
+      return "Fatura";
+
+    case "collection":
+      return "Tahsilat";
+
+    case "payment":
+      return "Ödeme";
+
+    case "order":
+      return "Sipariş";
+
+    case "manual":
+      return "Manuel";
+
+    default:
+      return source ||
+        "Manuel";
+
+  }
+
+}
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 export default function CashBank() {
+
   const [
     accounts,
     setAccounts,
   ] = useState(
     readAccounts
   );
+
 
   const [
     movements,
@@ -276,12 +400,14 @@ export default function CashBank() {
     readMovements
   );
 
+
   const [
     activeTab,
     setActiveTab,
   ] = useState(
     "accounts"
   );
+
 
   const [
     showAccountModal,
@@ -290,6 +416,7 @@ export default function CashBank() {
     false
   );
 
+
   const [
     showMovementModal,
     setShowMovementModal,
@@ -297,12 +424,30 @@ export default function CashBank() {
     false
   );
 
+
   const [
     editingAccount,
     setEditingAccount,
   ] = useState(
     null
   );
+
+
+  const [
+    editingMovement,
+    setEditingMovement,
+  ] = useState(
+    null
+  );
+
+
+  const [
+    selectedMovement,
+    setSelectedMovement,
+  ] = useState(
+    null
+  );
+
 
   const [
     accountForm,
@@ -315,93 +460,52 @@ export default function CashBank() {
     openingBalance: "",
   });
 
+
   const [
     movementForm,
     setMovementForm,
   ] = useState({
-    accountId: "",
-    direction: "Giriş",
-    amount: "",
-    description: "",
+
+    accountId:
+      "",
+
+    direction:
+      "Giriş",
+
+    amount:
+      "",
+
+    description:
+      "",
+
     date:
       new Date()
         .toISOString()
-        .slice(0, 10),
-    method: "Nakit",
+        .slice(
+          0,
+          10
+        ),
+
+    method:
+      "Nakit",
+
   });
 
-  /* =====================================================
-     VERİLERİ YENİLE
-  ===================================================== */
 
-  const refreshData = () => {
-    const normalized =
-      readAccounts();
-
-    setAccounts(
-      normalized
-    );
-
-    /*
-      Eski kayıtların türleri yanlışsa
-      bir kez kalıcı olarak düzelt.
-    */
-    localStorage.setItem(
-      ACCOUNT_STORAGE_KEY,
-      JSON.stringify(
-        normalized
-      )
-    );
-
-    setMovements(
-      readMovements()
-    );
-  };
-
-  useEffect(() => {
-    refreshData();
-
-    const events = [
-      "ren-cash-bank-updated",
-      "ren-invoices-updated",
-      "ren-finance-updated",
-      "ren-customers-updated",
-      "ren-stock-updated",
-    ];
-
-    events.forEach(
-      (eventName) => {
-        window.addEventListener(
-          eventName,
-          refreshData
-        );
-      }
-    );
-
-    return () => {
-      events.forEach(
-        (eventName) => {
-          window.removeEventListener(
-            eventName,
-            refreshData
-          );
-        }
-      );
-    };
-  }, []);
-
-  /* =====================================================
+  /* =======================================================
      ÖZETLER
-  ===================================================== */
+  ======================================================= */
 
   const totalCash =
     useMemo(() => {
+
       return accounts
         .filter(
-          (account) =>
-            normalizeAccountType(
-              account
-            ) === "Kasa"
+          (
+            account
+          ) =>
+            account.type ===
+            "Kasa"
         )
         .reduce(
           (
@@ -414,16 +518,22 @@ export default function CashBank() {
             ),
           0
         );
-    }, [accounts]);
+
+    }, [
+      accounts,
+    ]);
+
 
   const totalBank =
     useMemo(() => {
+
       return accounts
         .filter(
-          (account) =>
-            normalizeAccountType(
-              account
-            ) === "Banka"
+          (
+            account
+          ) =>
+            account.type ===
+            "Banka"
         )
         .reduce(
           (
@@ -436,16 +546,22 @@ export default function CashBank() {
             ),
           0
         );
-    }, [accounts]);
+
+    }, [
+      accounts,
+    ]);
+
 
   const totalPos =
     useMemo(() => {
+
       return accounts
         .filter(
-          (account) =>
-            normalizeAccountType(
-              account
-            ) === "POS"
+          (
+            account
+          ) =>
+            account.type ===
+            "POS"
         )
         .reduce(
           (
@@ -458,19 +574,25 @@ export default function CashBank() {
             ),
           0
         );
-    }, [accounts]);
+
+    }, [
+      accounts,
+    ]);
+
 
   const totalLiquidity =
     totalCash +
     totalBank +
     totalPos;
 
-  /* =====================================================
-     FORM TEMİZLE
-  ===================================================== */
+
+  /* =======================================================
+     HESAP FORM TEMİZLE
+  ======================================================= */
 
   const resetAccountForm =
     () => {
+
       setAccountForm({
         name: "",
         type: "Banka",
@@ -479,82 +601,126 @@ export default function CashBank() {
         openingBalance: "",
       });
 
+
       setEditingAccount(
         null
       );
+
     };
 
-  /* =====================================================
-     YENİ HESAP
-  ===================================================== */
+
+  /* =======================================================
+     HESAP YENİ
+  ======================================================= */
 
   const openNewAccount =
     () => {
+
       resetAccountForm();
+
       setShowAccountModal(
         true
       );
+
     };
 
-  /* =====================================================
-     DÜZENLE
-  ===================================================== */
+
+  /* =======================================================
+     HESAP DÜZENLE
+  ======================================================= */
 
   const openEditAccount =
-    (account) => {
+    (
+      account
+    ) => {
+
       setEditingAccount(
         account
       );
 
+
       setAccountForm({
+
         name:
-          account.name || "",
+          account.name ||
+          "",
+
         type:
-          normalizeAccountType(
-            account
-          ),
+          account.type ||
+          "Banka",
+
         bank:
-          account.bank || "",
+          account.bank ||
+          "",
+
         iban:
-          account.iban || "",
+          account.iban ||
+          "",
+
         openingBalance:
-          account.balance ?? "",
+          account.balance ??
+          "",
+
       });
+
 
       setShowAccountModal(
         true
       );
+
     };
 
-  /* =====================================================
+
+  /* =======================================================
      HESAP KAYDET
-  ===================================================== */
+  ======================================================= */
 
   const handleAccountSubmit =
-    (event) => {
+    (
+      event
+    ) => {
+
       event.preventDefault();
+
 
       const name =
         accountForm.name.trim();
 
+
       if (!name) {
+
         alert(
           "Hesap adı zorunludur."
         );
+
         return;
+
       }
+
 
       const balance =
         number(
           accountForm.openingBalance
         );
 
+
       if (
         editingAccount
       ) {
-        const updated =
+
+        /*
+          Hesap bakiyesini doğrudan
+          değiştirebilmemize izin veriyoruz.
+          Bu, manuel başlangıç/düzeltme
+          bakiyesi içindir.
+        */
+
+        const updatedAccounts =
           accounts.map(
-            (account) => {
+            (
+              account
+            ) => {
+
               if (
                 String(
                   account.id
@@ -566,31 +732,43 @@ export default function CashBank() {
                 return account;
               }
 
+
               return {
+
                 ...account,
+
                 name,
+
                 type:
                   accountForm.type,
+
                 bank:
                   accountForm.bank.trim(),
+
                 iban:
                   accountForm.iban.trim(),
+
                 balance,
+
               };
+
             }
           );
 
+
         saveAccounts(
-          updated
+          updatedAccounts
         );
 
+
         setAccounts(
-          normalizeAccounts(
-            updated
-          )
+          updatedAccounts
         );
+
       } else {
+
         const newAccount = {
+
           id:
             Date.now() +
             Math.random(),
@@ -610,39 +788,52 @@ export default function CashBank() {
 
           status:
             "Aktif",
+
         };
 
-        const updated = [
+
+        const updatedAccounts = [
           ...accounts,
           newAccount,
         ];
 
+
         saveAccounts(
-          updated
+          updatedAccounts
         );
+
 
         setAccounts(
-          normalizeAccounts(
-            updated
-          )
+          updatedAccounts
         );
+
       }
 
+
       resetAccountForm();
+
+
       setShowAccountModal(
         false
       );
+
     };
 
-  /* =====================================================
+
+  /* =======================================================
      HESAP SİL
-  ===================================================== */
+  ======================================================= */
 
   const deleteAccount =
-    (accountId) => {
+    (
+      accountId
+    ) => {
+
       const account =
         accounts.find(
-          (item) =>
+          (
+            item
+          ) =>
             String(
               item.id
             ) ===
@@ -651,25 +842,17 @@ export default function CashBank() {
             )
         );
 
+
       if (!account) {
         return;
       }
 
-      if (
-        number(
-          account.balance
-        ) !== 0
-      ) {
-        alert(
-          "Bakiyesi olan hesap silinemez. Önce hesabın bakiyesini sıfırlayın."
-        );
-
-        return;
-      }
 
       const hasMovement =
         movements.some(
-          (movement) =>
+          (
+            movement
+          ) =>
             String(
               movement.accountId
             ) ===
@@ -678,28 +861,38 @@ export default function CashBank() {
             )
         );
 
+
       if (
         hasMovement
       ) {
+
         alert(
-          "Bu hesaba ait finans hareketleri bulunduğu için hesap silinemez."
+          "Bu hesaba ait hareketler bulunduğu için hesap silinemez. Önce hareketleri silin."
         );
 
         return;
+
       }
+
 
       const confirmed =
         window.confirm(
           `${account.name} hesabını silmek istediğinize emin misiniz?`
         );
 
-      if (!confirmed) {
+
+      if (
+        !confirmed
+      ) {
         return;
       }
 
-      const updated =
+
+      const updatedAccounts =
         accounts.filter(
-          (item) =>
+          (
+            item
+          ) =>
             String(
               item.id
             ) !==
@@ -708,28 +901,362 @@ export default function CashBank() {
             )
         );
 
+
       saveAccounts(
-        updated
+        updatedAccounts
       );
+
 
       setAccounts(
-        normalizeAccounts(
-          updated
-        )
+        updatedAccounts
       );
+
     };
 
-  /* =====================================================
-     HAREKET KAYDET
-  ===================================================== */
 
-  const handleMovementSubmit =
-    (event) => {
-      event.preventDefault();
+  /* =======================================================
+     HAREKET FORM TEMİZLE
+  ======================================================= */
+
+  const resetMovementForm =
+    () => {
+
+      setMovementForm({
+
+        accountId:
+          "",
+
+        direction:
+          "Giriş",
+
+        amount:
+          "",
+
+        description:
+          "",
+
+        date:
+          new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            ),
+
+        method:
+          "Nakit",
+
+      });
+
+
+      setEditingMovement(
+        null
+      );
+
+    };
+
+
+  /* =======================================================
+     YENİ HAREKET
+  ======================================================= */
+
+  const openMovement =
+    (
+      accountId = ""
+    ) => {
+
+      setEditingMovement(
+        null
+      );
+
+
+      setMovementForm({
+
+        accountId:
+          accountId ||
+          "",
+
+        direction:
+          "Giriş",
+
+        amount:
+          "",
+
+        description:
+          "",
+
+        date:
+          new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            ),
+
+        method:
+          "Nakit",
+
+      });
+
+
+      setShowMovementModal(
+        true
+      );
+
+    };
+
+
+  /* =======================================================
+     HAREKET DÜZENLE
+  ======================================================= */
+
+  const openEditMovement =
+    (
+      movement
+    ) => {
+
+      setSelectedMovement(
+        null
+      );
+
+
+      setEditingMovement(
+        movement
+      );
+
+
+      setMovementForm({
+
+        accountId:
+          movement.accountId ||
+          "",
+
+        direction:
+          movement.direction ||
+          "Giriş",
+
+        amount:
+          movement.amount ??
+          "",
+
+        description:
+          movement.description ||
+          "",
+
+        date:
+          movement.date ||
+          new Date()
+            .toISOString()
+            .slice(
+              0,
+              10
+            ),
+
+        method:
+          movement.method ||
+          "Nakit",
+
+      });
+
+
+      setShowMovementModal(
+        true
+      );
+
+    };
+
+
+  /* =======================================================
+     HAREKET DETAY
+  ======================================================= */
+
+  const openMovementDetail =
+    (
+      movement
+    ) => {
+
+      setSelectedMovement(
+        movement
+      );
+
+    };
+
+
+  /* =======================================================
+     HAREKET SİL
+  ======================================================= */
+
+  const deleteMovement =
+    (
+      movement
+    ) => {
 
       const account =
         accounts.find(
-          (item) =>
+          (
+            item
+          ) =>
+            String(
+              item.id
+            ) ===
+            String(
+              movement.accountId
+            )
+        );
+
+
+      const confirmed =
+        window.confirm(
+          `${movement.description || "Bu finans hareketi"} silinsin mi?\n\n` +
+          `Tutar: ${money(
+            movement.amount
+          )} TL\n` +
+          `Hesap: ${
+            movement.accountName ||
+            account?.name ||
+            "—"
+          }`
+        );
+
+
+      if (
+        !confirmed
+      ) {
+        return;
+      }
+
+
+      const correction =
+        signedAmount(
+          movement
+        );
+
+
+      /*
+        Mevcut hareketin etkisini
+        hesaptan geri alıyoruz.
+
+        Giriş silinirse:
+        bakiye - giriş
+
+        Çıkış silinirse:
+        bakiye + çıkış
+      */
+
+      const updatedAccounts =
+        accounts.map(
+          (
+            item
+          ) => {
+
+            if (
+              String(
+                item.id
+              ) !==
+              String(
+                movement.accountId
+              )
+            ) {
+
+              return item;
+
+            }
+
+
+            return {
+
+              ...item,
+
+              balance:
+                number(
+                  item.balance
+                ) -
+                correction,
+
+            };
+
+          }
+        );
+
+
+      const updatedMovements =
+        movements.filter(
+          (
+            item
+          ) =>
+            String(
+              item.id
+            ) !==
+            String(
+              movement.id
+            )
+        );
+
+
+      saveAccounts(
+        updatedAccounts
+      );
+
+
+      saveMovements(
+        updatedMovements
+      );
+
+
+      setAccounts(
+        updatedAccounts
+      );
+
+
+      setMovements(
+        updatedMovements
+      );
+
+
+      setSelectedMovement(
+        null
+      );
+
+    };
+
+
+  /* =======================================================
+     HAREKET KAYDET / GÜNCELLE
+  ======================================================= */
+
+  const handleMovementSubmit =
+    (
+      event
+    ) => {
+
+      event.preventDefault();
+
+
+      const amount =
+        number(
+          movementForm.amount
+        );
+
+
+      if (
+        amount <=
+        0
+      ) {
+
+        alert(
+          "Geçerli bir tutar giriniz."
+        );
+
+        return;
+
+      }
+
+
+      const account =
+        accounts.find(
+          (
+            item
+          ) =>
             String(
               item.id
             ) ===
@@ -738,34 +1265,225 @@ export default function CashBank() {
             )
         );
 
-      const amount =
-        number(
-          movementForm.amount
-        );
 
       if (!account) {
+
         alert(
           "Hesap seçiniz."
         );
+
         return;
+
       }
 
-      if (amount <= 0) {
-        alert(
-          "Geçerli bir tutar giriniz."
+
+      /* =================================================
+         DÜZENLEME
+      ================================================= */
+
+      if (
+        editingMovement
+      ) {
+
+        const oldSigned =
+          signedAmount(
+            editingMovement
+          );
+
+
+        const newSigned =
+          movementForm.direction ===
+          "Giriş"
+            ? amount
+            : -amount;
+
+
+        let updatedAccounts =
+          accounts;
+
+
+        /*
+          Eski hareketin etkisini geri al.
+        */
+
+        updatedAccounts =
+          updatedAccounts.map(
+            (
+              item
+            ) => {
+
+              if (
+                String(
+                  item.id
+                ) ===
+                String(
+                  editingMovement.accountId
+                )
+              ) {
+
+                return {
+
+                  ...item,
+
+                  balance:
+                    number(
+                      item.balance
+                    ) -
+                    oldSigned,
+
+                };
+
+              }
+
+
+              return item;
+
+            }
+          );
+
+
+        /*
+          Yeni hareketin etkisini
+          yeni hesaba uygula.
+        */
+
+        updatedAccounts =
+          updatedAccounts.map(
+            (
+              item
+            ) => {
+
+              if (
+                String(
+                  item.id
+                ) ===
+                String(
+                  account.id
+                )
+              ) {
+
+                return {
+
+                  ...item,
+
+                  balance:
+                    number(
+                      item.balance
+                    ) +
+                    newSigned,
+
+                };
+
+              }
+
+
+              return item;
+
+            }
+          );
+
+
+        const updatedMovement = {
+
+          ...editingMovement,
+
+          accountId:
+            account.id,
+
+          accountName:
+            account.name,
+
+          accountType:
+            account.type,
+
+          direction:
+            movementForm.direction,
+
+          amount,
+
+          description:
+            movementForm.description.trim() ||
+            "Manuel finans hareketi",
+
+          date:
+            movementForm.date,
+
+          method:
+            movementForm.method,
+
+          updatedAt:
+            new Date()
+              .toISOString(),
+
+        };
+
+
+        const updatedMovements =
+          movements.map(
+            (
+              movement
+            ) =>
+              String(
+                movement.id
+              ) ===
+              String(
+                editingMovement.id
+              )
+                ? updatedMovement
+                : movement
+          );
+
+
+        saveAccounts(
+          updatedAccounts
         );
+
+
+        saveMovements(
+          updatedMovements
+        );
+
+
+        setAccounts(
+          updatedAccounts
+        );
+
+
+        setMovements(
+          updatedMovements
+        );
+
+
+        resetMovementForm();
+
+
+        setShowMovementModal(
+          false
+        );
+
+
         return;
+
       }
 
-      const signedAmount =
+
+      /* =================================================
+         YENİ HAREKET
+      ================================================= */
+
+      const signed =
         movementForm.direction ===
         "Giriş"
           ? amount
           : -amount;
 
+
       const updatedAccounts =
         accounts.map(
-          (item) => {
+          (
+            item
+          ) => {
+
             if (
               String(
                 item.id
@@ -774,22 +1492,30 @@ export default function CashBank() {
                 account.id
               )
             ) {
+
               return item;
+
             }
 
+
             return {
+
               ...item,
 
               balance:
                 number(
                   item.balance
                 ) +
-                signedAmount,
+                signed,
+
             };
+
           }
         );
 
+
       const movement = {
+
         id:
           `CB-${Date.now()}-${Math.random()
             .toString(36)
@@ -802,9 +1528,7 @@ export default function CashBank() {
           account.name,
 
         accountType:
-          normalizeAccountType(
-            account
-          ),
+          account.type,
 
         direction:
           movementForm.direction,
@@ -812,7 +1536,7 @@ export default function CashBank() {
         amount,
 
         description:
-          movementForm.description ||
+          movementForm.description.trim() ||
           "Manuel finans hareketi",
 
         date:
@@ -825,81 +1549,120 @@ export default function CashBank() {
           "manual",
 
         createdAt:
-          new Date().toISOString(),
+          new Date()
+            .toISOString(),
+
       };
 
-      const updatedMovements =
-        [
-          movement,
-          ...movements,
-        ];
+
+      const updatedMovements = [
+        movement,
+        ...movements,
+      ];
+
 
       saveAccounts(
         updatedAccounts
       );
 
+
       saveMovements(
         updatedMovements
       );
 
+
       setAccounts(
-        normalizeAccounts(
-          updatedAccounts
-        )
+        updatedAccounts
       );
+
 
       setMovements(
         updatedMovements
       );
 
-      setMovementForm({
-        accountId: "",
-        direction: "Giriş",
-        amount: "",
-        description: "",
-        date:
-          new Date()
-            .toISOString()
-            .slice(0, 10),
-        method: "Nakit",
-      });
+
+      resetMovementForm();
+
 
       setShowMovementModal(
         false
       );
+
     };
 
-  /* =====================================================
-     YENİ HAREKET
-  ===================================================== */
 
-  const openMovement =
-    (
-      accountId = ""
-    ) => {
-      setMovementForm({
-        accountId,
-        direction: "Giriş",
-        amount: "",
-        description: "",
-        date:
-          new Date()
-            .toISOString()
-            .slice(0, 10),
-        method: "Nakit",
-      });
+  /* =======================================================
+     HAREKET SIRALAMA
+  ======================================================= */
 
-      setShowMovementModal(
-        true
+  const sortedMovements =
+    useMemo(() => {
+
+      return [
+        ...movements,
+      ].sort(
+        (
+          a,
+          b
+        ) => {
+
+          const dateA =
+            String(
+              a.date ||
+              ""
+            );
+
+          const dateB =
+            String(
+              b.date ||
+              ""
+            );
+
+
+          const dateCompare =
+            dateB.localeCompare(
+              dateA
+            );
+
+
+          if (
+            dateCompare !==
+            0
+          ) {
+
+            return dateCompare;
+
+          }
+
+
+          return String(
+            b.createdAt ||
+            ""
+          ).localeCompare(
+            String(
+              a.createdAt ||
+              ""
+            )
+          );
+
+        }
       );
-    };
+
+    }, [
+      movements,
+    ]);
+
 
   return (
+
     <div className="cash-bank-page">
 
       <div className="cash-bank-container">
 
-        {/* HEADER */}
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="cash-bank-header">
 
@@ -921,9 +1684,11 @@ export default function CashBank() {
 
             </div>
 
+
             <h1>
               Kasa ve Bankalar
             </h1>
+
 
             <p>
               Kasa, banka ve POS hesaplarınızı
@@ -932,18 +1697,30 @@ export default function CashBank() {
 
           </div>
 
+
           <div className="cash-bank-header-actions">
 
             <button
+              type="button"
               className="cash-bank-secondary-button"
-              onClick={
-                refreshData
-              }
+              onClick={() => {
+
+                setAccounts(
+                  readAccounts()
+                );
+
+                setMovements(
+                  readMovements()
+                );
+
+              }}
             >
               ↻ Yenile
             </button>
 
+
             <button
+              type="button"
               className="cash-bank-primary-button"
               onClick={
                 openNewAccount
@@ -956,7 +1733,10 @@ export default function CashBank() {
 
         </div>
 
-        {/* SUMMARY */}
+
+        {/* =================================================
+            SUMMARY
+        ================================================= */}
 
         <div className="cash-bank-summary">
 
@@ -967,9 +1747,11 @@ export default function CashBank() {
             </span>
 
             <strong>
-              {money(
-                totalCash
-              )} TL
+              {
+                money(
+                  totalCash
+                )
+              } TL
             </strong>
 
             <small>
@@ -978,6 +1760,7 @@ export default function CashBank() {
 
           </div>
 
+
           <div className="cash-bank-summary-card">
 
             <span>
@@ -985,9 +1768,11 @@ export default function CashBank() {
             </span>
 
             <strong>
-              {money(
-                totalBank
-              )} TL
+              {
+                money(
+                  totalBank
+                )
+              } TL
             </strong>
 
             <small>
@@ -996,6 +1781,7 @@ export default function CashBank() {
 
           </div>
 
+
           <div className="cash-bank-summary-card">
 
             <span>
@@ -1003,9 +1789,11 @@ export default function CashBank() {
             </span>
 
             <strong>
-              {money(
-                totalPos
-              )} TL
+              {
+                money(
+                  totalPos
+                )
+              } TL
             </strong>
 
             <small>
@@ -1014,6 +1802,7 @@ export default function CashBank() {
 
           </div>
 
+
           <div className="cash-bank-summary-card highlight">
 
             <span>
@@ -1021,9 +1810,11 @@ export default function CashBank() {
             </span>
 
             <strong>
-              {money(
-                totalLiquidity
-              )} TL
+              {
+                money(
+                  totalLiquidity
+                )
+              } TL
             </strong>
 
             <small>
@@ -1034,11 +1825,15 @@ export default function CashBank() {
 
         </div>
 
-        {/* TABS */}
+
+        {/* =================================================
+            TABS
+        ================================================= */}
 
         <div className="cash-bank-tabs">
 
           <button
+            type="button"
             className={
               activeTab ===
               "accounts"
@@ -1054,7 +1849,9 @@ export default function CashBank() {
             Kasa ve Bankalar
           </button>
 
+
           <button
+            type="button"
             className={
               activeTab ===
               "pos"
@@ -1070,7 +1867,9 @@ export default function CashBank() {
             POS / Kredi Kartları
           </button>
 
+
           <button
+            type="button"
             className={
               activeTab ===
               "movements"
@@ -1088,688 +1887,853 @@ export default function CashBank() {
 
         </div>
 
-        {/* HESAPLAR */}
 
-        {activeTab ===
+        {/* =================================================
+            KASA / BANKA HESAPLARI
+        ================================================= */}
+
+        {
+          activeTab ===
           "accounts" && (
 
-          <div className="cash-bank-card">
+            <div className="cash-bank-card">
 
-            <div className="cash-bank-card-header">
+              <div className="cash-bank-card-header">
 
-              <div>
+                <div>
 
-                <strong>
-                  Kasa ve Banka Hesapları
-                </strong>
+                  <strong>
+                    Kasa ve Banka Hesapları
+                  </strong>
 
-                <span>
-                  Kasa ve banka hesaplarını yönetin.
-                </span>
+                  <span>
+                    Hesap ekleyin, düzenleyin veya yönetin.
+                  </span>
 
-              </div>
+                </div>
 
-              <button
-                className="cash-bank-small-primary"
-                onClick={
-                  openNewAccount
-                }
-              >
-                + Yeni Hesap
-              </button>
 
-            </div>
-
-            <div className="cash-bank-account-grid">
-
-              {accounts
-                .filter(
-                  (account) =>
-                    normalizeAccountType(
-                      account
-                    ) !==
-                    "POS"
-                )
-                .map(
-                  (account) => (
-                    <div
-                      className="cash-bank-account"
-                      key={
-                        account.id
-                      }
-                    >
-
-                      <div className="cash-bank-account-top">
-
-                        <div className="cash-bank-account-icon">
-
-                          {
-                            accountIcon(
-                              normalizeAccountType(
-                                account
-                              )
-                            )
-                          }
-
-                        </div>
-
-                        <div>
-
-                          <strong>
-                            {
-                              account.name
-                            }
-                          </strong>
-
-                          <span>
-                            {
-                              normalizeAccountType(
-                                account
-                              )
-                            }
-
-                            {account.bank
-                              ? ` • ${account.bank}`
-                              : ""}
-
-                          </span>
-
-                        </div>
-
-                      </div>
-
-                      <div className="cash-bank-account-balance">
-                        {money(
-                          account.balance
-                        )} TL
-                      </div>
-
-                      {account.iban && (
-                        <div className="cash-bank-iban">
-                          {account.iban}
-                        </div>
-                      )}
-
-                      <div className="cash-bank-account-footer">
-
-                        <span className="cash-bank-status">
-                          ●{" "}
-                          {
-                            account.status
-                          }
-                        </span>
-
-                        <div>
-
-                          <button
-                            onClick={() =>
-                              openMovement(
-                                account.id
-                              )
-                            }
-                          >
-                            Hareket
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              openEditAccount(
-                                account
-                              )
-                            }
-                          >
-                            Düzenle
-                          </button>
-
-                          <button
-                            className="danger"
-                            onClick={() =>
-                              deleteAccount(
-                                account.id
-                              )
-                            }
-                          >
-                            Sil
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                    </div>
-                  )
-                )}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* POS */}
-
-        {activeTab ===
-          "pos" && (
-
-          <div className="cash-bank-card">
-
-            <div className="cash-bank-card-header">
-
-              <div>
-
-                <strong>
-                  POS / Kredi Kartı Hesapları
-                </strong>
-
-                <span>
-                  POS cihazları ve kartlı tahsilatları
-                  yönetin.
-                </span>
+                <button
+                  type="button"
+                  className="cash-bank-small-primary"
+                  onClick={
+                    openNewAccount
+                  }
+                >
+                  + Yeni Hesap
+                </button>
 
               </div>
 
-              <button
-                className="cash-bank-small-primary"
-                onClick={() => {
 
-                  resetAccountForm();
+              <div className="cash-bank-account-grid">
 
-                  setAccountForm({
-                    name: "",
-                    type: "POS",
-                    bank: "",
-                    iban: "",
-                    openingBalance: "",
-                  });
+                {
+                  accounts
+                    .filter(
+                      (
+                        account
+                      ) =>
+                        account.type !==
+                        "POS"
+                    )
+                    .map(
+                      (
+                        account
+                      ) => (
 
-                  setShowAccountModal(
-                    true
-                  );
-
-                }}
-              >
-                + POS Hesabı Ekle
-              </button>
-
-            </div>
-
-            <div className="cash-bank-account-grid">
-
-              {accounts
-                .filter(
-                  (account) =>
-                    normalizeAccountType(
-                      account
-                    ) ===
-                    "POS"
-                )
-                .map(
-                  (account) => (
-                    <div
-                      className="cash-bank-account"
-                      key={
-                        account.id
-                      }
-                    >
-
-                      <div className="cash-bank-account-top">
-
-                        <div className="cash-bank-account-icon">
-                          ▣
-                        </div>
-
-                        <div>
-
-                          <strong>
-                            {
-                              account.name
-                            }
-                          </strong>
-
-                          <span>
-                            POS
-
-                            {account.bank
-                              ? ` • ${account.bank}`
-                              : ""}
-                          </span>
-
-                        </div>
-
-                      </div>
-
-                      <div className="cash-bank-account-balance">
-                        {money(
-                          account.balance
-                        )} TL
-                      </div>
-
-                      <div className="cash-bank-account-footer">
-
-                        <span className="cash-bank-status">
-                          ●{" "}
-                          {
-                            account.status
-                          }
-                        </span>
-
-                        <div>
-
-                          <button
-                            onClick={() =>
-                              openMovement(
-                                account.id
-                              )
-                            }
-                          >
-                            Hareket
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              openEditAccount(
-                                account
-                              )
-                            }
-                          >
-                            Düzenle
-                          </button>
-
-                          <button
-                            className="danger"
-                            onClick={() =>
-                              deleteAccount(
-                                account.id
-                              )
-                            }
-                          >
-                            Sil
-                          </button>
-
-                        </div>
-
-                      </div>
-
-                    </div>
-                  )
-                )}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* HAREKETLER */}
-
-        {activeTab ===
-          "movements" && (
-
-          <div className="cash-bank-card">
-
-            <div className="cash-bank-card-header">
-
-              <div>
-
-                <strong>
-                  Finans Hareketleri
-                </strong>
-
-                <span>
-                  Kasa, banka ve POS hareketleri.
-                </span>
-
-              </div>
-
-              <button
-                className="cash-bank-small-primary"
-                onClick={() =>
-                  openMovement()
-                }
-              >
-                + Yeni Hareket
-              </button>
-
-            </div>
-
-            <div className="cash-bank-table-wrapper">
-
-              <table className="cash-bank-table">
-
-                <thead>
-
-                  <tr>
-
-                    <th>
-                      TARİH
-                    </th>
-
-                    <th>
-                      HESAP
-                    </th>
-
-                    <th>
-                      TÜR
-                    </th>
-
-                    <th>
-                      AÇIKLAMA
-                    </th>
-
-                    <th>
-                      YÖNTEM
-                    </th>
-
-                    <th>
-                      KAYNAK
-                    </th>
-
-                    <th>
-                      YÖN
-                    </th>
-
-                    <th>
-                      TUTAR
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {movements.length ===
-                  0 ? (
-
-                    <tr>
-
-                      <td
-                        colSpan="8"
-                        className="cash-bank-empty"
-                      >
-
-                        <div>
-                          ₺
-                        </div>
-
-                        <strong>
-                          Henüz hareket yok
-                        </strong>
-
-                        <span>
-                          Finans hareketleri burada
-                          görünecek.
-                        </span>
-
-                      </td>
-
-                    </tr>
-
-                  ) : (
-
-                    movements.map(
-                      (movement) => (
-
-                        <tr
+                        <div
+                          className="cash-bank-account"
                           key={
-                            movement.id
+                            account.id
                           }
                         >
 
-                          <td>
-                            {
-                              movement.date
-                            }
-                          </td>
+                          <div className="cash-bank-account-top">
 
-                          <td>
-                            <strong>
+                            <div className="cash-bank-account-icon">
+
                               {
-                                movement.accountName
+                                accountIcon(
+                                  account.type
+                                )
                               }
-                            </strong>
-                          </td>
 
-                          <td>
+                            </div>
+
+
+                            <div>
+
+                              <strong>
+                                {
+                                  account.name
+                                }
+                              </strong>
+
+                              <span>
+
+                                {
+                                  account.type
+                                }
+
+                                {
+                                  account.bank
+                                    ? ` • ${account.bank}`
+                                    : ""
+                                }
+
+                              </span>
+
+                            </div>
+
+                          </div>
+
+
+                          <div className="cash-bank-account-balance">
+
                             {
-                              movement.accountType ||
-                              "—"
-                            }
-                          </td>
+                              money(
+                                account.balance
+                              )
+                            } TL
 
-                          <td>
-                            {
-                              movement.description
-                            }
-                          </td>
+                          </div>
 
-                          <td>
-                            {
-                              movement.method
-                            }
-                          </td>
 
-                          <td>
-                            {
-                              movement.source ===
-                              "invoice"
-                                ? "Fatura"
-                                : movement.source ===
-                                  "collection"
-                                ? "Tahsilat"
-                                : movement.source ===
-                                  "payment"
-                                ? "Ödeme"
-                                : "Manuel"
-                            }
-                          </td>
+                          {
+                            account.iban && (
 
-                          <td>
+                              <div className="cash-bank-iban">
+                                {
+                                  account.iban
+                                }
+                              </div>
 
-                            <span
-                              className={
-                                movement.direction ===
-                                "Giriş"
-                                  ? "cash-bank-direction income"
-                                  : "cash-bank-direction expense"
-                              }
-                            >
-                              {
-                                movement.direction
+                            )
+                          }
+
+
+                          <div className="cash-bank-account-footer">
+
+                            <span className="cash-bank-status">
+                              ● {
+                                account.status ||
+                                "Aktif"
                               }
                             </span>
 
-                          </td>
 
-                          <td className="cash-bank-money">
+                            <div>
 
-                            <strong>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openMovement(
+                                    account.id
+                                  )
+                                }
+                              >
+                                Hareket
+                              </button>
 
-                              {movement.direction ===
-                              "Giriş"
-                                ? "+"
-                                : "-"}
 
-                              {" "}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditAccount(
+                                    account
+                                  )
+                                }
+                              >
+                                Düzenle
+                              </button>
 
-                              {money(
-                                movement.amount
-                              )}
 
-                              {" TL"}
+                              <button
+                                type="button"
+                                className="danger"
+                                onClick={() =>
+                                  deleteAccount(
+                                    account.id
+                                  )
+                                }
+                              >
+                                Sil
+                              </button>
 
-                            </strong>
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                      )
+                    )
+                }
+
+              </div>
+
+            </div>
+
+          )
+        }
+
+
+        {/* =================================================
+            POS
+        ================================================= */}
+
+        {
+          activeTab ===
+          "pos" && (
+
+            <div className="cash-bank-card">
+
+              <div className="cash-bank-card-header">
+
+                <div>
+
+                  <strong>
+                    POS / Kredi Kartı Hesapları
+                  </strong>
+
+                  <span>
+                    POS cihazlarınızı ve kartlı tahsilatları yönetin.
+                  </span>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="cash-bank-small-primary"
+                  onClick={() => {
+
+                    resetAccountForm();
+
+
+                    setAccountForm({
+
+                      name:
+                        "",
+
+                      type:
+                        "POS",
+
+                      bank:
+                        "",
+
+                      iban:
+                        "",
+
+                      openingBalance:
+                        "",
+
+                    });
+
+
+                    setShowAccountModal(
+                      true
+                    );
+
+                  }}
+                >
+                  + POS Hesabı Ekle
+                </button>
+
+              </div>
+
+
+              <div className="cash-bank-account-grid">
+
+                {
+                  accounts
+                    .filter(
+                      (
+                        account
+                      ) =>
+                        account.type ===
+                        "POS"
+                    )
+                    .map(
+                      (
+                        account
+                      ) => (
+
+                        <div
+                          className="cash-bank-account"
+                          key={
+                            account.id
+                          }
+                        >
+
+                          <div className="cash-bank-account-top">
+
+                            <div className="cash-bank-account-icon">
+                              ▣
+                            </div>
+
+
+                            <div>
+
+                              <strong>
+                                {
+                                  account.name
+                                }
+                              </strong>
+
+                              <span>
+
+                                POS
+
+                                {
+                                  account.bank
+                                    ? ` • ${account.bank}`
+                                    : ""
+                                }
+
+                              </span>
+
+                            </div>
+
+                          </div>
+
+
+                          <div className="cash-bank-account-balance">
+
+                            {
+                              money(
+                                account.balance
+                              )
+                            } TL
+
+                          </div>
+
+
+                          <div className="cash-bank-account-footer">
+
+                            <span className="cash-bank-status">
+
+                              ● {
+                                account.status ||
+                                "Aktif"
+                              }
+
+                            </span>
+
+
+                            <div>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openMovement(
+                                    account.id
+                                  )
+                                }
+                              >
+                                Hareket
+                              </button>
+
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openEditAccount(
+                                    account
+                                  )
+                                }
+                              >
+                                Düzenle
+                              </button>
+
+
+                              <button
+                                type="button"
+                                className="danger"
+                                onClick={() =>
+                                  deleteAccount(
+                                    account.id
+                                  )
+                                }
+                              >
+                                Sil
+                              </button>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                      )
+                    )
+                }
+
+              </div>
+
+            </div>
+
+          )
+        }
+
+
+        {/* =================================================
+            HAREKETLER
+        ================================================= */}
+
+        {
+          activeTab ===
+          "movements" && (
+
+            <div className="cash-bank-card">
+
+              <div className="cash-bank-card-header">
+
+                <div>
+
+                  <strong>
+                    Finans Hareketleri
+                  </strong>
+
+                  <span>
+                    Kasa, banka ve POS hareketleri
+                  </span>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  className="cash-bank-small-primary"
+                  onClick={() =>
+                    openMovement()
+                  }
+                >
+                  + Yeni Hareket
+                </button>
+
+              </div>
+
+
+              <div className="cash-bank-table-wrapper">
+
+                <table className="cash-bank-table">
+
+                  <thead>
+
+                    <tr>
+
+                      <th>
+                        TARİH
+                      </th>
+
+                      <th>
+                        HESAP
+                      </th>
+
+                      <th>
+                        AÇIKLAMA
+                      </th>
+
+                      <th>
+                        YÖNTEM
+                      </th>
+
+                      <th>
+                        KAYNAK
+                      </th>
+
+                      <th>
+                        YÖN
+                      </th>
+
+                      <th>
+                        TUTAR
+                      </th>
+
+                      <th>
+                        İŞLEMLER
+                      </th>
+
+                    </tr>
+
+                  </thead>
+
+
+                  <tbody>
+
+                    {
+                      sortedMovements.length ===
+                      0 ? (
+
+                        <tr>
+
+                          <td
+                            colSpan="8"
+                            style={{
+                              textAlign:
+                                "center",
+                              padding:
+                                "40px",
+                              color:
+                                "#9299a2",
+                            }}
+                          >
+
+                            Henüz finans hareketi bulunmuyor.
 
                           </td>
 
                         </tr>
 
+                      ) : (
+
+                        sortedMovements.map(
+                          (
+                            movement
+                          ) => (
+
+                            <tr
+                              key={
+                                movement.id
+                              }
+                            >
+
+                              <td>
+
+                                {
+                                  formatDate(
+                                    movement.date
+                                  )
+                                }
+
+                              </td>
+
+
+                              <td>
+
+                                <strong>
+                                  {
+                                    movement.accountName ||
+                                    "—"
+                                  }
+                                </strong>
+
+                              </td>
+
+
+                              <td>
+
+                                {
+                                  movement.description ||
+                                  "—"
+                                }
+
+                              </td>
+
+
+                              <td>
+
+                                {
+                                  movement.method ||
+                                  "—"
+                                }
+
+                              </td>
+
+
+                              <td>
+
+                                <span
+                                  style={{
+                                    fontSize:
+                                      "10px",
+                                    color:
+                                      "#7d8690",
+                                  }}
+                                >
+
+                                  {
+                                    sourceLabel(
+                                      movement.source
+                                    )
+                                  }
+
+                                </span>
+
+                              </td>
+
+
+                              <td>
+
+                                <span
+                                  style={{
+                                    color:
+                                      movement.direction ===
+                                      "Giriş"
+                                        ? "#388a62"
+                                        : "#c54c48",
+                                    fontWeight:
+                                      700,
+                                  }}
+                                >
+
+                                  {
+                                    movement.direction
+                                  }
+
+                                </span>
+
+                              </td>
+
+
+                              <td>
+
+                                <strong
+                                  style={{
+                                    color:
+                                      movement.direction ===
+                                      "Giriş"
+                                        ? "#388a62"
+                                        : "#c54c48",
+                                  }}
+                                >
+
+                                  {
+                                    movement.direction ===
+                                    "Giriş"
+                                      ? "+"
+                                      : "-"
+                                  }
+
+                                  {
+                                    money(
+                                      movement.amount
+                                    )
+                                  } TL
+
+                                </strong>
+
+                              </td>
+
+
+                              <td>
+
+                                <div
+                                  style={{
+                                    display:
+                                      "flex",
+                                    gap:
+                                      "5px",
+                                    flexWrap:
+                                      "wrap",
+                                  }}
+                                >
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      openMovementDetail(
+                                        movement
+                                      )
+                                    }
+                                    style={{
+                                      border:
+                                        "1px solid #dfe3e7",
+                                      background:
+                                        "#fff",
+                                      borderRadius:
+                                        "4px",
+                                      padding:
+                                        "5px 7px",
+                                      cursor:
+                                        "pointer",
+                                      fontSize:
+                                        "10px",
+                                      color:
+                                        "#606a74",
+                                    }}
+                                  >
+                                    Detay
+                                  </button>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      openEditMovement(
+                                        movement
+                                      )
+                                    }
+                                    style={{
+                                      border:
+                                        "1px solid #dfe3e7",
+                                      background:
+                                        "#fff",
+                                      borderRadius:
+                                        "4px",
+                                      padding:
+                                        "5px 7px",
+                                      cursor:
+                                        "pointer",
+                                      fontSize:
+                                        "10px",
+                                      color:
+                                        "#606a74",
+                                    }}
+                                  >
+                                    Düzenle
+                                  </button>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      deleteMovement(
+                                        movement
+                                      )
+                                    }
+                                    style={{
+                                      border:
+                                        "1px solid #f0cdcd",
+                                      background:
+                                        "#fff",
+                                      borderRadius:
+                                        "4px",
+                                      padding:
+                                        "5px 7px",
+                                      cursor:
+                                        "pointer",
+                                      fontSize:
+                                        "10px",
+                                      color:
+                                        "#c54c48",
+                                    }}
+                                  >
+                                    Sil
+                                  </button>
+
+                                </div>
+
+                              </td>
+
+                            </tr>
+
+                          )
+                        )
+
                       )
-                    )
+                    }
 
-                  )}
+                  </tbody>
 
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-        )}
-
-      </div>
-
-      {/* ===================================================
-          HESAP MODALI
-      =================================================== */}
-
-      {showAccountModal && (
-
-        <div
-          className="cash-bank-modal-overlay"
-          onMouseDown={(event) => {
-
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-
-              setShowAccountModal(
-                false
-              );
-
-              resetAccountForm();
-
-            }
-
-          }}
-        >
-
-          <div className="cash-bank-modal">
-
-            <div className="cash-bank-modal-header">
-
-              <div>
-
-                <strong>
-                  {editingAccount
-                    ? "Hesabı Düzenle"
-                    : "Yeni Hesap"}
-                </strong>
-
-                <span>
-                  Kasa, banka veya POS hesabı.
-                </span>
+                </table>
 
               </div>
 
-              <button
-                type="button"
-                onClick={() => {
+            </div>
+
+          )
+        }
+
+
+        {/* =================================================
+            HESAP MODALI
+        ================================================= */}
+
+        {
+          showAccountModal && (
+
+            <div
+              className="cash-bank-modal-overlay"
+              onMouseDown={(
+                event
+              ) => {
+
+                if (
+                  event.target ===
+                  event.currentTarget
+                ) {
 
                   setShowAccountModal(
                     false
                   );
 
+
                   resetAccountForm();
 
-                }}
-              >
-                ×
-              </button>
+                }
 
-            </div>
-
-            <form
-              onSubmit={
-                handleAccountSubmit
-              }
+              }}
             >
 
-              <div className="cash-bank-form-group">
+              <div className="cash-bank-modal">
 
-                <label>
-                  Hesap Adı
-                </label>
+                <div className="cash-bank-modal-header">
 
-                <input
-                  type="text"
-                  value={
-                    accountForm.name
-                  }
-                  onChange={(event) =>
-                    setAccountForm(
-                      (current) => ({
-                        ...current,
-                        name:
-                          event.target.value,
-                      })
-                    )
-                  }
-                  placeholder="Örn. Garanti POS"
-                  required
-                />
+                  <div>
 
-              </div>
+                    <strong>
+                      {
+                        editingAccount
+                          ? "Hesabı Düzenle"
+                          : "Yeni Hesap"
+                      }
+                    </strong>
 
-              <div className="cash-bank-form-group">
+                    <span>
+                      Kasa, banka veya POS hesabı
+                    </span>
 
-                <label>
-                  Hesap Türü
-                </label>
+                  </div>
 
-                <select
-                  value={
-                    accountForm.type
-                  }
-                  onChange={(event) =>
-                    setAccountForm(
-                      (current) => ({
-                        ...current,
-                        type:
-                          event.target.value,
-                      })
-                    )
+
+                  <button
+                    type="button"
+                    onClick={() => {
+
+                      setShowAccountModal(
+                        false
+                      );
+
+                      resetAccountForm();
+
+                    }}
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+
+                <form
+                  onSubmit={
+                    handleAccountSubmit
                   }
                 >
 
-                  <option value="Kasa">
-                    Kasa
-                  </option>
-
-                  <option value="Banka">
-                    Banka
-                  </option>
-
-                  <option value="POS">
-                    POS / Kredi Kartı
-                  </option>
-
-                </select>
-
-              </div>
-
-              {(accountForm.type ===
-                "Banka" ||
-                accountForm.type ===
-                  "POS") && (
-
-                <>
                   <div className="cash-bank-form-group">
 
                     <label>
-                      Banka / POS Kuruluşu
+                      Hesap Adı
                     </label>
 
                     <input
                       type="text"
                       value={
-                        accountForm.bank
+                        accountForm.name
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setAccountForm(
-                          (current) => ({
+                          (
+                            current
+                          ) => ({
                             ...current,
-                            bank:
+
+                            name:
                               event.target.value,
                           })
                         )
@@ -1779,406 +2743,953 @@ export default function CashBank() {
 
                   </div>
 
+
                   <div className="cash-bank-form-group">
 
                     <label>
-                      IBAN
+                      Hesap Türü
                     </label>
 
-                    <input
-                      type="text"
+                    <select
                       value={
-                        accountForm.iban
+                        accountForm.type
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setAccountForm(
-                          (current) => ({
+                          (
+                            current
+                          ) => ({
                             ...current,
-                            iban:
+
+                            type:
                               event.target.value,
                           })
                         )
                       }
-                      placeholder="TR00 0000 0000 0000 0000 0000 00"
+                    >
+
+                      <option value="Kasa">
+                        Kasa
+                      </option>
+
+                      <option value="Banka">
+                        Banka
+                      </option>
+
+                      <option value="POS">
+                        POS
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  {
+                    accountForm.type !==
+                    "Kasa" && (
+
+                      <>
+                        <div className="cash-bank-form-group">
+
+                          <label>
+                            Banka
+                          </label>
+
+                          <input
+                            type="text"
+                            value={
+                              accountForm.bank
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              setAccountForm(
+                                (
+                                  current
+                                ) => ({
+                                  ...current,
+
+                                  bank:
+                                    event.target.value,
+                                })
+                              )
+                            }
+                            placeholder="Örn. Ziraat Bankası"
+                          />
+
+                        </div>
+
+
+                        <div className="cash-bank-form-group">
+
+                          <label>
+                            IBAN
+                          </label>
+
+                          <input
+                            type="text"
+                            value={
+                              accountForm.iban
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              setAccountForm(
+                                (
+                                  current
+                                ) => ({
+                                  ...current,
+
+                                  iban:
+                                    event.target.value,
+                                })
+                              )
+                            }
+                            placeholder="TR00 0000..."
+                          />
+
+                        </div>
+                      </>
+
+                    )
+                  }
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Bakiye
+                    </label>
+
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={
+                        accountForm.openingBalance
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setAccountForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            openingBalance:
+                              event.target.value,
+                          })
+                        )
+                      }
+                      placeholder="0,00"
                     />
 
                   </div>
-                </>
 
-              )}
 
-              <div className="cash-bank-form-group">
+                  <div className="cash-bank-modal-footer">
 
-                <label>
-                  Açılış Bakiyesi
-                </label>
+                    <button
+                      type="button"
+                      className="cash-bank-modal-cancel"
+                      onClick={() => {
 
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={
-                    accountForm.openingBalance
-                  }
-                  onChange={(event) =>
-                    setAccountForm(
-                      (current) => ({
-                        ...current,
-                        openingBalance:
-                          event.target.value,
-                      })
-                    )
-                  }
-                  placeholder="0,00"
-                />
+                        setShowAccountModal(
+                          false
+                        );
 
-              </div>
+                        resetAccountForm();
 
-              <div className="cash-bank-modal-footer">
+                      }}
+                    >
+                      Vazgeç
+                    </button>
 
-                <button
-                  type="button"
-                  className="cash-bank-modal-cancel"
-                  onClick={() => {
 
-                    setShowAccountModal(
-                      false
-                    );
+                    <button
+                      type="submit"
+                      className="cash-bank-modal-submit"
+                    >
+                      {
+                        editingAccount
+                          ? "Değişiklikleri Kaydet"
+                          : "Hesabı Oluştur"
+                      }
+                    </button>
 
-                    resetAccountForm();
+                  </div>
 
-                  }}
-                >
-                  Vazgeç
-                </button>
-
-                <button
-                  type="submit"
-                  className="cash-bank-modal-submit"
-                >
-                  {editingAccount
-                    ? "Değişiklikleri Kaydet"
-                    : "Hesabı Oluştur"}
-                </button>
+                </form>
 
               </div>
-
-            </form>
-
-          </div>
-
-        </div>
-
-      )}
-
-      {/* ===================================================
-          HAREKET MODALI
-      =================================================== */}
-
-      {showMovementModal && (
-
-        <div
-          className="cash-bank-modal-overlay"
-          onMouseDown={(event) => {
-
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              setShowMovementModal(
-                false
-              );
-            }
-
-          }}
-        >
-
-          <div className="cash-bank-modal">
-
-            <div className="cash-bank-modal-header">
-
-              <div>
-
-                <strong>
-                  Para Girişi / Çıkışı
-                </strong>
-
-                <span>
-                  Finans hareketi ekle.
-                </span>
-
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setShowMovementModal(
-                    false
-                  )
-                }
-              >
-                ×
-              </button>
 
             </div>
 
-            <form
-              onSubmit={
-                handleMovementSubmit
-              }
+          )
+        }
+
+
+        {/* =================================================
+            HAREKET MODALI
+        ================================================= */}
+
+        {
+          showMovementModal && (
+
+            <div
+              className="cash-bank-modal-overlay"
+              onMouseDown={(
+                event
+              ) => {
+
+                if (
+                  event.target ===
+                  event.currentTarget
+                ) {
+
+                  setShowMovementModal(
+                    false
+                  );
+
+                  resetMovementForm();
+
+                }
+
+              }}
             >
 
-              <div className="cash-bank-form-group">
+              <div className="cash-bank-modal">
 
-                <label>
-                  Hesap
-                </label>
+                <div className="cash-bank-modal-header">
 
-                <select
-                  value={
-                    movementForm.accountId
+                  <div>
+
+                    <strong>
+                      {
+                        editingMovement
+                          ? "Finans Hareketini Düzenle"
+                          : "Para Girişi / Çıkışı"
+                      }
+                    </strong>
+
+                    <span>
+                      {
+                        editingMovement
+                          ? "Mevcut hareketi düzeltin."
+                          : "Finans hareketi ekle"
+                      }
+                    </span>
+
+                  </div>
+
+
+                  <button
+                    type="button"
+                    onClick={() => {
+
+                      setShowMovementModal(
+                        false
+                      );
+
+                      resetMovementForm();
+
+                    }}
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+
+                <form
+                  onSubmit={
+                    handleMovementSubmit
                   }
-                  onChange={(event) =>
-                    setMovementForm(
-                      (current) => ({
-                        ...current,
-                        accountId:
-                          event.target.value,
-                      })
-                    )
-                  }
-                  required
                 >
 
-                  <option value="">
-                    Hesap seçin
-                  </option>
+                  <div className="cash-bank-form-group">
 
-                  {accounts.map(
-                    (account) => (
-                      <option
-                        key={
-                          account.id
-                        }
-                        value={
-                          account.id
-                        }
-                      >
-                        {account.name} —{" "}
-                        {
-                          normalizeAccountType(
+                    <label>
+                      Hesap
+                    </label>
+
+
+                    <select
+                      value={
+                        movementForm.accountId
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            accountId:
+                              event.target.value,
+                          })
+                        )
+                      }
+                      required
+                    >
+
+                      <option value="">
+                        Hesap seçin
+                      </option>
+
+
+                      {
+                        accounts.map(
+                          (
                             account
+                          ) => (
+
+                            <option
+                              key={
+                                account.id
+                              }
+                              value={
+                                account.id
+                              }
+                            >
+
+                              {
+                                account.name
+                              }
+
+                              {" — "}
+
+                              {
+                                account.type
+                              }
+
+                            </option>
+
+                          )
+                        )
+                      }
+
+                    </select>
+
+                  </div>
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Yön
+                    </label>
+
+
+                    <select
+                      value={
+                        movementForm.direction
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            direction:
+                              event.target.value,
+                          })
+                        )
+                      }
+                    >
+
+                      <option value="Giriş">
+                        Giriş
+                      </option>
+
+                      <option value="Çıkış">
+                        Çıkış
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Tutar
+                    </label>
+
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={
+                        movementForm.amount
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            amount:
+                              event.target.value,
+                          })
+                        )
+                      }
+                      placeholder="0,00"
+                      required
+                    />
+
+                  </div>
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Tarih
+                    </label>
+
+                    <input
+                      type="date"
+                      value={
+                        movementForm.date
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            date:
+                              event.target.value,
+                          })
+                        )
+                      }
+                      required
+                    />
+
+                  </div>
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Yöntem
+                    </label>
+
+
+                    <select
+                      value={
+                        movementForm.method
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            method:
+                              event.target.value,
+                          })
+                        )
+                      }
+                    >
+
+                      <option>
+                        Nakit
+                      </option>
+
+                      <option>
+                        Havale / EFT
+                      </option>
+
+                      <option>
+                        Kredi Kartı
+                      </option>
+
+                      <option>
+                        POS
+                      </option>
+
+                      <option>
+                        Çek
+                      </option>
+
+                      <option>
+                        Diğer
+                      </option>
+
+                    </select>
+
+                  </div>
+
+
+                  <div className="cash-bank-form-group">
+
+                    <label>
+                      Açıklama
+                    </label>
+
+                    <textarea
+                      value={
+                        movementForm.description
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setMovementForm(
+                          (
+                            current
+                          ) => ({
+                            ...current,
+
+                            description:
+                              event.target.value,
+                          })
+                        )
+                      }
+                      placeholder="İşlem açıklaması..."
+                      rows="3"
+                    />
+
+                  </div>
+
+
+                  <div className="cash-bank-modal-footer">
+
+                    <button
+                      type="button"
+                      className="cash-bank-modal-cancel"
+                      onClick={() => {
+
+                        setShowMovementModal(
+                          false
+                        );
+
+                        resetMovementForm();
+
+                      }}
+                    >
+                      Vazgeç
+                    </button>
+
+
+                    <button
+                      type="submit"
+                      className="cash-bank-modal-submit"
+                    >
+                      {
+                        editingMovement
+                          ? "Değişiklikleri Kaydet"
+                          : "Hareketi Kaydet"
+                      }
+                    </button>
+
+                  </div>
+
+                </form>
+
+              </div>
+
+            </div>
+
+          )
+        }
+
+
+        {/* =================================================
+            HAREKET DETAY MODALI
+        ================================================= */}
+
+        {
+          selectedMovement && (
+
+            <div
+              className="cash-bank-modal-overlay"
+              onMouseDown={(
+                event
+              ) => {
+
+                if (
+                  event.target ===
+                  event.currentTarget
+                ) {
+
+                  setSelectedMovement(
+                    null
+                  );
+
+                }
+
+              }}
+            >
+
+              <div className="cash-bank-modal">
+
+                <div className="cash-bank-modal-header">
+
+                  <div>
+
+                    <strong>
+                      Finans Hareketi
+                    </strong>
+
+                    <span>
+                      İşlem detayları
+                    </span>
+
+                  </div>
+
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedMovement(
+                        null
+                      )
+                    }
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+
+                <div
+                  style={{
+                    padding:
+                      "20px",
+                  }}
+                >
+
+                  <div
+                    style={{
+                      display:
+                        "grid",
+                      gridTemplateColumns:
+                        "1fr 1fr",
+                      gap:
+                        "12px",
+                    }}
+                  >
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        TARİH
+                      </span>
+
+                      <strong>
+                        {
+                          formatDate(
+                            selectedMovement.date
                           )
                         }
-                      </option>
-                    )
-                  )}
+                      </strong>
 
-                </select>
+                    </div>
 
-              </div>
 
-              <div className="cash-bank-form-grid">
+                    <div>
 
-                <div className="cash-bank-form-group">
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        HESAP
+                      </span>
 
-                  <label>
-                    İşlem
-                  </label>
+                      <strong>
+                        {
+                          selectedMovement.accountName ||
+                          "—"
+                        }
+                      </strong>
 
-                  <select
-                    value={
-                      movementForm.direction
-                    }
-                    onChange={(event) =>
-                      setMovementForm(
-                        (current) => ({
-                          ...current,
-                          direction:
-                            event.target.value,
-                        })
-                      )
-                    }
+                    </div>
+
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        YÖN
+                      </span>
+
+                      <strong
+                        style={{
+                          color:
+                            selectedMovement.direction ===
+                            "Giriş"
+                              ? "#398962"
+                              : "#c64d49",
+                        }}
+                      >
+                        {
+                          selectedMovement.direction
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        TUTAR
+                      </span>
+
+                      <strong
+                        style={{
+                          fontSize:
+                            "18px",
+                        }}
+                      >
+                        {
+                          money(
+                            selectedMovement.amount
+                          )
+                        } TL
+                      </strong>
+
+                    </div>
+
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        YÖNTEM
+                      </span>
+
+                      <strong>
+                        {
+                          selectedMovement.method ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        KAYNAK
+                      </span>
+
+                      <strong>
+                        {
+                          sourceLabel(
+                            selectedMovement.source
+                          )
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    <div
+                      style={{
+                        gridColumn:
+                          "1 / -1",
+                      }}
+                    >
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+                          color:
+                            "#9aa1a9",
+                          fontSize:
+                            "9px",
+                          fontWeight:
+                            700,
+                          marginBottom:
+                            "5px",
+                        }}
+                      >
+                        AÇIKLAMA
+                      </span>
+
+                      <strong>
+                        {
+                          selectedMovement.description ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    className="cash-bank-modal-footer"
+                    style={{
+                      marginTop:
+                        "18px",
+                      padding:
+                        0,
+                      borderTop:
+                        "1px solid #eee",
+                    }}
                   >
 
-                    <option value="Giriş">
-                      Para Girişi
-                    </option>
+                    <button
+                      type="button"
+                      className="cash-bank-modal-cancel"
+                      onClick={() =>
+                        setSelectedMovement(
+                          null
+                        )
+                      }
+                    >
+                      Kapat
+                    </button>
 
-                    <option value="Çıkış">
-                      Para Çıkışı
-                    </option>
 
-                  </select>
+                    <button
+                      type="button"
+                      className="cash-bank-modal-submit"
+                      onClick={() => {
 
-                </div>
+                        const movement =
+                          selectedMovement;
 
-                <div className="cash-bank-form-group">
+                        setSelectedMovement(
+                          null
+                        );
 
-                  <label>
-                    Tutar
-                  </label>
+                        openEditMovement(
+                          movement
+                        );
 
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={
-                      movementForm.amount
-                    }
-                    onChange={(event) =>
-                      setMovementForm(
-                        (current) => ({
-                          ...current,
-                          amount:
-                            event.target.value,
-                        })
-                      )
-                    }
-                    placeholder="0,00"
-                    required
-                  />
+                      }}
+                    >
+                      Düzenle
+                    </button>
 
-                </div>
 
-              </div>
+                    <button
+                      type="button"
+                      className="cash-bank-modal-submit"
+                      style={{
+                        background:
+                          "#c54c48",
+                      }}
+                      onClick={() =>
+                        deleteMovement(
+                          selectedMovement
+                        )
+                      }
+                    >
+                      Sil
+                    </button>
 
-              <div className="cash-bank-form-grid">
-
-                <div className="cash-bank-form-group">
-
-                  <label>
-                    Tarih
-                  </label>
-
-                  <input
-                    type="date"
-                    value={
-                      movementForm.date
-                    }
-                    onChange={(event) =>
-                      setMovementForm(
-                        (current) => ({
-                          ...current,
-                          date:
-                            event.target.value,
-                        })
-                      )
-                    }
-                    required
-                  />
-
-                </div>
-
-                <div className="cash-bank-form-group">
-
-                  <label>
-                    Ödeme Yöntemi
-                  </label>
-
-                  <select
-                    value={
-                      movementForm.method
-                    }
-                    onChange={(event) =>
-                      setMovementForm(
-                        (current) => ({
-                          ...current,
-                          method:
-                            event.target.value,
-                        })
-                      )
-                    }
-                  >
-
-                    <option>
-                      Nakit
-                    </option>
-
-                    <option>
-                      Kredi Kartı
-                    </option>
-
-                    <option>
-                      Banka Transferi
-                    </option>
-
-                    <option>
-                      Havale / EFT
-                    </option>
-
-                    <option>
-                      POS
-                    </option>
-
-                    <option>
-                      Çek
-                    </option>
-
-                    <option>
-                      Diğer
-                    </option>
-
-                  </select>
+                  </div>
 
                 </div>
 
               </div>
 
-              <div className="cash-bank-form-group">
+            </div>
 
-                <label>
-                  Açıklama
-                </label>
+          )
+        }
 
-                <textarea
-                  value={
-                    movementForm.description
-                  }
-                  onChange={(event) =>
-                    setMovementForm(
-                      (current) => ({
-                        ...current,
-                        description:
-                          event.target.value,
-                      })
-                    )
-                  }
-                  placeholder="İşlem açıklaması..."
-                  rows="3"
-                />
-
-              </div>
-
-              <div className="cash-bank-modal-footer">
-
-                <button
-                  type="button"
-                  className="cash-bank-modal-cancel"
-                  onClick={() =>
-                    setShowMovementModal(
-                      false
-                    )
-                  }
-                >
-                  Vazgeç
-                </button>
-
-                <button
-                  type="submit"
-                  className="cash-bank-modal-submit"
-                >
-                  Hareketi Kaydet
-                </button>
-
-              </div>
-
-            </form>
-
-          </div>
-
-        </div>
-
-      )}
+      </div>
 
     </div>
+
   );
 }
