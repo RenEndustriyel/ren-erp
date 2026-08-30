@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 
 import Layout from "./components/Layout/Layout";
-
 import Overview from "./pages/Overview/Overview";
 
 /* =========================================================
@@ -42,6 +41,7 @@ import CustomerReports from "./pages/Customers/CustomerReports/CustomerReports";
 ========================================================= */
 
 import CashBank from "./pages/CashBank/CashBank";
+import CashBankReports from "./pages/CashBankReports/CashBankReports";
 
 /* =========================================================
    FATURALAR
@@ -55,7 +55,13 @@ import ReturnInvoices from "./pages/Invoices/ReturnInvoices/ReturnInvoices";
 import InvoiceReports from "./pages/Invoices/InvoiceReports/InvoiceReports";
 
 /* =========================================================
-   BOŞ / HAZIR MODÜL
+   SİPARİŞ / TEKLİF
+========================================================= */
+
+import Orders from "./pages/Orders/Orders";
+
+/* =========================================================
+   BOŞ MODÜL
 ========================================================= */
 
 function EmptyModule({
@@ -144,8 +150,11 @@ export default function App() {
 
           <Route
             path="/dashboard"
-            element={<Overview />}
+            element={
+              <Overview />
+            }
           />
+
 
           {/* =================================================
               STOK
@@ -153,43 +162,60 @@ export default function App() {
 
           <Route
             path="/stock/new"
-            element={<NewStock />}
+            element={
+              <NewStock />
+            }
           />
 
           <Route
             path="/stock/list"
-            element={<StockList />}
+            element={
+              <StockList />
+            }
           />
 
           <Route
             path="/stock/edit/:id"
-            element={<EditStock />}
+            element={
+              <EditStock />
+            }
           />
 
           <Route
             path="/stock/categories"
-            element={<Categories />}
+            element={
+              <Categories />
+            }
           />
 
           <Route
             path="/stock/brands"
-            element={<Brands />}
+            element={
+              <Brands />
+            }
           />
 
           <Route
             path="/stock/units"
-            element={<Units />}
+            element={
+              <Units />
+            }
           />
 
           <Route
             path="/stock/movements"
-            element={<StockMovements />}
+            element={
+              <StockMovements />
+            }
           />
 
           <Route
             path="/stock/bulk"
-            element={<BulkOperations />}
+            element={
+              <BulkOperations />
+            }
           />
+
 
           {/* =================================================
               MÜŞTERİ / TEDARİKÇİ
@@ -197,67 +223,91 @@ export default function App() {
 
           <Route
             path="/customers"
-            element={<CustomerList />}
+            element={
+              <CustomerList />
+            }
           />
 
           <Route
             path="/customers/new"
-            element={<NewCustomer />}
+            element={
+              <NewCustomer />
+            }
           />
 
-          {/* CARİ DÜZENLEME */}
           <Route
             path="/customers/edit/:id"
-            element={<CustomerEdit />}
+            element={
+              <CustomerEdit />
+            }
           />
 
           <Route
             path="/customers/movements"
-            element={<CustomerMovements />}
+            element={
+              <CustomerMovements />
+            }
           />
 
           <Route
             path="/customers/transfer"
-            element={<CustomerTransfer />}
+            element={
+              <CustomerTransfer />
+            }
           />
 
           <Route
             path="/customers/detail"
-            element={<CustomerDetail />}
+            element={
+              <CustomerDetail />
+            }
           />
 
           <Route
             path="/customers/collections"
-            element={<CollectionsPayments />}
+            element={
+              <CollectionsPayments />
+            }
           />
 
           <Route
             path="/customers/payments"
-            element={<Payments />}
+            element={
+              <Payments />
+            }
           />
 
           <Route
             path="/customers/due-tracking"
-            element={<DueTracking />}
+            element={
+              <DueTracking />
+            }
           />
 
           <Route
             path="/customers/reports"
-            element={<CustomerReports />}
+            element={
+              <CustomerReports />
+            }
           />
 
+
           {/* =================================================
-              NAKİT
+              KASA / BANKA
           ================================================= */}
 
           <Route
             path="/cash-bank"
-            element={<CashBank />}
+            element={
+              <CashBank />
+            }
           />
 
           <Route
             path="/cash-bank/accounts"
-            element={<CashBank />}
+            element={
+              <CashBank />
+            }
           />
 
           <Route
@@ -270,25 +320,26 @@ export default function App() {
             }
           />
 
+          {/* GERÇEK KASA / BANKA RAPORU */}
+
           <Route
             path="/cash-bank/reports"
             element={
-              <EmptyModule
-                title="Kasa / Banka Raporu"
-                description="Kasa, banka ve POS hareketlerinizi raporlayın."
-              />
+              <CashBankReports />
             }
           />
+
+          {/* GERÇEK NAKİT AKIŞI */}
 
           <Route
             path="/cash-bank/cash-flow"
             element={
-              <EmptyModule
-                title="Nakit Akışı Raporu"
-                description="İşletmenizin nakit giriş ve çıkışlarını takip edin."
+              <CashBankReports
+                mode="cashflow"
               />
             }
           />
+
 
           {/* =================================================
               FATURALAR
@@ -296,43 +347,60 @@ export default function App() {
 
           <Route
             path="/invoices"
-            element={<InvoiceList />}
+            element={
+              <InvoiceList />
+            }
           />
 
           <Route
             path="/invoices/new"
-            element={<NewInvoice />}
+            element={
+              <NewInvoice />
+            }
           />
 
           <Route
             path="/invoices/sales"
-            element={<SalesInvoices />}
+            element={
+              <SalesInvoices />
+            }
           />
 
           <Route
             path="/invoices/purchases"
-            element={<PurchaseInvoices />}
+            element={
+              <PurchaseInvoices />
+            }
           />
 
           <Route
             path="/invoices/returns"
-            element={<ReturnInvoices />}
+            element={
+              <ReturnInvoices />
+            }
           />
 
           <Route
             path="/invoices/reports"
-            element={<InvoiceReports />}
+            element={
+              <InvoiceReports />
+            }
           />
 
           <Route
             path="/invoices/detail"
-            element={<NewInvoice />}
+            element={
+              <NewInvoice />
+            }
           />
 
           <Route
             path="/invoices/edit"
-            element={<NewInvoice />}
+            element={
+              <NewInvoice />
+            }
           />
+
 
           {/* =================================================
               SİPARİŞ / TEKLİF
@@ -341,12 +409,10 @@ export default function App() {
           <Route
             path="/orders"
             element={
-              <EmptyModule
-                title="Sipariş - Teklif"
-                description="Sipariş ve teklif yönetim modülü."
-              />
+              <Orders />
             }
           />
+
 
           {/* =================================================
               RAPORLAR
@@ -362,6 +428,7 @@ export default function App() {
             }
           />
 
+
           {/* =================================================
               REN AI
           ================================================= */}
@@ -375,6 +442,7 @@ export default function App() {
               />
             }
           />
+
 
           {/* =================================================
               AYARLAR
@@ -392,9 +460,10 @@ export default function App() {
 
         </Route>
 
-        {/* ===================================================
+
+        {/* =================================================
             404
-        =================================================== */}
+        ================================================= */}
 
         <Route
           path="*"

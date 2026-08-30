@@ -94,6 +94,52 @@ function today() {
 }
 
 
+function safeDateWithDays(
+  baseDateValue,
+  days = 0
+) {
+  const fallback =
+    new Date();
+
+  const parsed =
+    baseDateValue
+      ? new Date(
+          `${baseDateValue}T12:00:00`
+        )
+      : fallback;
+
+  const date =
+    Number.isNaN(
+      parsed.getTime()
+    )
+      ? fallback
+      : parsed;
+
+  date.setDate(
+    date.getDate() +
+    Number(days || 0)
+  );
+
+  return date;
+}
+
+
+function safeIsoDate(
+  baseDateValue,
+  days = 0
+) {
+  return safeDateWithDays(
+    baseDateValue,
+    days
+  )
+    .toISOString()
+    .slice(
+      0,
+      10
+    );
+}
+
+
 function normalizeType(type) {
   const value =
     String(type || "")
@@ -128,13 +174,15 @@ function normalizeType(type) {
 
 function getTypeTitle(type) {
   if (
-    type === "purchase"
+    type ===
+    "purchase"
   ) {
     return "Yeni Alış Faturası";
   }
 
   if (
-    type === "return"
+    type ===
+    "return"
   ) {
     return "Yeni İade Faturası";
   }
@@ -2211,33 +2259,106 @@ export default function NewInvoice() {
           normalizeType(
             invoiceType
           );
-      // REN ERP Finans Senkronizasyonu
-      const financeInvoice = {
-        id: Date.now(),
-        customerId: selectedCustomer.id,
-        customerName:
-          selectedCustomer.unvan ||
-          selectedCustomer.name ||
-          selectedCustomer.firmaAdi ||
-          "",
-        total: Number(calculated.total),
-        subtotal: Number(calculated.subtotal || 0),
-        vat: Number(calculated.vat || 0),
-        discount: Number(calculated.discount || 0),
-        type: normalizedType,
-        invoiceNo: invoiceNumber,
-        date: invoiceDate,
-        items: items.map((item) => ({
-          productId: item.id,
-          productName: item.productName || item.name,
-          quantity: Number(item.quantity),
-          unitPrice: Number(item.unitPrice || item.price),
-          total: Number(item.total),
-        })),
-      };
 
-      Finance.saveInvoice(financeInvoice);
-      window.dispatchEvent(new Event("ren-finance-updated"));
+
+        /* =================================================
+           FİNANS SİSTEMİ
+        ================================================= */
+
+        const financeInvoice = {
+          id:
+            Date.now(),
+
+          customerId:
+            selectedCustomer.id,
+
+          customerName:
+            selectedCustomer.unvan ||
+            selectedCustomer.name ||
+            selectedCustomer.firmaAdi ||
+            "",
+
+          total:
+            Number(
+              calculated.total
+            ),
+
+          subtotal:
+            Number(
+              calculated.subtotal ||
+              0
+            ),
+
+          vat:
+            Number(
+              calculated.vatTotal ||
+              0
+            ),
+
+          discount:
+            Number(
+              calculated.invoiceDiscount ||
+              0
+            ),
+
+          type:
+            normalizedType,
+
+          invoiceNo:
+            invoiceNo,
+
+          date:
+            invoiceDate,
+
+          items:
+            items.map(
+              (item) => ({
+                productId:
+                  item.productId,
+
+                productName:
+                  item.productName ||
+                  item.name,
+
+                quantity:
+                  Number(
+                    item.quantity
+                  ),
+
+                unitPrice:
+                  Number(
+                    item.unitPrice ||
+                    item.price
+                  ),
+
+                total:
+                  Number(
+                    item.total ||
+                    item.lineTotal ||
+                    0
+                  ),
+              })
+            ),
+        };
+
+
+        if (
+          Finance &&
+          typeof Finance.saveInvoice ===
+            "function"
+        ) {
+
+          Finance.saveInvoice(
+            financeInvoice
+          );
+
+          window.dispatchEvent(
+            new Event(
+              "ren-finance-updated"
+            )
+          );
+
+        }
 
 
         const customerName =
@@ -2999,48 +3120,20 @@ export default function NewInvoice() {
                       }
                       className={
                         dueDate ===
-                        (() => {
-
-                          const date =
-                            new Date(
-                              `${invoiceDate}T12:00:00`
-                            );
-
-                          date.setDate(
-                            date.getDate() +
-                            option.days
-                          );
-
-                          return date
-                            .toISOString()
-                            .slice(
-                              0,
-                              10
-                            );
-
-                        })()
+                        safeIsoDate(
+                          invoiceDate,
+                          option.days
+                        )
                           ? "active"
                           : ""
                       }
                       onClick={() => {
 
-                        const date =
-                          new Date(
-                            `${invoiceDate}T12:00:00`
-                          );
-
-                        date.setDate(
-                          date.getDate() +
-                          option.days
-                        );
-
                         setDueDate(
-                          date
-                            .toISOString()
-                            .slice(
-                              0,
-                              10
-                            )
+                          safeIsoDate(
+                            invoiceDate,
+                            option.days
+                          )
                         );
 
                       }}

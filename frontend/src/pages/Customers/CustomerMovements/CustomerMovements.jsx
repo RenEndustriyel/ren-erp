@@ -22,8 +22,55 @@ import {
 import "./CustomerMovements.css";
 
 
-function money(value) {
+/* =========================================================
+   YARDIMCI
+========================================================= */
 
+function numberValue(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (
+    typeof value === "number"
+  ) {
+    return Number.isFinite(value)
+      ? value
+      : 0;
+  }
+
+  let text =
+    String(value)
+      .trim()
+      .replace(/\s/g, "");
+
+  if (
+    text.includes(",") &&
+    text.includes(".")
+  ) {
+    text =
+      text
+        .replace(/\./g, "")
+        .replace(",", ".");
+  } else {
+    text =
+      text.replace(",", ".");
+  }
+
+  const result =
+    Number(text);
+
+  return Number.isFinite(result)
+    ? result
+    : 0;
+}
+
+
+function money(value) {
   return new Intl.NumberFormat(
     "tr-TR",
     {
@@ -32,31 +79,75 @@ function money(value) {
     }
   ).format(
     Math.abs(
-      Number(
-        value
-      ) || 0
+      numberValue(value)
     )
   );
-
 }
 
 
 function formatDate(value) {
-
   if (!value) {
+    return "—";
+  }
+
+  const text =
+    String(value);
+
+  const date =
+    new Date(
+      text.includes("T")
+        ? text
+        : `${text}T00:00:00`
+    );
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return "—";
   }
 
   return new Intl.DateTimeFormat(
     "tr-TR"
-  ).format(
-    new Date(
-      `${value}T00:00:00`
-    )
-  );
-
+  ).format(date);
 }
 
+
+/* =========================================================
+   HAREKET TUTARI
+========================================================= */
+
+function getMovementAmount(
+  movement
+) {
+  const debt =
+    numberValue(
+      movement?.debt
+    );
+
+  const credit =
+    numberValue(
+      movement?.credit
+    );
+
+  if (debt > 0) {
+    return debt;
+  }
+
+  if (credit > 0) {
+    return credit;
+  }
+
+  return numberValue(
+    movement?.amount
+  );
+}
+
+
+/* =========================================================
+   CARİ HAREKET
+========================================================= */
 
 export default function CustomerMovements() {
 
@@ -68,7 +159,8 @@ export default function CustomerMovements() {
     customers,
     setCustomers,
   ] = useState(
-    getCustomers
+    () =>
+      getCustomers() || []
   );
 
 
@@ -77,7 +169,7 @@ export default function CustomerMovements() {
     setSelectedCustomerId,
   ] = useState(
     location.state?.customer?.id ||
-      "all"
+    "all"
   );
 
 
@@ -113,11 +205,15 @@ export default function CustomerMovements() {
   ] = useState("");
 
 
+  /* =======================================================
+     YENİLE
+  ======================================================= */
+
   const refresh =
     () => {
 
       const freshCustomers =
-        getCustomers();
+        getCustomers() || [];
 
       setCustomers(
         freshCustomers
@@ -129,10 +225,17 @@ export default function CustomerMovements() {
         "all"
       ) {
 
-        setMovements(
+        const freshMovements =
           getCustomerMovementsWithBalance(
             selectedCustomerId
+          ) || [];
+
+        setMovements(
+          Array.isArray(
+            freshMovements
           )
+            ? freshMovements
+            : []
         );
 
       } else {
@@ -146,6 +249,10 @@ export default function CustomerMovements() {
     };
 
 
+  /* =======================================================
+     EVENTLER
+  ======================================================= */
+
   useEffect(() => {
 
     refresh();
@@ -154,8 +261,11 @@ export default function CustomerMovements() {
     const onRefresh =
       () => {
 
+        const freshCustomers =
+          getCustomers() || [];
+
         setCustomers(
-          getCustomers()
+          freshCustomers
         );
 
 
@@ -164,10 +274,17 @@ export default function CustomerMovements() {
           "all"
         ) {
 
-          setMovements(
+          const freshMovements =
             getCustomerMovementsWithBalance(
               selectedCustomerId
+            ) || [];
+
+          setMovements(
+            Array.isArray(
+              freshMovements
             )
+              ? freshMovements
+              : []
           );
 
         }
@@ -175,57 +292,38 @@ export default function CustomerMovements() {
       };
 
 
-    window.addEventListener(
+    const events = [
       "ren-customers-updated",
-      onRefresh
-    );
-
-    window.addEventListener(
       "ren-customer-movements-updated",
-      onRefresh
-    );
-
-    window.addEventListener(
       "ren-invoices-updated",
-      onRefresh
-    );
-
-    window.addEventListener(
       "ren-cash-bank-updated",
-      onRefresh
-    );
+      "ren-finance-updated",
+    ];
 
-    window.addEventListener(
-      "storage",
-      onRefresh
+
+    events.forEach(
+      (eventName) => {
+
+        window.addEventListener(
+          eventName,
+          onRefresh
+        );
+
+      }
     );
 
 
     return () => {
 
-      window.removeEventListener(
-        "ren-customers-updated",
-        onRefresh
-      );
+      events.forEach(
+        (eventName) => {
 
-      window.removeEventListener(
-        "ren-customer-movements-updated",
-        onRefresh
-      );
+          window.removeEventListener(
+            eventName,
+            onRefresh
+          );
 
-      window.removeEventListener(
-        "ren-invoices-updated",
-        onRefresh
-      );
-
-      window.removeEventListener(
-        "ren-cash-bank-updated",
-        onRefresh
-      );
-
-      window.removeEventListener(
-        "storage",
-        onRefresh
+        }
       );
 
     };
@@ -234,6 +332,10 @@ export default function CustomerMovements() {
     selectedCustomerId,
   ]);
 
+
+  /* =======================================================
+     SEÇİLİ CARİ
+  ======================================================= */
 
   const selectedCustomer =
     customers.find(
@@ -246,6 +348,10 @@ export default function CustomerMovements() {
         )
     );
 
+
+  /* =======================================================
+     FİLTRELENMİŞ HAREKETLER
+  ======================================================= */
 
   const filteredMovements =
     useMemo(() => {
@@ -302,21 +408,25 @@ export default function CustomerMovements() {
               typeFilter;
 
 
-          const matchesFrom =
-            !dateFrom ||
+          const movementDate =
             String(
               movement.date ||
               ""
-            ) >=
+            ).slice(
+              0,
+              10
+            );
+
+
+          const matchesFrom =
+            !dateFrom ||
+            movementDate >=
               dateFrom;
 
 
           const matchesTo =
             !dateTo ||
-            String(
-              movement.date ||
-              ""
-            ) <=
+            movementDate <=
               dateTo;
 
 
@@ -339,50 +449,106 @@ export default function CustomerMovements() {
     ]);
 
 
-  const totalDebt =
-    filteredMovements.reduce(
-      (
-        total,
-        movement
-      ) =>
-        total +
-        Number(
-          movement.debt ||
-          0
-        ),
-      0
-    );
+  /* =======================================================
+     CARİ ÖZETLERİ
+  ======================================================= */
+
+  const summary =
+    useMemo(() => {
+
+      let totalDebt = 0;
+      let totalCredit = 0;
+      let totalCollection = 0;
+      let totalPayment = 0;
 
 
-  const totalCredit =
-    filteredMovements.reduce(
-      (
-        total,
-        movement
-      ) =>
-        total +
-        Number(
-          movement.credit ||
-          0
-        ),
-      0
-    );
+      filteredMovements.forEach(
+        (movement) => {
+
+          const debt =
+            numberValue(
+              movement.debt
+            );
+
+          const credit =
+            numberValue(
+              movement.credit
+            );
+
+          totalDebt +=
+            debt;
+
+          totalCredit +=
+            credit;
 
 
-  const currentBalance =
-    movements.length > 0
-      ? movements[
-          movements.length - 1
-        ]?.balance || 0
-      : 0;
+          if (
+            movement.type ===
+            "Tahsilat"
+          ) {
 
+            totalCollection +=
+              getMovementAmount(
+                movement
+              );
+
+          }
+
+
+          if (
+            movement.type ===
+            "Ödeme"
+          ) {
+
+            totalPayment +=
+              getMovementAmount(
+                movement
+              );
+
+          }
+
+        }
+      );
+
+
+      /*
+        Cari kalan:
+
+        Borç - Alacak
+
+        Örnek:
+        62.325 - 30.000
+        = 32.325
+      */
+
+      const balance =
+        totalDebt -
+        totalCredit;
+
+
+      return {
+        totalDebt,
+        totalCredit,
+        totalCollection,
+        totalPayment,
+        balance,
+      };
+
+    }, [
+      filteredMovements,
+    ]);
+
+
+  /* =======================================================
+     CARİ DURUMU
+  ======================================================= */
 
   const currentStatus =
     selectedCustomer
       ? getCustomerStatus({
           ...selectedCustomer,
           balance:
-            currentBalance,
+            summary.balance,
         })
       : "";
 
@@ -392,19 +558,26 @@ export default function CustomerMovements() {
       ? getCustomerStatusClass({
           ...selectedCustomer,
           balance:
-            currentBalance,
+            summary.balance,
         })
       : "";
 
+
+  /* =======================================================
+     FİLTRE TEMİZLE
+  ======================================================= */
 
   const clearFilters =
     () => {
 
       setSearch("");
+
       setTypeFilter(
         "Tümü"
       );
+
       setDateFrom("");
+
       setDateTo("");
 
     };
@@ -417,7 +590,9 @@ export default function CustomerMovements() {
       <div className="customer-movements-container">
 
 
-        {/* HEADER */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="customer-movements-header">
 
@@ -464,7 +639,9 @@ export default function CustomerMovements() {
         </div>
 
 
-        {/* CARİ SEÇİMİ */}
+        {/* =================================================
+            CARİ SEÇİMİ
+        ================================================= */}
 
         <div className="customer-movements-selector">
 
@@ -507,11 +684,17 @@ export default function CustomerMovements() {
                     }
                   >
                     {
-                      customer.code
-                    }{" "}
-                    —{" "}
+                      customer.code ||
+                      ""
+                    }
+
+                    {" — "}
+
                     {
-                      customer.name
+                      customer.name ||
+                      customer.title ||
+                      customer.companyName ||
+                      "Cari"
                     }
                   </option>
 
@@ -533,9 +716,12 @@ export default function CustomerMovements() {
                   {
                     String(
                       selectedCustomer.name ||
+                      selectedCustomer.title ||
                       "?"
                     )
-                      .charAt(0)
+                      .charAt(
+                        0
+                      )
                       .toUpperCase()
                   }
 
@@ -546,13 +732,16 @@ export default function CustomerMovements() {
 
                   <strong>
                     {
-                      selectedCustomer.name
+                      selectedCustomer.name ||
+                      selectedCustomer.title ||
+                      selectedCustomer.companyName
                     }
                   </strong>
 
                   <small>
                     {
-                      selectedCustomer.code
+                      selectedCustomer.code ||
+                      ""
                     }
                   </small>
 
@@ -566,9 +755,14 @@ export default function CustomerMovements() {
         </div>
 
 
-        {/* ÖZET */}
+        {/* =================================================
+            ÖZET KARTLARI
+        ================================================= */}
 
         <div className="customer-movements-summary">
+
+
+          {/* BORÇ */}
 
           <div className="customer-movement-summary-card">
 
@@ -577,16 +771,23 @@ export default function CustomerMovements() {
             </span>
 
             <strong className="debt">
+
               {
                 money(
-                  totalDebt
+                  summary.totalDebt
                 )
-              }{" "}
-              TL
+              } TL
+
             </strong>
+
+            <small>
+              Faturalardan doğan borç
+            </small>
 
           </div>
 
+
+          {/* ALACAK */}
 
           <div className="customer-movement-summary-card">
 
@@ -595,76 +796,129 @@ export default function CustomerMovements() {
             </span>
 
             <strong className="credit">
+
               {
                 money(
-                  totalCredit
-                )
-              }{" "}
-              TL
-            </strong>
-
-          </div>
-
-
-          <div className="customer-movement-summary-card">
-
-            <span>
-              CARİ DURUMU
-            </span>
-
-            <strong
-              className={
-                currentStatusClass
-              }
-            >
-              {
-                currentStatus ||
-                "Bakiyesi Yok"
-              }
-            </strong>
-
-
-            <small
-              style={{
-                display:
-                  "block",
-                marginTop:
-                  "4px",
-              }}
-            >
-              {
-                money(
-                  currentBalance
+                  summary.totalCredit
                 )
               } TL
+
+            </strong>
+
+            <small>
+              Cari lehine oluşan alacak
             </small>
 
           </div>
 
 
+          {/* TAHSİLAT */}
+
           <div className="customer-movement-summary-card">
 
             <span>
-              HAREKET SAYISI
+              TOPLAM TAHSİLAT
             </span>
 
-            <strong>
+            <strong className="credit">
+
               {
-                filteredMovements.length
-              }
+                money(
+                  summary.totalCollection
+                )
+              } TL
+
             </strong>
+
+            <small>
+              Müşteriden alınan
+            </small>
+
+          </div>
+
+
+          {/* ÖDEME */}
+
+          <div className="customer-movement-summary-card">
+
+            <span>
+              TOPLAM ÖDEME
+            </span>
+
+            <strong className="debt">
+
+              {
+                money(
+                  summary.totalPayment
+                )
+              } TL
+
+            </strong>
+
+            <small>
+              Tedarikçiye ödenen
+            </small>
+
+          </div>
+
+
+          {/* KALAN */}
+
+          <div className="customer-movement-summary-card">
+
+            <span>
+              KALAN CARİ
+            </span>
+
+            <strong
+              className={
+                summary.balance > 0
+                  ? "debt"
+                  : summary.balance < 0
+                  ? "credit"
+                  : "neutral"
+              }
+            >
+
+              {
+                summary.balance > 0
+                  ? "-"
+                  : summary.balance < 0
+                  ? "+"
+                  : ""
+              }
+
+              {
+                money(
+                  summary.balance
+                )
+              } TL
+
+            </strong>
+
+            <small>
+              {
+                summary.balance > 0
+                  ? "Müşteriden alacak"
+                  : summary.balance < 0
+                  ? "Müşteriye borç"
+                  : "Cari kapalı"
+              }
+            </small>
 
           </div>
 
         </div>
 
 
-        {/* ANA KART */}
+        {/* =================================================
+            ANA KART
+        ================================================= */}
 
         <div className="customer-movements-card">
 
 
-          {/* FİLTRE */}
+          {/* TOOLBAR */}
 
           <div className="customer-movements-toolbar">
 
@@ -819,7 +1073,7 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* SONUÇ */}
+          {/* SONUÇ BAR */}
 
           <div className="customer-movements-result">
 
@@ -840,7 +1094,9 @@ export default function CustomerMovements() {
 
                 <span>
 
-                  Durum:{" "}
+                  Durum:
+
+                  {" "}
 
                   <strong
                     className={
@@ -858,7 +1114,7 @@ export default function CustomerMovements() {
                   <strong>
                     {
                       money(
-                        currentBalance
+                        summary.balance
                       )
                     } TL
                   </strong>
@@ -871,7 +1127,9 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* TABLO */}
+          {/* =================================================
+              TABLO
+          ================================================= */}
 
           <div className="customer-movements-table-wrapper">
 
@@ -952,228 +1210,249 @@ export default function CustomerMovements() {
 
                     filteredMovements.map(
                       (
-                        movement
-                      ) => (
+                        movement,
+                        index
+                      ) => {
 
-                        <tr
-                          key={
-                            movement.id
-                          }
-                        >
+                        const runningBalance =
+                          filteredMovements
+                            .slice(
+                              0,
+                              index + 1
+                            )
+                            .reduce(
+                              (
+                                balance,
+                                current
+                              ) =>
+                                balance +
+                                numberValue(
+                                  current.debt
+                                ) -
+                                numberValue(
+                                  current.credit
+                                ),
+                              0
+                            );
 
-                          <td>
 
-                            <strong className="movement-date">
-                              {
-                                formatDate(
-                                  movement.date
-                                )
-                              }
-                            </strong>
+                        return (
 
-                          </td>
+                          <tr
+                            key={
+                              movement.id ||
+                              `${movement.document}-${index}`
+                            }
+                          >
 
+                            <td>
 
-                          <td>
+                              <strong className="movement-date">
 
-                            <div className="movement-customer">
-
-                              <span>
                                 {
-                                  String(
-                                    movement.customerName ||
-                                    "?"
+                                  formatDate(
+                                    movement.date
                                   )
-                                    .charAt(
-                                      0
-                                    )
-                                    .toUpperCase()
                                 }
-                              </span>
 
-                              <strong>
-                                {
-                                  movement.customerName
-                                }
                               </strong>
 
-                            </div>
-
-                          </td>
+                            </td>
 
 
-                          <td>
+                            <td>
 
-                            <span className="movement-document">
+                              <div className="movement-customer">
+
+                                <span>
+
+                                  {
+                                    String(
+                                      movement.customerName ||
+                                      selectedCustomer?.name ||
+                                      "?"
+                                    )
+                                      .charAt(
+                                        0
+                                      )
+                                      .toUpperCase()
+                                  }
+
+                                </span>
+
+                                <strong>
+
+                                  {
+                                    movement.customerName ||
+                                    selectedCustomer?.name ||
+                                    "Cari"
+                                  }
+
+                                </strong>
+
+                              </div>
+
+                            </td>
+
+
+                            <td>
+
+                              <span className="movement-document">
+
+                                {
+                                  movement.document ||
+                                  "—"
+                                }
+
+                              </span>
+
+                            </td>
+
+
+                            <td>
+
+                              <span
+                                className={
+                                  movement.type ===
+                                  "Tahsilat"
+                                    ? "movement-type collection"
+                                    : movement.type ===
+                                      "Ödeme"
+                                    ? "movement-type payment"
+                                    : "movement-type"
+                                }
+                              >
+
+                                {
+                                  movement.type ||
+                                  "Hareket"
+                                }
+
+                              </span>
+
+                            </td>
+
+
+                            <td>
+
+                              <span className="movement-description">
+
+                                {
+                                  movement.description ||
+                                  "—"
+                                }
+
+
+                                {
+                                  movement.method && (
+
+                                    <small>
+                                      {
+                                        movement.method
+                                      }
+                                    </small>
+
+                                  )
+                                }
+
+                              </span>
+
+                            </td>
+
+
+                            <td className="movement-money">
+
                               {
-                                movement.document ||
-                                "—"
-                              }
-                            </span>
+                                numberValue(
+                                  movement.debt
+                                ) > 0 ? (
 
-                          </td>
+                                  <strong className="debt">
 
-
-                          <td>
-
-                            <span
-                              className={
-                                movement.type ===
-                                "Tahsilat"
-                                  ? "movement-type collection"
-                                  : movement.type ===
-                                    "Ödeme"
-                                  ? "movement-type payment"
-                                  : "movement-type"
-                              }
-                            >
-                              {
-                                movement.type
-                              }
-                            </span>
-
-                          </td>
-
-
-                          <td>
-
-                            <span className="movement-description">
-
-                              {
-                                movement.description ||
-                                "—"
-                              }
-
-                              {
-                                movement.method && (
-                                  <small>
                                     {
-                                      movement.method
-                                    }
-                                  </small>
+                                      money(
+                                        movement.debt
+                                      )
+                                    } TL
+
+                                  </strong>
+
+                                ) : (
+
+                                  <span>
+                                    —
+                                  </span>
+
                                 )
                               }
 
-                            </span>
-
-                          </td>
+                            </td>
 
 
-                          <td className="movement-money">
+                            <td className="movement-money">
 
-                            {
-                              Number(
-                                movement.debt ||
-                                0
-                              ) > 0 ? (
+                              {
+                                numberValue(
+                                  movement.credit
+                                ) > 0 ? (
 
-                                <strong className="debt">
+                                  <strong className="credit">
 
-                                  {
-                                    money(
-                                      movement.debt
-                                    )
-                                  }{" "}
-                                  TL
+                                    {
+                                      money(
+                                        movement.credit
+                                      )
+                                    } TL
 
-                                </strong>
+                                  </strong>
 
-                              ) : (
+                                ) : (
 
-                                <span>
-                                  —
-                                </span>
+                                  <span>
+                                    —
+                                  </span>
 
-                              )
-                            }
+                                )
+                              }
 
-                          </td>
+                            </td>
 
 
-                          <td className="movement-money">
+                            <td className="movement-money">
 
-                            {
-                              Number(
-                                movement.credit ||
-                                0
-                              ) > 0 ? (
+                              <strong
+                                className={
+                                  runningBalance > 0
+                                    ? "debt"
+                                    : runningBalance < 0
+                                    ? "credit"
+                                    : "neutral"
+                                }
+                              >
 
-                                <strong className="credit">
+                                {
+                                  runningBalance > 0
+                                    ? "-"
+                                    : runningBalance < 0
+                                    ? "+"
+                                    : ""
+                                }
 
-                                  {
-                                    money(
-                                      movement.credit
-                                    )
-                                  }{" "}
-                                  TL
+                                {
+                                  money(
+                                    runningBalance
+                                  )
+                                } TL
 
-                                </strong>
+                              </strong>
 
-                              ) : (
+                            </td>
 
-                                <span>
-                                  —
-                                </span>
+                          </tr>
 
-                              )
-                            }
+                        );
 
-                          </td>
-
-
-                          <td className="movement-money">
-
-                            {
-                              movement.balance !==
-                                null &&
-                              movement.balance !==
-                                undefined ? (
-
-                                <strong
-                                  className={
-                                    Number(
-                                      movement.balance
-                                    ) < 0
-                                      ? "debt"
-                                      : Number(
-                                          movement.balance
-                                        ) > 0
-                                      ? "credit"
-                                      : "neutral"
-                                  }
-                                >
-
-                                  {
-                                    Number(
-                                      movement.balance
-                                    ) < 0
-                                      ? "-"
-                                      : ""
-                                  }
-
-                                  {
-                                    money(
-                                      movement.balance
-                                    )
-                                  }{" "}
-                                  TL
-
-                                </strong>
-
-                              ) : (
-
-                                <span>
-                                  —
-                                </span>
-
-                              )
-                            }
-
-                          </td>
-
-                        </tr>
-
-                      )
+                      }
                     )
 
                   )
@@ -1186,7 +1465,9 @@ export default function CustomerMovements() {
           </div>
 
 
-          {/* FOOTER */}
+          {/* =================================================
+              FOOTER
+          ================================================= */}
 
           <div className="customer-movements-footer">
 
@@ -1206,7 +1487,36 @@ export default function CustomerMovements() {
 
 
             <span>
-              25 / sayfa
+
+              Borç:
+
+              {" "}
+
+              <strong>
+                {
+                  money(
+                    summary.totalDebt
+                  )
+                } TL
+              </strong>
+
+            </span>
+
+
+            <span>
+
+              Alacak:
+
+              {" "}
+
+              <strong>
+                {
+                  money(
+                    summary.totalCredit
+                  )
+                } TL
+              </strong>
+
             </span>
 
           </div>

@@ -1,4 +1,10 @@
 import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
   MdArrowForward,
   MdCalendarToday,
   MdCreditCard,
@@ -38,7 +44,9 @@ function toNumber(value) {
     return 0;
   }
 
-  if (typeof value === "number") {
+  if (
+    typeof value === "number"
+  ) {
     return Number.isFinite(value)
       ? value
       : 0;
@@ -109,7 +117,8 @@ function normalizeType(type) {
   if (
     value === "return" ||
     value === "returns" ||
-    value === "iade"
+    value === "iade" ||
+    value.includes("iade")
   ) {
     return "return";
   }
@@ -192,7 +201,8 @@ function getInvoiceTime(
 ) {
   const raw =
     invoice?.createdAt ||
-    invoice?.updatedAt;
+    invoice?.updatedAt ||
+    invoice?.date;
 
   if (!raw) {
     return "—";
@@ -227,9 +237,14 @@ function sameDay(
     return false;
   }
 
+  const raw =
+    String(invoiceDate);
+
   const date =
     new Date(
-      `${invoiceDate}T12:00:00`
+      raw.includes("T")
+        ? raw
+        : `${raw}T12:00:00`
     );
 
   if (
@@ -259,9 +274,14 @@ function sameMonth(
     return false;
   }
 
+  const raw =
+    String(invoiceDate);
+
   const date =
     new Date(
-      `${invoiceDate}T12:00:00`
+      raw.includes("T")
+        ? raw
+        : `${raw}T12:00:00`
     );
 
   if (
@@ -282,7 +302,7 @@ function sameMonth(
 
 
 /* =========================================================
-   ÜRÜN MALİYETİNİ BUL
+   ÜRÜN MALİYETİ
 ========================================================= */
 
 function getProductCost(
@@ -304,7 +324,7 @@ function getProductCost(
 
 
 /* =========================================================
-   FATURA SATIRINDAN SATIŞ KÂRI
+   FATURA SATIR KÂRI
 ========================================================= */
 
 function calculateInvoiceProfit(
@@ -359,11 +379,6 @@ function calculateInvoiceProfit(
           product
         );
 
-      /*
-       * Fatura satırındaki birim fiyat
-       * KDV hariç satış fiyatıdır.
-       */
-
       const salePrice =
         toNumber(
           item.unitPrice ??
@@ -409,7 +424,7 @@ function calculateInvoiceProfit(
 
 
 /* =========================================================
-   TOPLAM SATIŞ KÂRI
+   KÂR VERİSİ
 ========================================================= */
 
 function calculateProfitData(
@@ -457,6 +472,51 @@ function calculateProfitData(
     profitTotal,
     profitMargin,
   };
+}
+
+
+/* =========================================================
+   BUGÜNÜN TARİHİ
+========================================================= */
+
+function normalizeTodayDate(
+  value
+) {
+  if (!value) {
+    return "";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+  return `${year}-${month}-${day}`;
 }
 
 
@@ -550,17 +610,149 @@ function FinanceCard({
 
 export default function Overview() {
 
+  const [
+    refreshKey,
+    setRefreshKey,
+  ] = useState(0);
+
+
+  const [
+    now,
+    setNow,
+  ] = useState(
+    () => new Date()
+  );
+
+
+  /* =======================================================
+     VERİLERİ YENİLE
+  ======================================================= */
+
+  useEffect(() => {
+
+    const refresh =
+      () => {
+        setNow(
+          new Date()
+        );
+
+        setRefreshKey(
+          (value) =>
+            value + 1
+        );
+      };
+
+
+    const events = [
+      "ren-invoices-updated",
+      "ren-finance-updated",
+      "ren-stock-updated",
+      "ren-stock-movements-changed",
+      "ren-products-changed",
+      "ren-customers-updated",
+      "ren-cash-bank-updated",
+      "ren-orders-updated",
+    ];
+
+
+    events.forEach(
+      (eventName) => {
+
+        window.addEventListener(
+          eventName,
+          refresh
+        );
+
+      }
+    );
+
+
+    const storageRefresh =
+      (event) => {
+
+        const relevantKeys = [
+          "ren_erp_products",
+          "ren_erp_categories",
+          "ren_erp_brands",
+          "ren_erp_units",
+          "ren_erp_stock_movements",
+          "ren_erp_customers",
+          "ren-erp-orders",
+          "ren-erp-cash-bank-accounts",
+          "ren-erp-cash-bank-movements",
+        ];
+
+
+        if (
+          !event.key ||
+          relevantKeys.includes(
+            event.key
+          )
+        ) {
+
+          refresh();
+
+        }
+
+      };
+
+
+    window.addEventListener(
+      "storage",
+      storageRefresh
+    );
+
+
+    return () => {
+
+      events.forEach(
+        (eventName) => {
+
+          window.removeEventListener(
+            eventName,
+            refresh
+          );
+
+        }
+      );
+
+
+      window.removeEventListener(
+        "storage",
+        storageRefresh
+      );
+
+    };
+
+  }, []);
+
+
+  /* =======================================================
+     VERİLER
+  ======================================================= */
+
   const invoices =
-    getInvoices();
+    useMemo(
+      () =>
+        getInvoices() || [],
+      [refreshKey]
+    );
+
 
   const customers =
-    getCustomers();
+    useMemo(
+      () =>
+        getCustomers() || [],
+      [refreshKey]
+    );
+
 
   const products =
-    getProducts();
-
-  const now =
-    new Date();
+    useMemo(
+      () =>
+        getProducts() || [],
+      [refreshKey]
+    );
 
 
   /* =======================================================
@@ -568,14 +760,21 @@ export default function Overview() {
   ======================================================= */
 
   const todayInvoices =
-    invoices.filter(
-      (invoice) =>
-        sameDay(
-          getInvoiceDate(
-            invoice
-          ),
-          now
-        )
+    useMemo(
+      () =>
+        invoices.filter(
+          (invoice) =>
+            sameDay(
+              getInvoiceDate(
+                invoice
+              ),
+              now
+            )
+        ),
+      [
+        invoices,
+        now,
+      ]
     );
 
 
@@ -584,14 +783,21 @@ export default function Overview() {
   ======================================================= */
 
   const monthInvoices =
-    invoices.filter(
-      (invoice) =>
-        sameMonth(
-          getInvoiceDate(
-            invoice
-          ),
-          now
-        )
+    useMemo(
+      () =>
+        invoices.filter(
+          (invoice) =>
+            sameMonth(
+              getInvoiceDate(
+                invoice
+              ),
+              now
+            )
+        ),
+      [
+        invoices,
+        now,
+      ]
     );
 
 
@@ -707,7 +913,7 @@ export default function Overview() {
 
 
   /* =======================================================
-     BUGÜNKÜ KÂR
+     BUGÜN KÂR
   ======================================================= */
 
   const todayProfitData =
@@ -718,7 +924,7 @@ export default function Overview() {
 
 
   /* =======================================================
-     BUGÜNKÜ SATIŞ SAYISI
+     ADET
   ======================================================= */
 
   const todaySalesCount =
@@ -738,10 +944,6 @@ export default function Overview() {
         ) === "purchase"
     ).length;
 
-
-  /* =======================================================
-     BU AY SATIŞ SAYISI
-  ======================================================= */
 
   const monthSalesCount =
     monthInvoices.filter(
@@ -766,138 +968,195 @@ export default function Overview() {
   ======================================================= */
 
   const transactions =
-    todayInvoices
-      .slice()
-      .sort(
-        (
-          first,
-          second
-        ) => {
+    useMemo(() => {
 
-          const firstDate =
-            new Date(
+      return todayInvoices
+        .slice()
+        .sort(
+          (
+            first,
+            second
+          ) => {
+
+            const firstRaw =
               first.createdAt ||
               first.updatedAt ||
-              `${getInvoiceDate(
+              getInvoiceDate(
                 first
-              )}T00:00:00`
-            );
+              );
 
-          const secondDate =
-            new Date(
+            const secondRaw =
               second.createdAt ||
               second.updatedAt ||
-              `${getInvoiceDate(
+              getInvoiceDate(
                 second
-              )}T00:00:00`
+              );
+
+            const firstDate =
+              new Date(
+                firstRaw
+              );
+
+            const secondDate =
+              new Date(
+                secondRaw
+              );
+
+            const firstTime =
+              Number.isNaN(
+                firstDate.getTime()
+              )
+                ? 0
+                : firstDate.getTime();
+
+            const secondTime =
+              Number.isNaN(
+                secondDate.getTime()
+              )
+                ? 0
+                : secondDate.getTime();
+
+            return (
+              secondTime -
+              firstTime
             );
 
-          return (
-            secondDate.getTime() -
-            firstDate.getTime()
-          );
-
-        }
-      )
-      .slice(
-        0,
-        10
-      )
-      .map(
-        (invoice) => {
-
-          const normalizedType =
-            normalizeType(
-              invoice.type
-            );
-
-          let type =
-            "Satış";
-
-          let color =
-            "blue";
-
-          let icon =
-            MdShoppingCart;
-
-
-          if (
-            normalizedType ===
-            "purchase"
-          ) {
-
-            type =
-              "Alış";
-
-            color =
-              "orange";
-
-            icon =
-              MdReceiptLong;
-
           }
+        )
+        .slice(
+          0,
+          10
+        )
+        .map(
+          (invoice) => {
+
+            const normalizedType =
+              normalizeType(
+                invoice.type
+              );
+
+            let type =
+              "Satış";
+
+            let color =
+              "blue";
+
+            let icon =
+              MdShoppingCart;
 
 
-          if (
-            normalizedType ===
-            "return"
-          ) {
+            if (
+              normalizedType ===
+              "purchase"
+            ) {
 
-            type =
-              "İade";
+              type =
+                "Alış";
 
-            color =
-              "red";
+              color =
+                "orange";
 
-            icon =
-              MdReceiptLong;
+              icon =
+                MdReceiptLong;
 
-          }
+            }
 
 
-          return {
+            if (
+              normalizedType ===
+              "return"
+            ) {
 
-            id:
-              invoice.id,
+              type =
+                "İade";
 
-            time:
-              getInvoiceTime(
-                invoice
-              ),
+              color =
+                "red";
 
-            type,
+              icon =
+                MdReceiptLong;
 
-            description:
-              getCustomerName(
-                invoice,
-                customers
-              ),
+            }
 
-            document:
-              getInvoiceNumber(
-                invoice
-              ),
 
-            amount:
-              money(
-                getInvoiceTotal(
+            return {
+
+              id:
+                invoice.id,
+
+              time:
+                getInvoiceTime(
                   invoice
-                )
-              ),
+                ),
 
-            color,
+              type,
 
-            icon,
+              description:
+                getCustomerName(
+                  invoice,
+                  customers
+                ),
 
-            status:
-              invoice.status ||
-              invoice.paymentStatus ||
-              "Tamamlandı",
+              document:
+                getInvoiceNumber(
+                  invoice
+                ),
 
-          };
+              amount:
+                money(
+                  getInvoiceTotal(
+                    invoice
+                  )
+                ),
 
-        }
+              color,
+
+              icon,
+
+              status:
+                invoice.status ||
+                invoice.paymentStatus ||
+                "Tamamlandı",
+
+            };
+
+          }
+        );
+
+    }, [
+      todayInvoices,
+      customers,
+    ]);
+
+
+  /* =======================================================
+     BUGÜN ÖZET
+  ======================================================= */
+
+  const todayReturnTotal =
+    todayInvoices
+      .filter(
+        (invoice) =>
+          normalizeType(
+            invoice.type
+          ) === "return"
+      )
+      .reduce(
+        (
+          total,
+          invoice
+        ) =>
+          total +
+          getInvoiceTotal(
+            invoice
+          ),
+        0
       );
+
+
+  const todayNetSales =
+    todaySales -
+    todayReturnTotal;
 
 
   /* =======================================================
@@ -932,7 +1191,6 @@ export default function Overview() {
 
     <div className="ren-overview">
 
-
       {/* ===================================================
           ÜST BAŞLIK
       =================================================== */}
@@ -945,11 +1203,9 @@ export default function Overview() {
             GENEL BAKIŞ
           </span>
 
-
           <h1>
             Hoş geldiniz
           </h1>
-
 
           <p>
             İşletmenizin güncel finansal
@@ -990,7 +1246,7 @@ export default function Overview() {
           icon={MdShoppingCart}
           title="Bugünkü Satış"
           amount={money(
-            todaySales
+            todayNetSales
           )}
           change={`${todaySalesCount} fatura`}
           type="sales"
@@ -1069,11 +1325,10 @@ export default function Overview() {
 
 
       {/* ===================================================
-          BUGÜNKÜ İŞLEMLER
+          GÜNÜN İŞLEMLERİ
       =================================================== */}
 
       <section className="ren-transactions">
-
 
         <header className="ren-transactions-header">
 
@@ -1085,17 +1340,12 @@ export default function Overview() {
                 Bugünkü İşlemler
               </h2>
 
-
               <span className="ren-live">
-
                 <i />
-
                 Canlı
-
               </span>
 
             </div>
-
 
             <p>
               Bugün gerçekleştirilen
@@ -1184,7 +1434,9 @@ export default function Overview() {
                         <td>
 
                           <span className="ren-time">
-                            {item.time}
+                            {
+                              item.time
+                            }
                           </span>
 
                         </td>
@@ -1304,9 +1556,8 @@ export default function Overview() {
                       </strong>
 
                       <span>
-                        Alış veya satış faturası
-                        oluşturulduğunda burada
-                        görünecek.
+                        Bugün fatura oluşturduğunuzda
+                        bu alanda otomatik görünecek.
                       </span>
 
                     </div>

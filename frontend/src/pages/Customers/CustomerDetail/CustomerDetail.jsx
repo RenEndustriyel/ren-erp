@@ -18,6 +18,10 @@ import {
   getCustomerMovementsByCustomerId,
 } from "../../../lib/movementStore";
 
+import {
+  getInvoices,
+} from "../../../lib/invoiceStore";
+
 import "./CustomerDetail.css";
 
 
@@ -26,8 +30,42 @@ import "./CustomerDetail.css";
 ========================================================= */
 
 function numberValue(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (
+    typeof value === "number"
+  ) {
+    return Number.isFinite(value)
+      ? value
+      : 0;
+  }
+
+  let text =
+    String(value)
+      .trim()
+      .replace(/\s/g, "");
+
+  if (
+    text.includes(",") &&
+    text.includes(".")
+  ) {
+    text =
+      text
+        .replace(/\./g, "")
+        .replace(",", ".");
+  } else {
+    text =
+      text.replace(",", ".");
+  }
+
   const result =
-    Number(value);
+    Number(text);
 
   return Number.isFinite(result)
     ? result
@@ -55,9 +93,14 @@ function formatDate(value) {
     return "—";
   }
 
+  const text =
+    String(value);
+
   const date =
     new Date(
-      `${value}T00:00:00`
+      text.includes("T")
+        ? text
+        : `${text}T00:00:00`
     );
 
   if (
@@ -65,7 +108,7 @@ function formatDate(value) {
       date.getTime()
     )
   ) {
-    return value;
+    return "—";
   }
 
   return new Intl.DateTimeFormat(
@@ -73,6 +116,125 @@ function formatDate(value) {
   ).format(
     date
   );
+}
+
+
+function getCustomerName(
+  customer
+) {
+  return (
+    customer?.name ||
+    customer?.title ||
+    customer?.companyName ||
+    customer?.unvan ||
+    "Cari"
+  );
+}
+
+
+function isSalesInvoice(
+  invoice
+) {
+  const type =
+    String(
+      invoice?.type ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  return (
+    type === "sales" ||
+    type === "sale" ||
+    type === "satış" ||
+    type === "satis"
+  );
+}
+
+
+function isPurchaseInvoice(
+  invoice
+) {
+  const type =
+    String(
+      invoice?.type ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  return (
+    type === "purchase" ||
+    type === "purchases" ||
+    type === "alış" ||
+    type === "alis"
+  );
+}
+
+
+/* =========================================================
+   HAREKETİ NORMALLEŞTİR
+========================================================= */
+
+function normalizeMovement(
+  movement
+) {
+  const type =
+    String(
+      movement?.type ||
+      ""
+    ).trim();
+
+  let debt =
+    numberValue(
+      movement?.debt
+    );
+
+  let credit =
+    numberValue(
+      movement?.credit
+    );
+
+
+  if (
+    type === "Satış"
+  ) {
+    if (
+      debt <= 0 &&
+      credit > 0
+    ) {
+      debt =
+        credit;
+    }
+
+    credit = 0;
+  }
+
+
+  if (
+    type === "Tahsilat"
+  ) {
+    if (
+      credit <= 0 &&
+      debt > 0
+    ) {
+      credit =
+        debt;
+    }
+
+    debt = 0;
+  }
+
+
+  return {
+    ...movement,
+    debt,
+    credit,
+  };
 }
 
 
@@ -94,7 +256,9 @@ export default function CustomerDetail() {
 
 
   const customerId =
-    searchParams.get("id") ||
+    searchParams.get(
+      "id"
+    ) ||
     location.state?.customer?.id ||
     "";
 
@@ -104,13 +268,19 @@ export default function CustomerDetail() {
     setCustomer,
   ] = useState(
     location.state?.customer ||
-      null
+    null
   );
 
 
   const [
     movements,
     setMovements,
+  ] = useState([]);
+
+
+  const [
+    invoices,
+    setInvoices,
   ] = useState([]);
 
 
@@ -123,55 +293,92 @@ export default function CustomerDetail() {
 
 
   const [
+    invoiceFilter,
+    setInvoiceFilter,
+  ] = useState(
+    "Açık"
+  );
+
+
+  const [
     activeMenu,
     setActiveMenu,
   ] = useState(null);
 
 
   /* =======================================================
-     CARİYİ VE HAREKETLERİ YÜKLE
+     VERİLERİ YENİLE
   ======================================================= */
 
-  const refreshData = () => {
+  const refreshData =
+    () => {
 
-    if (!customerId) {
-      return;
-    }
+      if (!customerId) {
+        return;
+      }
 
 
-    const freshCustomer =
-      getCustomerById(
-        customerId
+      const freshCustomer =
+        getCustomerById(
+          customerId
+        );
+
+
+      if (freshCustomer) {
+        setCustomer(
+          freshCustomer
+        );
+      }
+
+
+      const freshMovements =
+        getCustomerMovementsByCustomerId(
+          customerId
+        ) || [];
+
+
+      setMovements(
+        Array.isArray(
+          freshMovements
+        )
+          ? freshMovements
+          : []
       );
 
 
-    if (freshCustomer) {
-      setCustomer(
-        freshCustomer
+      const allInvoices =
+        getInvoices() || [];
+
+
+      setInvoices(
+        allInvoices.filter(
+          (invoice) =>
+            String(
+              invoice?.customerId ||
+              invoice?.supplierId ||
+              ""
+            ) ===
+            String(
+              customerId
+            )
+        )
       );
-    }
 
-
-    const rawMovements =
-      getCustomerMovementsByCustomerId(
-        customerId
-      );
-
-
-    setMovements(
-      Array.isArray(
-        rawMovements
-      )
-        ? rawMovements
-        : []
-    );
-
-  };
+    };
 
 
   useEffect(() => {
 
     refreshData();
+
+
+    const events = [
+      "ren-customers-updated",
+      "ren-customer-movements-updated",
+      "ren-invoices-updated",
+      "ren-cash-bank-updated",
+      "ren-finance-updated",
+    ];
 
 
     const refresh =
@@ -180,57 +387,25 @@ export default function CustomerDetail() {
       };
 
 
-    window.addEventListener(
-      "ren-customers-updated",
-      refresh
-    );
-
-    window.addEventListener(
-      "ren-customer-movements-updated",
-      refresh
-    );
-
-    window.addEventListener(
-      "ren-invoices-updated",
-      refresh
-    );
-
-    window.addEventListener(
-      "ren-cash-bank-updated",
-      refresh
-    );
-
-    window.addEventListener(
-      "storage",
-      refresh
+    events.forEach(
+      (eventName) => {
+        window.addEventListener(
+          eventName,
+          refresh
+        );
+      }
     );
 
 
     return () => {
 
-      window.removeEventListener(
-        "ren-customers-updated",
-        refresh
-      );
-
-      window.removeEventListener(
-        "ren-customer-movements-updated",
-        refresh
-      );
-
-      window.removeEventListener(
-        "ren-invoices-updated",
-        refresh
-      );
-
-      window.removeEventListener(
-        "ren-cash-bank-updated",
-        refresh
-      );
-
-      window.removeEventListener(
-        "storage",
-        refresh
+      events.forEach(
+        (eventName) => {
+          window.removeEventListener(
+            eventName,
+            refresh
+          );
+        }
       );
 
     };
@@ -240,6 +415,10 @@ export default function CustomerDetail() {
   ]);
 
 
+  /* =======================================================
+     CARİ YOK
+  ======================================================= */
+
   if (!customer) {
 
     return (
@@ -247,7 +426,12 @@ export default function CustomerDetail() {
 
         <div className="customer-detail-container">
 
-          <div className="customer-detail-card customer-detail-full-card">
+          <div
+            className="customer-detail-card customer-detail-full-card"
+            style={{
+              padding: "40px",
+            }}
+          >
 
             <h2>
               Cari bulunamadı
@@ -279,187 +463,92 @@ export default function CustomerDetail() {
 
 
   /* =======================================================
-     CARİ TİPİ
+     CARİ TÜRÜ
   ======================================================= */
 
+  const customerType =
+    String(
+      customer.type ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+
   const isSupplier =
-    String(
-      customer.type ||
-      ""
-    )
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      ) ===
+    customerType ===
       "tedarikçi" ||
-    String(
-      customer.type ||
-      ""
-    )
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      ) ===
+    customerType ===
       "tedarikci";
 
 
   /* =======================================================
-     HAREKETLERİ CARİ TİPİNE GÖRE NORMALLEŞTİR
+     HAREKETLER
   ======================================================= */
 
   const normalizedMovements =
     useMemo(() => {
 
-      return movements
+      return (
+        movements || []
+      )
         .map(
-          (movement) => {
-
-            const rawDebt =
-              numberValue(
-                movement.debt
-              );
-
-            const rawCredit =
-              numberValue(
-                movement.credit
-              );
-
-
-            /*
-             * TEDARİKÇİ:
-             *
-             * Alış = bizim borcumuz
-             * Ödeme = borcu azaltır
-             */
-
-            if (isSupplier) {
-
-              if (
-                movement.type ===
-                "Alış"
-              ) {
-
-                return {
-                  ...movement,
-
-                  debt:
-                    Math.max(
-                      rawDebt,
-                      rawCredit
-                    ),
-
-                  credit:
-                    0,
-                };
-
-              }
-
-
-              if (
-                movement.type ===
-                "Ödeme"
-              ) {
-
-                return {
-                  ...movement,
-
-                  debt:
-                    0,
-
-                  credit:
-                    Math.max(
-                      rawCredit,
-                      rawDebt
-                    ),
-
-                };
-
-              }
-
-            }
-
-
-            /*
-             * MÜŞTERİ:
-             *
-             * Satış = müşterinin borcu
-             * Tahsilat = borcu azaltır
-             */
-
-            if (
-              movement.type ===
-              "Satış"
-            ) {
-
-              return {
-                ...movement,
-
-                debt:
-                  Math.max(
-                    rawDebt,
-                    rawCredit
-                  ),
-
-                credit:
-                  0,
-              };
-
-            }
-
-
-            if (
-              movement.type ===
-              "Tahsilat"
-            ) {
-
-              return {
-                ...movement,
-
-                debt:
-                  0,
-
-                credit:
-                  Math.max(
-                    rawCredit,
-                    rawDebt
-                  ),
-              };
-
-            }
-
-
-            return {
-              ...movement,
-
-              debt:
-                rawDebt,
-
-              credit:
-                rawCredit,
-            };
-
-          }
+          normalizeMovement
         )
         .sort(
-          (a, b) => {
+          (
+            a,
+            b
+          ) => {
 
-            const dateCompare =
-              String(
-                a.date ||
-                ""
-              ).localeCompare(
+            const dateA =
+              new Date(
+                String(
+                  a.date ||
+                  ""
+                ).includes("T")
+                  ? a.date
+                  : `${a.date || "1900-01-01"}T00:00:00`
+              );
+
+
+            const dateB =
+              new Date(
                 String(
                   b.date ||
                   ""
-                )
+                ).includes("T")
+                  ? b.date
+                  : `${b.date || "1900-01-01"}T00:00:00`
               );
 
 
+            const timeA =
+              Number.isNaN(
+                dateA.getTime()
+              )
+                ? 0
+                : dateA.getTime();
+
+
+            const timeB =
+              Number.isNaN(
+                dateB.getTime()
+              )
+                ? 0
+                : dateB.getTime();
+
+
             if (
-              dateCompare !==
-              0
+              timeA !==
+              timeB
             ) {
-              return dateCompare;
+              return (
+                timeA -
+                timeB
+              );
             }
 
 
@@ -478,15 +567,14 @@ export default function CustomerDetail() {
 
     }, [
       movements,
-      isSupplier,
     ]);
 
 
   /* =======================================================
-     TOPLAMLAR
+     CARİ HESAPLARI
   ======================================================= */
 
-  const totals =
+  const movementTotals =
     useMemo(() => {
 
       let debt =
@@ -495,19 +583,66 @@ export default function CustomerDetail() {
       let credit =
         0;
 
+      let collection =
+        0;
+
+      let payment =
+        0;
+
 
       normalizedMovements.forEach(
         (movement) => {
 
-          debt +=
+          const movementDebt =
             numberValue(
               movement.debt
             );
 
-          credit +=
+          const movementCredit =
             numberValue(
               movement.credit
             );
+
+
+          debt +=
+            movementDebt;
+
+          credit +=
+            movementCredit;
+
+
+          if (
+            movement.type ===
+            "Tahsilat"
+          ) {
+
+            collection +=
+              Math.max(
+                movementCredit,
+                numberValue(
+                  movement.amount
+                ),
+                movementDebt
+              );
+
+          }
+
+
+          if (
+            movement.type ===
+            "Ödeme"
+          ) {
+
+            payment +=
+              Math.max(
+                movementCredit,
+                numberValue(
+                  movement.amount
+                ),
+                movementDebt
+              );
+
+          }
 
         }
       );
@@ -516,6 +651,14 @@ export default function CustomerDetail() {
       return {
         debt,
         credit,
+        collection,
+        payment,
+        balance:
+          Math.max(
+            0,
+            debt -
+              credit
+          ),
       };
 
     }, [
@@ -524,47 +667,253 @@ export default function CustomerDetail() {
 
 
   /* =======================================================
-     BAKİYE
+     FATURALAR
   ======================================================= */
 
-  const currentBalance =
+  const invoiceSummary =
+    useMemo(() => {
+
+      let salesTotal =
+        0;
+
+      let purchaseTotal =
+        0;
+
+      let openSales =
+        0;
+
+      let openSalesCount =
+        0;
+
+      let totalPaid =
+        0;
+
+
+      invoices.forEach(
+        (invoice) => {
+
+          const total =
+            numberValue(
+              invoice.total
+            );
+
+
+          const paid =
+            numberValue(
+              invoice.paidAmount
+            );
+
+
+          const remaining =
+            Math.max(
+              0,
+              total -
+                paid
+            );
+
+
+          if (
+            isSalesInvoice(
+              invoice
+            )
+          ) {
+
+            salesTotal +=
+              total;
+
+
+            totalPaid +=
+              paid;
+
+
+            if (
+              remaining >
+              0.005
+            ) {
+
+              openSales +=
+                remaining;
+
+              openSalesCount +=
+                1;
+
+            }
+
+          }
+
+
+          if (
+            isPurchaseInvoice(
+              invoice
+            )
+          ) {
+
+            purchaseTotal +=
+              total;
+
+          }
+
+        }
+      );
+
+
+      return {
+        salesTotal,
+        purchaseTotal,
+        openSales,
+        openSalesCount,
+        totalPaid,
+      };
+
+    }, [
+      invoices,
+    ]);
+
+
+  /* =======================================================
+     MÜŞTERİDE GÖSTERİLECEK TAHSİLAT
+  ======================================================= */
+
+  const customerReceivable =
     Math.max(
-      0,
-      totals.debt -
-        totals.credit
+      invoiceSummary.openSales,
+      movementTotals.balance
     );
 
 
-  const isSettled =
-    currentBalance <
-    0.005;
+  /* =======================================================
+     AÇIK FATURALAR
+  ======================================================= */
+
+  const openInvoices =
+    useMemo(() => {
+
+      return invoices
+        .map(
+          (invoice) => {
+
+            const total =
+              numberValue(
+                invoice.total
+              );
+
+            const paid =
+              numberValue(
+                invoice.paidAmount
+              );
+
+            const remaining =
+              Math.max(
+                0,
+                total -
+                  paid
+              );
+
+            return {
+              ...invoice,
+              remaining,
+            };
+
+          }
+        )
+        .filter(
+          (invoice) => {
+
+            if (
+              !isSalesInvoice(
+                invoice
+              )
+            ) {
+              return false;
+            }
 
 
-  /*
-   * Hem müşteri hem tedarikçi için
-   * borç / alacak etiketi iş mantığına göre.
-   *
-   * Bu ekranda:
-   *
-   * Borçlu    = cari bize borçlu değil,
-   *             bizim o cariye borcumuz var
-   *             anlamında tedarikçide;
-   *             müşteride satış borcu.
-   *
-   * Daha anlaşılır olması için
-   * tip bazlı metin kullanıyoruz.
-   */
+            if (
+              invoiceFilter ===
+              "Açık"
+            ) {
 
-  const statusLabel =
-    isSettled
-      ? "Bakiyesi Yok"
-      : "Borçlu";
+              return (
+                invoice.remaining >
+                0.005
+              );
+
+            }
 
 
-  const statusClass =
-    isSettled
-      ? "cari-status-zero"
-      : "cari-status-borclu";
+            if (
+              invoiceFilter ===
+              "Kapalı"
+            ) {
+
+              return (
+                invoice.remaining <=
+                0.005
+              );
+
+            }
+
+
+            return true;
+
+          }
+        )
+        .sort(
+          (
+            a,
+            b
+          ) => {
+
+            const dateA =
+              new Date(
+                String(
+                  a.date ||
+                  ""
+                ).includes("T")
+                  ? a.date
+                  : `${a.date || "1900-01-01"}T00:00:00`
+              );
+
+
+            const dateB =
+              new Date(
+                String(
+                  b.date ||
+                  ""
+                ).includes("T")
+                  ? b.date
+                  : `${b.date || "1900-01-01"}T00:00:00`
+              );
+
+
+            const aTime =
+              Number.isNaN(
+                dateA.getTime()
+              )
+                ? 0
+                : dateA.getTime();
+
+
+            const bTime =
+              Number.isNaN(
+                dateB.getTime()
+              )
+                ? 0
+                : dateB.getTime();
+
+
+            return (
+              aTime -
+              bTime
+            );
+
+          }
+        );
+
+    }, [
+      invoices,
+      invoiceFilter,
+    ]);
 
 
   /* =======================================================
@@ -577,97 +926,138 @@ export default function CustomerDetail() {
       .reverse()
       .slice(
         0,
-        5
+        8
       );
+
+
+  /* =======================================================
+     DURUM
+  ======================================================= */
+
+  const isSettled =
+    customerReceivable <=
+    0.005;
+
+
+  const statusLabel =
+    isSettled
+      ? "Bakiyesi Yok"
+      : isSupplier
+      ? "Borçlu"
+      : "Alacaklı";
+
+
+  const statusClass =
+    isSettled
+      ? "cari-status-zero"
+      : isSupplier
+      ? "cari-status-borclu"
+      : "cari-status-alacakli";
 
 
   /* =======================================================
      BUTONLAR
   ======================================================= */
 
-  const goBack = () => {
-
-    navigate(
-      "/customers"
-    );
-
-  };
-
-
-  const editCustomer = () => {
-
-    navigate(
-      `/customers/edit/${encodeURIComponent(
-        customer.id
-      )}`,
-      {
-        state: {
-          customer,
-        },
-      }
-    );
-
-  };
+  const goBack =
+    () => {
+      navigate(
+        "/customers"
+      );
+    };
 
 
-  const newSale = () => {
+  const editCustomer =
+    () => {
 
-    navigate(
-      `/invoices/new?type=sales&customerId=${encodeURIComponent(
-        customer.id
-      )}`,
-      {
-        state: {
-          customer,
-        },
-      }
-    );
+      navigate(
+        `/customers/edit/${encodeURIComponent(
+          customer.id
+        )}`,
+        {
+          state: {
+            customer,
+          },
+        }
+      );
 
-  };
-
-
-  const newPurchase = () => {
-
-    navigate(
-      `/invoices/new?type=purchase&customerId=${encodeURIComponent(
-        customer.id
-      )}`,
-      {
-        state: {
-          customer,
-        },
-      }
-    );
-
-  };
+    };
 
 
-  const newCollection = () => {
+  const newSale =
+    () => {
 
-    navigate(
-      "/customers/collections",
-      {
-        state: {
-          customer,
-        },
-      }
-    );
+      navigate(
+        `/invoices/new?type=sales&customerId=${encodeURIComponent(
+          customer.id
+        )}`,
+        {
+          state: {
+            customer,
+          },
+        }
+      );
 
-  };
+    };
 
 
-  const newPayment = () => {
+  const newPurchase =
+    () => {
 
-    navigate(
-      "/customers/payments",
-      {
-        state: {
-          customer,
-        },
-      }
-    );
+      navigate(
+        `/invoices/new?type=purchase&customerId=${encodeURIComponent(
+          customer.id
+        )}`,
+        {
+          state: {
+            customer,
+          },
+        }
+      );
 
-  };
+    };
+
+
+  const newCollection =
+    () => {
+
+      navigate(
+        "/customers/collections",
+        {
+          state: {
+            customer,
+          },
+        }
+      );
+
+    };
+
+
+  const newPayment =
+    () => {
+
+      navigate(
+        "/customers/payments",
+        {
+          state: {
+            customer,
+          },
+        }
+      );
+
+    };
+
+
+  const openInvoice =
+    (invoice) => {
+
+      navigate(
+        `/invoices/detail?id=${encodeURIComponent(
+          invoice.id
+        )}`
+      );
+
+    };
 
 
   const detailMovement =
@@ -704,7 +1094,6 @@ export default function CustomerDetail() {
         } TL`
       );
 
-
       setActiveMenu(
         null
       );
@@ -725,18 +1114,64 @@ export default function CustomerDetail() {
           null
         )
       }
+      style={{
+        background:
+          "#f5f6f8",
+        minHeight:
+          "100vh",
+      }}
     >
 
-      <div className="customer-detail-container">
+      <div
+        className="customer-detail-container"
+        style={{
+          maxWidth:
+            "1280px",
+          margin:
+            "0 auto",
+        }}
+      >
 
 
         {/* =================================================
-            HEADER
+            ÜST BAŞLIK
         ================================================= */}
 
-        <div className="customer-detail-header">
+        <div
+          className="customer-detail-header"
+          style={{
+            background:
+              "#fff",
+            border:
+              "1px solid #e1e5e9",
+            borderRadius:
+              "8px",
+            padding:
+              "20px 22px",
+            marginBottom:
+              "16px",
+            display:
+              "flex",
+            justifyContent:
+              "space-between",
+            alignItems:
+              "center",
+            gap:
+              "20px",
+          }}
+        >
 
-          <div className="customer-detail-heading">
+          <div
+            className="customer-detail-heading"
+            style={{
+              display:
+                "flex",
+              alignItems:
+                "center",
+              gap:
+                "14px",
+            }}
+          >
 
             <button
               type="button"
@@ -751,52 +1186,140 @@ export default function CustomerDetail() {
 
             <div>
 
-              <div className="customer-detail-breadcrumb">
+              <div
+                className="customer-detail-breadcrumb"
+                style={{
+                  fontSize:
+                    "11px",
+                  marginBottom:
+                    "6px",
+                  color:
+                    "#9aa1a9",
+                }}
+              >
 
-                Müşteri - Tedarikçi
+                Müşteriler
 
-                <span>
-                  /
+                <span
+                  style={{
+                    margin:
+                      "0 7px",
+                  }}
+                >
+                  ›
                 </span>
 
-                Hesap Detayı
+                {
+                  isSupplier
+                    ? "Tedarikçi"
+                    : "Müşteri"
+                }
 
               </div>
 
 
-              <div className="customer-detail-title-row">
+              <div
+                className="customer-detail-title-row"
+                style={{
+                  display:
+                    "flex",
+                  alignItems:
+                    "center",
+                  gap:
+                    "12px",
+                }}
+              >
 
-                <div className="customer-detail-avatar">
-
+                <div
+                  className="customer-detail-avatar"
+                  style={{
+                    width:
+                      "46px",
+                    height:
+                      "46px",
+                    minWidth:
+                      "46px",
+                    borderRadius:
+                      "4px",
+                    background:
+                      "#f0f2f4",
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    color:
+                      "#8b939c",
+                    fontSize:
+                      "21px",
+                    fontWeight:
+                      700,
+                  }}
+                >
                   {
                     String(
-                      customer.name ||
-                      "C"
+                      getCustomerName(
+                        customer
+                      )
                     )
                       .charAt(
                         0
                       )
                       .toUpperCase()
                   }
-
                 </div>
 
 
                 <div>
 
-                  <h1>
+                  <h1
+                    style={{
+                      margin:
+                        0,
+                      fontSize:
+                        "24px",
+                      color:
+                        "#26303a",
+                      lineHeight:
+                        1.2,
+                    }}
+                  >
                     {
-                      customer.name
+                      getCustomerName(
+                        customer
+                      )
                     }
                   </h1>
 
 
-                  <div className="customer-detail-meta">
+                  <div
+                    className="customer-detail-meta"
+                    style={{
+                      marginTop:
+                        "5px",
+                      display:
+                        "flex",
+                      gap:
+                        "8px",
+                      alignItems:
+                        "center",
+                      fontSize:
+                        "11px",
+                      color:
+                        "#929aa4",
+                    }}
+                  >
 
                     <span>
                       {
-                        customer.code
+                        customer.code ||
+                        "—"
                       }
+                    </span>
+
+                    <span>
+                      •
                     </span>
 
                     <span>
@@ -818,11 +1341,19 @@ export default function CustomerDetail() {
           </div>
 
 
-          {/* =================================================
-              TİPE GÖRE DOĞRU BUTONLAR
-          ================================================= */}
+          {/* ÜST BUTONLAR */}
 
-          <div className="customer-detail-actions">
+          <div
+            className="customer-detail-actions"
+            style={{
+              display:
+                "flex",
+              gap:
+                "8px",
+              alignItems:
+                "center",
+            }}
+          >
 
             {
               isSupplier ? (
@@ -835,7 +1366,7 @@ export default function CustomerDetail() {
                       newPayment
                     }
                   >
-                    Ödeme
+                    Ödeme Ekle
                   </button>
 
                   <button
@@ -845,7 +1376,7 @@ export default function CustomerDetail() {
                       newPurchase
                     }
                   >
-                    Alış
+                    Alış Faturası
                   </button>
                 </>
 
@@ -859,7 +1390,7 @@ export default function CustomerDetail() {
                       newCollection
                     }
                   >
-                    Tahsilat
+                    Tahsilat Ekle
                   </button>
 
                   <button
@@ -869,7 +1400,7 @@ export default function CustomerDetail() {
                       newSale
                     }
                   >
-                    Satış
+                    Satış Faturası
                   </button>
                 </>
 
@@ -893,341 +1424,681 @@ export default function CustomerDetail() {
 
 
         {/* =================================================
-            BAKİYE ÖZETİ
+            ANA GÖVDE
         ================================================= */}
 
-        <div className="customer-detail-summary">
+        <div
+          style={{
+            display:
+              "grid",
+            gridTemplateColumns:
+              "minmax(0, 1fr) 300px",
+            gap:
+              "16px",
+            alignItems:
+              "start",
+          }}
+        >
 
 
-          <div className="customer-detail-summary-card">
+          {/* =================================================
+              SOL ANA ALAN
+          ================================================= */}
 
-            <span>
-              GÜNCEL BAKİYE
-            </span>
+          <div>
 
-            <strong
-              className={
-                statusClass
-              }
+
+            {/* TABLAR */}
+
+            <div
+              className="customer-detail-tabs"
+              style={{
+                background:
+                  "#fff",
+                border:
+                  "1px solid #e1e5e9",
+                borderRadius:
+                  "8px 8px 0 0",
+                borderBottom:
+                  "0",
+                padding:
+                  "0 8px",
+              }}
             >
-              {
-                statusLabel
-              }
-            </strong>
 
-            <small>
-              {
-                isSettled
-                  ? "Cari hesap kapanmış"
-                  : isSupplier
-                    ? "Tedarikçiye olan güncel borç"
-                    : "Müşteriden kalan güncel alacak"
-              }
-            </small>
+              <button
+                type="button"
+                className={
+                  activeTab ===
+                  "overview"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setActiveTab(
+                    "overview"
+                  )
+                }
+              >
+                Genel Bakış
+              </button>
 
-          </div>
+              <button
+                type="button"
+                className={
+                  activeTab ===
+                  "invoices"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setActiveTab(
+                    "invoices"
+                  )
+                }
+              >
+                Açık Faturalar
+              </button>
 
+              <button
+                type="button"
+                className={
+                  activeTab ===
+                  "movements"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setActiveTab(
+                    "movements"
+                  )
+                }
+              >
+                İşlem Geçmişi
+              </button>
 
-          <div className="customer-detail-summary-card">
+              <button
+                type="button"
+                className={
+                  activeTab ===
+                  "info"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setActiveTab(
+                    "info"
+                  )
+                }
+              >
+                Hesap Bilgileri
+              </button>
 
-            <span>
-              {
-                isSupplier
-                  ? "KALAN BORÇ"
-                  : "KALAN ALACAK"
-              }
-            </span>
-
-            <strong
-              className={
-                isSettled
-                  ? "cari-status-zero"
-                  : "cari-status-borclu"
-              }
-            >
-              {
-                money(
-                  currentBalance
-                )
-              } TL
-            </strong>
-
-          </div>
-
-
-          <div className="customer-detail-summary-card">
-
-            <span>
-              {
-                isSupplier
-                  ? "TOPLAM ALIŞ"
-                  : "TOPLAM SATIŞ"
-              }
-            </span>
-
-            <strong>
-              {
-                money(
-                  totals.debt
-                )
-              } TL
-            </strong>
-
-          </div>
-
-
-          <div className="customer-detail-summary-card">
-
-            <span>
-              {
-                isSupplier
-                  ? "TOPLAM ÖDEME"
-                  : "TOPLAM TAHSİLAT"
-              }
-            </span>
-
-            <strong
-              className="cari-status-alacakli"
-            >
-              {
-                money(
-                  totals.credit
-                )
-              } TL
-            </strong>
-
-          </div>
+            </div>
 
 
-          <div className="customer-detail-summary-card">
+            {/* =================================================
+                GENEL BAKIŞ
+            ================================================= */}
 
-            <span>
-              VADE
-            </span>
-
-            <strong>
-              {
-                customer.term ||
-                (
-                  customer.dueDays
-                    ? `${customer.dueDays} Gün`
-                    : "—"
-                )
-              }
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        {/* =================================================
-            TABLAR
-        ================================================= */}
-
-        <div className="customer-detail-tabs">
-
-          <button
-            type="button"
-            className={
+            {
               activeTab ===
-              "overview"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setActiveTab(
-                "overview"
-              )
-            }
-          >
-            Genel Bakış
-          </button>
+              "overview" && (
+
+                <div>
+
+                  {/* AÇIK FATURALAR */}
+
+                  <div
+                    className="customer-detail-card customer-detail-full-card"
+                    style={{
+                      borderRadius:
+                        "0 0 8px 8px",
+                      borderTop:
+                        "0",
+                      marginBottom:
+                        "16px",
+                    }}
+                  >
+
+                    <div
+                      className="customer-detail-card-header"
+                      style={{
+                        alignItems:
+                          "center",
+                      }}
+                    >
+
+                      <div>
+
+                        <strong>
+                          Açık Faturalar
+                        </strong>
+
+                        <span>
+                          Tahsil edilmesi gereken faturalar
+                        </span>
+
+                      </div>
 
 
-          <button
-            type="button"
-            className={
-              activeTab ===
-              "movements"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setActiveTab(
-                "movements"
-              )
-            }
-          >
-            Cari Hareketler
-          </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveTab(
+                            "invoices"
+                          )
+                        }
+                      >
+                        Tümünü Gör
+                      </button>
+
+                    </div>
 
 
-          <button
-            type="button"
-            className={
-              activeTab ===
-              "info"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setActiveTab(
-                "info"
-              )
-            }
-          >
-            Hesap Bilgileri
-          </button>
+                    {/* AÇIK FATURA LİSTESİ */}
 
-        </div>
+                    <div>
+
+                      {
+                        openInvoices
+                          .filter(
+                            (invoice) =>
+                              invoice.remaining >
+                              0.005
+                          )
+                          .slice(
+                            0,
+                            8
+                          )
+                          .map(
+                            (
+                              invoice
+                            ) => (
+
+                              <div
+                                key={
+                                  invoice.id
+                                }
+                                style={{
+                                  display:
+                                    "grid",
+                                  gridTemplateColumns:
+                                    "32px minmax(0,1fr) 150px 130px",
+                                  alignItems:
+                                    "center",
+                                  gap:
+                                    "12px",
+                                  minHeight:
+                                    "62px",
+                                  borderTop:
+                                    "1px solid #f0f1f3",
+                                  cursor:
+                                    "pointer",
+                                }}
+                                onClick={() =>
+                                  openInvoice(
+                                    invoice
+                                  )
+                                }
+                              >
+
+                                <div
+                                  style={{
+                                    width:
+                                      "28px",
+                                    height:
+                                      "28px",
+                                    display:
+                                      "flex",
+                                    alignItems:
+                                      "center",
+                                    justifyContent:
+                                      "center",
+                                    border:
+                                      "1px solid #dfe3e8",
+                                    borderRadius:
+                                      "3px",
+                                    color:
+                                      "#98a0a8",
+                                    fontSize:
+                                      "13px",
+                                  }}
+                                >
+                                  ▤
+                                </div>
 
 
-        {/* =================================================
-            GENEL BAKIŞ
-        ================================================= */}
+                                <div>
 
-        {
-          activeTab ===
-          "overview" && (
+                                  <strong
+                                    style={{
+                                      display:
+                                        "block",
+                                      color:
+                                        "#38414b",
+                                      fontSize:
+                                        "12px",
+                                    }}
+                                  >
+                                    {
+                                      invoice.invoiceNo ||
+                                      invoice.number ||
+                                      "Satış Faturası"
+                                    }
+                                  </strong>
 
-            <div className="customer-detail-content">
+                                  <small
+                                    style={{
+                                      display:
+                                        "block",
+                                      color:
+                                        "#9aa1a9",
+                                      marginTop:
+                                        "4px",
+                                    }}
+                                  >
+                                    {
+                                      formatDate(
+                                        invoice.date
+                                      )
+                                    }
+                                  </small>
 
-              <div className="customer-detail-grid">
+                                </div>
 
 
-                <div className="customer-detail-card">
+                                <div
+                                  style={{
+                                    color:
+                                      "#7b838c",
+                                    fontSize:
+                                      "11px",
+                                  }}
+                                >
 
-                  <div className="customer-detail-card-header">
+                                  {
+                                    invoice.dueDate
+                                      ? (
+                                        <>
+                                          Vade{" "}
+                                          {
+                                            formatDate(
+                                              invoice.dueDate
+                                            )
+                                          }
+                                        </>
+                                      )
+                                      : "Vade belirtilmemiş"
+                                  }
 
-                    <strong>
-                      Son Hareketler
-                    </strong>
+                                </div>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setActiveTab(
-                          "movements"
+
+                                <div
+                                  style={{
+                                    textAlign:
+                                      "right",
+                                  }}
+                                >
+
+                                  <strong
+                                    style={{
+                                      color:
+                                        "#2c6bb2",
+                                      fontSize:
+                                        "13px",
+                                    }}
+                                  >
+                                    {
+                                      money(
+                                        invoice.remaining
+                                      )
+                                    } TL
+                                  </strong>
+
+                                  <small
+                                    style={{
+                                      display:
+                                        "block",
+                                      marginTop:
+                                        "3px",
+                                      color:
+                                        "#a0a7ae",
+                                      fontSize:
+                                        "10px",
+                                    }}
+                                  >
+                                    Kalan
+                                  </small>
+
+                                </div>
+
+                              </div>
+
+                            )
+                          )
+                      }
+
+
+                      {
+                        openInvoices.filter(
+                          (invoice) =>
+                            invoice.remaining >
+                            0.005
+                        ).length ===
+                        0 && (
+
+                          <div
+                            style={{
+                              padding:
+                                "30px 10px",
+                              textAlign:
+                                "center",
+                              color:
+                                "#9299a2",
+                            }}
+                          >
+
+                            <strong
+                              style={{
+                                display:
+                                  "block",
+                                color:
+                                  "#67707a",
+                                marginBottom:
+                                  "5px",
+                              }}
+                            >
+                              Açık fatura yok
+                            </strong>
+
+                            <span>
+                              Bu cari için bekleyen satış faturası bulunmuyor.
+                            </span>
+
+                          </div>
+
                         )
                       }
+
+                    </div>
+
+
+                    {/* İŞLEM GEÇMİŞİ */}
+
+                    <div
+                      style={{
+                        borderTop:
+                          "1px solid #e8eaed",
+                        paddingTop:
+                          "13px",
+                        marginTop:
+                          "4px",
+                      }}
                     >
-                      Tümünü Gör
-                    </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveTab(
+                            "movements"
+                          )
+                        }
+                        style={{
+                          border:
+                            "1px solid #d9dde2",
+                          background:
+                            "#fff",
+                          borderRadius:
+                            "4px",
+                          padding:
+                            "7px 11px",
+                          fontSize:
+                            "10px",
+                          fontWeight:
+                            700,
+                          color:
+                            "#7a828a",
+                          cursor:
+                            "pointer",
+                        }}
+                      >
+                        ↻ İŞLEM GEÇMİŞİNİ GÖSTER
+                      </button>
+
+                    </div>
 
                   </div>
 
 
-                  <div className="customer-detail-movement-list">
+                  {/* SON HAREKETLER */}
+
+                  <div
+                    className="customer-detail-card customer-detail-full-card"
+                  >
+
+                    <div className="customer-detail-card-header">
+
+                      <div>
+
+                        <strong>
+                          Son İşlemler
+                        </strong>
+
+                        <span>
+                          Bu cari hesapta gerçekleşen son hareketler
+                        </span>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveTab(
+                            "movements"
+                          )
+                        }
+                      >
+                        Tüm Hareketler
+                      </button>
+
+                    </div>
+
 
                     {
                       recentMovements.length ===
                       0 ? (
 
-                        <div className="customer-detail-movement">
-
-                          <div className="customer-detail-movement-info">
-
-                            <strong>
-                              Henüz hareket yok
-                            </strong>
-
-                            <span>
-                              Bu cari hesapta kayıtlı hareket bulunmuyor.
-                            </span>
-
-                          </div>
-
+                        <div
+                          style={{
+                            padding:
+                              "35px",
+                            textAlign:
+                              "center",
+                            color:
+                              "#9299a2",
+                          }}
+                        >
+                          Henüz işlem bulunmuyor.
                         </div>
 
                       ) : (
 
-                        recentMovements.map(
-                          (
-                            movement
-                          ) => (
+                        <div>
 
-                            <div
-                              className="customer-detail-movement"
-                              key={
-                                movement.id
-                              }
-                            >
+                          {
+                            recentMovements.map(
+                              (
+                                movement
+                              ) => (
 
-                              <div className="customer-detail-movement-icon">
-
-                                {
-                                  movement.type ===
-                                  "Ödeme" ||
-                                  movement.type ===
-                                  "Tahsilat"
-                                    ? "₺"
-                                    : movement.type ===
-                                      "Alış"
-                                    ? "A"
-                                    : "S"
-                                }
-
-                              </div>
-
-
-                              <div className="customer-detail-movement-info">
-
-                                <strong>
-                                  {
-                                    movement.type
+                                <div
+                                  key={
+                                    movement.id
                                   }
-                                </strong>
-
-                                <span>
-                                  {
-                                    movement.description ||
-                                    movement.document ||
-                                    "—"
-                                  }
-                                </span>
-
-                              </div>
-
-
-                              <div className="customer-detail-movement-amount">
-
-                                <strong
-                                  className={
-                                    movement.debt >
-                                    0
-                                      ? "debt"
-                                      : "credit"
-                                  }
+                                  style={{
+                                    display:
+                                      "flex",
+                                    alignItems:
+                                      "center",
+                                    gap:
+                                      "12px",
+                                    padding:
+                                      "13px 0",
+                                    borderTop:
+                                      "1px solid #f0f1f3",
+                                  }}
                                 >
 
-                                  {
-                                    movement.debt >
-                                    0
-                                      ? `+${money(
+                                  <div
+                                    style={{
+                                      width:
+                                        "30px",
+                                      height:
+                                        "30px",
+                                      minWidth:
+                                        "30px",
+                                      borderRadius:
+                                        "50%",
+                                      background:
+                                        "#f2f4f6",
+                                      display:
+                                        "flex",
+                                      alignItems:
+                                        "center",
+                                      justifyContent:
+                                        "center",
+                                      color:
+                                        "#7a838d",
+                                      fontSize:
+                                        "12px",
+                                    }}
+                                  >
+                                    {
+                                      movement.type ===
+                                      "Tahsilat"
+                                        ? "₺"
+                                        : movement.type ===
+                                          "Ödeme"
+                                        ? "₺"
+                                        : movement.type ===
+                                          "Alış"
+                                        ? "A"
+                                        : "S"
+                                    }
+                                  </div>
+
+
+                                  <div
+                                    style={{
+                                      flex:
+                                        1,
+                                      minWidth:
+                                        0,
+                                    }}
+                                  >
+
+                                    <strong
+                                      style={{
+                                        display:
+                                          "block",
+                                        fontSize:
+                                          "12px",
+                                        color:
+                                          "#3d464f",
+                                      }}
+                                    >
+                                      {
+                                        movement.type ||
+                                        "Hareket"
+                                      }
+                                    </strong>
+
+                                    <span
+                                      style={{
+                                        display:
+                                          "block",
+                                        fontSize:
+                                          "10px",
+                                        color:
+                                          "#9aa1a9",
+                                        marginTop:
+                                          "3px",
+                                      }}
+                                    >
+                                      {
+                                        movement.description ||
+                                        movement.document ||
+                                        "—"
+                                      }
+                                    </span>
+
+                                  </div>
+
+
+                                  <div
+                                    style={{
+                                      textAlign:
+                                        "right",
+                                    }}
+                                  >
+
+                                    <strong
+                                      style={{
+                                        color:
+                                          numberValue(
+                                            movement.debt
+                                          ) > 0
+                                            ? "#c84d48"
+                                            : "#3e8a64",
+                                        fontSize:
+                                          "12px",
+                                      }}
+                                    >
+
+                                      {
+                                        numberValue(
                                           movement.debt
-                                        )}`
-                                      : `-${money(
-                                          movement.credit
-                                        )}`
-                                  } TL
+                                        ) > 0
+                                          ? `-${money(
+                                              movement.debt
+                                            )}`
+                                          : `+${money(
+                                              movement.credit
+                                            )}`
+                                      } TL
 
-                                </strong>
+                                    </strong>
 
-                                <small>
-                                  {
-                                    formatDate(
-                                      movement.date
-                                    )
-                                  }
-                                </small>
+                                    <small
+                                      style={{
+                                        display:
+                                          "block",
+                                        marginTop:
+                                          "3px",
+                                        color:
+                                          "#a2a8ae",
+                                        fontSize:
+                                          "9px",
+                                      }}
+                                    >
+                                      {
+                                        formatDate(
+                                          movement.date
+                                        )
+                                      }
+                                    </small>
 
-                              </div>
+                                  </div>
 
-                            </div>
+                                </div>
 
-                          )
-                        )
+                              )
+                            )
+                          }
+
+                        </div>
 
                       )
                     }
@@ -1236,32 +2107,590 @@ export default function CustomerDetail() {
 
                 </div>
 
+              )
+            }
 
-                <div className="customer-detail-card">
+
+            {/* =================================================
+                AÇIK FATURALAR SEKMESİ
+            ================================================= */}
+
+            {
+              activeTab ===
+              "invoices" && (
+
+                <div
+                  className="customer-detail-card customer-detail-full-card"
+                >
 
                   <div className="customer-detail-card-header">
 
-                    <strong>
-                      Hesap Bilgileri
-                    </strong>
+                    <div>
+
+                      <strong>
+                        Satış Faturaları
+                      </strong>
+
+                      <span>
+                        {
+                          getCustomerName(
+                            customer
+                          )
+                        }
+                      </span>
+
+                    </div>
+
+
+                    <div
+                      style={{
+                        display:
+                          "flex",
+                        gap:
+                          "6px",
+                      }}
+                    >
+
+                      {
+                        [
+                          "Açık",
+                          "Kapalı",
+                          "Tümü",
+                        ].map(
+                          (filter) => (
+
+                            <button
+                              type="button"
+                              key={
+                                filter
+                              }
+                              onClick={() =>
+                                setInvoiceFilter(
+                                  filter
+                                )
+                              }
+                              className={
+                                invoiceFilter ===
+                                filter
+                                  ? "active"
+                                  : ""
+                              }
+                            >
+                              {
+                                filter
+                              }
+                            </button>
+
+                          )
+                        )
+                      }
+
+                    </div>
+
+                  </div>
+
+
+                  <div className="customer-detail-table-wrapper">
+
+                    <table className="customer-detail-table">
+
+                      <thead>
+
+                        <tr>
+
+                          <th>
+                            TARİH
+                          </th>
+
+                          <th>
+                            FATURA NO
+                          </th>
+
+                          <th>
+                            VADE
+                          </th>
+
+                          <th>
+                            DURUM
+                          </th>
+
+                          <th>
+                            FATURA
+                          </th>
+
+                          <th>
+                            ÖDENEN
+                          </th>
+
+                          <th>
+                            KALAN
+                          </th>
+
+                        </tr>
+
+                      </thead>
+
+
+                      <tbody>
+
+                        {
+                          openInvoices.length ===
+                          0 ? (
+
+                            <tr>
+
+                              <td
+                                colSpan="7"
+                                style={{
+                                  textAlign:
+                                    "center",
+                                  padding:
+                                    "40px",
+                                }}
+                              >
+                                Fatura bulunamadı.
+                              </td>
+
+                            </tr>
+
+                          ) : (
+
+                            openInvoices.map(
+                              (
+                                invoice
+                              ) => {
+
+                                const remaining =
+                                  numberValue(
+                                    invoice.remaining
+                                  );
+
+                                const closed =
+                                  remaining <=
+                                  0.005;
+
+                                return (
+
+                                  <tr
+                                    key={
+                                      invoice.id
+                                    }
+                                    onClick={() =>
+                                      openInvoice(
+                                        invoice
+                                      )
+                                    }
+                                    style={{
+                                      cursor:
+                                        "pointer",
+                                    }}
+                                  >
+
+                                    <td>
+                                      {
+                                        formatDate(
+                                          invoice.date
+                                        )
+                                      }
+                                    </td>
+
+                                    <td>
+
+                                      <strong>
+                                        {
+                                          invoice.invoiceNo ||
+                                          invoice.number ||
+                                          "—"
+                                        }
+                                      </strong>
+
+                                    </td>
+
+                                    <td>
+                                      {
+                                        invoice.dueDate
+                                          ? formatDate(
+                                              invoice.dueDate
+                                            )
+                                          : "—"
+                                      }
+                                    </td>
+
+                                    <td>
+
+                                      <span
+                                        className={
+                                          closed
+                                            ? "customer-detail-type payment"
+                                            : "customer-detail-type sale"
+                                        }
+                                      >
+                                        {
+                                          closed
+                                            ? "Kapalı"
+                                            : "Açık"
+                                        }
+                                      </span>
+
+                                    </td>
+
+                                    <td>
+                                      {
+                                        money(
+                                          invoice.total
+                                        )
+                                      } TL
+                                    </td>
+
+                                    <td>
+                                      {
+                                        money(
+                                          invoice.paidAmount
+                                        )
+                                      } TL
+                                    </td>
+
+                                    <td
+                                      className="detail-debt"
+                                    >
+                                      {
+                                        money(
+                                          remaining
+                                        )
+                                      } TL
+                                    </td>
+
+                                  </tr>
+
+                                );
+
+                              }
+                            )
+
+                          )
+                        }
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+
+                </div>
+
+              )
+            }
+
+
+            {/* =================================================
+                İŞLEM GEÇMİŞİ
+            ================================================= */}
+
+            {
+              activeTab ===
+              "movements" && (
+
+                <div
+                  className="customer-detail-card customer-detail-full-card"
+                >
+
+                  <div className="customer-detail-card-header">
+
+                    <div>
+
+                      <strong>
+                        İşlem Geçmişi
+                      </strong>
+
+                      <span>
+                        Cari hesabın tüm hareketleri
+                      </span>
+
+                    </div>
 
                     <button
                       type="button"
                       onClick={() =>
                         setActiveTab(
-                          "info"
+                          "overview"
                         )
                       }
                     >
-                      Görüntüle
+                      Genel Bakış
                     </button>
 
                   </div>
 
 
-                  <div className="customer-detail-info-list">
+                  <div className="customer-detail-table-wrapper">
+
+                    <table className="customer-detail-table">
+
+                      <thead>
+
+                        <tr>
+
+                          <th>
+                            TARİH
+                          </th>
+
+                          <th>
+                            BELGE NO
+                          </th>
+
+                          <th>
+                            İŞLEM
+                          </th>
+
+                          <th>
+                            AÇIKLAMA
+                          </th>
+
+                          <th>
+                            BORÇ
+                          </th>
+
+                          <th>
+                            ALACAK
+                          </th>
+
+                          <th>
+                            BAKİYE
+                          </th>
+
+                          <th>
+                            İŞLEM
+                          </th>
+
+                        </tr>
+
+                      </thead>
+
+
+                      <tbody>
+
+                        {
+                          normalizedMovements.length ===
+                          0 ? (
+
+                            <tr>
+
+                              <td
+                                colSpan="8"
+                                style={{
+                                  textAlign:
+                                    "center",
+                                  padding:
+                                    "40px",
+                                }}
+                              >
+                                Henüz cari hareket bulunmuyor.
+                              </td>
+
+                            </tr>
+
+                          ) : (
+
+                            (() => {
+
+                              let balance =
+                                0;
+
+
+                              return normalizedMovements.map(
+                                (
+                                  movement
+                                ) => {
+
+                                  balance +=
+                                    numberValue(
+                                      movement.debt
+                                    ) -
+                                    numberValue(
+                                      movement.credit
+                                    );
+
+
+                                  return (
+
+                                    <tr
+                                      key={
+                                        movement.id
+                                      }
+                                    >
+
+                                      <td>
+                                        {
+                                          formatDate(
+                                            movement.date
+                                          )
+                                        }
+                                      </td>
+
+                                      <td>
+                                        {
+                                          movement.document ||
+                                          "—"
+                                        }
+                                      </td>
+
+                                      <td>
+
+                                        <span
+                                          className={
+                                            movement.type ===
+                                              "Tahsilat" ||
+                                            movement.type ===
+                                              "Ödeme"
+                                              ? "customer-detail-type payment"
+                                              : "customer-detail-type sale"
+                                          }
+                                        >
+                                          {
+                                            movement.type ||
+                                            "Hareket"
+                                          }
+                                        </span>
+
+                                      </td>
+
+                                      <td>
+                                        {
+                                          movement.description ||
+                                          "—"
+                                        }
+                                      </td>
+
+                                      <td className="detail-debt">
+
+                                        {
+                                          numberValue(
+                                            movement.debt
+                                          ) > 0
+                                            ? money(
+                                                movement.debt
+                                              )
+                                            : "—"
+                                        }
+
+                                      </td>
+
+                                      <td className="detail-credit">
+
+                                        {
+                                          numberValue(
+                                            movement.credit
+                                          ) > 0
+                                            ? money(
+                                                movement.credit
+                                              )
+                                            : "—"
+                                        }
+
+                                      </td>
+
+                                      <td>
+
+                                        <strong
+                                          className={
+                                            balance >
+                                            0
+                                              ? "cari-status-borclu"
+                                              : "cari-status-alacakli"
+                                          }
+                                        >
+
+                                          {
+                                            money(
+                                              balance
+                                            )
+                                          } TL
+
+                                        </strong>
+
+                                      </td>
+
+                                      <td>
+
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            detailMovement(
+                                              movement
+                                            )
+                                          }
+                                        >
+                                          Detay
+                                        </button>
+
+                                      </td>
+
+                                    </tr>
+
+                                  );
+
+                                }
+                              );
+
+                            })()
+
+                          )
+                        }
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+
+                </div>
+
+              )
+            }
+
+
+            {/* =================================================
+                HESAP BİLGİLERİ
+            ================================================= */}
+
+            {
+              activeTab ===
+              "info" && (
+
+                <div
+                  className="customer-detail-card customer-detail-full-card"
+                >
+
+                  <div className="customer-detail-card-header">
 
                     <div>
+
+                      <strong>
+                        Hesap Bilgileri
+                      </strong>
+
+                      <span>
+                        Cari kayıt bilgileri
+                      </span>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        editCustomer
+                      }
+                    >
+                      Düzenle
+                    </button>
+
+                  </div>
+
+
+                  <div className="customer-detail-information-grid">
+
+                    <div>
+
                       <span>
                         Hesap Türü
                       </span>
@@ -1273,10 +2702,42 @@ export default function CustomerDetail() {
                             : "Müşteri"
                         }
                       </strong>
+
                     </div>
 
+                    <div>
+
+                      <span>
+                        Cari Kodu
+                      </span>
+
+                      <strong>
+                        {
+                          customer.code ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
 
                     <div>
+
+                      <span>
+                        Hesap Adı / Ünvan
+                      </span>
+
+                      <strong>
+                        {
+                          getCustomerName(
+                            customer
+                          )
+                        }
+                      </strong>
+
+                    </div>
+
+                    <div>
+
                       <span>
                         Yetkili
                       </span>
@@ -1288,10 +2749,11 @@ export default function CustomerDetail() {
                           "—"
                         }
                       </strong>
+
                     </div>
 
-
                     <div>
+
                       <span>
                         Telefon
                       </span>
@@ -1302,10 +2764,11 @@ export default function CustomerDetail() {
                           "—"
                         }
                       </strong>
+
                     </div>
 
-
                     <div>
+
                       <span>
                         E-posta
                       </span>
@@ -1316,10 +2779,42 @@ export default function CustomerDetail() {
                           "—"
                         }
                       </strong>
+
                     </div>
 
+                    <div>
+
+                      <span>
+                        Vergi Dairesi
+                      </span>
+
+                      <strong>
+                        {
+                          customer.taxOffice ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
 
                     <div>
+
+                      <span>
+                        Vergi No
+                      </span>
+
+                      <strong>
+                        {
+                          customer.taxNumber ||
+                          customer.taxNo ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+                    <div>
+
                       <span>
                         Vade
                       </span>
@@ -1334,561 +2829,215 @@ export default function CustomerDetail() {
                           )
                         }
                       </strong>
+
+                    </div>
+
+                    <div className="customer-detail-address">
+
+                      <span>
+                        Adres
+                      </span>
+
+                      <strong>
+
+                        {
+                          customer.address ||
+                          "—"
+                        }
+
+                        <br />
+
+                        {
+                          customer.district ||
+                          "—"
+                        }
+
+                        {" / "}
+
+                        {
+                          customer.city ||
+                          "—"
+                        }
+
+                      </strong>
+
                     </div>
 
                   </div>
 
                 </div>
 
-              </div>
+              )
+            }
 
-            </div>
-
-          )
-        }
+          </div>
 
 
-        {/* =================================================
-            CARİ HAREKETLER
-        ================================================= */}
+          {/* =================================================
+              SAĞ FİNANS PANELİ
+          ================================================= */}
 
-        {
-          activeTab ===
-          "movements" && (
+          <aside>
 
-            <div className="customer-detail-card customer-detail-full-card">
+            <div
+              style={{
+                background:
+                  "#fff",
+                border:
+                  "1px solid #e1e5e9",
+                borderRadius:
+                  "8px",
+                overflow:
+                  "hidden",
+                marginBottom:
+                  "14px",
+              }}
+            >
 
-              <div className="customer-detail-card-header">
+              {/* TAHSİLAT BUTONU */}
 
-                <div>
+              <button
+                type="button"
+                onClick={
+                  isSupplier
+                    ? newPayment
+                    : newCollection
+                }
+                style={{
+                  width:
+                    "100%",
+                  border:
+                    "0",
+                  borderRadius:
+                    0,
+                  minHeight:
+                    "46px",
+                  background:
+                    "#2eaac8",
+                  color:
+                    "#fff",
+                  fontSize:
+                    "11px",
+                  fontWeight:
+                    700,
+                  cursor:
+                    "pointer",
+                }}
+              >
+                {
+                  isSupplier
+                    ? "ÖDEME EKLE"
+                    : "TAHSİLAT EKLE"
+                }
+              </button>
 
-                  <strong>
-                    Cari Hareketler
-                  </strong>
 
-                  <span>
-                    {
-                      customer.name
-                    }
-                  </span>
+              {/* HESAP ÖZETİ */}
 
-                </div>
+              <div
+                style={{
+                  padding:
+                    "16px",
+                }}
+              >
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setActiveTab(
-                      "overview"
-                    )
-                  }
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    alignItems:
+                      "center",
+                    padding:
+                      "8px 0",
+                    borderBottom:
+                      "1px solid #f0f1f3",
+                  }}
                 >
-                  Genel Bakış
-                </button>
 
-              </div>
-
-
-              <div className="customer-detail-table-wrapper">
-
-                <table className="customer-detail-table">
-
-                  <thead>
-
-                    <tr>
-
-                      <th>
-                        TARİH
-                      </th>
-
-                      <th>
-                        BELGE NO
-                      </th>
-
-                      <th>
-                        İŞLEM
-                      </th>
-
-                      <th>
-                        AÇIKLAMA
-                      </th>
-
-                      <th>
-                        BORÇ
-                      </th>
-
-                      <th>
-                        ALACAK
-                      </th>
-
-                      <th>
-                        BAKİYE
-                      </th>
-
-                      <th>
-                        İŞLEMLER
-                      </th>
-
-                    </tr>
-
-                  </thead>
-
-
-                  <tbody>
-
-                    {
-                      normalizedMovements.length ===
-                      0 ? (
-
-                        <tr>
-
-                          <td
-                            colSpan="8"
-                            style={{
-                              textAlign:
-                                "center",
-                              padding:
-                                "40px",
-                            }}
-                          >
-                            Bu cari hesapta henüz hareket bulunmuyor.
-                          </td>
-
-                        </tr>
-
-                      ) : (
-
-                        (() => {
-
-                          let runningBalance =
-                            0;
-
-
-                          return normalizedMovements
-                            .map(
-                              (
-                                movement
-                              ) => {
-
-                                runningBalance =
-                                  runningBalance +
-                                  numberValue(
-                                    movement.debt
-                                  ) -
-                                  numberValue(
-                                    movement.credit
-                                  );
-
-
-                                return (
-                                  <tr
-                                    key={
-                                      movement.id
-                                    }
-                                  >
-
-                                    <td>
-                                      {
-                                        formatDate(
-                                          movement.date
-                                        )
-                                      }
-                                    </td>
-
-
-                                    <td className="customer-detail-document">
-                                      {
-                                        movement.document ||
-                                        "—"
-                                      }
-                                    </td>
-
-
-                                    <td>
-
-                                      <span
-                                        className={
-                                          movement.type ===
-                                            "Tahsilat" ||
-                                          movement.type ===
-                                            "Ödeme"
-                                            ? "customer-detail-type payment"
-                                            : "customer-detail-type sale"
-                                        }
-                                      >
-                                        {
-                                          movement.type
-                                        }
-                                      </span>
-
-                                    </td>
-
-
-                                    <td>
-                                      {
-                                        movement.description ||
-                                        "—"
-                                      }
-                                    </td>
-
-
-                                    <td className="detail-debt">
-
-                                      {
-                                        numberValue(
-                                          movement.debt
-                                        ) > 0
-                                          ? money(
-                                              movement.debt
-                                            )
-                                          : "—"
-                                      }
-
-                                    </td>
-
-
-                                    <td className="detail-credit">
-
-                                      {
-                                        numberValue(
-                                          movement.credit
-                                        ) > 0
-                                          ? money(
-                                              movement.credit
-                                            )
-                                          : "—"
-                                      }
-
-                                    </td>
-
-
-                                    <td
-                                      className={
-                                        runningBalance >
-                                        0
-                                          ? "cari-status-borclu"
-                                          : runningBalance <
-                                            0
-                                          ? "cari-status-alacakli"
-                                          : "cari-status-zero"
-                                      }
-                                    >
-
-                                      {
-                                        money(
-                                          runningBalance
-                                        )
-                                      }{" "}
-                                      TL
-
-                                    </td>
-
-
-                                    <td>
-
-                                      <div className="customer-detail-row-action">
-
-                                        <button
-                                          type="button"
-                                          onClick={(
-                                            event
-                                          ) => {
-
-                                            event.stopPropagation();
-
-                                            setActiveMenu(
-                                              activeMenu ===
-                                                movement.id
-                                                ? null
-                                                : movement.id
-                                            );
-
-                                          }}
-                                        >
-                                          ⋮
-                                        </button>
-
-
-                                        {
-                                          activeMenu ===
-                                          movement.id && (
-
-                                            <div className="customer-detail-row-menu">
-
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  detailMovement(
-                                                    movement
-                                                  )
-                                                }
-                                              >
-                                                Detay
-                                              </button>
-
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  alert(
-                                                    "Bu hareket için düzenleme ekranı daha sonra bağlanacaktır."
-                                                  )
-                                                }
-                                              >
-                                                Düzenle
-                                              </button>
-
-                                              <button
-                                                type="button"
-                                                onClick={() =>
-                                                  alert(
-                                                    "PDF hazırlanacak."
-                                                  )
-                                                }
-                                              >
-                                                PDF
-                                              </button>
-
-                                            </div>
-
-                                          )
-                                        }
-
-                                      </div>
-
-                                    </td>
-
-                                  </tr>
-                                );
-
-                              }
-                            );
-
-                        })()
-
-                      )
-                    }
-
-                  </tbody>
-
-                </table>
-
-              </div>
-
-            </div>
-
-          )
-        }
-
-
-        {/* =================================================
-            HESAP BİLGİLERİ
-        ================================================= */}
-
-        {
-          activeTab ===
-          "info" && (
-
-            <div className="customer-detail-content">
-
-              <div className="customer-detail-card customer-detail-full-card">
-
-                <div className="customer-detail-card-header">
-
-                  <strong>
-                    Hesap Bilgileri
-                  </strong>
-
-                  <button
-                    type="button"
-                    onClick={
-                      editCustomer
-                    }
+                  <span
+                    style={{
+                      color:
+                        "#7d858e",
+                      fontSize:
+                        "10px",
+                    }}
                   >
-                    Düzenle
-                  </button>
-
-                </div>
-
-
-                <div className="customer-detail-information-grid">
-
-                  <div>
-                    <span>
-                      Hesap Türü
-                    </span>
-
-                    <strong>
-                      {
-                        isSupplier
-                          ? "Tedarikçi"
-                          : "Müşteri"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Cari Kodu
-                    </span>
-
-                    <strong>
-                      {
-                        customer.code
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Hesap Adı / Ünvan
-                    </span>
-
-                    <strong>
-                      {
-                        customer.name
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Yetkili
-                    </span>
-
-                    <strong>
-                      {
-                        customer.contact ||
-                        customer.contactPerson ||
-                        "—"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Telefon
-                    </span>
-
-                    <strong>
-                      {
-                        customer.phone ||
-                        "—"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      E-posta
-                    </span>
-
-                    <strong>
-                      {
-                        customer.email ||
-                        "—"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Vergi Dairesi
-                    </span>
-
-                    <strong>
-                      {
-                        customer.taxOffice ||
-                        "—"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Vergi No
-                    </span>
-
-                    <strong>
-                      {
-                        customer.taxNumber ||
-                        customer.taxNo ||
-                        "—"
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div>
-                    <span>
-                      Vade
-                    </span>
-
-                    <strong>
-                      {
-                        customer.term ||
-                        (
-                          customer.dueDays
-                            ? `${customer.dueDays} Gün`
-                            : "—"
-                        )
-                      }
-                    </strong>
-                  </div>
-
-
-                  <div className="customer-detail-address">
-
-                    <span>
-                      Adres
-                    </span>
-
-                    <strong>
-
-                      {
-                        customer.address ||
-                        "—"
-                      }
-
-                      <br />
-
-                      {
-                        customer.district ||
-                        "—"
-                      }
-
-                      {" / "}
-
-                      {
-                        customer.city ||
-                        "—"
-                      }
-
-                    </strong>
-
-                  </div>
-
-                </div>
-
-
-                <div className="customer-detail-note">
-
-                  <span>
-                    Not
+                    {
+                      isSupplier
+                        ? "YAPILACAK ÖDEME"
+                        : "YAPILACAK TAHSİLAT"
+                    }
                   </span>
 
-                  <p>
+                  <strong
+                    style={{
+                      color:
+                        customerReceivable >
+                        0
+                          ? "#8e959d"
+                          : "#3f8f62",
+                      fontSize:
+                        "13px",
+                    }}
+                  >
                     {
-                      customer.notes ||
-                      customer.note ||
-                      "—"
+                      money(
+                        customerReceivable
+                      )
+                    } TL
+                  </strong>
+
+                </div>
+
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    alignItems:
+                      "center",
+                    padding:
+                      "12px 0 4px",
+                  }}
+                >
+
+                  <span
+                    style={{
+                      fontSize:
+                        "10px",
+                      fontWeight:
+                        700,
+                      color:
+                        "#39424b",
+                    }}
+                  >
+                    {
+                      isSupplier
+                        ? "TOPLAM ÖDEME"
+                        : "TOPLAM TAHSİLAT"
                     }
-                  </p>
+                  </span>
+
+                  <strong
+                    style={{
+                      color:
+                        "#2eaac8",
+                      fontSize:
+                        "14px",
+                    }}
+                  >
+                    {
+                      money(
+                        isSupplier
+                          ? movementTotals.payment
+                          : movementTotals.collection
+                      )
+                    } TL
+                  </strong>
 
                 </div>
 
@@ -1896,13 +3045,260 @@ export default function CustomerDetail() {
 
             </div>
 
-          )
-        }
+
+            {/* CARİ DURUM */}
+
+            <div
+              style={{
+                background:
+                  "#fff",
+                border:
+                  "1px solid #e1e5e9",
+                borderRadius:
+                  "8px",
+                padding:
+                  "16px",
+                marginBottom:
+                  "14px",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  color:
+                    "#979ea7",
+                  marginBottom:
+                    "8px",
+                  fontWeight:
+                    700,
+                }}
+              >
+                CARİ DURUM
+              </div>
+
+
+              <div
+                style={{
+                  display:
+                    "flex",
+                  justifyContent:
+                    "space-between",
+                  alignItems:
+                    "center",
+                }}
+              >
+
+                <strong
+                  className={
+                    statusClass
+                  }
+                  style={{
+                    fontSize:
+                      "12px",
+                  }}
+                >
+                  {
+                    statusLabel
+                  }
+                </strong>
+
+                <strong
+                  style={{
+                    fontSize:
+                      "18px",
+                    color:
+                      "#38414a",
+                  }}
+                >
+                  {
+                    money(
+                      customerReceivable
+                    )
+                  } TL
+                </strong>
+
+              </div>
+
+
+              <div
+                style={{
+                  height:
+                    "4px",
+                  background:
+                    "#eef0f2",
+                  borderRadius:
+                    "10px",
+                  marginTop:
+                    "12px",
+                  overflow:
+                    "hidden",
+                }}
+              >
+
+                <div
+                  style={{
+                    width:
+                      invoiceSummary.salesTotal >
+                      0
+                        ? `${Math.min(
+                            100,
+                            (
+                              invoiceSummary.totalPaid /
+                              invoiceSummary.salesTotal
+                            ) *
+                              100
+                          )}%`
+                        : "0%",
+                    height:
+                      "100%",
+                    background:
+                      "#2eaac8",
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+
+            {/* HIZLI İŞLEMLER */}
+
+            <div
+              style={{
+                background:
+                  "#fff",
+                border:
+                  "1px solid #e1e5e9",
+                borderRadius:
+                  "8px",
+                padding:
+                  "16px",
+              }}
+            >
+
+              <div
+                style={{
+                  fontSize:
+                    "10px",
+                  fontWeight:
+                    700,
+                  color:
+                    "#979ea7",
+                  marginBottom:
+                    "10px",
+                }}
+              >
+                HIZLI İŞLEMLER
+              </div>
+
+
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveTab(
+                    "invoices"
+                  )
+                }
+                style={{
+                  width:
+                    "100%",
+                  textAlign:
+                    "left",
+                  border:
+                    "1px solid #e6e8ea",
+                  background:
+                    "#fff",
+                  borderRadius:
+                    "4px",
+                  padding:
+                    "10px",
+                  marginBottom:
+                    "7px",
+                  cursor:
+                    "pointer",
+                  color:
+                    "#59616a",
+                  fontSize:
+                    "11px",
+                }}
+              >
+                ▤ Açık Faturaları Gör
+              </button>
+
+
+              <button
+                type="button"
+                onClick={() =>
+                  setActiveTab(
+                    "movements"
+                  )
+                }
+                style={{
+                  width:
+                    "100%",
+                  textAlign:
+                    "left",
+                  border:
+                    "1px solid #e6e8ea",
+                  background:
+                    "#fff",
+                  borderRadius:
+                    "4px",
+                  padding:
+                    "10px",
+                  marginBottom:
+                    "7px",
+                  cursor:
+                    "pointer",
+                  color:
+                    "#59616a",
+                  fontSize:
+                    "11px",
+                }}
+              >
+                ↻ İşlem Geçmişi
+              </button>
+
+
+              <button
+                type="button"
+                onClick={
+                  editCustomer
+                }
+                style={{
+                  width:
+                    "100%",
+                  textAlign:
+                    "left",
+                  border:
+                    "1px solid #e6e8ea",
+                  background:
+                    "#fff",
+                  borderRadius:
+                    "4px",
+                  padding:
+                    "10px",
+                  cursor:
+                    "pointer",
+                  color:
+                    "#59616a",
+                  fontSize:
+                    "11px",
+                }}
+              >
+                ✎ Cari Bilgilerini Düzenle
+              </button>
+
+            </div>
+
+          </aside>
+
+        </div>
 
       </div>
 
     </div>
-
   );
-
 }

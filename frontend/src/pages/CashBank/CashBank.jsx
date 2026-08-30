@@ -1,4 +1,9 @@
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import "./CashBank.css";
 
 const ACCOUNT_STORAGE_KEY =
@@ -45,7 +50,9 @@ function number(value) {
   }
 
   if (typeof value === "number") {
-    return Number.isFinite(value) ? value : 0;
+    return Number.isFinite(value)
+      ? value
+      : 0;
   }
 
   let text = String(value).trim();
@@ -68,6 +75,86 @@ function number(value) {
     : 0;
 }
 
+function normalizeAccountType(
+  account
+) {
+  if (!account) {
+    return "Banka";
+  }
+
+  const currentType =
+    String(
+      account.type || ""
+    ).trim();
+
+  const name =
+    String(
+      account.name || ""
+    ).toLocaleLowerCase(
+      "tr-TR"
+    );
+
+  const bank =
+    String(
+      account.bank || ""
+    ).toLocaleLowerCase(
+      "tr-TR"
+    );
+
+  const combined =
+    `${name} ${bank}`
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  /*
+    Eski kayıtlarda POS hesapları
+    yanlışlıkla "Banka" olarak tutulmuşsa
+    otomatik olarak POS'a çeviriyoruz.
+  */
+  if (
+    currentType === "POS" ||
+    combined.includes("pos")
+  ) {
+    return "POS";
+  }
+
+  if (
+    currentType === "Kasa"
+  ) {
+    return "Kasa";
+  }
+
+  return "Banka";
+}
+
+function normalizeAccounts(
+  accounts
+) {
+  if (
+    !Array.isArray(accounts)
+  ) {
+    return [];
+  }
+
+  return accounts.map(
+    (account) => ({
+      ...account,
+      type:
+        normalizeAccountType(
+          account
+        ),
+      balance:
+        number(
+          account.balance
+        ),
+      status:
+        account.status ||
+        "Aktif",
+    })
+  );
+}
+
 function readAccounts() {
   try {
     const saved =
@@ -76,10 +163,15 @@ function readAccounts() {
       );
 
     if (saved) {
-      const parsed = JSON.parse(saved);
+      const parsed =
+        JSON.parse(saved);
 
-      if (Array.isArray(parsed)) {
-        return parsed;
+      if (
+        Array.isArray(parsed)
+      ) {
+        return normalizeAccounts(
+          parsed
+        );
       }
     }
   } catch (error) {
@@ -100,9 +192,12 @@ function readMovements() {
       );
 
     if (saved) {
-      const parsed = JSON.parse(saved);
+      const parsed =
+        JSON.parse(saved);
 
-      if (Array.isArray(parsed)) {
+      if (
+        Array.isArray(parsed)
+      ) {
         return parsed;
       }
     }
@@ -116,116 +211,254 @@ function readMovements() {
   return [];
 }
 
-function saveAccounts(accounts) {
+function saveAccounts(
+  accounts
+) {
   localStorage.setItem(
     ACCOUNT_STORAGE_KEY,
-    JSON.stringify(accounts)
+    JSON.stringify(
+      normalizeAccounts(
+        accounts
+      )
+    )
   );
 
   window.dispatchEvent(
-    new Event("ren-cash-bank-updated")
+    new Event(
+      "ren-cash-bank-updated"
+    )
   );
 }
 
-function saveMovements(movements) {
+function saveMovements(
+  movements
+) {
   localStorage.setItem(
     MOVEMENT_STORAGE_KEY,
-    JSON.stringify(movements)
+    JSON.stringify(
+      movements
+    )
   );
 
   window.dispatchEvent(
-    new Event("ren-cash-bank-updated")
+    new Event(
+      "ren-cash-bank-updated"
+    )
   );
 }
 
-function accountIcon(type) {
-  if (type === "POS") return "▣";
-  if (type === "Banka") return "₺";
+function accountIcon(
+  type
+) {
+  if (type === "POS") {
+    return "▣";
+  }
+
+  if (type === "Banka") {
+    return "₺";
+  }
+
   return "▤";
 }
 
 export default function CashBank() {
-  const [accounts, setAccounts] =
-    useState(readAccounts);
+  const [
+    accounts,
+    setAccounts,
+  ] = useState(
+    readAccounts
+  );
 
-  const [movements, setMovements] =
-    useState(readMovements);
+  const [
+    movements,
+    setMovements,
+  ] = useState(
+    readMovements
+  );
 
-  const [activeTab, setActiveTab] =
-    useState("accounts");
+  const [
+    activeTab,
+    setActiveTab,
+  ] = useState(
+    "accounts"
+  );
 
-  const [showAccountModal, setShowAccountModal] =
-    useState(false);
+  const [
+    showAccountModal,
+    setShowAccountModal,
+  ] = useState(
+    false
+  );
 
-  const [showMovementModal, setShowMovementModal] =
-    useState(false);
+  const [
+    showMovementModal,
+    setShowMovementModal,
+  ] = useState(
+    false
+  );
 
-  const [editingAccount, setEditingAccount] =
-    useState(null);
+  const [
+    editingAccount,
+    setEditingAccount,
+  ] = useState(
+    null
+  );
 
-  const [accountForm, setAccountForm] =
-    useState({
-      name: "",
-      type: "Banka",
-      bank: "",
-      iban: "",
-      openingBalance: "",
-    });
+  const [
+    accountForm,
+    setAccountForm,
+  ] = useState({
+    name: "",
+    type: "Banka",
+    bank: "",
+    iban: "",
+    openingBalance: "",
+  });
 
-  const [movementForm, setMovementForm] =
-    useState({
-      accountId: "",
-      direction: "Giriş",
-      amount: "",
-      description: "",
-      date: new Date()
+  const [
+    movementForm,
+    setMovementForm,
+  ] = useState({
+    accountId: "",
+    direction: "Giriş",
+    amount: "",
+    description: "",
+    date:
+      new Date()
         .toISOString()
         .slice(0, 10),
-      method: "Nakit",
-    });
+    method: "Nakit",
+  });
+
+  /* =====================================================
+     VERİLERİ YENİLE
+  ===================================================== */
+
+  const refreshData = () => {
+    const normalized =
+      readAccounts();
+
+    setAccounts(
+      normalized
+    );
+
+    /*
+      Eski kayıtların türleri yanlışsa
+      bir kez kalıcı olarak düzelt.
+    */
+    localStorage.setItem(
+      ACCOUNT_STORAGE_KEY,
+      JSON.stringify(
+        normalized
+      )
+    );
+
+    setMovements(
+      readMovements()
+    );
+  };
+
+  useEffect(() => {
+    refreshData();
+
+    const events = [
+      "ren-cash-bank-updated",
+      "ren-invoices-updated",
+      "ren-finance-updated",
+      "ren-customers-updated",
+      "ren-stock-updated",
+    ];
+
+    events.forEach(
+      (eventName) => {
+        window.addEventListener(
+          eventName,
+          refreshData
+        );
+      }
+    );
+
+    return () => {
+      events.forEach(
+        (eventName) => {
+          window.removeEventListener(
+            eventName,
+            refreshData
+          );
+        }
+      );
+    };
+  }, []);
 
   /* =====================================================
      ÖZETLER
   ===================================================== */
 
-  const totalCash = useMemo(() => {
-    return accounts
-      .filter(
-        (account) =>
-          account.type === "Kasa"
-      )
-      .reduce(
-        (total, account) =>
-          total + number(account.balance),
-        0
-      );
-  }, [accounts]);
+  const totalCash =
+    useMemo(() => {
+      return accounts
+        .filter(
+          (account) =>
+            normalizeAccountType(
+              account
+            ) === "Kasa"
+        )
+        .reduce(
+          (
+            total,
+            account
+          ) =>
+            total +
+            number(
+              account.balance
+            ),
+          0
+        );
+    }, [accounts]);
 
-  const totalBank = useMemo(() => {
-    return accounts
-      .filter(
-        (account) =>
-          account.type === "Banka"
-      )
-      .reduce(
-        (total, account) =>
-          total + number(account.balance),
-        0
-      );
-  }, [accounts]);
+  const totalBank =
+    useMemo(() => {
+      return accounts
+        .filter(
+          (account) =>
+            normalizeAccountType(
+              account
+            ) === "Banka"
+        )
+        .reduce(
+          (
+            total,
+            account
+          ) =>
+            total +
+            number(
+              account.balance
+            ),
+          0
+        );
+    }, [accounts]);
 
-  const totalPos = useMemo(() => {
-    return accounts
-      .filter(
-        (account) =>
-          account.type === "POS"
-      )
-      .reduce(
-        (total, account) =>
-          total + number(account.balance),
-        0
-      );
-  }, [accounts]);
+  const totalPos =
+    useMemo(() => {
+      return accounts
+        .filter(
+          (account) =>
+            normalizeAccountType(
+              account
+            ) === "POS"
+        )
+        .reduce(
+          (
+            total,
+            account
+          ) =>
+            total +
+            number(
+              account.balance
+            ),
+          0
+        );
+    }, [accounts]);
 
   const totalLiquidity =
     totalCash +
@@ -236,330 +469,434 @@ export default function CashBank() {
      FORM TEMİZLE
   ===================================================== */
 
-  const resetAccountForm = () => {
-    setAccountForm({
-      name: "",
-      type: "Banka",
-      bank: "",
-      iban: "",
-      openingBalance: "",
-    });
+  const resetAccountForm =
+    () => {
+      setAccountForm({
+        name: "",
+        type: "Banka",
+        bank: "",
+        iban: "",
+        openingBalance: "",
+      });
 
-    setEditingAccount(null);
-  };
+      setEditingAccount(
+        null
+      );
+    };
 
   /* =====================================================
      YENİ HESAP
   ===================================================== */
 
-  const openNewAccount = () => {
-    resetAccountForm();
-    setShowAccountModal(true);
-  };
+  const openNewAccount =
+    () => {
+      resetAccountForm();
+      setShowAccountModal(
+        true
+      );
+    };
 
   /* =====================================================
-     HESAP DÜZENLE
+     DÜZENLE
   ===================================================== */
 
-  const openEditAccount = (account) => {
-    setEditingAccount(account);
-
-    setAccountForm({
-      name: account.name || "",
-      type: account.type || "Banka",
-      bank: account.bank || "",
-      iban: account.iban || "",
-      openingBalance:
-        account.balance ?? "",
-    });
-
-    setShowAccountModal(true);
-  };
-
-  /* =====================================================
-     HESAP KAYDET / GÜNCELLE
-  ===================================================== */
-
-  const handleAccountSubmit = (event) => {
-    event.preventDefault();
-
-    const name =
-      accountForm.name.trim();
-
-    if (!name) {
-      alert("Hesap adı zorunludur.");
-      return;
-    }
-
-    const balance =
-      number(
-        accountForm.openingBalance
+  const openEditAccount =
+    (account) => {
+      setEditingAccount(
+        account
       );
 
-    if (editingAccount) {
-      const updatedAccounts =
-        accounts.map((account) => {
-          if (
-            String(account.id) !==
-            String(editingAccount.id)
-          ) {
-            return account;
-          }
-
-          return {
-            ...account,
-            name,
-            type: accountForm.type,
-            bank:
-              accountForm.bank.trim(),
-            iban:
-              accountForm.iban.trim(),
-            balance,
-          };
-        });
-
-      saveAccounts(updatedAccounts);
-      setAccounts(updatedAccounts);
-    } else {
-      const newAccount = {
-        id:
-          Date.now() +
-          Math.random(),
-
-        name,
-
+      setAccountForm({
+        name:
+          account.name || "",
         type:
-          accountForm.type,
-
+          normalizeAccountType(
+            account
+          ),
         bank:
-          accountForm.bank.trim(),
-
+          account.bank || "",
         iban:
-          accountForm.iban.trim(),
+          account.iban || "",
+        openingBalance:
+          account.balance ?? "",
+      });
 
-        balance,
+      setShowAccountModal(
+        true
+      );
+    };
 
-        status: "Aktif",
-      };
+  /* =====================================================
+     HESAP KAYDET
+  ===================================================== */
 
-      const updatedAccounts = [
-        ...accounts,
-        newAccount,
-      ];
+  const handleAccountSubmit =
+    (event) => {
+      event.preventDefault();
 
-      saveAccounts(updatedAccounts);
-      setAccounts(updatedAccounts);
-    }
+      const name =
+        accountForm.name.trim();
 
-    resetAccountForm();
-    setShowAccountModal(false);
-  };
+      if (!name) {
+        alert(
+          "Hesap adı zorunludur."
+        );
+        return;
+      }
+
+      const balance =
+        number(
+          accountForm.openingBalance
+        );
+
+      if (
+        editingAccount
+      ) {
+        const updated =
+          accounts.map(
+            (account) => {
+              if (
+                String(
+                  account.id
+                ) !==
+                String(
+                  editingAccount.id
+                )
+              ) {
+                return account;
+              }
+
+              return {
+                ...account,
+                name,
+                type:
+                  accountForm.type,
+                bank:
+                  accountForm.bank.trim(),
+                iban:
+                  accountForm.iban.trim(),
+                balance,
+              };
+            }
+          );
+
+        saveAccounts(
+          updated
+        );
+
+        setAccounts(
+          normalizeAccounts(
+            updated
+          )
+        );
+      } else {
+        const newAccount = {
+          id:
+            Date.now() +
+            Math.random(),
+
+          name,
+
+          type:
+            accountForm.type,
+
+          bank:
+            accountForm.bank.trim(),
+
+          iban:
+            accountForm.iban.trim(),
+
+          balance,
+
+          status:
+            "Aktif",
+        };
+
+        const updated = [
+          ...accounts,
+          newAccount,
+        ];
+
+        saveAccounts(
+          updated
+        );
+
+        setAccounts(
+          normalizeAccounts(
+            updated
+          )
+        );
+      }
+
+      resetAccountForm();
+      setShowAccountModal(
+        false
+      );
+    };
 
   /* =====================================================
      HESAP SİL
   ===================================================== */
 
-  const deleteAccount = (accountId) => {
-    const account =
-      accounts.find(
-        (item) =>
-          String(item.id) ===
-          String(accountId)
+  const deleteAccount =
+    (accountId) => {
+      const account =
+        accounts.find(
+          (item) =>
+            String(
+              item.id
+            ) ===
+            String(
+              accountId
+            )
+        );
+
+      if (!account) {
+        return;
+      }
+
+      if (
+        number(
+          account.balance
+        ) !== 0
+      ) {
+        alert(
+          "Bakiyesi olan hesap silinemez. Önce hesabın bakiyesini sıfırlayın."
+        );
+
+        return;
+      }
+
+      const hasMovement =
+        movements.some(
+          (movement) =>
+            String(
+              movement.accountId
+            ) ===
+            String(
+              accountId
+            )
+        );
+
+      if (
+        hasMovement
+      ) {
+        alert(
+          "Bu hesaba ait finans hareketleri bulunduğu için hesap silinemez."
+        );
+
+        return;
+      }
+
+      const confirmed =
+        window.confirm(
+          `${account.name} hesabını silmek istediğinize emin misiniz?`
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const updated =
+        accounts.filter(
+          (item) =>
+            String(
+              item.id
+            ) !==
+            String(
+              accountId
+            )
+        );
+
+      saveAccounts(
+        updated
       );
 
-    if (!account) {
-      return;
-    }
-
-    if (
-      number(account.balance) !== 0
-    ) {
-      alert(
-        "Bakiyesi olan hesap silinemez. Önce hesabın bakiyesini sıfırlayın."
+      setAccounts(
+        normalizeAccounts(
+          updated
+        )
       );
-      return;
-    }
-
-    const hasMovement =
-      movements.some(
-        (movement) =>
-          String(
-            movement.accountId
-          ) === String(accountId)
-      );
-
-    if (hasMovement) {
-      alert(
-        "Bu hesaba ait finans hareketleri bulunduğu için hesap silinemez."
-      );
-      return;
-    }
-
-    const confirmed =
-      window.confirm(
-        `${account.name} hesabını silmek istediğinize emin misiniz?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
-
-    const updatedAccounts =
-      accounts.filter(
-        (item) =>
-          String(item.id) !==
-          String(accountId)
-      );
-
-    saveAccounts(updatedAccounts);
-    setAccounts(updatedAccounts);
-  };
+    };
 
   /* =====================================================
      HAREKET KAYDET
   ===================================================== */
 
-  const handleMovementSubmit = (
-    event
-  ) => {
-    event.preventDefault();
+  const handleMovementSubmit =
+    (event) => {
+      event.preventDefault();
 
-    const account =
-      accounts.find(
-        (item) =>
-          String(item.id) ===
-          String(
-            movementForm.accountId
-          )
+      const account =
+        accounts.find(
+          (item) =>
+            String(
+              item.id
+            ) ===
+            String(
+              movementForm.accountId
+            )
+        );
+
+      const amount =
+        number(
+          movementForm.amount
+        );
+
+      if (!account) {
+        alert(
+          "Hesap seçiniz."
+        );
+        return;
+      }
+
+      if (amount <= 0) {
+        alert(
+          "Geçerli bir tutar giriniz."
+        );
+        return;
+      }
+
+      const signedAmount =
+        movementForm.direction ===
+        "Giriş"
+          ? amount
+          : -amount;
+
+      const updatedAccounts =
+        accounts.map(
+          (item) => {
+            if (
+              String(
+                item.id
+              ) !==
+              String(
+                account.id
+              )
+            ) {
+              return item;
+            }
+
+            return {
+              ...item,
+
+              balance:
+                number(
+                  item.balance
+                ) +
+                signedAmount,
+            };
+          }
+        );
+
+      const movement = {
+        id:
+          `CB-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 7)}`,
+
+        accountId:
+          account.id,
+
+        accountName:
+          account.name,
+
+        accountType:
+          normalizeAccountType(
+            account
+          ),
+
+        direction:
+          movementForm.direction,
+
+        amount,
+
+        description:
+          movementForm.description ||
+          "Manuel finans hareketi",
+
+        date:
+          movementForm.date,
+
+        method:
+          movementForm.method,
+
+        source:
+          "manual",
+
+        createdAt:
+          new Date().toISOString(),
+      };
+
+      const updatedMovements =
+        [
+          movement,
+          ...movements,
+        ];
+
+      saveAccounts(
+        updatedAccounts
       );
 
-    const amount =
-      number(
-        movementForm.amount
+      saveMovements(
+        updatedMovements
       );
 
-    if (!account) {
-      alert("Hesap seçiniz.");
-      return;
-    }
-
-    if (amount <= 0) {
-      alert(
-        "Geçerli bir tutar giriniz."
+      setAccounts(
+        normalizeAccounts(
+          updatedAccounts
+        )
       );
-      return;
-    }
 
-    const signedAmount =
-      movementForm.direction ===
-      "Giriş"
-        ? amount
-        : -amount;
+      setMovements(
+        updatedMovements
+      );
 
-    const updatedAccounts =
-      accounts.map((item) => {
-        if (
-          String(item.id) !==
-          String(account.id)
-        ) {
-          return item;
-        }
-
-        return {
-          ...item,
-          balance:
-            number(item.balance) +
-            signedAmount,
-        };
+      setMovementForm({
+        accountId: "",
+        direction: "Giriş",
+        amount: "",
+        description: "",
+        date:
+          new Date()
+            .toISOString()
+            .slice(0, 10),
+        method: "Nakit",
       });
 
-    const movement = {
-      id:
-        `CB-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 7)}`,
-
-      accountId:
-        account.id,
-
-      accountName:
-        account.name,
-
-      accountType:
-        account.type,
-
-      direction:
-        movementForm.direction,
-
-      amount,
-
-      description:
-        movementForm.description ||
-        "Manuel finans hareketi",
-
-      date:
-        movementForm.date,
-
-      method:
-        movementForm.method,
-
-      source:
-        "manual",
-
-      createdAt:
-        new Date().toISOString(),
+      setShowMovementModal(
+        false
+      );
     };
-
-    const updatedMovements = [
-      movement,
-      ...movements,
-    ];
-
-    saveAccounts(updatedAccounts);
-    saveMovements(updatedMovements);
-
-    setAccounts(updatedAccounts);
-    setMovements(updatedMovements);
-
-    setMovementForm({
-      accountId: "",
-      direction: "Giriş",
-      amount: "",
-      description: "",
-      date:
-        new Date()
-          .toISOString()
-          .slice(0, 10),
-      method: "Nakit",
-    });
-
-    setShowMovementModal(false);
-  };
 
   /* =====================================================
      YENİ HAREKET
   ===================================================== */
 
-  const openMovement = (
-    accountId = ""
-  ) => {
-    setMovementForm({
-      accountId,
-      direction: "Giriş",
-      amount: "",
-      description: "",
-      date:
-        new Date()
-          .toISOString()
-          .slice(0, 10),
-      method: "Nakit",
-    });
+  const openMovement =
+    (
+      accountId = ""
+    ) => {
+      setMovementForm({
+        accountId,
+        direction: "Giriş",
+        amount: "",
+        description: "",
+        date:
+          new Date()
+            .toISOString()
+            .slice(0, 10),
+        method: "Nakit",
+      });
 
-    setShowMovementModal(true);
-  };
+      setShowMovementModal(
+        true
+      );
+    };
 
   return (
     <div className="cash-bank-page">
+
       <div className="cash-bank-container">
 
         {/* HEADER */}
@@ -567,16 +904,21 @@ export default function CashBank() {
         <div className="cash-bank-header">
 
           <div>
+
             <div className="cash-bank-breadcrumb">
+
               <span>
                 Kasa - Banka
               </span>
 
-              <span>/</span>
+              <span>
+                /
+              </span>
 
               <strong>
                 Finans
               </strong>
+
             </div>
 
             <h1>
@@ -587,33 +929,31 @@ export default function CashBank() {
               Kasa, banka ve POS hesaplarınızı
               tek ekrandan yönetin.
             </p>
+
           </div>
 
           <div className="cash-bank-header-actions">
 
             <button
               className="cash-bank-secondary-button"
-              onClick={() => {
-                setAccounts(
-                  readAccounts()
-                );
-
-                setMovements(
-                  readMovements()
-                );
-              }}
+              onClick={
+                refreshData
+              }
             >
               ↻ Yenile
             </button>
 
             <button
               className="cash-bank-primary-button"
-              onClick={openNewAccount}
+              onClick={
+                openNewAccount
+              }
             >
               + Yeni Hesap
             </button>
 
           </div>
+
         </div>
 
         {/* SUMMARY */}
@@ -621,59 +961,75 @@ export default function CashBank() {
         <div className="cash-bank-summary">
 
           <div className="cash-bank-summary-card">
+
             <span>
               TOPLAM KASA
             </span>
 
             <strong>
-              {money(totalCash)} TL
+              {money(
+                totalCash
+              )} TL
             </strong>
 
             <small>
               Tüm kasa hesapları
             </small>
+
           </div>
 
           <div className="cash-bank-summary-card">
+
             <span>
               TOPLAM BANKA
             </span>
 
             <strong>
-              {money(totalBank)} TL
+              {money(
+                totalBank
+              )} TL
             </strong>
 
             <small>
               Tüm banka hesapları
             </small>
+
           </div>
 
           <div className="cash-bank-summary-card">
+
             <span>
               TOPLAM POS
             </span>
 
             <strong>
-              {money(totalPos)} TL
+              {money(
+                totalPos
+              )} TL
             </strong>
 
             <small>
               Kredi kartı / POS
             </small>
+
           </div>
 
           <div className="cash-bank-summary-card highlight">
+
             <span>
               TOPLAM LİKİT VARLIK
             </span>
 
             <strong>
-              {money(totalLiquidity)} TL
+              {money(
+                totalLiquidity
+              )} TL
             </strong>
 
             <small>
               Kasa + banka + POS
             </small>
+
           </div>
 
         </div>
@@ -690,7 +1046,9 @@ export default function CashBank() {
                 : ""
             }
             onClick={() =>
-              setActiveTab("accounts")
+              setActiveTab(
+                "accounts"
+              )
             }
           >
             Kasa ve Bankalar
@@ -704,7 +1062,9 @@ export default function CashBank() {
                 : ""
             }
             onClick={() =>
-              setActiveTab("pos")
+              setActiveTab(
+                "pos"
+              )
             }
           >
             POS / Kredi Kartları
@@ -718,7 +1078,9 @@ export default function CashBank() {
                 : ""
             }
             onClick={() =>
-              setActiveTab("movements")
+              setActiveTab(
+                "movements"
+              )
             }
           >
             Hareketler
@@ -726,29 +1088,32 @@ export default function CashBank() {
 
         </div>
 
-        {/* =================================================
-            HESAPLAR
-        ================================================= */}
+        {/* HESAPLAR */}
 
-        {activeTab === "accounts" && (
+        {activeTab ===
+          "accounts" && (
+
           <div className="cash-bank-card">
 
             <div className="cash-bank-card-header">
 
               <div>
+
                 <strong>
                   Kasa ve Banka Hesapları
                 </strong>
 
                 <span>
-                  Hesap ekleyin, düzenleyin
-                  veya yönetin.
+                  Kasa ve banka hesaplarını yönetin.
                 </span>
+
               </div>
 
               <button
                 className="cash-bank-small-primary"
-                onClick={openNewAccount}
+                onClick={
+                  openNewAccount
+                }
               >
                 + Yeni Hesap
               </button>
@@ -760,36 +1125,55 @@ export default function CashBank() {
               {accounts
                 .filter(
                   (account) =>
-                    account.type !==
+                    normalizeAccountType(
+                      account
+                    ) !==
                     "POS"
                 )
                 .map(
                   (account) => (
                     <div
                       className="cash-bank-account"
-                      key={account.id}
+                      key={
+                        account.id
+                      }
                     >
 
                       <div className="cash-bank-account-top">
 
                         <div className="cash-bank-account-icon">
-                          {accountIcon(
-                            account.type
-                          )}
+
+                          {
+                            accountIcon(
+                              normalizeAccountType(
+                                account
+                              )
+                            )
+                          }
+
                         </div>
 
                         <div>
+
                           <strong>
-                            {account.name}
+                            {
+                              account.name
+                            }
                           </strong>
 
                           <span>
-                            {account.type}
+                            {
+                              normalizeAccountType(
+                                account
+                              )
+                            }
 
                             {account.bank
                               ? ` • ${account.bank}`
                               : ""}
+
                           </span>
+
                         </div>
 
                       </div>
@@ -809,7 +1193,10 @@ export default function CashBank() {
                       <div className="cash-bank-account-footer">
 
                         <span className="cash-bank-status">
-                          ● {account.status}
+                          ●{" "}
+                          {
+                            account.status
+                          }
                         </span>
 
                         <div>
@@ -858,29 +1245,32 @@ export default function CashBank() {
           </div>
         )}
 
-        {/* =================================================
-            POS
-        ================================================= */}
+        {/* POS */}
 
-        {activeTab === "pos" && (
+        {activeTab ===
+          "pos" && (
+
           <div className="cash-bank-card">
 
             <div className="cash-bank-card-header">
 
               <div>
+
                 <strong>
                   POS / Kredi Kartı Hesapları
                 </strong>
 
                 <span>
-                  POS cihazlarınızı ve
-                  kartlı tahsilatları yönetin.
+                  POS cihazları ve kartlı tahsilatları
+                  yönetin.
                 </span>
+
               </div>
 
               <button
                 className="cash-bank-small-primary"
                 onClick={() => {
+
                   resetAccountForm();
 
                   setAccountForm({
@@ -891,7 +1281,10 @@ export default function CashBank() {
                     openingBalance: "",
                   });
 
-                  setShowAccountModal(true);
+                  setShowAccountModal(
+                    true
+                  );
+
                 }}
               >
                 + POS Hesabı Ekle
@@ -904,14 +1297,18 @@ export default function CashBank() {
               {accounts
                 .filter(
                   (account) =>
-                    account.type ===
+                    normalizeAccountType(
+                      account
+                    ) ===
                     "POS"
                 )
                 .map(
                   (account) => (
                     <div
                       className="cash-bank-account"
-                      key={account.id}
+                      key={
+                        account.id
+                      }
                     >
 
                       <div className="cash-bank-account-top">
@@ -921,16 +1318,21 @@ export default function CashBank() {
                         </div>
 
                         <div>
+
                           <strong>
-                            {account.name}
+                            {
+                              account.name
+                            }
                           </strong>
 
                           <span>
                             POS
+
                             {account.bank
                               ? ` • ${account.bank}`
                               : ""}
                           </span>
+
                         </div>
 
                       </div>
@@ -944,7 +1346,10 @@ export default function CashBank() {
                       <div className="cash-bank-account-footer">
 
                         <span className="cash-bank-status">
-                          ● {account.status}
+                          ●{" "}
+                          {
+                            account.status
+                          }
                         </span>
 
                         <div>
@@ -993,23 +1398,25 @@ export default function CashBank() {
           </div>
         )}
 
-        {/* =================================================
-            HAREKETLER
-        ================================================= */}
+        {/* HAREKETLER */}
 
-        {activeTab === "movements" && (
+        {activeTab ===
+          "movements" && (
+
           <div className="cash-bank-card">
 
             <div className="cash-bank-card-header">
 
               <div>
+
                 <strong>
                   Finans Hareketleri
                 </strong>
 
                 <span>
-                  Kasa, banka ve POS hareketleri
+                  Kasa, banka ve POS hareketleri.
                 </span>
+
               </div>
 
               <button
@@ -1028,40 +1435,79 @@ export default function CashBank() {
               <table className="cash-bank-table">
 
                 <thead>
+
                   <tr>
-                    <th>TARİH</th>
-                    <th>HESAP</th>
-                    <th>AÇIKLAMA</th>
-                    <th>YÖNTEM</th>
-                    <th>KAYNAK</th>
-                    <th>YÖN</th>
-                    <th>TUTAR</th>
+
+                    <th>
+                      TARİH
+                    </th>
+
+                    <th>
+                      HESAP
+                    </th>
+
+                    <th>
+                      TÜR
+                    </th>
+
+                    <th>
+                      AÇIKLAMA
+                    </th>
+
+                    <th>
+                      YÖNTEM
+                    </th>
+
+                    <th>
+                      KAYNAK
+                    </th>
+
+                    <th>
+                      YÖN
+                    </th>
+
+                    <th>
+                      TUTAR
+                    </th>
+
                   </tr>
+
                 </thead>
 
                 <tbody>
 
-                  {movements.length === 0 ? (
+                  {movements.length ===
+                  0 ? (
+
                     <tr>
+
                       <td
-                        colSpan="7"
+                        colSpan="8"
                         className="cash-bank-empty"
                       >
-                        <div>₺</div>
+
+                        <div>
+                          ₺
+                        </div>
 
                         <strong>
                           Henüz hareket yok
                         </strong>
 
                         <span>
-                          Finans hareketleri
-                          burada görünecek.
+                          Finans hareketleri burada
+                          görünecek.
                         </span>
+
                       </td>
+
                     </tr>
+
                   ) : (
+
                     movements.map(
                       (movement) => (
+
                         <tr
                           key={
                             movement.id
@@ -1069,13 +1515,9 @@ export default function CashBank() {
                         >
 
                           <td>
-                            {new Intl.DateTimeFormat(
-                              "tr-TR"
-                            ).format(
-                              new Date(
-                                `${movement.date}T00:00:00`
-                              )
-                            )}
+                            {
+                              movement.date
+                            }
                           </td>
 
                           <td>
@@ -1084,6 +1526,13 @@ export default function CashBank() {
                                 movement.accountName
                               }
                             </strong>
+                          </td>
+
+                          <td>
+                            {
+                              movement.accountType ||
+                              "—"
+                            }
                           </td>
 
                           <td>
@@ -1099,13 +1548,22 @@ export default function CashBank() {
                           </td>
 
                           <td>
-                            {movement.source ===
-                            "invoice"
-                              ? "Fatura"
-                              : "Manuel"}
+                            {
+                              movement.source ===
+                              "invoice"
+                                ? "Fatura"
+                                : movement.source ===
+                                  "collection"
+                                ? "Tahsilat"
+                                : movement.source ===
+                                  "payment"
+                                ? "Ödeme"
+                                : "Manuel"
+                            }
                           </td>
 
                           <td>
+
                             <span
                               className={
                                 movement.direction ===
@@ -1118,23 +1576,35 @@ export default function CashBank() {
                                 movement.direction
                               }
                             </span>
+
                           </td>
 
                           <td className="cash-bank-money">
+
                             <strong>
+
                               {movement.direction ===
                               "Giriş"
                                 ? "+"
-                                : "-"}{" "}
+                                : "-"}
+
+                              {" "}
+
                               {money(
                                 movement.amount
-                              )} TL
+                              )}
+
+                              {" TL"}
+
                             </strong>
+
                           </td>
 
                         </tr>
+
                       )
                     )
+
                   )}
 
                 </tbody>
@@ -1153,16 +1623,24 @@ export default function CashBank() {
       =================================================== */}
 
       {showAccountModal && (
+
         <div
           className="cash-bank-modal-overlay"
           onMouseDown={(event) => {
+
             if (
               event.target ===
               event.currentTarget
             ) {
-              setShowAccountModal(false);
+
+              setShowAccountModal(
+                false
+              );
+
               resetAccountForm();
+
             }
+
           }}
         >
 
@@ -1171,6 +1649,7 @@ export default function CashBank() {
             <div className="cash-bank-modal-header">
 
               <div>
+
                 <strong>
                   {editingAccount
                     ? "Hesabı Düzenle"
@@ -1178,15 +1657,21 @@ export default function CashBank() {
                 </strong>
 
                 <span>
-                  Kasa, banka veya POS hesabı
+                  Kasa, banka veya POS hesabı.
                 </span>
+
               </div>
 
               <button
                 type="button"
                 onClick={() => {
-                  setShowAccountModal(false);
+
+                  setShowAccountModal(
+                    false
+                  );
+
                   resetAccountForm();
+
                 }}
               >
                 ×
@@ -1220,7 +1705,7 @@ export default function CashBank() {
                       })
                     )
                   }
-                  placeholder="Örn. Ana Kasa"
+                  placeholder="Örn. Garanti POS"
                   required
                 />
 
@@ -1267,6 +1752,7 @@ export default function CashBank() {
                 "Banka" ||
                 accountForm.type ===
                   "POS") && (
+
                 <>
                   <div className="cash-bank-form-group">
 
@@ -1288,7 +1774,7 @@ export default function CashBank() {
                           })
                         )
                       }
-                      placeholder="Örn. Ziraat Bankası"
+                      placeholder="Örn. Garanti Bankası"
                     />
 
                   </div>
@@ -1318,12 +1804,13 @@ export default function CashBank() {
 
                   </div>
                 </>
+
               )}
 
               <div className="cash-bank-form-group">
 
                 <label>
-                  Bakiye
+                  Açılış Bakiyesi
                 </label>
 
                 <input
@@ -1352,8 +1839,13 @@ export default function CashBank() {
                   type="button"
                   className="cash-bank-modal-cancel"
                   onClick={() => {
-                    setShowAccountModal(false);
+
+                    setShowAccountModal(
+                      false
+                    );
+
                     resetAccountForm();
+
                   }}
                 >
                   Vazgeç
@@ -1375,6 +1867,7 @@ export default function CashBank() {
           </div>
 
         </div>
+
       )}
 
       {/* ===================================================
@@ -1382,15 +1875,20 @@ export default function CashBank() {
       =================================================== */}
 
       {showMovementModal && (
+
         <div
           className="cash-bank-modal-overlay"
           onMouseDown={(event) => {
+
             if (
               event.target ===
               event.currentTarget
             ) {
-              setShowMovementModal(false);
+              setShowMovementModal(
+                false
+              );
             }
+
           }}
         >
 
@@ -1399,13 +1897,15 @@ export default function CashBank() {
             <div className="cash-bank-modal-header">
 
               <div>
+
                 <strong>
                   Para Girişi / Çıkışı
                 </strong>
 
                 <span>
-                  Finans hareketi ekle
+                  Finans hareketi ekle.
                 </span>
+
               </div>
 
               <button
@@ -1464,7 +1964,11 @@ export default function CashBank() {
                         }
                       >
                         {account.name} —{" "}
-                        {account.type}
+                        {
+                          normalizeAccountType(
+                            account
+                          )
+                        }
                       </option>
                     )
                   )}
@@ -1602,6 +2106,10 @@ export default function CashBank() {
                     </option>
 
                     <option>
+                      POS
+                    </option>
+
+                    <option>
                       Çek
                     </option>
 
@@ -1668,6 +2176,7 @@ export default function CashBank() {
           </div>
 
         </div>
+
       )}
 
     </div>

@@ -13,6 +13,11 @@ import {
 
 import "./CustomerList.css";
 
+
+/* =========================================================
+   YARDIMCI
+========================================================= */
+
 function money(value) {
   return new Intl.NumberFormat(
     "tr-TR",
@@ -27,51 +32,88 @@ function money(value) {
   );
 }
 
-function getBalanceClass(balance) {
+
+function getBalanceClass(
+  balance
+) {
   const value =
     Number(balance) || 0;
 
-  if (value < 0) {
+  if (
+    value < 0
+  ) {
     return "cari-money-borclu";
   }
 
-  if (value > 0) {
+  if (
+    value > 0
+  ) {
     return "cari-money-alacakli";
   }
 
   return "cari-money-zero";
 }
 
-function getBalanceLabel(balance) {
+
+function getBalanceLabel(
+  balance
+) {
   const value =
     Number(balance) || 0;
 
-  if (value < 0) {
+  if (
+    value < 0
+  ) {
     return "Borçlu";
   }
 
-  if (value > 0) {
+  if (
+    value > 0
+  ) {
     return "Alacaklı";
   }
 
   return "Bakiyesi Yok";
 }
 
+
+function customerName(
+  customer
+) {
+  return (
+    customer?.name ||
+    customer?.title ||
+    customer?.companyName ||
+    customer?.unvan ||
+    "Cari"
+  );
+}
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 export default function CustomerList() {
+
   const navigate =
     useNavigate();
+
 
   const [
     customers,
     setCustomers,
   ] = useState(
-    getCustomers
+    () =>
+      getCustomers() || []
   );
+
 
   const [
     search,
     setSearch,
   ] = useState("");
+
 
   const [
     typeFilter,
@@ -80,6 +122,7 @@ export default function CustomerList() {
     "Tümü"
   );
 
+
   const [
     balanceFilter,
     setBalanceFilter,
@@ -87,34 +130,77 @@ export default function CustomerList() {
     "Tümü"
   );
 
+
   const [
     activeMenu,
     setActiveMenu,
-  ] = useState(null);
+  ] = useState(
+    null
+  );
+
+
+  /* =======================================================
+     YENİLE
+  ======================================================= */
 
   useEffect(() => {
+
     const refreshCustomers =
       () => {
         setCustomers(
-          getCustomers()
+          getCustomers() || []
         );
       };
 
-    window.addEventListener(
+
+    refreshCustomers();
+
+
+    const events = [
       "ren-customers-updated",
-      refreshCustomers
+      "ren-customer-movements-updated",
+      "ren-invoices-updated",
+      "ren-finance-updated",
+    ];
+
+
+    events.forEach(
+      (eventName) => {
+
+        window.addEventListener(
+          eventName,
+          refreshCustomers
+        );
+
+      }
     );
 
+
     return () => {
-      window.removeEventListener(
-        "ren-customers-updated",
-        refreshCustomers
+
+      events.forEach(
+        (eventName) => {
+
+          window.removeEventListener(
+            eventName,
+            refreshCustomers
+          );
+
+        }
       );
+
     };
+
   }, []);
+
+
+  /* =======================================================
+     FİLTRE
+  ======================================================= */
 
   const filteredCustomers =
     useMemo(() => {
+
       const query =
         search
           .trim()
@@ -122,16 +208,18 @@ export default function CustomerList() {
             "tr-TR"
           );
 
+
       return customers.filter(
         (customer) => {
+
           const name =
-            String(
-              customer.name ||
-              ""
+            customerName(
+              customer
             )
               .toLocaleLowerCase(
                 "tr-TR"
               );
+
 
           const code =
             String(
@@ -142,6 +230,7 @@ export default function CustomerList() {
                 "tr-TR"
               );
 
+
           const phone =
             String(
               customer.phone ||
@@ -150,6 +239,7 @@ export default function CustomerList() {
               .toLocaleLowerCase(
                 "tr-TR"
               );
+
 
           const matchesSearch =
             !query ||
@@ -163,52 +253,66 @@ export default function CustomerList() {
               query
             );
 
+
           const matchesType =
             typeFilter ===
               "Tümü" ||
             customer.type ===
               typeFilter;
 
+
           let matchesBalance =
             true;
+
 
           if (
             balanceFilter ===
             "Borçlular"
           ) {
+
             matchesBalance =
               Number(
                 customer.balance
               ) < 0;
+
           }
+
 
           if (
             balanceFilter ===
             "Alacaklılar"
           ) {
+
             matchesBalance =
               Number(
                 customer.balance
               ) > 0;
+
           }
+
 
           if (
             balanceFilter ===
             "Bakiyesi Olmayanlar"
           ) {
+
             matchesBalance =
               Number(
                 customer.balance
               ) === 0;
+
           }
+
 
           return (
             matchesSearch &&
             matchesType &&
             matchesBalance
           );
+
         }
       );
+
     }, [
       customers,
       search,
@@ -216,93 +320,163 @@ export default function CustomerList() {
       balanceFilter,
     ]);
 
-  const clearFilters = () => {
-    setSearch("");
-    setTypeFilter("Tümü");
-    setBalanceFilter("Tümü");
-  };
 
-  const openDetail = (
-    customer
-  ) => {
-    navigate(
-      `/customers/detail?id=${encodeURIComponent(
-        customer.id
-      )}`,
-      {
-        state: {
-          customer,
-        },
-      }
-    );
+  /* =======================================================
+     FİLTRE TEMİZLE
+  ======================================================= */
 
-    setActiveMenu(null);
-  };
+  const clearFilters =
+    () => {
 
-  const openMovements = (
-    customer
-  ) => {
-    navigate(
-      "/customers/movements",
-      {
-        state: {
-          customer,
-        },
-      }
-    );
+      setSearch("");
 
-    setActiveMenu(null);
-  };
-
-  const openEdit = (
-    customer
-  ) => {
-    navigate(
-      `/customers/edit/${encodeURIComponent(
-        customer.id
-      )}`,
-      {
-        state: {
-          customer,
-        },
-      }
-    );
-
-    setActiveMenu(null);
-  };
-
-  const deleteCustomer = (
-    customer
-  ) => {
-    const confirmed =
-      window.confirm(
-        `"${customer.name}" hesabını silmek istediğinize emin misiniz?`
+      setTypeFilter(
+        "Tümü"
       );
 
-    if (!confirmed) {
-      setActiveMenu(null);
-      return;
-    }
+      setBalanceFilter(
+        "Tümü"
+      );
 
-    deleteCustomerFromStore(
-      customer.id
-    );
+    };
 
-    setCustomers(
-      getCustomers()
-    );
 
-    setActiveMenu(null);
-  };
+  /* =======================================================
+     DETAY
+  ======================================================= */
+
+  const openDetail =
+    (customer) => {
+
+      setActiveMenu(
+        null
+      );
+
+
+      navigate(
+        `/customers/detail?id=${encodeURIComponent(
+          customer.id
+        )}`,
+        {
+          state: {
+            customer,
+          },
+        }
+      );
+
+    };
+
+
+  /* =======================================================
+     HAREKET
+  ======================================================= */
+
+  const openMovements =
+    (customer) => {
+
+      setActiveMenu(
+        null
+      );
+
+
+      navigate(
+        "/customers/movements",
+        {
+          state: {
+            customer,
+          },
+        }
+      );
+
+    };
+
+
+  /* =======================================================
+     DÜZENLE
+  ======================================================= */
+
+  const openEdit =
+    (customer) => {
+
+      setActiveMenu(
+        null
+      );
+
+
+      navigate(
+        `/customers/edit/${encodeURIComponent(
+          customer.id
+        )}`,
+        {
+          state: {
+            customer,
+          },
+        }
+      );
+
+    };
+
+
+  /* =======================================================
+     SİL
+  ======================================================= */
+
+  const deleteCustomer =
+    (customer) => {
+
+      const confirmed =
+        window.confirm(
+          `"${customerName(
+            customer
+          )}" hesabını silmek istediğinize emin misiniz?`
+        );
+
+
+      if (!confirmed) {
+
+        setActiveMenu(
+          null
+        );
+
+        return;
+
+      }
+
+
+      deleteCustomerFromStore(
+        customer.id
+      );
+
+
+      setCustomers(
+        getCustomers() || []
+      );
+
+
+      setActiveMenu(
+        null
+      );
+
+    };
+
 
   return (
+
     <div
       className="customer-list-page"
       onClick={() =>
-        setActiveMenu(null)
+        setActiveMenu(
+          null
+        )
       }
     >
+
       <div className="customer-list-container">
+
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="customer-list-header">
 
@@ -324,17 +498,19 @@ export default function CustomerList() {
 
             </div>
 
+
             <h1>
               Hesap Listesi
             </h1>
 
+
             <p>
-              Müşteri ve tedarikçi
-              hesaplarınızı tek
-              yerden yönetin.
+              Müşteri ve tedarikçi hesaplarınızı
+              tek yerden yönetin.
             </p>
 
           </div>
+
 
           <button
             className="customer-new-button"
@@ -349,19 +525,30 @@ export default function CustomerList() {
 
         </div>
 
+
+        {/* =================================================
+            ÖZET
+        ================================================= */}
+
         <div className="customer-summary">
 
           <div className="customer-summary-card">
+
             <span>
               TÜM HESAPLAR
             </span>
 
             <strong>
-              {customers.length}
+              {
+                customers.length
+              }
             </strong>
+
           </div>
 
+
           <div className="customer-summary-card">
+
             <span>
               MÜŞTERİLER
             </span>
@@ -375,9 +562,12 @@ export default function CustomerList() {
                 ).length
               }
             </strong>
+
           </div>
 
+
           <div className="customer-summary-card">
+
             <span>
               TEDARİKÇİLER
             </span>
@@ -391,14 +581,18 @@ export default function CustomerList() {
                 ).length
               }
             </strong>
+
           </div>
 
+
           <div className="customer-summary-card">
+
             <span>
               BORÇLU HESAPLAR
             </span>
 
             <strong className="cari-status-borclu">
+
               {
                 customers.filter(
                   (item) =>
@@ -407,12 +601,22 @@ export default function CustomerList() {
                     ) < 0
                 ).length
               }
+
             </strong>
+
           </div>
 
         </div>
 
+
+        {/* =================================================
+            LİSTE
+        ================================================= */}
+
         <div className="customer-list-card">
+
+
+          {/* FİLTRE */}
 
           <div className="customer-filter-area">
 
@@ -422,8 +626,11 @@ export default function CustomerList() {
                 ⌕
               </span>
 
+
               <input
-                value={search}
+                value={
+                  search
+                }
                 onChange={(
                   event
                 ) =>
@@ -434,18 +641,30 @@ export default function CustomerList() {
                 placeholder="Hesap adı, cari kodu veya telefon ara..."
               />
 
-              {search && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSearch("")
-                  }
-                >
-                  ×
-                </button>
-              )}
+
+              {
+                search && (
+
+                  <button
+                    type="button"
+                    onClick={(
+                      event
+                    ) => {
+
+                      event.stopPropagation();
+
+                      setSearch("");
+
+                    }}
+                  >
+                    ×
+                  </button>
+
+                )
+              }
 
             </div>
+
 
             <select
               value={
@@ -460,6 +679,7 @@ export default function CustomerList() {
               }
               className="customer-filter-select"
             >
+
               <option value="Tümü">
                 Tüm Hesaplar
               </option>
@@ -471,7 +691,9 @@ export default function CustomerList() {
               <option value="Tedarikçi">
                 Tedarikçiler
               </option>
+
             </select>
+
 
             <select
               value={
@@ -486,6 +708,7 @@ export default function CustomerList() {
               }
               className="customer-filter-select"
             >
+
               <option value="Tümü">
                 Tüm Bakiyeler
               </option>
@@ -501,46 +724,77 @@ export default function CustomerList() {
               <option value="Bakiyesi Olmayanlar">
                 Bakiyesi Olmayanlar
               </option>
+
             </select>
 
-            {(search ||
-              typeFilter !==
-                "Tümü" ||
-              balanceFilter !==
-                "Tümü") && (
-              <button
-                type="button"
-                className="customer-clear-button"
-                onClick={
-                  clearFilters
-                }
-              >
-                Temizle
-              </button>
-            )}
+
+            {
+              (
+                search ||
+                typeFilter !==
+                  "Tümü" ||
+                balanceFilter !==
+                  "Tümü"
+              ) && (
+
+                <button
+                  type="button"
+                  className="customer-clear-button"
+                  onClick={(
+                    event
+                  ) => {
+
+                    event.stopPropagation();
+
+                    clearFilters();
+
+                  }}
+                >
+                  Temizle
+                </button>
+
+              )
+            }
 
           </div>
+
+
+          {/* SONUÇ */}
 
           <div className="customer-result-bar">
 
             <span>
+
               <strong>
                 {
                   filteredCustomers.length
                 }
               </strong>{" "}
               hesap gösteriliyor
+
             </span>
 
+
             <span>
+
               Toplam{" "}
+
               <strong>
-                {customers.length}
+                {
+                  customers.length
+                }
               </strong>{" "}
+
               hesap
+
             </span>
 
           </div>
+
+
+          {/* =================================================
+              TABLO
+          ================================================= */}
 
           <div className="customer-table-wrapper">
 
@@ -549,6 +803,7 @@ export default function CustomerList() {
               <thead>
 
                 <tr>
+
                   <th>
                     HESAP
                   </th>
@@ -576,337 +831,431 @@ export default function CustomerList() {
                   <th className="customer-actions-head">
                     İŞLEMLER
                   </th>
+
                 </tr>
 
               </thead>
 
+
               <tbody>
 
-                {filteredCustomers.length ===
-                0 ? (
-                  <tr>
-                    <td
-                      colSpan="7"
-                      className="customer-empty"
-                    >
-                      <div>
-                        ⌕
-                      </div>
+                {
+                  filteredCustomers.length ===
+                  0 ? (
 
-                      <strong>
-                        Hesap bulunamadı
-                      </strong>
+                    <tr>
 
-                      <span>
-                        Arama veya
-                        filtreleri
-                        değiştirerek
-                        tekrar
-                        deneyin.
-                      </span>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCustomers.map(
-                    (customer) => {
+                      <td
+                        colSpan="7"
+                        className="customer-empty"
+                      >
 
-                      const balanceClass =
-                        getBalanceClass(
-                          customer.balance
-                        );
+                        <div>
+                          ⌕
+                        </div>
 
-                      const balanceLabel =
-                        getBalanceLabel(
-                          customer.balance
-                        );
+                        <strong>
+                          Hesap bulunamadı
+                        </strong>
 
-                      return (
-                        <tr
-                          key={
-                            customer.id
-                          }
-                        >
+                        <span>
+                          Arama veya filtreleri
+                          değiştirerek tekrar deneyin.
+                        </span>
 
-                          <td>
-                            <div className="customer-account">
+                      </td>
+
+                    </tr>
+
+                  ) : (
+
+                    filteredCustomers.map(
+                      (
+                        customer
+                      ) => {
+
+                        const balanceClass =
+                          getBalanceClass(
+                            customer.balance
+                          );
+
+
+                        const balanceLabel =
+                          getBalanceLabel(
+                            customer.balance
+                          );
+
+
+                        return (
+
+                          <tr
+                            key={
+                              customer.id
+                            }
+
+                            onClick={() =>
+                              openDetail(
+                                customer
+                              )
+                            }
+
+                            style={{
+                              cursor:
+                                "pointer",
+                            }}
+
+                            title="Cari detayını aç"
+                          >
+
+
+                            {/* HESAP */}
+
+                            <td>
+
+                              <div className="customer-account">
+
+                                <span
+                                  className={
+                                    customer.type ===
+                                    "Tedarikçi"
+                                      ? "customer-avatar supplier"
+                                      : "customer-avatar"
+                                  }
+                                >
+
+                                  {
+                                    customerName(
+                                      customer
+                                    )
+                                      .charAt(
+                                        0
+                                      )
+                                      .toUpperCase()
+                                  }
+
+                                </span>
+
+
+                                <div>
+
+                                  <strong>
+                                    {
+                                      customerName(
+                                        customer
+                                      )
+                                    }
+                                  </strong>
+
+                                  <small>
+                                    {
+                                      customer.code ||
+                                      ""
+                                    }
+                                  </small>
+
+                                </div>
+
+                              </div>
+
+                            </td>
+
+
+                            {/* TÜR */}
+
+                            <td>
 
                               <span
                                 className={
                                   customer.type ===
                                   "Tedarikçi"
-                                    ? "customer-avatar supplier"
-                                    : "customer-avatar"
+                                    ? "customer-type supplier"
+                                    : "customer-type"
                                 }
                               >
-                                {String(
-                                  customer.name ||
-                                  "C"
-                                )
-                                  .charAt(
-                                    0
-                                  )
-                                  .toUpperCase()}
+                                {
+                                  customer.type
+                                }
                               </span>
 
-                              <div>
+                            </td>
+
+
+                            {/* TELEFON */}
+
+                            <td>
+
+                              {
+                                customer.phone ||
+                                "—"
+                              }
+
+                            </td>
+
+
+                            {/* KONUM */}
+
+                            <td>
+
+                              <div className="customer-location">
 
                                 <strong>
                                   {
-                                    customer.name
+                                    customer.district ||
+                                    "—"
                                   }
                                 </strong>
 
                                 <small>
                                   {
-                                    customer.code
+                                    customer.city ||
+                                    "—"
                                   }
                                 </small>
 
                               </div>
 
-                            </div>
-                          </td>
+                            </td>
 
-                          <td>
 
-                            <span
-                              className={
-                                customer.type ===
-                                "Tedarikçi"
-                                  ? "customer-type supplier"
-                                  : "customer-type"
-                              }
-                            >
-                              {
-                                customer.type
-                              }
-                            </span>
+                            {/* BAKİYE */}
 
-                          </td>
+                            <td className="customer-money">
 
-                          <td>
-                            {
-                              customer.phone ||
-                              "—"
-                            }
-                          </td>
-
-                          <td>
-
-                            <div className="customer-location">
-
-                              <strong>
-                                {
-                                  customer.district ||
-                                  "—"
+                              <strong
+                                className={
+                                  balanceClass
                                 }
+                              >
+
+                                {
+                                  Number(
+                                    customer.balance
+                                  ) < 0
+                                    ? "-"
+                                    : Number(
+                                        customer.balance
+                                      ) > 0
+                                    ? "+"
+                                    : ""
+                                }
+
+                                {
+                                  money(
+                                    customer.balance
+                                  )
+                                } TL
+
                               </strong>
 
-                              <small>
-                                {
-                                  customer.city ||
-                                  "—"
+
+                              <div
+                                className={
+                                  balanceClass
                                 }
-                              </small>
-
-                            </div>
-
-                          </td>
-
-                          <td className="customer-money">
-
-                            <strong
-                              className={
-                                balanceClass
-                              }
-                            >
-                              {Number(
-                                customer.balance
-                              ) < 0
-                                ? "-"
-                                : Number(
-                                    customer.balance
-                                  ) > 0
-                                ? "+"
-                                : ""}
-
-                              {
-                                money(
-                                  customer.balance
-                                )
-                              }{" "}
-                              TL
-                            </strong>
-
-                            <div
-                              className={
-                                balanceClass
-                              }
-                              style={{
-                                fontSize:
-                                  "10px",
-                                marginTop:
-                                  "3px",
-                              }}
-                            >
-                              {
-                                balanceLabel
-                              }
-                            </div>
-
-                          </td>
-
-                          <td>
-
-                            <span className="customer-status">
-
-                              <i />
-
-                              {
-                                customer.status ||
-                                "Aktif"
-                              }
-
-                            </span>
-
-                          </td>
-
-                          <td className="customer-actions">
-
-                            <div className="customer-action-wrapper">
-
-                              <button
-                                type="button"
-                                className="customer-more"
-                                onClick={(
-                                  event
-                                ) => {
-
-                                  event.stopPropagation();
-
-                                  setActiveMenu(
-                                    activeMenu ===
-                                      customer.id
-                                      ? null
-                                      : customer.id
-                                  );
-
+                                style={{
+                                  fontSize:
+                                    "10px",
+                                  marginTop:
+                                    "3px",
                                 }}
                               >
-                                ⋮
-                              </button>
 
-                              {activeMenu ===
-                                customer.id && (
+                                {
+                                  balanceLabel
+                                }
 
-                                <div
-                                  className="customer-row-menu"
+                              </div>
+
+                            </td>
+
+
+                            {/* DURUM */}
+
+                            <td>
+
+                              <span className="customer-status">
+
+                                <i />
+
+                                {
+                                  customer.status ||
+                                  "Aktif"
+                                }
+
+                              </span>
+
+                            </td>
+
+
+                            {/* İŞLEMLER */}
+
+                            <td className="customer-actions">
+
+                              <div
+                                className="customer-action-wrapper"
+                                onClick={(
+                                  event
+                                ) =>
+                                  event.stopPropagation()
+                                }
+                              >
+
+                                <button
+                                  type="button"
+                                  className="customer-more"
                                   onClick={(
                                     event
-                                  ) =>
-                                    event.stopPropagation()
-                                  }
+                                  ) => {
+
+                                    event.stopPropagation();
+
+                                    setActiveMenu(
+                                      activeMenu ===
+                                        customer.id
+                                        ? null
+                                        : customer.id
+                                    );
+
+                                  }}
+                                  title="İşlemler"
                                 >
+                                  ⋮
+                                </button>
 
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      openDetail(
-                                        customer
-                                      )
-                                    }
-                                  >
-                                    <span>
-                                      ↗
-                                    </span>
-                                    Detay
-                                  </button>
 
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      openEdit(
-                                        customer
-                                      )
-                                    }
-                                  >
-                                    <span>
-                                      ✎
-                                    </span>
-                                    Düzenle
-                                  </button>
+                                {
+                                  activeMenu ===
+                                  customer.id && (
 
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      openMovements(
-                                        customer
-                                      )
-                                    }
-                                  >
-                                    <span>
-                                      ₺
-                                    </span>
-                                    Cari Hareket
-                                  </button>
+                                    <div
+                                      className="customer-row-menu"
+                                      onClick={(
+                                        event
+                                      ) =>
+                                        event.stopPropagation()
+                                      }
+                                    >
 
-                                  <div className="customer-menu-divider" />
-
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-
-                                      setActiveMenu(
-                                        null
-                                      );
-
-                                      navigate(
-                                        "/customers/transfer",
-                                        {
-                                          state: {
-                                            customer,
-                                          },
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          openDetail(
+                                            customer
+                                          )
                                         }
-                                      );
+                                      >
+                                        <span>
+                                          ↗
+                                        </span>
 
-                                    }}
-                                  >
-                                    <span>
-                                      ⇄
-                                    </span>
-                                    Cari Virman
-                                  </button>
+                                        Detay
 
-                                  <div className="customer-menu-divider" />
+                                      </button>
 
-                                  <button
-                                    type="button"
-                                    className="customer-delete"
-                                    onClick={() =>
-                                      deleteCustomer(
-                                        customer
-                                      )
-                                    }
-                                  >
-                                    <span>
-                                      ×
-                                    </span>
-                                    Sil
-                                  </button>
 
-                                </div>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          openEdit(
+                                            customer
+                                          )
+                                        }
+                                      >
+                                        <span>
+                                          ✎
+                                        </span>
 
-                              )}
+                                        Düzenle
 
-                            </div>
+                                      </button>
 
-                          </td>
 
-                        </tr>
-                      );
-                    }
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          openMovements(
+                                            customer
+                                          )
+                                        }
+                                      >
+                                        <span>
+                                          ₺
+                                        </span>
+
+                                        Cari Hareket
+
+                                      </button>
+
+
+                                      <div className="customer-menu-divider" />
+
+
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+
+                                          setActiveMenu(
+                                            null
+                                          );
+
+                                          navigate(
+                                            "/customers/transfer",
+                                            {
+                                              state: {
+                                                customer,
+                                              },
+                                            }
+                                          );
+
+                                        }}
+                                      >
+                                        <span>
+                                          ⇄
+                                        </span>
+
+                                        Cari Virman
+
+                                      </button>
+
+
+                                      <div className="customer-menu-divider" />
+
+
+                                      <button
+                                        type="button"
+                                        className="customer-delete"
+                                        onClick={() =>
+                                          deleteCustomer(
+                                            customer
+                                          )
+                                        }
+                                      >
+                                        <span>
+                                          ×
+                                        </span>
+
+                                        Sil
+
+                                      </button>
+
+                                    </div>
+
+                                  )
+                                }
+
+                              </div>
+
+                            </td>
+
+                          </tr>
+
+                        );
+
+                      }
+                    )
+
                   )
-                )}
+                }
 
               </tbody>
 
@@ -914,17 +1263,25 @@ export default function CustomerList() {
 
           </div>
 
+
+          {/* FOOTER */}
+
           <div className="customer-list-footer">
 
             <span>
+
               Toplam{" "}
+
               <strong>
                 {
                   filteredCustomers.length
                 }
               </strong>{" "}
+
               hesap
+
             </span>
+
 
             <div className="customer-pagination">
 
@@ -951,6 +1308,7 @@ export default function CustomerList() {
 
             </div>
 
+
             <span>
               25 / sayfa
             </span>
@@ -960,6 +1318,8 @@ export default function CustomerList() {
         </div>
 
       </div>
+
     </div>
+
   );
 }

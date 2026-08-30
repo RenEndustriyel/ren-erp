@@ -899,11 +899,6 @@ export function addStockMovement(
   return movement;
 }
 
-
-/* =========================================================
-   STOK DEĞİŞİKLİĞİ
-========================================================= */
-
 export function changeStock(
   productId,
   quantity,
@@ -930,34 +925,12 @@ export function changeStock(
       product.stock
     );
 
-  /*
-    SATIŞ MANTIĞI:
-
-    Stok yeterliyse normal şekilde düşer.
-
-    Stok yetersizse satış/fatura işlemi
-    yine devam eder ve stok 0'da kalır.
-
-    Örnek:
-    Stok 3
-    Satış 5
-    Son stok 0
-
-    Negatif stok oluşturulmaz.
-  */
-
-  const rawNewStock =
-    previousStock +
-    amount;
-
   const newStock =
-    rawNewStock < 0
-      ? 0
-      : rawNewStock;
-
-  const actualChange =
-    newStock -
-    previousStock;
+    Math.max(
+      0,
+      previousStock +
+        amount
+    );
 
   const updated =
     updateProduct(
@@ -979,7 +952,8 @@ export function changeStock(
       product.name,
 
     quantity:
-      actualChange,
+      newStock -
+      previousStock,
 
     previousStock,
 
@@ -997,15 +971,7 @@ export function changeStock(
 
     description:
       options.description ||
-      (
-        amount < 0 &&
-        newStock === 0 &&
-        previousStock +
-          amount <
-          0
-          ? "Stok yetersiz olduğu için stok 0'a çekildi; satış/fatura işlemi tamamlandı."
-          : "Manuel stok değişikliği."
-      ),
+      "Manuel stok değişikliği.",
   });
 
   return updated;

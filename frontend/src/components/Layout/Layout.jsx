@@ -17,6 +17,9 @@ export default function Layout() {
   const [customerOpen, setCustomerOpen] =
     useState(false);
 
+  const [ordersOpen, setOrdersOpen] =
+    useState(false);
+
   const [invoiceOpen, setInvoiceOpen] =
     useState(false);
 
@@ -34,6 +37,11 @@ export default function Layout() {
   const isCustomerPage =
     location.pathname.startsWith(
       "/customers"
+    );
+
+  const isOrdersPage =
+    location.pathname.startsWith(
+      "/orders"
     );
 
   const isInvoicePage =
@@ -422,14 +430,18 @@ export default function Layout() {
 
           {/* SİPARİŞ - TEKLİF */}
 
-          <NavLink
-            to="/orders"
-            className={({ isActive }) =>
-              `ren-menu-item ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
+          <button
+            type="button"
+            className={`ren-menu-item ren-menu-parent ${
+              isOrdersPage
+                ? "section-active"
+                : ""
+            }`}
+            onClick={() =>
+              setOrdersOpen(
+                (value) =>
+                  !value
+              )
             }
           >
             <span className="ren-menu-icon">
@@ -439,7 +451,75 @@ export default function Layout() {
             <span>
               Sipariş - Teklif
             </span>
-          </NavLink>
+
+            <span className="ren-menu-arrow">
+              {ordersOpen
+                ? "⌃"
+                : "⌄"}
+            </span>
+          </button>
+
+          {ordersOpen && (
+            <div className="ren-submenu">
+
+              <NavLink
+                to="/orders?type=all"
+                className="ren-submenu-item"
+              >
+                Tüm Sipariş / Teklifler
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=offer"
+                className="ren-submenu-item"
+              >
+                Teklifler
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=new-offer"
+                className="ren-submenu-item"
+              >
+                Yeni Teklif
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=order"
+                className="ren-submenu-item"
+              >
+                Siparişler
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=new-order"
+                className="ren-submenu-item"
+              >
+                Yeni Sipariş
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=converted"
+                className="ren-submenu-item"
+              >
+                Tekliften Siparişe
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=invoice"
+                className="ren-submenu-item"
+              >
+                Siparişten Faturaya
+              </NavLink>
+
+              <NavLink
+                to="/orders?type=reports"
+                className="ren-submenu-item"
+              >
+                Sipariş / Teklif Raporu
+              </NavLink>
+
+            </div>
+          )}
 
           {/* FATURALAR */}
 
