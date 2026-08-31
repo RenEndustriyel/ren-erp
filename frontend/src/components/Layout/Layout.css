@@ -1,776 +1,342 @@
-/* =========================================================
-   REN ERP
-   PARASUT STYLE LAYOUT
-   ========================================================= */
+/* ==========================================================
+   REN ERP x PARAŞÜT PREMIUM LAYOUT
+========================================================== */
 
-:root {
-  --ren-sidebar: #353535;
-  --ren-sidebar-dark: #303030;
-  --ren-sidebar-hover: #414141;
-  --ren-sidebar-active: #4a4a4a;
-
-  --ren-primary: #19b99a;
-  --ren-primary-dark: #159f86;
-
-  --ren-text: #30343b;
-  --ren-text-soft: #68717d;
-  --ren-text-muted: #9299a2;
-
-  --ren-border: #dedfe1;
-  --ren-border-dark: #cfd1d4;
-
-  --ren-page: #f4f4f4;
-  --ren-white: #ffffff;
-
-  --ren-danger: #ef7065;
+:root{
+  --sidebar:#0F172A;
+  --sidebar-hover:#1E293B;
+  --sidebar-active:#2563EB;
+  --bg:#F6F7FB;
+  --card:#FFFFFF;
+  --border:#E5E7EB;
+  --text:#0F172A;
+  --muted:#64748B;
 }
 
-
-/* =========================================================
-   ANA LAYOUT
-   ========================================================= */
-
-.ren-layout {
-  min-height: 100vh;
-
-  background: var(--ren-page);
-
-  color: var(--ren-text);
-
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  font-size: 14px;
+*{
+  box-sizing:border-box;
 }
 
-
-/* =========================================================
-   SOL MENÜ
-   ========================================================= */
-
-.ren-sidebar {
-  position: fixed;
-
-  top: 0;
-  left: 0;
-  bottom: 0;
-
-  width: 202px;
-
-  display: flex;
-  flex-direction: column;
-
-  background: var(--ren-sidebar);
-
-  color: #ffffff;
-
-  border-right: 0;
-
-  z-index: 1000;
-
-  box-sizing: border-box;
-
-  transition:
-    width 0.2s ease,
-    transform 0.2s ease;
+.ren-layout{
+  display:flex;
+  min-height:100vh;
+  background:var(--bg);
 }
 
+/* ================= SIDEBAR ================= */
 
-/* =========================================================
-   LOGO
-   ========================================================= */
-
-.ren-logo {
-  height: 72px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 0 18px;
-
-  box-sizing: border-box;
-
-  background: var(--ren-sidebar-dark);
-
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+.ren-sidebar{
+  width:250px;
+  background:var(--sidebar);
+  color:white;
+  display:flex;
+  flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.06);
 }
 
-
-/* REN logosu */
-
-.ren-logo-mark {
-  width: 34px;
-  height: 34px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background: #ef6258;
-
-  color: #ffffff;
-
-  font-size: 17px;
-  font-weight: 800;
+.ren-logo{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:22px;
+  border-bottom:1px solid rgba(255,255,255,.06);
 }
 
-
-/* Logo yazısı */
-
-.ren-logo-title {
-  color: #ffffff;
-
-  font-size: 16px;
-
-  line-height: 1.2;
-
-  font-weight: 700;
-
-  letter-spacing: -0.2px;
+.ren-logo-mark{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  background:#2563EB;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:700;
 }
 
-.ren-logo-subtitle {
-  margin-top: 3px;
-
-  color: #aeb0b3;
-
-  font-size: 9px;
-
-  font-weight: 400;
-
-  line-height: 1.2;
+.ren-logo-title{
+  font-size:18px;
+  font-weight:700;
 }
 
-
-/* =========================================================
-   MOBİL KAPAT
-   ========================================================= */
-
-.ren-mobile-close {
-  display: none;
-
-  width: 32px;
-  height: 32px;
-
-  margin-left: auto;
-
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(255,255,255,0.15);
-
-  border-radius: 5px;
-
-  background: transparent;
-
-  color: #ffffff;
-
-  font-size: 20px;
-
-  cursor: pointer;
+.ren-logo-subtitle{
+  font-size:12px;
+  color:#94A3B8;
 }
 
-
-/* =========================================================
-   MENÜ ALANI
-   ========================================================= */
-
-.ren-menu {
-  flex: 1;
-
-  padding: 12px 0;
-
-  overflow-y: auto;
-
-  overflow-x: hidden;
+.ren-mobile-close{
+  display:none;
 }
 
-
-/* scrollbar */
-
-.ren-menu::-webkit-scrollbar {
-  width: 5px;
+.ren-menu{
+  flex:1;
+  padding:16px 10px;
+  overflow-y:auto;
 }
 
-.ren-menu::-webkit-scrollbar-track {
-  background: transparent;
+.ren-menu-section{
+  color:#64748B;
+  font-size:11px;
+  letter-spacing:.08em;
+  font-weight:700;
+  padding:12px 14px;
 }
 
-.ren-menu::-webkit-scrollbar-thumb {
-  background: #555555;
-
-  border-radius: 10px;
+.ren-menu-item{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:13px 14px;
+  margin:4px 0;
+  border-radius:12px;
+  color:#CBD5E1;
+  text-decoration:none;
+  transition:.18s;
+  position:relative;
 }
 
-
-/* =========================================================
-   MENÜ BAŞLIKLARI
-   ========================================================= */
-
-.ren-menu-section {
-  padding: 15px 18px 7px;
-
-  color: #9c9c9c;
-
-  font-size: 9px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.8px;
-
-  text-transform: uppercase;
+.ren-menu-item:hover{
+  background:var(--sidebar-hover);
+  color:white;
 }
 
-
-/* =========================================================
-   ANA MENÜ
-   ========================================================= */
-
-.ren-menu-item {
-  width: 100%;
-
-  min-height: 43px;
-
-  display: flex;
-  align-items: center;
-
-  box-sizing: border-box;
-
-  margin: 0;
-
-  padding: 0 17px;
-
-  border: 0;
-
-  border-left: 3px solid transparent;
-
-  border-radius: 0;
-
-  background: transparent;
-
-  color: #c4c4c4;
-
-  text-decoration: none;
-
-  font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+.ren-menu-item.active,
+.ren-menu-item.section-active{
+  background:#1E293B;
+  color:white;
 }
 
-
-/* hover */
-
-.ren-menu-item:hover {
-  background: var(--ren-sidebar-hover);
-
-  color: #ffffff;
+.ren-menu-item.active::before{
+  content:"";
+  position:absolute;
+  left:-10px;
+  top:8px;
+  bottom:8px;
+  width:4px;
+  background:var(--sidebar-active);
+  border-radius:10px;
 }
 
-
-/* aktif */
-
-.ren-menu-item.active {
-  background: var(--ren-sidebar-active);
-
-  color: #ffffff;
-
-  border-left-color: var(--ren-primary);
+.ren-menu-icon{
+  width:22px;
+  text-align:center;
+  font-size:17px;
 }
 
-
-/* section aktif */
-
-.ren-menu-item.section-active {
-  color: #ffffff;
+.ren-menu-parent{
+  width:100%;
+  background:none;
+  border:none;
 }
 
-
-/* =========================================================
-   MENÜ İKONLARI
-   ========================================================= */
-
-.ren-menu-icon {
-  width: 28px;
-
-  min-width: 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-
-  margin-right: 5px;
-
-  color: #aaaaaa;
-
-  font-size: 17px;
-
-  line-height: 1;
+.ren-menu-arrow{
+  margin-left:auto;
 }
 
-.ren-menu-item:hover .ren-menu-icon {
-  color: #ffffff;
+.ren-submenu{
+  margin:6px 0 10px 20px;
+  padding-left:14px;
+  border-left:1px solid rgba(255,255,255,.08);
 }
 
-.ren-menu-item.active .ren-menu-icon,
-.ren-menu-item.section-active .ren-menu-icon {
-  color: var(--ren-primary);
+.ren-submenu-item{
+  display:block;
+  padding:10px 12px;
+  border-radius:8px;
+  color:#94A3B8;
+  font-size:14px;
+  text-decoration:none;
 }
 
-
-/* =========================================================
-   MENÜ YAZISI
-   ========================================================= */
-
-.ren-menu-item span {
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
+.ren-submenu-item:hover,
+.ren-submenu-item.active{
+  background:#1E293B;
+  color:white;
 }
 
-
-/* =========================================================
-   OK İKONU
-   ========================================================= */
-
-.ren-menu-arrow {
-  margin-left: auto;
-
-  color: #929292;
-
-  font-size: 11px;
-
-  transition: transform 0.15s ease;
+.ren-sidebar-bottom{
+  padding:18px;
+  border-top:1px solid rgba(255,255,255,.06);
 }
 
-.ren-menu-item:hover .ren-menu-arrow {
-  color: #ffffff;
+.ren-user-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
-
-/* =========================================================
-   ALT MENÜ
-   ========================================================= */
-
-.ren-submenu {
-  margin: 0;
-
-  padding: 3px 0 5px 45px;
-
-  border-left: 0;
-
-  background: #303030;
+.ren-user-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#2563EB;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
 }
 
-
-/* =========================================================
-   ALT MENÜ ITEM
-   ========================================================= */
-
-.ren-submenu-item {
-  min-height: 35px;
-
-  display: flex;
-  align-items: center;
-
-  box-sizing: border-box;
-
-  padding: 0 13px;
-
-  border: 0;
-
-  border-left: 2px solid transparent;
-
-  border-radius: 0;
-
-  background: transparent;
-
-  color: #aaaaaa;
-
-  text-decoration: none;
-
-  font-size: 11px;
-
-  font-weight: 500;
-
-  line-height: 1.2;
-
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+.ren-user-info strong{
+  display:block;
+  font-size:14px;
 }
 
-
-/* alt hover */
-
-.ren-submenu-item:hover {
-  background: #3b3b3b;
-
-  color: #ffffff;
+.ren-user-info span{
+  color:#94A3B8;
+  font-size:12px;
 }
 
+/* ================= MAIN ================= */
 
-/* alt aktif */
-
-.ren-submenu-item.active {
-  background: #3f3f3f;
-
-  color: #ffffff;
-
-  border-left-color: var(--ren-primary);
-
-  font-weight: 600;
+.ren-main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
 }
 
-
-/* =========================================================
-   SOL ALT PROFİL
-   GİZLE
-   ========================================================= */
-
-.ren-sidebar-bottom {
-  display: none !important;
+.ren-topbar{
+  height:72px;
+  background:white;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 26px;
 }
 
-
-/* =========================================================
-   ANA İÇERİK
-   ========================================================= */
-
-.ren-main {
-  min-height: 100vh;
-
-  margin-left: 202px;
-
-  background: var(--ren-page);
-
-  box-sizing: border-box;
+.ren-topbar-left{
+  display:flex;
+  align-items:center;
+  gap:16px;
 }
 
-
-/* =========================================================
-   ÜST BAR
-   ========================================================= */
-
-.ren-topbar {
-  height: 68px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  box-sizing: border-box;
-
-  padding: 0 24px;
-
-  background: #ffffff;
-
-  border-bottom: 1px solid var(--ren-border);
-
-  box-shadow: none;
+.ren-mobile-menu-button{
+  display:none;
 }
 
-
-/* =========================================================
-   ÜST BAR SOL
-   ========================================================= */
-
-.ren-topbar-left {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  min-width: 0;
+.ren-topbar-title{
+  font-size:20px;
+  font-weight:700;
+  color:var(--text);
 }
 
+/* Arama Kutusu */
 
-/* =========================================================
-   SAYFA BAŞLIĞI
-   ========================================================= */
-
-.ren-topbar-title {
-  color: #30343b;
-
-  font-size: 18px;
-
-  font-weight: 600;
-
-  line-height: 1.2;
-
-  letter-spacing: -0.2px;
+.ren-topbar-left::after{
+  content:"🔍 Ara...";
+  display:flex;
+  align-items:center;
+  width:320px;
+  height:42px;
+  padding:0 16px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  color:#94A3B8;
+  background:#F8FAFC;
+  margin-left:18px;
+  font-size:14px;
 }
 
-
-/* =========================================================
-   ÜST BAR SAĞ
-   ========================================================= */
-
-.ren-topbar-right {
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
+.ren-topbar-right{
+  display:flex;
+  align-items:center;
+  gap:18px;
 }
 
-
-/* =========================================================
-   TAVSİYE / DESTEK BUTONLARI
-   KALDIR
-   ========================================================= */
-
-.ren-topbar-button {
-  display: none !important;
+.ren-topbar-button{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:white;
 }
 
-
-/* =========================================================
-   PROFİL
-   SAĞ ÜSTTE KALACAK
-   ========================================================= */
-
-.ren-profile {
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  margin-left: 0;
+.ren-profile{
+  display:flex;
+  align-items:center;
+  gap:12px;
 }
 
-
-/* avatar */
-
-.ren-profile-avatar {
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background: #dfe2e5;
-
-  color: #666b71;
-
-  font-size: 11px;
-
-  font-weight: 700;
+.ren-profile-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#2563EB;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
 }
 
-
-/* profil bilgileri */
-
-.ren-profile-info {
-  display: flex;
-  flex-direction: column;
-
-  gap: 2px;
-
-  min-width: 80px;
+.ren-profile-info strong{
+  display:block;
+  font-size:14px;
 }
 
-.ren-profile-info strong {
-  color: #33373d;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  line-height: 1.2;
+.ren-profile-info span{
+  color:#64748B;
+  font-size:12px;
 }
 
-.ren-profile-info span {
-  color: #8a8f95;
-
-  font-size: 10px;
-
-  font-weight: 400;
-
-  line-height: 1.2;
+.ren-content{
+  flex:1;
+  padding:24px;
+  background:#F6F7FB;
 }
 
+/* ================= MOBILE ================= */
 
-/* =========================================================
-   İÇERİK
-   ========================================================= */
-
-.ren-content {
-  min-height: calc(100vh - 68px);
-
-  box-sizing: border-box;
-
-  background: #f4f4f4;
+.ren-sidebar-overlay{
+  display:none;
 }
 
+@media (max-width:900px){
 
-/* =========================================================
-   MOBİL MENÜ BUTONU
-   ========================================================= */
-
-.ren-mobile-menu-button {
-  display: none;
-
-  width: 36px;
-  height: 36px;
-
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid var(--ren-border);
-
-  border-radius: 5px;
-
-  background: #ffffff;
-
-  color: #555b63;
-
-  font-size: 18px;
-
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   OVERLAY
-   ========================================================= */
-
-.ren-sidebar-overlay {
-  display: none;
-
-  position: fixed;
-
-  inset: 0;
-
-  background: rgba(0,0,0,0.42);
-
-  z-index: 999;
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 1000px) {
-
-  .ren-sidebar {
-    width: 195px;
+  .ren-sidebar{
+    position:fixed;
+    left:-260px;
+    top:0;
+    bottom:0;
+    z-index:100;
+    transition:.25s;
   }
 
-  .ren-main {
-    margin-left: 195px;
+  .ren-sidebar.mobile-open{
+    left:0;
   }
 
-  .ren-profile-info {
-    display: none;
-  }
-}
-
-
-/* =========================================================
-   TELEFON
-   ========================================================= */
-
-@media (max-width: 650px) {
-
-  .ren-sidebar {
-    width: 270px;
-
-    transform: translateX(-100%);
-
-    box-shadow:
-      8px 0 28px rgba(0,0,0,0.25);
+  .ren-sidebar-overlay{
+    display:block;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    border:none;
+    z-index:90;
   }
 
-  .ren-sidebar.mobile-open {
-    transform: translateX(0);
+  .ren-mobile-close{
+    display:block;
+    margin-left:auto;
+    background:none;
+    border:none;
+    color:white;
+    font-size:22px;
   }
 
-  .ren-sidebar-overlay {
-    display: block;
+  .ren-mobile-menu-button{
+    display:block;
+    background:none;
+    border:none;
+    font-size:22px;
   }
 
-  .ren-main {
-    margin-left: 0;
+  .ren-topbar-left::after{
+    display:none;
   }
 
-  .ren-topbar {
-    height: 60px;
-
-    padding: 0 12px;
-  }
-
-  .ren-mobile-menu-button {
-    display: flex;
-  }
-
-  .ren-mobile-close {
-    display: flex;
-  }
-
-  .ren-topbar-title {
-    font-size: 16px;
-  }
-
-  .ren-profile-info {
-    display: none;
-  }
-
-  .ren-menu-item {
-    min-height: 44px;
-
-    padding-left: 18px;
-
-    font-size: 12px;
-  }
-
-  .ren-submenu-item {
-    min-height: 37px;
-
-    font-size: 11px;
-  }
-}
-
-
-/* =========================================================
-   KÜÇÜK TELEFON
-   ========================================================= */
-
-@media (max-width: 380px) {
-
-  .ren-sidebar {
-    width: 260px;
-  }
-
-  .ren-profile-avatar {
-    width: 34px;
-    height: 34px;
+  .ren-profile-info{
+    display:none;
   }
 }

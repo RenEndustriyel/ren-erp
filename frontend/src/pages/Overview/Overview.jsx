@@ -1188,410 +1188,106 @@ export default function Overview() {
   ======================================================= */
 
   return (
-
-    <div className="ren-overview">
-
-      {/* ===================================================
-          ÜST BAŞLIK
-      =================================================== */}
-
-      <header className="ren-overview-header">
-
-        <div>
-
-          <span className="ren-eyebrow">
-            GENEL BAKIŞ
-          </span>
-
-          <h1>
-            Hoş geldiniz
-          </h1>
-
-          <p>
-            İşletmenizin güncel finansal
-            durumunu buradan takip edin.
-          </p>
-
-        </div>
-
-
-        <div className="ren-date-box">
-
-          <MdCalendarToday />
-
+    <div className="ren-overview ren-parasut-layout">
+      <div className="ren-main-column">
+        <header className="ren-overview-header">
           <div>
-
-            <strong>
-              {formattedDate}
-            </strong>
-
-            <span>
-              {formattedDay}
-            </span>
-
+            <span className="ren-eyebrow">GENEL BAKIŞ</span>
+            <h1>Hoş geldiniz</h1>
+            <p>İşletmenizin güncel finansal durumunu buradan takip edin.</p>
           </div>
 
-        </div>
-
-      </header>
-
-
-      {/* ===================================================
-          BUGÜNKÜ SATIŞ / KÂR
-      =================================================== */}
-
-      <section className="ren-today-grid">
-
-        <TodayCard
-          icon={MdShoppingCart}
-          title="Bugünkü Satış"
-          amount={money(
-            todayNetSales
-          )}
-          change={`${todaySalesCount} fatura`}
-          type="sales"
-        />
-
-
-        <TodayCard
-          icon={MdTrendingUp}
-          title="Bugünkü Kâr"
-          amount={money(
-            todayProfitData.profitTotal
-          )}
-          change={`%${todayProfitData.profitMargin.toFixed(
-            1
-          )} marj`}
-          type="collections"
-        />
-
-      </section>
-
-
-      {/* ===================================================
-          FİNANS KARTLARI
-      =================================================== */}
-
-      <section className="ren-finance-grid">
-
-        <FinanceCard
-          icon={MdTrendingUp}
-          title="Bu Ayın Cirosu"
-          amount={money(
-            monthSales
-          )}
-          type="blue"
-          detail={`${monthSalesCount} satış faturası`}
-        />
-
-
-        <FinanceCard
-          icon={MdTrendingDown}
-          title="Bu Ayın Alışları"
-          amount={money(
-            monthPurchases
-          )}
-          type="red"
-          detail={`${monthPurchaseCount} alış faturası`}
-        />
-
-
-        <FinanceCard
-          icon={MdPayments}
-          title="Bu Ayın Satış Kârı"
-          amount={money(
-            monthProfitData.profitTotal
-          )}
-          type="orange"
-          detail={`%${monthProfitData.profitMargin.toFixed(
-            1
-          )} kâr marjı`}
-        />
-
-
-        <FinanceCard
-          icon={MdCreditCard}
-          title="Kâr Oranı"
-          amount={`%${monthProfitData.profitMargin.toFixed(
-            1
-          )}`}
-          type="purple"
-          detail={`Satış: ${money(
-            monthProfitData.salesTotal
-          )}`}
-        />
-
-      </section>
-
-
-      {/* ===================================================
-          GÜNÜN İŞLEMLERİ
-      =================================================== */}
-
-      <section className="ren-transactions">
-
-        <header className="ren-transactions-header">
-
-          <div>
-
-            <div className="ren-title-line">
-
-              <h2>
-                Bugünkü İşlemler
-              </h2>
-
-              <span className="ren-live">
-                <i />
-                Canlı
-              </span>
-
+          <div className="ren-date-box">
+            <MdCalendarToday />
+            <div>
+              <strong>{formattedDate}</strong>
+              <span>{formattedDay}</span>
             </div>
-
-            <p>
-              Bugün gerçekleştirilen
-              alış ve satış faturaları.
-            </p>
-
           </div>
-
-
-          <button
-            type="button"
-            className="ren-view-button"
-            onClick={() =>
-              window.location.href =
-                "/invoices"
-            }
-          >
-
-            Tüm Faturalar
-
-            <MdArrowForward />
-
-          </button>
-
         </header>
 
+        <section className="ren-kpi-grid">
+          <TodayCard icon={MdShoppingCart} title="Bugünkü Satış" amount={money(todayNetSales)} change={`${todaySalesCount} fatura`} type="sales"/>
+          <TodayCard icon={MdTrendingUp} title="Bugünkü Kâr" amount={money(todayProfitData.profitTotal)} change={`%${todayProfitData.profitMargin.toFixed(1)} marj`} type="collections"/>
+          <FinanceCard icon={MdTrendingUp} title="Bu Ayın Cirosu" amount={money(monthSales)} type="blue" detail={`${monthSalesCount} satış faturası`}/>
+          <FinanceCard icon={MdTrendingDown} title="Bu Ayın Alışları" amount={money(monthPurchases)} type="red" detail={`${monthPurchaseCount} alış faturası`}/>
+        </section>
 
-        <div className="ren-table-wrap">
+        <section className="ren-cash-card">
+          <div className="cash-box"><span>Nakit Girişi</span><strong>{money(todaySales)}</strong></div>
+          <div className="cash-box"><span>Nakit Çıkışı</span><strong>{money(todayPurchases)}</strong></div>
+          <div className="cash-box"><span>Net Akış</span><strong>{money(todayNetSales-todayPurchases)}</strong></div>
+        </section>
+
+        <section className="ren-transactions">
+          <header className="ren-transactions-header">
+            <div><h2>Son Hareketler</h2><p>Bugünkü faturalar ve işlemler</p></div>
+            <button className="ren-view-button">Tüm Faturalar</button>
+          </header>
 
           <table className="ren-table">
-
             <thead>
-
-              <tr>
-
-                <th>
-                  SAAT
-                </th>
-
-                <th>
-                  İŞLEM
-                </th>
-
-                <th>
-                  AÇIKLAMA
-                </th>
-
-                <th>
-                  BELGE NO
-                </th>
-
-                <th>
-                  TUTAR
-                </th>
-
-                <th>
-                  DURUM
-                </th>
-
-                <th />
-
-              </tr>
-
+              <tr><th>SAAT</th><th>İŞLEM</th><th>AÇIKLAMA</th><th>BELGE</th><th>TUTAR</th></tr>
             </thead>
-
-
             <tbody>
-
-              {transactions.length >
-              0 ? (
-
-                transactions.map(
-                  (item) => {
-
-                    const Icon =
-                      item.icon;
-
-                    return (
-
-                      <tr
-                        key={
-                          item.id
-                        }
-                      >
-
-                        <td>
-
-                          <span className="ren-time">
-                            {
-                              item.time
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span
-                            className={`ren-operation ${item.color}`}
-                          >
-
-                            <Icon />
-
-                            {
-                              item.type
-                            }
-
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <strong className="ren-description">
-                            {
-                              item.description
-                            }
-                          </strong>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="ren-document">
-                            {
-                              item.document
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <strong
-                            className={`ren-amount ${item.color}`}
-                          >
-                            {
-                              item.amount
-                            }
-                          </strong>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="ren-complete">
-
-                            {item.status ===
-                            "open"
-                              ? "Bekliyor"
-                              : item.status ===
-                                "Bekliyor"
-                                ? "Bekliyor"
-                                : "Tamamlandı"}
-
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <button
-                            type="button"
-                            className="ren-arrow"
-                            aria-label="Faturayı aç"
-                            onClick={() =>
-                              window.location.href =
-                                `/invoices/detail?id=${encodeURIComponent(
-                                  item.id
-                                )}`
-                            }
-                          >
-
-                            <MdArrowForward />
-
-                          </button>
-
-                        </td>
-
-                      </tr>
-
-                    );
-
-                  }
-                )
-
-              ) : (
-
-                <tr>
-
-                  <td
-                    colSpan="7"
-                    className="ren-empty-transactions"
-                  >
-
-                    <div>
-
-                      <MdReceiptLong />
-
-                      <strong>
-                        Bugün henüz işlem yok
-                      </strong>
-
-                      <span>
-                        Bugün fatura oluşturduğunuzda
-                        bu alanda otomatik görünecek.
-                      </span>
-
-                    </div>
-
-                  </td>
-
+              {transactions.length ? transactions.map(item=>(
+                <tr key={item.id}>
+                  <td>{item.time}</td>
+                  <td>{item.type}</td>
+                  <td>{item.description}</td>
+                  <td>{item.document}</td>
+                  <td>{item.amount}</td>
                 </tr>
-
+              )):(
+                <tr><td colSpan="5" className="ren-empty-transactions">Bugün henüz işlem yok.</td></tr>
               )}
-
             </tbody>
-
           </table>
+        </section>
+      </div>
 
+      <aside className="ren-right-column">
+        <div className="ren-side-card">
+          <h3>Yaklaşan Tahsilatlar</h3>
+          {[
+            ["1 Gün","ABC Market","₺2.190,00"],
+            ["3 Gün","XYZ Gıda","₺1.560,00"],
+            ["5 Gün","Deniz Cafe","₺980,00"],
+            ["7 Gün","Mega Plaza","₺3.450,00"]
+          ].map((r,i)=>(
+            <div className="ren-timeline" key={i}>
+              <span className="ren-day">{r[0]}</span>
+              <div><strong>{r[1]}</strong><small>{r[2]}</small></div>
+            </div>
+          ))}
         </div>
 
+        <div className="ren-side-card">
+          <h3>Yaklaşan Ödemeler</h3>
+          {[
+            ["2 Gün","Tedarikçi A.Ş.","₺4.250,00"],
+            ["4 Gün","Ambalaj San.","₺1.870,00"],
+            ["6 Gün","Temizlik Ürünleri","₺2.950,00"]
+          ].map((r,i)=>(
+            <div className="ren-timeline danger" key={i}>
+              <span className="ren-day danger">{r[0]}</span>
+              <div><strong>{r[1]}</strong><small>{r[2]}</small></div>
+            </div>
+          ))}
+        </div>
 
-        <button
-          type="button"
-          className="ren-all-transactions"
-          onClick={() =>
-            window.location.href =
-              "/invoices"
-          }
-        >
-
-          Bugünkü tüm faturaları görüntüle
-
-          <MdArrowForward />
-
-        </button>
-
-      </section>
-
+        <div className="ren-side-card">
+          <h3>Kısa Yollar</h3>
+          <div className="ren-shortcuts">
+            <button>Yeni Fatura</button>
+            <button>Yeni Teklif</button>
+            <button>Yeni Ürün</button>
+            <button>Cari Ekle</button>
+            <button>Tahsilat</button>
+            <button>Rapor</button>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
