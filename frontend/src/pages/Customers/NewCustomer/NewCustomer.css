@@ -1,344 +1,484 @@
-.new-customer-page {
-  min-height: 100vh;
-  background: #f5f7fa;
-  color: #172033;
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
+/* REN ERP - Yeni Cari / Yeni Hesap
+   Koyu tema + kompakt düzen + REN Standart Tipografi
+   Mevcut NewCustomer.jsx sınıfları korunmuştur.
+*/
+
+.ren-new-customer-page,
+.new-customer-page{
+  min-height:100%;
+  background:#14212b;
+  color:#e8eef2;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
 
-.new-customer-container {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 30px 32px 50px;
-  box-sizing: border-box;
+.ren-new-customer-page *,
+.new-customer-page *{
+  box-sizing:border-box;
 }
 
-/* HEADER */
-
-.new-customer-header {
-  margin-bottom: 22px;
+.ren-new-customer-container,
+.new-customer-container{
+  width:min(1100px,100%);
+  margin:0 auto;
+  padding:20px 20px 34px;
 }
 
-.new-customer-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  color: #8b95a4;
-  font-size: 11px;
+.ren-new-customer-header,
+.new-customer-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  margin-bottom:18px;
 }
 
-.new-customer-breadcrumb span {
-  color: #c1c8d1;
+.ren-new-customer-breadcrumb,
+.new-customer-breadcrumb{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
+  color:#82919b;
+  font-size:13px;
+  font-weight:600;
 }
 
-.new-customer-header h1 {
-  margin: 0;
-  color: #172033;
-  font-size: 27px;
-  font-weight: 750;
-  letter-spacing: -0.4px;
+.ren-new-customer-breadcrumb span,
+.new-customer-breadcrumb span{
+  color:#52636e;
 }
 
-.new-customer-header p {
-  margin: 7px 0 0;
-  color: #8994a3;
-  font-size: 12px;
+.ren-new-customer-header h1,
+.new-customer-header h1{
+  margin:0;
+  color:#edf3f6;
+  font-size:22px!important;
+  line-height:1.2;
+  font-weight:700!important;
+  letter-spacing:-.15px;
 }
 
-
-/* CARD */
-
-.new-customer-card {
-  margin-bottom: 14px;
-  overflow: hidden;
-  border: 1px solid #e1e7ee;
-  border-radius: 9px;
-  background: #fff;
-  box-shadow: 0 4px 18px rgba(30, 45, 65, 0.035);
+.ren-new-customer-header p,
+.new-customer-header p{
+  margin:7px 0 0;
+  color:#9eacb5;
+  font-size:15px!important;
+  font-weight:500;
 }
 
-.new-customer-card-header {
-  padding: 16px 18px;
-  border-bottom: 1px solid #e8edf2;
+.ren-new-customer-back,
+.new-customer-back{
+  min-height:38px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:0 11px;
+  border:1px solid #344752;
+  border-radius:8px;
+  background:#1b2a34;
+  color:#cbd6dc;
+  font:650 13px/1 Inter,"Segoe UI",sans-serif;
+  cursor:pointer;
 }
 
-.new-customer-card-header strong {
-  display: block;
-  color: #263247;
-  font-size: 13px;
-  font-weight: 750;
+.ren-new-customer-back:hover,
+.new-customer-back:hover{
+  background:#243641;
+  color:#edf3f6;
 }
 
-.new-customer-card-header span {
-  display: block;
-  margin-top: 4px;
-  color: #929cab;
-  font-size: 9px;
+.ren-new-customer-code-preview,
+.new-customer-code-preview{
+  min-width:180px;
+  padding:11px 13px;
+  border:1px solid #344752;
+  border-radius:10px;
+  background:#1b2a34;
 }
 
-.new-customer-card-body {
-  padding: 18px;
+.ren-new-customer-code-preview span,
+.new-customer-code-preview span{
+  display:block;
+  color:#82919b;
+  font-size:12px;
+  font-weight:700;
 }
 
-
-/* TÜR */
-
-.customer-type-switch {
-  width: fit-content;
-  margin-bottom: 18px;
-  padding: 3px;
-  display: flex;
-  gap: 3px;
-  border-radius: 7px;
-  background: #f1f4f7;
+.ren-new-customer-code-preview strong,
+.new-customer-code-preview strong{
+  display:block;
+  margin-top:4px;
+  color:#edf3f6;
+  font-size:16px;
+  font-weight:800;
 }
 
-.customer-type-switch button {
-  min-width: 105px;
-  height: 32px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: #7c8796;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
+/* FORM */
+
+.ren-new-customer-form,
+.new-customer-form{
+  display:flex;
+  flex-direction:column;
+  gap:13px;
 }
 
-.customer-type-switch button.active {
-  background: #fff;
-  color: #286fc7;
-  box-shadow: 0 2px 6px rgba(30, 45, 65, 0.08);
+.ren-new-customer-section,
+.new-customer-card{
+  background:#1b2a34;
+  border:1px solid #2c3c47;
+  border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.13);
+  overflow:hidden;
 }
 
-
-/* GRID */
-
-.new-customer-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+.ren-new-customer-section-header,
+.new-customer-card-header{
+  padding:14px 17px;
+  border-bottom:1px solid #293a45;
+  background:#172731;
 }
 
-.customer-field {
-  min-width: 0;
+.ren-new-customer-section-header h2,
+.new-customer-card-header strong{
+  margin:0;
+  color:#edf3f6;
+  font-size:16px!important;
+  font-weight:750!important;
 }
 
-.customer-field-wide {
-  grid-column: span 2;
+.ren-new-customer-section-header p,
+.new-customer-card-header span{
+  display:block;
+  margin:4px 0 0;
+  color:#81919b;
+  font-size:13px!important;
+  font-weight:500;
+  line-height:1.4;
 }
 
-.customer-field label {
-  display: block;
-  margin-bottom: 7px;
-  color: #667286;
-  font-size: 9px;
-  font-weight: 750;
+.ren-new-customer-grid,
+.new-customer-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:13px;
+  padding:17px;
 }
 
-.customer-field label span {
-  margin-left: 3px;
-  color: #d4514c;
+.ren-new-customer-grid label,
+.new-customer-grid label,
+.customer-field{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
 }
 
+.ren-new-customer-grid label>span,
+.new-customer-grid label>span,
+.customer-field>label{
+  margin-bottom:6px;
+  color:#bac6cc;
+  font-size:13px!important;
+  line-height:1.2;
+  font-weight:650!important;
+}
+
+.ren-new-customer-grid input,
+.ren-new-customer-grid select,
+.ren-new-customer-grid textarea,
+.new-customer-grid input,
+.new-customer-grid select,
+.new-customer-grid textarea,
 .customer-field input,
-.customer-field select {
-  width: 100%;
-  height: 39px;
-  padding: 0 10px;
-  box-sizing: border-box;
-  border: 1px solid #dce3eb;
-  border-radius: 7px;
-  outline: none;
-  background: #fff;
-  color: #354257;
-  font-family: inherit;
-  font-size: 10px;
+.customer-field select,
+.customer-field textarea{
+  width:100%;
+  min-height:42px;
+  padding:0 11px;
+  border:1px solid #344752;
+  border-radius:8px;
+  background:#172731;
+  color:#edf3f6;
+  outline:none;
+  font:500 14px/1.4 Inter,"Segoe UI",sans-serif;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
 }
 
+.ren-new-customer-grid textarea,
+.new-customer-grid textarea,
+.customer-field textarea{
+  padding:10px 11px;
+  min-height:90px;
+  resize:vertical;
+}
+
+.ren-new-customer-grid input::placeholder,
+.ren-new-customer-grid textarea::placeholder,
+.new-customer-grid input::placeholder,
+.new-customer-grid textarea::placeholder,
+.customer-field input::placeholder,
+.customer-field textarea::placeholder{
+  color:#71818b;
+  opacity:1;
+}
+
+.ren-new-customer-grid input:focus,
+.ren-new-customer-grid select:focus,
+.ren-new-customer-grid textarea:focus,
+.new-customer-grid input:focus,
+.new-customer-grid select:focus,
+.new-customer-grid textarea:focus,
 .customer-field input:focus,
-.customer-field select:focus {
-  border-color: #83aee0;
-  box-shadow: 0 0 0 3px rgba(40, 111, 199, 0.06);
+.customer-field select:focus,
+.customer-field textarea:focus{
+  border-color:#39a978;
+  box-shadow:0 0 0 3px rgba(57,169,120,.09);
+  background:#192b35;
 }
 
-.customer-field input[readonly] {
-  background: #f6f8fa;
-  color: #788495;
-  cursor: default;
+.ren-new-customer-grid select option,
+.new-customer-grid select option,
+.customer-field select option{
+  background:#172731;
+  color:#edf3f6;
 }
 
-.customer-field input::placeholder {
-  color: #a1aab6;
+.customer-type-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  width:260px;
+  margin:15px 17px 0;
+  padding:3px;
+  border:1px solid #2c3c47;
+  border-radius:9px;
+  background:#172731;
 }
 
-.customer-field small {
-  display: block;
-  margin-top: 5px;
-  color: #9aa4b1;
-  font-size: 8px;
+.customer-type-switch button{
+  min-height:38px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:#8fa0aa;
+  font:700 13px/1 Inter,"Segoe UI",sans-serif;
+  cursor:pointer;
 }
 
-
-/* PARA */
-
-.customer-money-input {
-  position: relative;
+.customer-type-switch button:hover{
+  color:#d9e2e7;
+  background:#1e303b;
 }
 
-.customer-money-input input {
-  padding-right: 38px;
+.customer-type-switch button.active{
+  background:#39a978;
+  color:#fff;
+  box-shadow:0 3px 9px rgba(57,169,120,.12);
 }
 
-.customer-money-input span {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #8994a3;
-  font-size: 9px;
-  font-weight: 700;
+.customer-field-wide,
+.ren-new-customer-full,
+.new-customer-full{
+  grid-column:1/-1;
 }
 
-
-/* NOT */
-
-.customer-note {
-  width: 100%;
-  min-height: 105px;
-  padding: 11px;
-  box-sizing: border-box;
-  resize: vertical;
-  border: 1px solid #dce3eb;
-  border-radius: 7px;
-  outline: none;
-  background: #fff;
-  color: #354257;
-  font-family: inherit;
-  font-size: 10px;
+.customer-field small,
+.new-customer-grid small{
+  margin-top:5px;
+  color:#758792;
+  font-size:12px;
+  font-weight:500;
 }
 
-.customer-note:focus {
-  border-color: #83aee0;
-  box-shadow: 0 0 0 3px rgba(40, 111, 199, 0.06);
+.ren-new-customer-error,
+.new-customer-error{
+  padding:11px 13px;
+  border:1px solid rgba(217,87,104,.25);
+  border-radius:9px;
+  background:rgba(217,87,104,.09);
+  color:#e97786;
+  font-size:13px;
+  font-weight:650;
 }
 
-.customer-note::placeholder {
-  color: #a1aab6;
+.customer-money-input{
+  display:flex;
+  align-items:center;
+  width:100%;
+  min-height:42px;
+  border:1px solid #344752;
+  border-radius:8px;
+  background:#172731;
+  overflow:hidden;
 }
 
-
-/* FOOTER */
-
-.new-customer-actions {
-  min-height: 62px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+.customer-money-input:focus-within{
+  border-color:#39a978;
+  box-shadow:0 0 0 3px rgba(57,169,120,.09);
+  background:#192b35;
 }
 
-.customer-cancel-button,
-.customer-save-button {
-  height: 39px;
-  padding: 0 17px;
-  border-radius: 7px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
+.customer-money-input input{
+  min-height:40px!important;
+  border:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
 }
 
-.customer-cancel-button {
-  border: 1px solid #dce3eb;
-  background: #fff;
-  color: #667286;
+.customer-money-input span{
+  min-width:44px;
+  padding:0 10px;
+  color:#81919b;
+  font-size:13px;
+  font-weight:750;
+  text-align:center;
 }
 
-.customer-cancel-button:hover {
-  background: #f6f8fa;
+.customer-note{
+  width:100%;
+  min-height:100px;
+  padding:11px 12px;
+  box-sizing:border-box;
+  border:1px solid #344752;
+  border-radius:8px;
+  background:#172731;
+  color:#edf3f6;
+  outline:none;
+  font:500 14px/1.5 Inter,"Segoe UI",sans-serif;
+  resize:vertical;
 }
 
-.customer-save-button {
-  border: 1px solid #286fc7;
-  background: #286fc7;
-  color: #fff;
-  box-shadow: 0 3px 10px rgba(40, 111, 199, 0.14);
+.customer-note:focus{
+  border-color:#39a978;
+  box-shadow:0 0 0 3px rgba(57,169,120,.09);
 }
 
-.customer-save-button:hover {
-  background: #205fae;
+.customer-note::placeholder{
+  color:#71818b;
+  opacity:1;
 }
 
+.ren-new-customer-actions,
+.new-customer-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  padding:2px 0;
+}
 
-/* RESPONSIVE */
+.ren-new-customer-actions button,
+.new-customer-actions button{
+  min-height:42px;
+  padding:0 17px;
+  border-radius:8px;
+  font:700 13px/1 Inter,"Segoe UI",sans-serif;
+  cursor:pointer;
+}
 
-@media (max-width: 900px) {
-  .new-customer-container {
-    padding: 22px 18px 40px;
+.ren-new-customer-actions .secondary,
+.new-customer-actions .secondary{
+  border:1px solid #344752;
+  background:#202f39;
+  color:#cbd6dc;
+}
+
+.ren-new-customer-actions .secondary:hover,
+.new-customer-actions .secondary:hover{
+  background:#293c47;
+}
+
+.ren-new-customer-actions .primary,
+.new-customer-actions .primary{
+  border:1px solid #39a978;
+  background:#39a978;
+  color:#fff;
+}
+
+.ren-new-customer-actions .primary:hover,
+.new-customer-actions .primary:hover{
+  background:#2d8f67;
+}
+
+/* JSX'teki gerçek buton sınıfları */
+.customer-cancel-button{
+  border:1px solid #344752;
+  background:#202f39;
+  color:#cbd6dc;
+}
+
+.customer-cancel-button:hover{
+  background:#293c47;
+}
+
+.customer-save-button{
+  border:1px solid #39a978;
+  background:#39a978;
+  color:#fff;
+  box-shadow:0 5px 15px rgba(57,169,120,.13);
+}
+
+.customer-save-button:hover{
+  background:#2d8f67;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:800px){
+  .ren-new-customer-container,
+  .new-customer-container{
+    padding:18px 15px 30px;
   }
 
-  .new-customer-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .ren-new-customer-header,
+  .new-customer-header{
+    flex-direction:column;
   }
 
-  .customer-field-wide {
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 600px) {
-  .new-customer-container {
-    padding: 18px 12px 30px;
+  .ren-new-customer-code-preview,
+  .new-customer-code-preview{
+    width:100%;
   }
 
-  .new-customer-grid {
-    grid-template-columns: 1fr;
+  .ren-new-customer-grid,
+  .new-customer-grid{
+    grid-template-columns:1fr;
   }
 
-  .customer-field-wide {
-    grid-column: auto;
-  }
-
-  .customer-type-switch {
-    width: 100%;
-  }
-
-  .customer-type-switch button {
-    flex: 1;
-  }
-
-  .new-customer-actions {
-    justify-content: stretch;
-  }
-
-  .customer-cancel-button,
-  .customer-save-button {
-    flex: 1;
+  .customer-field-wide{
+    grid-column:auto;
   }
 }
 
-
-/* PRINT */
-
-@media print {
-  .new-customer-page {
-    background: #fff;
+@media(max-width:560px){
+  .ren-new-customer-container,
+  .new-customer-container{
+    padding:14px 12px 24px;
   }
 
-  .new-customer-container {
-    max-width: none;
-    padding: 0;
+  .ren-new-customer-header h1,
+  .new-customer-header h1{
+    font-size:20px!important;
   }
 
-  .new-customer-actions {
-    display: none;
+  .customer-type-switch{
+    width:calc(100% - 30px);
+    margin-left:15px;
+    margin-right:15px;
   }
 
-  .new-customer-card {
-    box-shadow: none;
+  .ren-new-customer-grid,
+  .new-customer-grid{
+    padding:15px;
+    gap:11px;
+  }
+
+  .ren-new-customer-actions,
+  .new-customer-actions{
+    flex-direction:column-reverse;
+  }
+
+  .ren-new-customer-actions button,
+  .new-customer-actions button{
+    width:100%;
   }
 }

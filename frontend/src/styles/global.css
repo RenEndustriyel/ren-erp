@@ -1,752 +1,327 @@
-/* =========================================================
-   REN ERP — GLOBAL UI THEME
-   PARASÜT REFERANS TASARIM
-   ========================================================= */
-
-:root {
-  --ren-primary: #19b99a;
-  --ren-primary-dark: #159f86;
-  --ren-primary-light: #eaf8f4;
-
-  --ren-bg: #f4f4f4;
-  --ren-white: #ffffff;
-
-  --ren-text: #30343b;
-  --ren-text-dark: #252a31;
-  --ren-text-soft: #68717d;
-  --ren-text-muted: #9299a2;
-
-  --ren-border: #dedfe1;
-  --ren-border-light: #e9eaec;
-  --ren-border-dark: #cfd1d4;
-
-  --ren-success: #19b99a;
-  --ren-warning: #e5a13a;
-  --ren-danger: #ef7065;
-  --ren-info: #3d8fd1;
-
-  --ren-sidebar: #353535;
-  --ren-sidebar-dark: #303030;
-  --ren-sidebar-hover: #414141;
-  --ren-sidebar-active: #4a4a4a;
-
-  --ren-font:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  --ren-radius: 6px;
-  --ren-radius-lg: 8px;
-
-  --ren-shadow:
-    0 1px 3px rgba(35, 42, 50, 0.06);
-}
-
 
 /* =========================================================
-   RESET
+   REN ERP - GLOBAL UI TYPOGRAPHY STANDARD
+   Amaç: tüm sayfalarda aynı font, renk ve okunabilirlik
+   Not: Yerleşim/işlev değiştirmez. Tipografi ve temel renk
+   standardını ortaklaştırır.
    ========================================================= */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+:root{
+  --ren-font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+
+  --ren-text-strong: #172033;
+  --ren-text: #243247;
+  --ren-text-soft: #536176;
+  --ren-text-muted: #6B7788;
+
+  --ren-bg: #F5F7FA;
+  --ren-card: #FFFFFF;
+  --ren-border: #DCE3EA;
+
+  --ren-green: #2DA979;
+  --ren-green-dark: #218E64;
+
+  --ren-blue: #2F80E7;
+  --ren-blue-dark: #256FCA;
+
+  --ren-red: #C91C1C;
+
+  --ren-radius: 10px;
 }
 
-html {
-  margin: 0;
-  padding: 0;
+/* =========================================================
+   TEMEL FONT
+   ========================================================= */
 
-  font-size: 14px;
+html,
+body,
+#root{
+  font-family: var(--ren-font-family) !important;
+  color: var(--ren-text) !important;
+}
 
+body{
+  background: var(--ren-bg) !important;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-
-  background: var(--ren-bg);
-
-  color: var(--ren-text);
-
-  font-family: var(--ren-font);
-
-  font-size: 13px;
-
-  font-weight: 400;
-
-  line-height: 1.45;
+button,
+input,
+textarea,
+select{
+  font-family: var(--ren-font-family) !important;
 }
-
 
 /* =========================================================
-   BAŞLIKLAR
+   GENEL METİN STANDARDI
+   Biraz büyük, koyu ve okunaklı.
    ========================================================= */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 0;
-
-  color: var(--ren-text-dark);
-
-  font-family: var(--ren-font);
-
-  font-weight: 600;
-
-  line-height: 1.25;
-}
-
-h1 {
-  font-size: 24px;
-}
-
-h2 {
-  font-size: 20px;
-}
-
-h3 {
-  font-size: 17px;
-}
-
-h4 {
-  font-size: 15px;
-}
-
-h5 {
+p{
+  color: var(--ren-text-soft);
   font-size: 14px;
 }
 
-h6 {
+label{
+  color: var(--ren-text);
   font-size: 13px;
+  font-weight: 700;
 }
 
-p {
-  color: var(--ren-text-soft);
+small{
+  color: var(--ren-text-muted);
+  font-size: 12px;
 }
 
-strong,
-b {
-  font-weight: 600;
+/* Başlıklar */
+
+h1{
+  color: var(--ren-text-strong);
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 850;
+  letter-spacing: -0.5px;
 }
 
-small {
-  font-size: 11px;
+h2{
+  color: var(--ren-text-strong);
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
 }
 
+h3{
+  color: var(--ren-text-strong);
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+h4{
+  color: var(--ren-text-strong);
+  font-size: 16px;
+  font-weight: 800;
+}
 
 /* =========================================================
-   LINK
+   BUTON STANDARDI
    ========================================================= */
 
-a {
-  color: var(--ren-primary-dark);
-
-  text-decoration: none;
+button{
+  color: var(--ren-text);
+  font-size: 13px;
+  font-weight: 750;
 }
 
-a:hover {
-  color: var(--ren-primary);
+button:disabled{
+  opacity: .55;
 }
-
 
 /* =========================================================
-   INPUT
+   FORM STANDARDI
    ========================================================= */
 
 input,
 select,
-textarea {
-  font-family: var(--ren-font);
-
-  color: var(--ren-text);
-
-  background: #fff;
-
-  border: 1px solid var(--ren-border-dark);
-
-  border-radius: var(--ren-radius);
-
-  outline: none;
-
-  transition:
-    border-color .15s ease,
-    box-shadow .15s ease;
-}
-
-input,
-select {
-  min-height: 38px;
-
-  padding: 0 11px;
-
-  font-size: 13px;
-}
-
-textarea {
-  padding: 10px 11px;
-
-  font-size: 13px;
-
-  resize: vertical;
+textarea{
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 input::placeholder,
-textarea::placeholder {
-  color: #a0a6ad;
+textarea::placeholder{
+  color: #718096;
+  opacity: 1;
 }
-
-input:hover,
-select:hover,
-textarea:hover {
-  border-color: #bfc3c8;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--ren-primary);
-
-  box-shadow:
-    0 0 0 2px rgba(25, 185, 154, .10);
-}
-
 
 /* =========================================================
-   LABEL
+   ANA SAYFA / KART STANDARTLARI
    ========================================================= */
 
-label,
-.form-label {
-  display: block;
-
-  margin-bottom: 6px;
-
-  color: #59616b;
-
-  font-size: 11px;
-
-  font-weight: 600;
-}
-
-
-/* =========================================================
-   BUTONLAR
-   ========================================================= */
-
-button {
-  font-family: var(--ren-font);
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: .55;
-
-  cursor: not-allowed;
-}
-
-
-/* PRIMARY */
-
-.btn-primary,
-.primary-button,
-button.primary,
-button.success {
-  min-height: 36px;
-
-  padding: 0 15px;
-
-  border: 1px solid var(--ren-primary);
-
-  border-radius: var(--ren-radius);
-
-  background: var(--ren-primary);
-
-  color: #fff;
-
-  font-weight: 600;
-}
-
-.btn-primary:hover,
-.primary-button:hover,
-button.primary:hover,
-button.success:hover {
-  background: var(--ren-primary-dark);
-
-  border-color: var(--ren-primary-dark);
-}
-
-
-/* SECONDARY */
-
-.btn-secondary,
-.secondary-button,
-button.secondary {
-  min-height: 36px;
-
-  padding: 0 15px;
-
-  border: 1px solid var(--ren-border-dark);
-
-  border-radius: var(--ren-radius);
-
-  background: #fff;
-
-  color: var(--ren-text-soft);
-
-  font-weight: 600;
-}
-
-.btn-secondary:hover,
-.secondary-button:hover,
-button.secondary:hover {
-  background: #f7f7f7;
-
+[class*="card"]{
   color: var(--ren-text);
 }
 
-
-/* DANGER */
-
-.btn-danger,
-.danger-button,
-button.danger {
-  min-height: 36px;
-
-  padding: 0 15px;
-
-  border: 1px solid var(--ren-danger);
-
-  border-radius: var(--ren-radius);
-
-  background: var(--ren-danger);
-
-  color: #fff;
-
-  font-weight: 600;
+[class*="card"] h1,
+[class*="card"] h2,
+[class*="card"] h3,
+[class*="card"] h4,
+[class*="card"] strong{
+  color: var(--ren-text-strong);
 }
 
-
 /* =========================================================
-   KARTLAR
+   TABLO STANDARDI
    ========================================================= */
 
-.card,
-.panel,
-.box,
-.form-card,
-.table-card,
-.content-card {
-  background: var(--ren-white);
-
-  border: 1px solid var(--ren-border);
-
-  border-radius: var(--ren-radius-lg);
-
-  box-shadow: var(--ren-shadow);
+table{
+  font-family: var(--ren-font-family);
 }
 
+thead th{
+  color: #334155;
+  font-size: 12px;
+  font-weight: 850;
+}
 
-/* =========================================================
-   KART BAŞLIKLARI
-   ========================================================= */
-
-.card-header,
-.panel-header,
-.box-header,
-.form-header,
-.table-header {
-  min-height: 48px;
-
-  display: flex;
-
-  align-items: center;
-
-  padding: 0 16px;
-
-  border-bottom: 1px solid var(--ren-border);
-
-  background: #fff;
-
-  color: var(--ren-text-dark);
-
+tbody td{
+  color: #243247;
   font-size: 14px;
-
-  font-weight: 600;
+  font-weight: 650;
 }
 
+tbody td strong{
+  color: #111827;
+  font-weight: 800;
+}
 
 /* =========================================================
-   SAYFA BAŞLIKLARI
+   PARA / BAKİYE
    ========================================================= */
 
-.page-title,
-.module-title,
-.section-title {
-  color: var(--ren-text-dark);
-
-  font-size: 18px;
-
-  font-weight: 600;
-
-  line-height: 1.3;
-}
-
-.page-subtitle,
-.module-subtitle,
-.section-subtitle {
-  color: var(--ren-text-muted);
-
-  font-size: 12px;
-
-  font-weight: 400;
-}
-
-
-/* =========================================================
-   TABLOLAR
-   ========================================================= */
-
-table {
-  width: 100%;
-
-  border-collapse: collapse;
-
-  background: #fff;
-
-  font-family: var(--ren-font);
-
-  font-size: 12px;
-}
-
-thead {
-  background: #f7f7f7;
-}
-
-th {
-  height: 42px;
-
-  padding: 0 12px;
-
-  border-bottom: 1px solid var(--ren-border);
-
-  color: #68717b;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  text-align: left;
-
-  white-space: nowrap;
-}
-
-td {
-  min-height: 44px;
-
-  padding: 10px 12px;
-
-  border-bottom: 1px solid var(--ren-border-light);
-
-  color: var(--ren-text);
-
-  font-size: 12px;
-
-  font-weight: 400;
-
-  vertical-align: middle;
-}
-
-tbody tr:hover {
-  background: #fafafa;
-}
-
-tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-
-/* =========================================================
-   SAYISAL ALANLAR
-   ========================================================= */
-
-.money,
-.amount,
-.price,
-.total,
-.balance {
-  color: var(--ren-text-dark);
-
+[class*="money"],
+[class*="amount"],
+[class*="balance"],
+[class*="price"]{
   font-variant-numeric: tabular-nums;
-
-  font-weight: 600;
 }
 
+[class*="positive"],
+[class*="alacakli"],
+[class*="success"]{
+  color: var(--ren-green-dark) !important;
+  font-weight: 800;
+}
+
+[class*="negative"],
+[class*="borclu"],
+[class*="danger"],
+[class*="debt"]{
+  color: var(--ren-red) !important;
+  font-weight: 800;
+}
 
 /* =========================================================
-   RENK DURUMLARI
+   NAVIGATION / SIDEBAR
    ========================================================= */
 
-.text-success,
-.success,
-.positive,
-.income {
-  color: var(--ren-success) !important;
+nav,
+aside,
+[class*="sidebar"],
+[class*="sidebar"] *{
+  font-family: var(--ren-font-family) !important;
 }
 
-.text-danger,
-.danger,
-.negative,
-.expense {
-  color: var(--ren-danger) !important;
-}
-
-.text-warning,
-.warning {
-  color: var(--ren-warning) !important;
-}
-
-.text-info,
-.info {
-  color: var(--ren-info) !important;
-}
-
-.text-muted,
-.muted {
-  color: var(--ren-text-muted) !important;
-}
-
-
-/* =========================================================
-   BADGE
-   ========================================================= */
-
-.badge,
-.status-badge,
-.tag {
-  display: inline-flex;
-
-  align-items: center;
-
-  min-height: 24px;
-
-  padding: 0 8px;
-
-  border-radius: 4px;
-
-  font-size: 10px;
-
-  font-weight: 600;
-}
-
-.badge-success,
-.status-success {
-  background: #eaf8f4;
-
-  color: #159f86;
-}
-
-.badge-danger,
-.status-danger {
-  background: #fff0ee;
-
-  color: #d9564d;
-}
-
-.badge-warning,
-.status-warning {
-  background: #fff5e5;
-
-  color: #b87a20;
-}
-
-.badge-info,
-.status-info {
-  background: #edf6fc;
-
-  color: #3279ae;
-}
-
-
-/* =========================================================
-   TOOLBAR
-   ========================================================= */
-
-.toolbar,
-.page-toolbar,
-.action-bar {
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 10px;
-
-  margin-bottom: 14px;
-}
-
-
-/* =========================================================
-   FORM
-   ========================================================= */
-
-.form-group {
-  margin-bottom: 14px;
-}
-
-.form-row {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(180px, 1fr));
-
-  gap: 14px;
-}
-
-
-/* =========================================================
-   ARAMA
-   ========================================================= */
-
-.search-input,
-.search-box input {
-  min-height: 38px;
-
-  background: #fff;
-
-  border: 1px solid var(--ren-border-dark);
-
+aside,
+[class*="sidebar"]{
   color: var(--ren-text);
+}
 
+aside a,
+aside button,
+[class*="sidebar"] a,
+[class*="sidebar"] button{
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+aside a:hover,
+aside button:hover,
+[class*="sidebar"] a:hover,
+[class*="sidebar"] button:hover{
+  color: var(--ren-green-dark);
+}
+
+aside .active,
+aside [aria-current="page"],
+[class*="sidebar"] .active,
+[class*="sidebar"] [aria-current="page"]{
+  color: var(--ren-green-dark) !important;
+  font-weight: 800;
+}
+
+/* =========================================================
+   BREADCRUMB
+   ========================================================= */
+
+[class*="breadcrumb"]{
+  color: #536176 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+
+[class*="breadcrumb"] strong{
+  color: #243247 !important;
+  font-weight: 800 !important;
+}
+
+/* =========================================================
+   SEKME / TAB
+   ========================================================= */
+
+[class*="tab"]{
+  font-family: var(--ren-font-family) !important;
+}
+
+[class*="tab"] button,
+[role="tab"]{
+  color: #536176;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+[class*="tab"] button.active,
+[role="tab"][aria-selected="true"]{
+  color: var(--ren-green-dark) !important;
+  font-weight: 800;
+}
+
+/* =========================================================
+   BADGE / STATUS
+   ========================================================= */
+
+[class*="badge"],
+[class*="status"],
+[class*="tag"],
+[class*="type"]{
   font-size: 12px;
+  font-weight: 800;
 }
-
 
 /* =========================================================
-   MODAL
+   IKONLAR
    ========================================================= */
 
-.modal-overlay,
-.modal-backdrop {
-  background: rgba(25, 30, 35, .45) !important;
+svg{
+  flex-shrink: 0;
 }
-
-.modal,
-.dialog {
-  background: #fff;
-
-  border: 1px solid var(--ren-border);
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 12px 35px rgba(25, 30, 35, .16);
-}
-
 
 /* =========================================================
-   SCROLLBAR
+   LİNKLER
    ========================================================= */
 
-::-webkit-scrollbar {
-  width: 7px;
-
-  height: 7px;
+a{
+  color: #2F6FBE;
+  font-weight: 650;
 }
 
-::-webkit-scrollbar-track {
-  background: #eeeeee;
+a:hover{
+  color: #215999;
 }
-
-::-webkit-scrollbar-thumb {
-  background: #c7c9cc;
-
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #afb2b6;
-}
-
 
 /* =========================================================
-   SELECTION
+   GLOBAL OKUNABİLİRLİK
    ========================================================= */
 
-::selection {
-  background: rgba(25, 185, 154, .18);
-
-  color: var(--ren-text-dark);
+strong,
+b{
+  font-weight: 800;
 }
 
-
-/* =========================================================
-   FOCUS
-   ========================================================= */
-
-:focus-visible {
-  outline: 2px solid rgba(25, 185, 154, .35);
-
-  outline-offset: 1px;
-}
-
-
-/* =========================================================
-   MOBİL
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-  html {
-    font-size: 13px;
-  }
-
-  body {
-    font-size: 12px;
-  }
-
-  .page-title,
-  .module-title,
-  .section-title {
-    font-size: 16px;
-  }
-
-  table {
-    font-size: 11px;
-  }
-
-  th {
-    font-size: 9px;
-  }
-
-  td {
-    padding: 9px 8px;
-
-    font-size: 11px;
-  }
-
-  input,
-  select {
-    min-height: 40px;
-
-    font-size: 12px;
-  }
-
-  .toolbar,
-  .page-toolbar,
-  .action-bar {
-    flex-wrap: wrap;
-  }
+::selection{
+  background: #DCEFE7;
+  color: #123A2C;
 }

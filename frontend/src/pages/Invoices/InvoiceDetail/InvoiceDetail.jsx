@@ -12,6 +12,8 @@ import {
   MdMoreVert,
   MdPrint,
   MdReceiptLong,
+  MdPictureAsPdf,
+  MdPayments,
 } from "react-icons/md";
 
 import {
@@ -423,6 +425,31 @@ export default function InvoiceDetail() {
 
     };
 
+  /* =======================================================
+     PDF İNDİR
+  ======================================================= */
+
+  const handlePdf =
+    () => {
+
+      window.print();
+
+    };
+
+
+  /* =======================================================
+     TAHSİLAT EKLE
+  ======================================================= */
+
+  const handlePayment =
+    () => {
+
+      window.alert(
+        "Tahsilat ekranı bir sonraki adımda bağlanacak."
+      );
+
+    };
+
 
   /* =======================================================
      KOPYALA
@@ -672,6 +699,34 @@ export default function InvoiceDetail() {
             <MdPrint />
 
             Yazdır
+
+          </button>
+
+
+          <button
+            type="button"
+            onClick={
+              handlePdf
+            }
+          >
+
+            <MdPictureAsPdf />
+
+            PDF İndir
+
+          </button>
+
+
+          <button
+            type="button"
+            onClick={
+              handlePayment
+            }
+          >
+
+            <MdPayments />
+
+            Tahsilat Ekle
 
           </button>
 

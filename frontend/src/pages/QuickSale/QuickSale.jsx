@@ -444,6 +444,53 @@ function writeStockMovements(
 }
 
 
+function readQuickSales() {
+  try {
+    const saved =
+      localStorage.getItem(
+        QUICK_SALE_STORAGE_KEY
+      );
+
+    const parsed =
+      saved
+        ? JSON.parse(saved)
+        : [];
+
+    return Array.isArray(parsed)
+      ? parsed
+      : [];
+  } catch (error) {
+    console.error(
+      "Hızlı satış geçmişi okunamadı:",
+      error
+    );
+    return [];
+  }
+}
+
+
+function writeQuickSales(
+  sales
+) {
+  localStorage.setItem(
+    QUICK_SALE_STORAGE_KEY,
+    JSON.stringify(sales)
+  );
+
+  window.dispatchEvent(
+    new Event(
+      "ren-invoices-updated"
+    )
+  );
+
+  window.dispatchEvent(
+    new Event(
+      "ren-quick-sales-updated"
+    )
+  );
+}
+
+
 /* =========================================================
    CARİ KODU
 ========================================================= */
@@ -633,6 +680,23 @@ export default function QuickSale() {
 
 
   const [
+    quickSalesHistory,
+    setQuickSalesHistory,
+  ] =
+    useState(
+      () =>
+        readQuickSales()
+    );
+
+
+  const [
+    showQuickSalesHistory,
+    setShowQuickSalesHistory,
+  ] =
+    useState(false);
+
+
+  const [
     showNewCustomer,
     setShowNewCustomer,
   ] =
@@ -680,6 +744,10 @@ export default function QuickSale() {
       getCustomers() || []
     );
 
+    setQuickSalesHistory(
+      readQuickSales()
+    );
+
   };
 
 
@@ -690,6 +758,8 @@ export default function QuickSale() {
       "ren-stock-updated",
       "ren-cash-bank-updated",
       "ren-customers-updated",
+      "ren-invoices-updated",
+      "ren-quick-sales-updated",
       "storage",
     ];
 
@@ -2113,6 +2183,429 @@ export default function QuickSale() {
 
 
   /* =======================================================
+     HIZLI SATIŞ SİL
+  ======================================================= */
+
+  const handleDeleteQuickSale =
+    (
+      sale
+    ) => {
+
+      if (
+        !sale
+      ) {
+        return;
+      }
+
+      const saleNumber =
+        sale.number ||
+        sale.saleNumber ||
+        sale.invoiceNo ||
+        sale.id;
+
+      const confirmed =
+        window.confirm(
+          `${saleNumber} numaralı hızlı satış silinsin mi?\\n\\n` +
+          "Bu işlem satış kaydını siler, ilgili stok hareketini geri alır, " +
+          "kasa/POS hareketini ve varsa cari hareketini tersine çevirir."
+        );
+
+      if (
+        !confirmed
+      ) {
+        return;
+      }
+
+      try {
+
+        /*
+         * HIZLI SATIŞ KAYDI
+         */
+
+        const allQuickSales =
+          readQuickSales();
+
+        const nextQuickSales =
+          allQuickSales.filter(
+            (item) =>
+              String(
+                item?.id
+              ) !==
+              String(
+                sale?.id
+              )
+          );
+
+        writeQuickSales(
+          nextQuickSales
+        );
+
+
+        /*
+         * STOK HAREKETİ
+         * Hızlı satışta eksi miktar
+         * stoktan düşülmüştü.
+         * Silerken mevcut stoğa geri ekliyoruz.
+         */
+
+        const stockMovements =
+          readStockMovements();
+
+        const relatedStockMovements =
+          stockMovements.filter(
+            (movement) =>
+              String(
+                movement?.sourceDocument ||
+                movement?.documentNo ||
+                ""
+              ) ===
+              String(
+                saleNumber
+              )
+          );
+
+        if (
+          relatedStockMovements.length
+        ) {
+
+          relatedStockMovements.forEach(
+            (
+              movement
+            ) => {
+
+              const quantity =
+                numberValue(
+                  movement?.quantity ??
+                  movement?.movement ??
+                  movement?.amount
+                );
+
+              if (
+                !movement?.productId ||
+                quantity ===
+                  0
+              ) {
+                return;
+              }
+
+              const currentProducts =
+                getProducts() || [];
+
+              const product =
+                currentProducts.find(
+                  (item) =>
+                    String(
+                      item?.id
+                    ) ===
+                    String(
+                      movement.productId
+                    )
+                );
+
+              if (
+                !product
+              ) {
+                return;
+              }
+
+              updateProduct(
+                product.id,
+                {
+                  stock:
+                    numberValue(
+                      product.stock
+                    ) -
+                    quantity,
+
+                  updatedAt:
+                    new Date().toISOString(),
+                }
+              );
+
+            }
+          );
+
+        }
+
+
+        const nextStockMovements =
+          stockMovements.filter(
+            (movement) =>
+              String(
+                movement?.sourceDocument ||
+                movement?.documentNo ||
+                ""
+              ) !==
+              String(
+                saleNumber
+              )
+          );
+
+        writeStockMovements(
+          nextStockMovements
+        );
+
+
+        /*
+         * KASA / POS
+         * Satışta giriş olarak eklenen
+         * ilgili hareketler geri alınır.
+         */
+
+        const financeMovements =
+          readFinanceMovements();
+
+        const relatedFinanceMovements =
+          financeMovements.filter(
+            (movement) =>
+              String(
+                movement?.source ||
+                ""
+              ) ===
+                "quick-sale" &&
+              String(
+                movement?.sourceDocument ||
+                ""
+              ) ===
+                String(
+                  saleNumber
+                )
+          );
+
+        if (
+          relatedFinanceMovements.length
+        ) {
+
+          const currentAccounts =
+            readAccounts();
+
+          const updatedAccounts =
+            currentAccounts.map(
+              (
+                account
+              ) => {
+
+                const totalToReverse =
+                  relatedFinanceMovements
+                    .filter(
+                      (movement) =>
+                        String(
+                          movement?.accountId
+                        ) ===
+                        String(
+                          account?.id
+                        )
+                    )
+                    .reduce(
+                      (
+                        sum,
+                        movement
+                      ) =>
+                        sum +
+                        numberValue(
+                          movement?.amount
+                        ),
+                      0
+                    );
+
+                if (
+                  totalToReverse ===
+                  0
+                ) {
+                  return account;
+                }
+
+                return {
+                  ...account,
+                  balance:
+                    numberValue(
+                      account?.balance
+                    ) -
+                    totalToReverse,
+                };
+
+              }
+            );
+
+          writeAccounts(
+            updatedAccounts
+          );
+
+        }
+
+        writeFinanceMovements(
+          financeMovements.filter(
+            (movement) =>
+              !(
+                String(
+                  movement?.source ||
+                  ""
+                ) ===
+                  "quick-sale" &&
+                String(
+                  movement?.sourceDocument ||
+                  ""
+                ) ===
+                  String(
+                    saleNumber
+                  )
+              )
+          )
+        );
+
+
+        /*
+         * CARİ HAREKET
+         */
+
+        try {
+
+          const customerMovementKey =
+            "ren-erp-customer-movements";
+
+          const savedCustomerMovements =
+            JSON.parse(
+              localStorage.getItem(
+                customerMovementKey
+              ) ||
+              "[]"
+            );
+
+          const nextCustomerMovements =
+            Array.isArray(
+              savedCustomerMovements
+            )
+              ? savedCustomerMovements.filter(
+                  (
+                    movement
+                  ) =>
+                    !(
+                      String(
+                        movement?.source ||
+                        ""
+                      ) ===
+                        "quick-sale" &&
+                      String(
+                        movement?.sourceId ||
+                        movement?.document ||
+                        ""
+                      ) ===
+                        String(
+                          saleNumber
+                        )
+                    )
+                )
+              : [];
+
+          localStorage.setItem(
+            customerMovementKey,
+            JSON.stringify(
+              nextCustomerMovements
+            )
+          );
+
+          window.dispatchEvent(
+            new Event(
+              "ren-customer-movements-updated"
+            )
+          );
+
+        } catch (
+          customerError
+        ) {
+          console.error(
+            "Hızlı satış cari hareketi silinemedi:",
+            customerError
+          );
+        }
+
+
+        /*
+         * GENEL YENİLEME
+         */
+
+        window.dispatchEvent(
+          new Event(
+            "ren-products-changed"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-stock-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-stock-movements-changed"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-cash-bank-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-customers-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-invoices-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-quick-sales-updated"
+          )
+        );
+
+        setQuickSalesHistory(
+          nextQuickSales
+        );
+
+        setProducts(
+          getProducts() || []
+        );
+
+        setAccounts(
+          readAccounts()
+        );
+
+        setCustomers(
+          getCustomers() || []
+        );
+
+        setSaleMessage(
+          `${saleNumber} numaralı hızlı satış silindi.`
+        );
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "Hızlı satış silme hatası:",
+          error
+        );
+
+        setSaleMessage(
+          error?.message ||
+          "Hızlı satış silinemedi."
+        );
+
+      }
+
+    };
+
+
+  /* =======================================================
      SATIŞI TAMAMLA
   ======================================================= */
 
@@ -2900,13 +3393,15 @@ export default function QuickSale() {
         };
 
 
-        localStorage.setItem(
-          QUICK_SALE_STORAGE_KEY,
-          JSON.stringify([
-            saleRecord,
-            ...quickSales,
-          ])
-        );
+        writeQuickSales([
+          saleRecord,
+          ...quickSales,
+        ]);
+
+        setQuickSalesHistory([
+          saleRecord,
+          ...quickSales,
+        ]);
 
 
         /*
@@ -3052,6 +3547,189 @@ export default function QuickSale() {
       </div>
 
 
+      {/* HIZLI SATIŞ GEÇMİŞİ */}
+
+      <section
+        style={{
+          marginBottom:
+            "16px",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() =>
+            setShowQuickSalesHistory(
+              (value) =>
+                !value
+            )
+          }
+          style={{
+            display:
+              "inline-flex",
+            alignItems:
+              "center",
+            gap:
+              "8px",
+            padding:
+              "10px 14px",
+            border:
+              "1px solid #dfe3e7",
+            borderRadius:
+              "7px",
+            background:
+              "var(--qs-inline-surface)",
+            color:
+              "#3f474d",
+            cursor:
+              "pointer",
+            fontSize:
+              "12px",
+            fontWeight:
+              700,
+          }}
+        >
+          Son Hızlı Satışlar
+          <span>
+            ({quickSalesHistory.length})
+          </span>
+        </button>
+
+        {showQuickSalesHistory && (
+          <div
+            style={{
+              marginTop:
+                "10px",
+              padding:
+                "12px",
+              border:
+                "1px solid #e3e7ea",
+              borderRadius:
+                "8px",
+              background:
+                "var(--qs-inline-surface)",
+              maxHeight:
+                "280px",
+              overflowY:
+                "auto",
+            }}
+          >
+            {quickSalesHistory.length === 0 ? (
+              <div
+                style={{
+                  padding:
+                    "12px",
+                  color:
+                    "#858d94",
+                  fontSize:
+                    "12px",
+                }}
+              >
+                Henüz hızlı satış kaydı bulunmuyor.
+              </div>
+            ) : (
+              quickSalesHistory
+                .slice(
+                  0,
+                  12
+                )
+                .map(
+                  (
+                    sale
+                  ) => (
+                    <div
+                      key={
+                        sale.id
+                      }
+                      style={{
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "space-between",
+                        gap:
+                          "12px",
+                        padding:
+                          "10px 4px",
+                        borderBottom:
+                          "1px solid #eef0f2",
+                      }}
+                    >
+                      <div>
+                        <strong
+                          style={{
+                            display:
+                              "block",
+                            color:
+                              "#384047",
+                            fontSize:
+                              "12px",
+                          }}
+                        >
+                          {sale.number ||
+                            sale.id}
+                        </strong>
+
+                        <span
+                          style={{
+                            display:
+                              "block",
+                            marginTop:
+                              "3px",
+                            color:
+                              "#838b91",
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {sale.customerName ||
+                            "Hızlı Satış"}{" "}
+                          · ₺
+                          {money(
+                            sale.total
+                          )}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDeleteQuickSale(
+                            sale
+                          )
+                        }
+                        style={{
+                          flexShrink:
+                            0,
+                          padding:
+                            "7px 10px",
+                          border:
+                            "1px solid #efb7bd",
+                          borderRadius:
+                            "6px",
+                          background:
+                            "#fff5f6",
+                          color:
+                            "#d95767",
+                          cursor:
+                            "pointer",
+                          fontSize:
+                            "11px",
+                          fontWeight:
+                            700,
+                        }}
+                      >
+                        SİL
+                      </button>
+                    </div>
+                  )
+                )
+            )}
+          </div>
+        )}
+      </section>
+
+
       {/* MESAJ */}
 
       {
@@ -3075,7 +3753,7 @@ export default function QuickSale() {
                 "8px",
 
               background:
-                "#fff",
+                  "var(--qs-inline-surface)",
 
               color:
                 "#4f575e",
@@ -3448,7 +4126,7 @@ export default function QuickSale() {
                               overflow:
                                 "hidden",
                               background:
-                                "#fff",
+                  "var(--qs-inline-surface)",
                             }}
                           >
 
@@ -3703,7 +4381,7 @@ export default function QuickSale() {
                         background:
                           paymentType ===
                           item[0]
-                            ? "#f7f5f3"
+                            ? "var(--qs-payment-active)"
                             : "#fff",
 
                         cursor:
@@ -4096,7 +4774,7 @@ export default function QuickSale() {
                       border:
                         "1px solid #dfe3e7",
                       background:
-                        "#fff",
+                  "var(--qs-inline-surface)",
                       borderRadius:
                         "6px",
                       cursor:
@@ -4113,13 +4791,13 @@ export default function QuickSale() {
                         "9px",
 
                       background:
-                        "#f5f8f6",
+                  "var(--qs-success-soft)",
 
                       borderRadius:
                         "6px",
 
                       color:
-                        "#3c8a62",
+                        "var(--qs-success-text)",
 
                       fontSize:
                         "11px",
@@ -4356,7 +5034,7 @@ export default function QuickSale() {
                             border:
                               "1px solid #dfe3e7",
                             background:
-                              "#fff",
+                  "var(--qs-inline-surface)",
                             borderRadius:
                               "6px",
                             cursor:
@@ -4394,10 +5072,10 @@ export default function QuickSale() {
                   "7px",
 
                 background:
-                  "#f4f8f5",
+                  "var(--qs-success-soft)",
 
                 color:
-                  "#3c8a62",
+                  "var(--qs-success-text)",
 
                 fontSize:
                   "12px",
@@ -4450,7 +5128,7 @@ export default function QuickSale() {
                 <strong
                   style={{
                     color:
-                      "#3c8a62",
+                      "var(--qs-success-text)",
                   }}
                 >
                   ₺
@@ -4575,7 +5253,7 @@ export default function QuickSale() {
                 0,
 
               background:
-                "rgba(20,25,30,.38)",
+                  "rgba(20,25,30,.38)",
 
               display:
                 "flex",
@@ -4603,7 +5281,7 @@ export default function QuickSale() {
                   "420px",
 
                 background:
-                  "#fff",
+                  "var(--qs-inline-surface)",
 
                 borderRadius:
                   "10px",
@@ -4685,7 +5363,7 @@ export default function QuickSale() {
                     marginBottom:
                       "12px",
                     background:
-                      "#f6f7f8",
+                  "var(--qs-input-muted)",
                     border:
                       "1px solid #e0e3e6",
                     borderRadius:
@@ -4813,7 +5491,7 @@ export default function QuickSale() {
                     border:
                       "1px solid #dfe3e7",
                     background:
-                      "#fff",
+                  "var(--qs-inline-surface)",
                     borderRadius:
                       "6px",
                     cursor:
@@ -4835,7 +5513,7 @@ export default function QuickSale() {
                     border:
                       "0",
                     background:
-                      "#57514d",
+                  "var(--qs-primary-action)",
                     color:
                       "#fff",
                     borderRadius:

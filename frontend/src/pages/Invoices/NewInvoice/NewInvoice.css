@@ -1,1173 +1,1548 @@
 /* =========================================================
-   REN ERP
-   YENİ FATURA
-   PARAŞÜT REFERANS TASARIMI
+   REN ERP - FATURA EDITOR
 ========================================================= */
 
-.parasut-invoice-page {
-  position: relative;
-  min-height: calc(100vh - 68px);
-  padding: 28px 28px 70px;
-  background: #f2f2f2;
-  color: #555;
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
-  font-size: 12px;
+.ren-invoice-active-editor {
+  min-height: 100vh;
+  background: #f5f6f8;
+  padding: 24px;
+  color: #222;
   box-sizing: border-box;
 }
 
+.ren-invoice-active-editor *,
+.ren-invoice-active-editor *::before,
+.ren-invoice-active-editor *::after {
+  box-sizing: border-box;
+}
 
-/* =========================================================
-   HEADER
-========================================================= */
+/* HEADER */
 
-.parasut-page-header {
+.ren-invoice-edit-header {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 
-.parasut-page-title {
-  padding-left: 0;
-}
-
-.parasut-breadcrumb {
-  display: flex;
+.ren-invoice-edit-back {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  color: #a0a0a0;
-  font-size: 12px;
-}
-
-.parasut-breadcrumb b {
-  color: #c0c0c0;
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.parasut-page-title h1 {
-  margin: 0;
-  color: #252525;
-  font-size: 22px;
-  line-height: 1.25;
-  font-weight: 500;
-}
-
-.parasut-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding-top: 2px;
-}
-
-.parasut-cancel-button,
-.parasut-save-button,
-.parasut-save-arrow {
-  height: 40px;
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.parasut-cancel-button {
-  min-width: 86px;
-  padding: 0 16px;
-  border: 1px solid #cfcfcf;
-  border-radius: 5px;
-  background: #fff;
-  color: #777;
-}
-
-.parasut-save-button {
-  min-width: 82px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  margin-left: 7px;
-  padding: 0 14px;
-  border: 1px solid #59534f;
-  border-radius: 5px 0 0 5px;
-  background: #59534f;
-  color: #fff;
-}
-
-.parasut-save-button svg {
-  font-size: 17px;
-}
-
-.parasut-save-button:disabled {
-  opacity: .65;
-  cursor: not-allowed;
-}
-
-.parasut-save-arrow {
-  width: 38px;
-  margin-left: 0;
+  gap: 6px;
+  padding: 0;
+  margin: 0 0 7px;
   border: 0;
-  border-left: 1px solid rgba(255,255,255,.25);
-  border-radius: 0 5px 5px 0;
-  background: #59534f;
-  color: #fff;
-}
-
-
-/* =========================================================
-   ANA FATURA KARTI
-========================================================= */
-
-.parasut-invoice-card {
-  position: relative;
-  width: calc(100% - 320px);
-  min-width: 760px;
-  background: #fff;
-  border: 1px solid #dedede;
-  border-radius: 5px;
-  box-sizing: border-box;
-  overflow: visible;
-}
-
-
-/* =========================================================
-   SATIR
-========================================================= */
-
-.parasut-row {
-  display: grid;
-  grid-template-columns: 48px 270px minmax(300px, 540px);
-  align-items: start;
-  min-height: 68px;
-  box-sizing: border-box;
-  border-bottom: 1px solid #e4e4e4;
-}
-
-.parasut-row-icon {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 23px;
-  color: #9b9b9b;
-  font-size: 15px;
-}
-
-.parasut-label {
-  padding-top: 25px;
-  color: #888;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .1px;
-}
-
-.parasut-control {
-  position: relative;
-  padding: 16px 15px 15px 0;
-  box-sizing: border-box;
-}
-
-
-/* =========================================================
-   FATURA İSMİ
-========================================================= */
-
-.parasut-invoice-name-row {
-  min-height: 78px;
-}
-
-.document-icon {
-  color: #20a8c7;
-  font-size: 32px;
-  padding-top: 19px;
-}
-
-.parasut-invoice-name-row .parasut-label {
-  padding-top: 31px;
-}
-
-.parasut-invoice-name-row .parasut-control {
-  padding-top: 19px;
-}
-
-.parasut-input {
-  width: 100%;
-  max-width: 530px;
-  height: 40px;
-  padding: 0 10px;
-  border: 1px solid #cfcfcf;
-  border-radius: 2px;
-  outline: none;
-  background: #fff;
-  color: #444;
-  font-family: inherit;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-
-.parasut-input:focus {
-  border-color: #aaa;
-}
-
-
-/* =========================================================
-   MÜŞTERİ
-========================================================= */
-
-.customer-row {
-  min-height: 96px;
-}
-
-.customer-control {
-  padding-top: 17px;
-}
-
-.parasut-search-box {
-  position: relative;
-  width: 100%;
-  max-width: 530px;
-  height: 39px;
-  display: flex;
-  align-items: center;
-  border: 1px solid #cfcfcf;
-  border-radius: 2px;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-.parasut-search-box > svg {
-  margin-left: 10px;
-  color: #888;
-  font-size: 17px;
-}
-
-.parasut-search-box input {
-  flex: 1;
-  height: 100%;
-  padding: 0 10px;
-  border: 0;
-  outline: none;
   background: transparent;
-  color: #444;
-  font-family: inherit;
+  color: #3378c8;
   font-size: 12px;
-}
-
-.parasut-search-box input::placeholder {
-  color: #999;
-}
-
-.parasut-help-text {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 9px;
-  color: #999;
-  font-size: 10px;
-  font-style: italic;
-}
-
-.parasut-help-text span {
-  color: #777;
-  font-style: normal;
-}
-
-.parasut-dropdown {
-  position: absolute;
-  top: 42px;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid #d3d3d3;
-  background: #fff;
-  box-shadow: 0 5px 15px rgba(0,0,0,.12);
-}
-
-.parasut-dropdown button {
-  width: 100%;
-  min-height: 54px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 7px 11px;
-  border: 0;
-  border-bottom: 1px solid #eee;
-  background: #fff;
-  text-align: left;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.parasut-dropdown button:hover {
-  background: #f7f7f7;
+.ren-invoice-edit-breadcrumb {
+  display: flex;
+  gap: 7px;
+  color: #777;
+  font-size: 11px;
+  margin-bottom: 5px;
 }
 
-.parasut-dropdown strong {
-  color: #444;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.parasut-dropdown span {
-  margin-top: 2px;
-  color: #999;
-  font-size: 10px;
-}
-
-.selected-customer {
-  width: 100%;
-  max-width: 530px;
-  min-height: 40px;
+.ren-editor-title-line {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 10px;
-  border: 1px solid #cfcfcf;
-  background: #fff;
-  box-sizing: border-box;
+  flex-wrap: wrap;
 }
 
-.selected-customer strong {
-  color: #444;
-  font-size: 12px;
-  font-weight: 600;
+.ren-editor-title-line h1 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.15;
+  color: #202020;
 }
 
-.selected-customer span {
-  color: #999;
-  font-size: 10px;
-}
-
-.selected-customer button {
-  margin-left: auto;
-  height: 28px;
-  padding: 0 9px;
-  border: 1px solid #ccc;
-  background: #fff;
-  color: #777;
-  font-family: inherit;
-  font-size: 10px;
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   MÜŞTERİ BİLGİ
-========================================================= */
-
-.customer-info-row {
-  min-height: 54px;
-}
-
-.customer-info-row .parasut-row-icon {
-  padding-top: 18px;
-}
-
-.customer-info-row .parasut-label {
-  padding-top: 20px;
-}
-
-.customer-info-row .parasut-control {
-  padding-top: 18px;
-}
-
-.customer-information,
-.empty-value {
-  color: #999;
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   TAHSİLAT
-========================================================= */
-
-.payment-status-row {
-  min-height: 76px;
-}
-
-.parasut-radio-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-  max-width: 530px;
-  height: 45px;
-  border: 1px solid #d2d2d2;
-}
-
-.parasut-radio-group button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  border: 0;
-  background: #fff;
-  color: #777;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-}
-
-.parasut-radio-group button + button {
-  border-left: 1px solid #d2d2d2;
-}
-
-.parasut-radio-group button.selected {
-  color: #4d4d4d;
-}
-
-.radio-dot {
-  color: #888;
-  font-size: 19px;
-  line-height: 1;
-}
-
-
-/* =========================================================
-   TARİH
-========================================================= */
-
-.parasut-date-input {
-  position: relative;
-  width: 100%;
-  max-width: 530px;
-  height: 39px;
-}
-
-.parasut-date-input input {
-  width: 100%;
-  height: 100%;
-  padding: 0 38px 0 10px;
-  border: 1px solid #cfcfcf;
-  border-radius: 2px;
-  outline: none;
-  background: #fff;
-  color: #555;
-  font-family: inherit;
-  font-size: 12px;
-  box-sizing: border-box;
-}
-
-.parasut-date-input svg {
-  position: absolute;
-  right: 10px;
-  top: 11px;
-  color: #888;
-  font-size: 16px;
-  pointer-events: none;
-}
-
-
-/* =========================================================
-   VADE
-========================================================= */
-
-.parasut-due-buttons {
-  width: 100%;
-  max-width: 530px;
-  height: 38px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  margin-bottom: 8px;
-  border: 1px solid #cfcfcf;
-}
-
-.parasut-due-buttons button {
-  border: 0;
-  border-right: 1px solid #cfcfcf;
-  background: #fff;
-  color: #999;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.parasut-due-buttons button:last-child {
-  border-right: 0;
-}
-
-.parasut-due-buttons button:hover,
-.parasut-due-buttons button.active {
-  color: #555;
-  background: #fafafa;
-}
-
-
-/* =========================================================
-   EK BUTONLAR
-========================================================= */
-
-.parasut-extra-buttons {
-  display: flex;
-  gap: 10px;
-  padding: 0 15px 19px 318px;
-  border-bottom: 1px solid #e4e4e4;
-}
-
-.parasut-extra-buttons button {
-  height: 31px;
-  padding: 0 11px;
-  border: 1px solid #cfcfcf;
-  border-radius: 3px;
-  background: #fff;
-  color: #888;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.parasut-extra-buttons button:hover {
-  color: #555;
-  border-color: #aaa;
-}
-
-
-/* =========================================================
-   STOK TAKİBİ
-========================================================= */
-
-.parasut-stock-section {
-  display: grid;
-  grid-template-columns: 48px 270px minmax(300px, 540px);
-  align-items: start;
-  min-height: 130px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid #e4e4e4;
-}
-
-.parasut-stock-section > .parasut-row-icon {
-  padding-top: 28px;
-}
-
-.parasut-stock-section > .parasut-label {
-  padding-top: 31px;
-}
-
-.parasut-stock-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 19px;
-  border: 1px solid #d2d2d2;
-}
-
-.parasut-stock-options button {
-  min-height: 105px;
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  padding: 16px 12px;
-  border: 0;
-  background: #fff;
-  color: #666;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.parasut-stock-options button + button {
-  border-left: 1px solid #d2d2d2;
-}
-
-.parasut-stock-options button.active {
-  background: #fff;
-}
-
-.stock-radio {
-  color: #888;
-  font-size: 20px;
-  line-height: 1;
-}
-
-.parasut-stock-options strong {
-  display: block;
-  margin-bottom: 7px;
-  color: #555;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.parasut-stock-options small {
-  display: block;
-  color: #999;
-  font-size: 10px;
-  line-height: 1.5;
-  font-style: italic;
-}
-
-
-/* =========================================================
-   SAĞ KATEGORİ / ETİKET
-========================================================= */
-
-.parasut-side-column {
-  position: absolute;
-  top: 102px;
-  right: 28px;
-  width: 285px;
-}
-
-.parasut-side-card {
-  margin-bottom: 12px;
-  padding: 15px 18px;
-  border-radius: 5px;
-  background: #eee;
-  box-sizing: border-box;
-}
-
-.side-card-title {
-  margin-bottom: 10px;
-  color: #888;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.side-select {
-  height: 39px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 9px;
-  border: 1px solid #cfcfcf;
-  background: #fff;
-  box-sizing: border-box;
-  color: #999;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.side-select svg {
-  font-size: 17px;
-}
-
-.parasut-side-card p {
-  margin: 8px 0 0;
-  color: #999;
-  font-size: 10px;
-  line-height: 1.45;
-  font-style: italic;
-}
-
-
-/* =========================================================
-   ÜRÜNLER
-========================================================= */
-
-.parasut-products-card {
-  width: 100%;
-  margin-top: 14px;
-  background: #fff;
-  border: 1px solid #dedede;
-  border-radius: 5px;
-  overflow: visible;
-}
-
-.parasut-products-header,
-.parasut-product-entry,
-.parasut-product-row {
-  display: grid;
-  grid-template-columns:
-    minmax(300px, 2fr)
-    90px
-    100px
-    145px
-    110px
-    145px
-    45px;
-  align-items: center;
-}
-
-.parasut-products-header {
-  min-height: 46px;
-  background: #f7f7f7;
-  border-bottom: 1px solid #dedede;
-}
-
-.parasut-products-header > div {
-  padding: 0 12px;
-  color: #888;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.product-header-title {
-  color: #666 !important;
-}
-
-
-/* =========================================================
-   ÜRÜN GİRİŞ
-========================================================= */
-
-.parasut-product-entry {
-  min-height: 72px;
-  border-bottom: 1px solid #dedede;
-}
-
-.parasut-product-entry > div,
-.parasut-product-entry > input {
-  margin: 0 6px;
-}
-
-.parasut-product-search {
-  position: relative;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  margin-left: 12px !important;
-  border: 1px solid #cfcfcf;
-  background: #fff;
-}
-
-.parasut-product-search > svg {
-  margin-left: 9px;
-  color: #888;
-  font-size: 17px;
-}
-
-.parasut-product-search input {
-  width: 100%;
-  height: 100%;
-  padding: 0 8px;
-  border: 0;
-  outline: none;
-  background: transparent;
-  font-family: inherit;
+.ren-editor-title-line p {
+  margin: 4px 0 0;
+  color: #808080;
   font-size: 11px;
 }
 
-.parasut-product-dropdown {
-  position: absolute;
-  top: 42px;
-  left: -1px;
-  right: -1px;
-  z-index: 100;
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  background: #fff;
-  box-shadow: 0 6px 16px rgba(0,0,0,.13);
-}
-
-.parasut-product-dropdown button {
-  width: 100%;
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  border: 0;
-  border-bottom: 1px solid #eee;
-  background: #fff;
-  text-align: left;
-  cursor: pointer;
-}
-
-.parasut-product-dropdown button:hover {
-  background: #f7f7f7;
-}
-
-.parasut-product-dropdown strong {
-  display: block;
-  color: #444;
-  font-size: 11px;
-}
-
-.parasut-product-dropdown small {
-  display: block;
-  margin-top: 2px;
-  color: #999;
-  font-size: 9px;
-}
-
-.parasut-product-dropdown span {
-  color: #555;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.product-quantity-input,
-.product-price-input {
-  height: 36px;
-  padding: 0 8px;
-  border: 1px solid #cfcfcf;
-  outline: none;
-  background: #fff;
-  color: #555;
-  font-family: inherit;
-  font-size: 11px;
-  box-sizing: border-box;
-}
-
-.product-unit {
-  padding-left: 10px;
-  color: #777;
-  font-size: 11px;
-}
-
-.product-vat {
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 9px;
-  border: 1px solid #cfcfcf;
-  color: #888;
-  font-size: 10px;
-}
-
-.product-vat span {
-  color: #555;
-  font-weight: 700;
-}
-
-.product-total {
-  padding: 0 10px;
-  color: #777;
-  font-size: 12px;
-  text-align: right;
-}
-
-.product-plus-button {
-  width: 30px;
-  height: 30px;
-  margin-right: 9px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: #fff;
-  color: #888;
-  font-size: 21px;
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   ÜRÜN SATIRLARI
-========================================================= */
-
-.parasut-product-row {
-  min-height: 60px;
-  border-bottom: 1px solid #e7e7e7;
-}
-
-.parasut-product-row > div,
-.parasut-product-row > input,
-.parasut-product-row > select {
-  margin: 0 6px;
-}
-
-.product-name-cell {
-  padding-left: 12px !important;
-}
-
-.product-name-cell strong {
-  display: block;
-  color: #444;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.product-name-cell small {
-  display: block;
-  margin-top: 3px;
-  color: #999;
-  font-size: 9px;
-}
-
-.parasut-product-row input,
-.parasut-product-row select {
-  width: calc(100% - 4px);
-  height: 34px;
-  padding: 0 7px;
-  border: 1px solid #cfcfcf;
-  outline: none;
-  background: #fff;
-  color: #555;
-  font-family: inherit;
-  font-size: 11px;
-  box-sizing: border-box;
-}
-
-.parasut-product-row > div:nth-child(3) {
-  padding-left: 8px;
-  color: #777;
-  font-size: 11px;
-}
-
-.product-total.strong {
-  color: #444;
-  font-weight: 700;
-}
-
-.product-delete-button {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 9px;
-  border: 1px solid #e2cccc;
-  border-radius: 4px;
-  background: #fff;
-  color: #d45c52;
-  cursor: pointer;
-}
-
-.product-delete-button:hover {
-  background: #fff5f4;
-}
-
-
-/* =========================================================
-   YENİ SATIR
-========================================================= */
-
-.parasut-add-line {
-  height: 38px;
+.ren-editor-active-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin: 13px 0 16px 12px;
-  padding: 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #fff;
-  color: #888;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.parasut-add-line:hover {
-  color: #555;
-  border-color: #aaa;
-}
-
-
-/* =========================================================
-   TOPLAM
-========================================================= */
-
-.parasut-total-area {
-  display: grid;
-  grid-template-columns: 1fr 440px;
-  min-height: 225px;
-  border-top: 1px solid #dedede;
-}
-
-.total-profit {
-  padding: 28px 20px;
-  color: #888;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #8db8ff;
+  border-radius: 8px;
+  background: #edf5ff;
+  color: #2167c1;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
-.total-profit strong {
-  margin-left: 4px;
-  color: #777;
-  font-weight: 600;
-}
-
-.total-box {
-  padding: 15px 18px 20px;
-}
-
-.total-box > div {
-  min-height: 49px;
+.ren-invoice-edit-header-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #e1e1e1;
-}
-
-.total-box span {
-  color: #888;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.total-box strong {
-  color: #777;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.discount-field {
-  display: flex;
-  align-items: center;
-  width: 95px;
-  height: 32px;
-  border: 1px solid #ccc;
-}
-
-.discount-field input {
-  width: 70px;
-  height: 100%;
-  padding: 0 7px;
-  border: 0;
-  outline: none;
-  color: #555;
-  font-family: inherit;
-  font-size: 11px;
-}
-
-.discount-field span {
-  color: #999;
-  font-size: 10px;
-}
-
-.total-box .grand-total {
-  border-bottom: 0;
-}
-
-.total-box .grand-total span {
-  color: #777;
-  font-size: 11px;
-}
-
-.total-box .grand-total strong {
-  color: #252525;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-
-/* =========================================================
-   ALT BUTON
-========================================================= */
-
-.parasut-bottom-actions {
-  display: flex;
   justify-content: flex-end;
   gap: 8px;
-  width: calc(100% - 320px);
-  padding: 16px 0;
+  flex-wrap: wrap;
 }
 
-.bottom-cancel,
-.bottom-save {
-  height: 40px;
-  padding: 0 18px;
-  border-radius: 4px;
-  font-family: inherit;
+.ren-invoice-edit-header-actions button,
+.ren-modal-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 7px;
+  border: 1px solid #dadde1;
+  background: #fff;
+  color: #333;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   cursor: pointer;
 }
 
-.bottom-cancel {
-  border: 1px solid #ccc;
-  background: #fff;
-  color: #777;
+.ren-invoice-edit-header-actions button:hover,
+.ren-modal-actions button:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
 }
 
-.bottom-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid #59534f;
-  background: #59534f;
+.ren-invoice-edit-header-actions button.primary,
+.ren-modal-actions button.primary {
+  border-color: #2d7e59;
+  background: #2d7e59;
   color: #fff;
 }
 
-.bottom-save:disabled {
+.ren-invoice-edit-header-actions button.payment,
+.ren-modal-actions button.payment {
+  border-color: #2c8a62;
+  background: #ecf9f2;
+  color: #28744f;
+}
+
+.ren-invoice-edit-header-actions button.danger {
+  border-color: #f2b3b3;
+  background: #fff4f4;
+  color: #c52f2f;
+}
+
+.ren-invoice-edit-header-actions button.secondary {
+  background: #fff;
+}
+
+.ren-invoice-edit-header-actions button:disabled {
   opacity: .6;
   cursor: not-allowed;
 }
 
+/* TOP INFORMATION */
+
+.ren-invoice-edit-top-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.55fr) repeat(3, minmax(150px, .62fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.ren-invoice-edit-card {
+  background: #fff;
+  border: 1px solid #e2e4e7;
+  border-radius: 10px;
+  overflow: visible;
+}
+
+.ren-invoice-edit-card.customer-card,
+.ren-invoice-edit-card.compact {
+  padding: 16px;
+}
+
+.ren-editor-label {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  color: #777;
+  letter-spacing: .02em;
+  margin-bottom: 9px;
+}
+
+.ren-selected-customer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 42px;
+}
+
+.ren-selected-customer strong {
+  display: block;
+  font-size: 14px;
+  color: #222;
+}
+
+.ren-selected-customer span {
+  display: block;
+  margin-top: 3px;
+  color: #8a8a8a;
+  font-size: 10px;
+}
+
+.ren-selected-customer button {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fafafa;
+  padding: 7px 9px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ren-customer-search-wrap {
+  position: relative;
+}
+
+.ren-customer-search-box {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid #dfe2e5;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.ren-customer-search-box svg {
+  color: #8c8f94;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+
+.ren-customer-search-box input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 12px;
+}
+
+.ren-customer-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 47px;
+  z-index: 50;
+  background: #fff;
+  border: 1px solid #dfe2e5;
+  border-radius: 8px;
+  box-shadow: 0 14px 35px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+
+.ren-customer-dropdown > button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ren-customer-dropdown > button:hover {
+  background: #f7f9fb;
+}
+
+.ren-customer-dropdown strong {
+  font-size: 11px;
+}
+
+.ren-customer-dropdown span {
+  color: #999;
+  font-size: 10px;
+}
+
+.ren-customer-dropdown .new-option {
+  background: #fbf8f4;
+  font-weight: 800;
+}
+
+.ren-editor-input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #dfe2e5;
+  border-radius: 7px;
+  padding: 0 10px;
+  outline: 0;
+  background: #fff;
+  font-size: 12px;
+}
+
+.ren-editor-input:focus,
+.ren-product-cell input:focus,
+.ren-product-cell select:focus,
+.ren-modal-field input:focus,
+.ren-modal-field select:focus,
+.ren-modal-field textarea:focus,
+.ren-invoice-note-area textarea:focus {
+  border-color: #7eacef;
+  box-shadow: 0 0 0 3px rgba(77, 133, 219, .10);
+}
+
+/* PAYMENT */
+
+.ren-payment-area {
+  display: grid;
+  grid-template-columns: minmax(340px, .85fr) 1.3fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ren-payment-method-card,
+.ren-due-card,
+.ren-payment-account-card {
+  background: #fff;
+  border: 1px solid #e2e4e7;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.ren-payment-main-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.ren-payment-main-buttons button,
+.ren-payment-sub-buttons button,
+.ren-due-buttons button {
+  min-height: 38px;
+  border: 1px solid #d9dce0;
+  border-radius: 7px;
+  background: #fff;
+  color: #333;
+  padding: 0 13px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .15s ease;
+}
+
+.ren-payment-main-buttons button {
+  flex: 1;
+}
+
+.ren-payment-main-buttons button:hover,
+.ren-payment-sub-buttons button:hover,
+.ren-due-buttons button:hover {
+  border-color: #b8bec5;
+}
+
+.ren-payment-main-buttons button.active,
+.ren-payment-sub-buttons button.active,
+.ren-due-buttons button.active {
+  background: #202020;
+  color: #fff;
+  border-color: #202020;
+  box-shadow: 0 2px 7px rgba(0,0,0,.10);
+}
+
+.ren-payment-sub-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 1px solid #efefef;
+}
+
+.ren-payment-sub-buttons button {
+  flex: 1;
+  min-width: 112px;
+}
+
+.ren-due-buttons {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.ren-due-buttons button {
+  min-width: 80px;
+}
+
+.ren-payment-account-card {
+  margin-bottom: 12px;
+}
+
+.ren-payment-account-title {
+  margin-bottom: 12px;
+}
+
+.ren-payment-account-title strong {
+  display: block;
+  font-size: 13px;
+}
+
+.ren-payment-account-title span {
+  display: block;
+  margin-top: 3px;
+  color: #888;
+  font-size: 10px;
+}
+
+.ren-payment-account-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 10px;
+}
+
+.ren-payment-account-grid label,
+.ren-modal-field {
+  display: block;
+}
+
+.ren-payment-account-grid label > span,
+.ren-modal-field > span {
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.ren-payment-account-grid select,
+.ren-payment-account-grid input,
+.ren-modal-field input,
+.ren-modal-field select,
+.ren-modal-field textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #dfe2e5;
+  border-radius: 7px;
+  background: #fff;
+  padding: 0 9px;
+  font-size: 12px;
+  outline: 0;
+}
+
+.ren-payment-account-grid textarea,
+.ren-modal-field textarea {
+  padding-top: 9px;
+  padding-bottom: 9px;
+  resize: vertical;
+}
+
+/* PRODUCTS */
+
+.products-card {
+  overflow: visible;
+}
+
+.ren-products-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #eceef0;
+  flex-wrap: wrap;
+}
+
+.ren-products-header strong {
+  display: block;
+  font-size: 15px;
+}
+
+.ren-products-header span {
+  display: block;
+  margin-top: 3px;
+  color: #888;
+  font-size: 10px;
+}
+
+.ren-add-line {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid #d9dce0;
+  border-radius: 7px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ren-product-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ren-product-table {
+  min-width: 1180px;
+}
+
+.ren-product-row {
+  display: grid;
+  grid-template-columns:
+    minmax(250px, 2.2fr)
+    86px
+    92px
+    110px
+    82px
+    148px
+    105px
+    115px
+    44px;
+  gap: 7px;
+  align-items: start;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f1f2;
+}
+
+.ren-product-head {
+  background: #f7f7f8;
+  color: #6e7175;
+  font-size: 9px;
+  font-weight: 900;
+  align-items: center;
+}
+
+.ren-product-cell input,
+.ren-product-cell select {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #dfe2e5;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 8px;
+  font-size: 11px;
+  outline: 0;
+}
+
+.product-cell {
+  position: relative;
+}
+
+.ren-product-code {
+  display: block;
+  margin-top: 4px;
+  color: #8a8d91;
+  font-size: 9px;
+}
+
+.ren-product-suggestion-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 42px;
+  z-index: 40;
+  background: #fff;
+  border: 1px solid #dfe2e5;
+  border-radius: 7px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.12);
+  overflow: hidden;
+}
+
+.ren-product-suggestion-list button {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+  padding: 7px 9px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.ren-product-suggestion-list button:hover {
+  background: #f7f9fb;
+}
+
+.ren-product-suggestion-list small {
+  color: #999;
+}
+
+.ren-new-product-inline {
+  width: 100%;
+  margin-top: 4px;
+  min-height: 30px;
+  border: 1px dashed #d7d2ca;
+  border-radius: 6px;
+  background: #faf8f4;
+  color: #6f5d45;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ren-discount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.ren-discount-grid input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #dfe2e5;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 10px;
+  outline: 0;
+}
+
+.ren-product-number {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: #262626;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.ren-product-number.total {
+  font-weight: 900;
+}
+
+.ren-product-delete {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e9e9ea;
+  border-radius: 6px;
+  background: #fff;
+  color: #b2b2b2;
+  cursor: pointer;
+}
+
+.ren-product-delete:hover {
+  border-color: #efb6b6;
+  color: #cc3c3c;
+  background: #fff7f7;
+}
+
+/* TOTALS */
+
+.ren-invoice-bottom-area {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 420px);
+  gap: 18px;
+  padding: 18px;
+}
+
+.ren-invoice-note-area label > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #777;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.ren-invoice-note-area textarea {
+  width: 100%;
+  border: 1px solid #dfe2e5;
+  border-radius: 7px;
+  padding: 10px;
+  outline: 0;
+  resize: vertical;
+  font-size: 12px;
+}
+
+.ren-invoice-total-box {
+  border: 1px solid #eceef0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ren-invoice-total-box > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid #efefef;
+  font-size: 11px;
+}
+
+.ren-invoice-total-box > div:last-child {
+  border-bottom: 0;
+}
+
+.ren-invoice-total-box .grand {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+/* STOCK */
+
+.ren-stock-control {
+  border-top: 1px solid #eceef0;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ren-stock-control > div {
+  margin-right: auto;
+}
+
+.ren-stock-control strong,
+.ren-stock-control span {
+  display: block;
+}
+
+.ren-stock-control strong {
+  font-size: 10px;
+}
+
+.ren-stock-control span {
+  margin-top: 2px;
+  color: #888;
+  font-size: 9px;
+}
+
+.ren-stock-control button {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ren-stock-control button.active {
+  background: #202020;
+  color: #fff;
+  border-color: #202020;
+}
+
+/* MODAL */
+
+.ren-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, .38);
+}
+
+.ren-modal {
+  width: min(500px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 25px 70px rgba(0,0,0,.22);
+}
+
+.ren-modal.wide {
+  width: min(620px, 100%);
+}
+
+.ren-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ren-modal-head strong {
+  display: block;
+  font-size: 16px;
+}
+
+.ren-modal-head span {
+  display: block;
+  margin-top: 3px;
+  color: #888;
+  font-size: 10px;
+}
+
+.ren-modal-head > button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.ren-modal-field {
+  margin-bottom: 11px;
+}
+
+.ren-modal-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ren-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+}
+
+.ren-payment-modal-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 13px;
+}
+
+.ren-payment-modal-summary > div {
+  padding: 12px;
+  border: 1px solid #e9eaec;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.ren-payment-modal-summary span,
+.ren-payment-modal-summary strong {
+  display: block;
+}
+
+.ren-payment-modal-summary span {
+  color: #888;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.ren-payment-modal-summary strong {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.ren-payment-modal-summary .remaining {
+  background: #eff9f3;
+  border-color: #cce9d7;
+}
+
+.ren-payment-modal-summary .remaining strong {
+  color: #28744f;
+}
+
+/* PRINT */
+
+@media print {
+  .ren-invoice-edit-header,
+  .ren-modal-overlay {
+    display: none !important;
+  }
+
+  .ren-invoice-active-editor {
+    padding: 0;
+    background: #fff;
+  }
+
+  .ren-invoice-edit-card,
+  .ren-payment-method-card,
+  .ren-due-card,
+  .ren-payment-account-card,
+  .products-card {
+    box-shadow: none;
+    border-color: #ddd;
+  }
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .ren-invoice-edit-top-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ren-payment-area,
+  .ren-invoice-bottom-area {
+    grid-template-columns: 1fr;
+  }
+
+  .ren-payment-account-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .ren-invoice-active-editor {
+    padding: 14px;
+  }
+
+  .ren-invoice-edit-top-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ren-payment-account-grid,
+  .ren-modal-two,
+  .ren-payment-modal-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .ren-invoice-edit-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .ren-invoice-edit-header-actions button {
+    flex: 1;
+  }
+
+  .ren-product-table {
+    min-width: 1040px;
+  }
+}
+
+
 
 /* =========================================================
-   RESPONSIVE
+   REN ERP - DARK SURFACE NORMALIZATION
+   Dark layout owns the theme. Keep geometry untouched.
+========================================================= */
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-method-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box {
+  background: #1b2a34 !important;
+  color: #e8eef2 !important;
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-card.compact,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-card.customer-card {
+  background: #1b2a34 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-customer-search-box,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-new-product-inline,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-suggestion-list,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-customer-dropdown,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-selected-customer button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button.secondary,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-actions button.secondary {
+  background: #172731 !important;
+  color: #dbe5ea !important;
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-main-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-sub-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-stock-control button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-grid button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-add-line,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-header button {
+  background: #243640 !important;
+  color: #dbe5ea !important;
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-main-buttons button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-sub-buttons button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-buttons button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-stock-control button.active {
+  background: #1f6548 !important;
+  color: #86e0b5 !important;
+  border-color: #2f9c6d !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-title-line h1,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-selected-customer strong,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-number,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box strong,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .grand {
+  color: #e8eef2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-title-line p,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-label,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-header p,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-selected-customer span,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor label,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor small {
+  color: #9caab5 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-actions button {
+  background: #243640 !important;
+  color: #dbe5ea !important;
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button.primary,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-actions button.primary {
+  background: #39a978 !important;
+  color: #07150f !important;
+  border-color: #39a978 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button.payment,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-actions button.payment {
+  background: #214838 !important;
+  color: #86e0b5 !important;
+  border-color: #2f9c6d !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button.danger,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-delete {
+  background: #4a2228 !important;
+  color: #ff9ba4 !important;
+  border-color: #8f414c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-active-badge {
+  background: #173c2f !important;
+  color: #86e0b5 !important;
+  border-color: #2e7859 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-note-area,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-note-area,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor textarea {
+  background: #172731 !important;
+  color: #e8eef2 !important;
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table th,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table td {
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table th {
+  background: #172731 !important;
+  color: #9fb1bb !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table td {
+  background: #1b2a34 !important;
+  color: #d4dde2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-bottom-area {
+  background: transparent !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-print-document {
+  background: #fff !important;
+}
+
+/* =========================================================
+   PRINT / PDF
 ========================================================= */
 
-@media (max-width: 1250px) {
-  .parasut-invoice-card,
-  .parasut-bottom-actions {
-    width: 100%;
-    min-width: 0;
+.ren-print-document {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
   }
 
-  .parasut-side-column {
-    position: static;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 14px;
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
   }
 
-  .parasut-side-card {
-    margin-bottom: 0;
+  body * {
+    visibility: hidden !important;
+  }
+
+  .ren-print-document,
+  .ren-print-document * {
+    visibility: visible !important;
+  }
+
+  .ren-print-document {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    min-height: 100vh;
+    background: #fff !important;
+    color: #111 !important;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .ren-print-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 20px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 2px solid #222 !important;
+  }
+
+  .ren-print-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px !important;
+  }
+
+  .ren-print-logo {
+    display: grid !important;
+    place-items: center !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 10px !important;
+    background: #222 !important;
+    color: #fff !important;
+    font-weight: 900 !important;
+    font-size: 14px !important;
+  }
+
+  .ren-print-brand h2 {
+    margin: 0 !important;
+    font-size: 18px !important;
+  }
+
+  .ren-print-brand p {
+    margin: 3px 0 0 !important;
+    color: #666 !important;
+    font-size: 9px !important;
+  }
+
+  .ren-print-title {
+    text-align: right !important;
+  }
+
+  .ren-print-title h1 {
+    margin: 0 0 5px !important;
+    font-size: 17px !important;
+    text-transform: uppercase !important;
+  }
+
+  .ren-print-title strong {
+    font-size: 12px !important;
+  }
+
+  .ren-print-meta-grid {
+    display: grid !important;
+    grid-template-columns: 2fr 1fr 1fr 1.4fr !important;
+    gap: 8px !important;
+    margin: 14px 0 !important;
+  }
+
+  .ren-print-box {
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 6px !important;
+    padding: 9px 10px !important;
+    min-height: 52px !important;
+  }
+
+  .ren-print-box span {
+    display: block !important;
+    color: #6d6d6d !important;
+    font-size: 8px !important;
+    font-weight: 800 !important;
+    margin-bottom: 5px !important;
+  }
+
+  .ren-print-box strong {
+    display: block !important;
+    font-size: 10px !important;
+  }
+
+  .ren-print-box small {
+    display: block !important;
+    margin-top: 3px !important;
+    color: #777 !important;
+    font-size: 8px !important;
+  }
+
+  .ren-print-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 9px !important;
+  }
+
+  .ren-print-table th {
+    padding: 8px 6px !important;
+    background: #f0f0f0 !important;
+    border: 1px solid #d8d8d8 !important;
+    text-align: left !important;
+    font-size: 7px !important;
+    font-weight: 900 !important;
+  }
+
+  .ren-print-table td {
+    padding: 8px 6px !important;
+    border: 1px solid #dfdfdf !important;
+    vertical-align: top !important;
+  }
+
+  .ren-print-table td:nth-child(1),
+  .ren-print-table th:nth-child(1) {
+    width: 28px !important;
+    text-align: center !important;
+  }
+
+  .ren-print-table td:nth-child(3),
+  .ren-print-table th:nth-child(3) {
+    width: 60px !important;
+    text-align: right !important;
+  }
+
+  .ren-print-table td:nth-child(4),
+  .ren-print-table th:nth-child(4) {
+    width: 58px !important;
+  }
+
+  .ren-print-table td:nth-child(5),
+  .ren-print-table th:nth-child(5) {
+    width: 82px !important;
+    text-align: right !important;
+  }
+
+  .ren-print-table td:nth-child(6),
+  .ren-print-table th:nth-child(6) {
+    width: 75px !important;
+    text-align: right !important;
+  }
+
+  .ren-print-table td:nth-child(7),
+  .ren-print-table th:nth-child(7) {
+    width: 55px !important;
+    text-align: right !important;
+  }
+
+  .ren-print-table td:nth-child(8),
+  .ren-print-table th:nth-child(8) {
+    width: 90px !important;
+    text-align: right !important;
+  }
+
+  .ren-print-table td:nth-child(2) small {
+    display: block !important;
+    margin-top: 3px !important;
+    color: #777 !important;
+    font-size: 7px !important;
+  }
+
+  .ren-print-bottom {
+    display: grid !important;
+    grid-template-columns: 1fr 300px !important;
+    gap: 14px !important;
+    margin-top: 14px !important;
+    align-items: start !important;
+  }
+
+  .ren-print-note {
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    padding: 10px !important;
+    min-height: 100px !important;
+  }
+
+  .ren-print-note span {
+    display: block !important;
+    margin-bottom: 7px !important;
+    color: #666 !important;
+    font-size: 8px !important;
+    font-weight: 900 !important;
+  }
+
+  .ren-print-note p {
+    margin: 0 !important;
+    font-size: 9px !important;
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+  }
+
+  .ren-print-totals {
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .ren-print-totals > div {
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 8px 10px !important;
+    border-bottom: 1px solid #e7e7e7 !important;
+    font-size: 9px !important;
+  }
+
+  .ren-print-totals > div:last-child {
+    border-bottom: 0 !important;
+  }
+
+  .ren-print-totals .grand {
+    background: #222 !important;
+    color: #fff !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    padding-top: 11px !important;
+    padding-bottom: 11px !important;
+  }
+
+  .ren-print-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    margin-top: 18px !important;
+    padding-top: 9px !important;
+    border-top: 1px solid #ddd !important;
+    color: #777 !important;
+    font-size: 8px !important;
+  }
+
+  .ren-invoice-active-editor {
+    display: block !important;
   }
 }
 
-@media (max-width: 900px) {
-  .parasut-invoice-page {
-    padding: 18px 14px 50px;
-  }
 
-  .parasut-page-header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .parasut-row,
-  .parasut-stock-section {
-    grid-template-columns: 42px 180px minmax(250px, 1fr);
-  }
-
-  .parasut-extra-buttons {
-    padding-left: 222px;
-  }
-
-  .parasut-products-card {
-    overflow-x: auto;
-  }
-
-  .parasut-products-header,
-  .parasut-product-entry,
-  .parasut-product-row {
-    min-width: 950px;
-  }
+.ren-print-totals .balance-before,
+.ren-print-totals .balance-current {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 7px;
+  margin-top: 5px;
+  border-top: 1px solid #e5e5e5;
 }
 
-@media (max-width: 650px) {
-  .parasut-side-column {
-    grid-template-columns: 1fr;
-  }
+.ren-print-totals .balance-before span,
+.ren-print-totals .balance-current span {
+  font-weight: 700;
+}
 
-  .parasut-row,
-  .parasut-stock-section {
-    grid-template-columns: 38px 120px 1fr;
-  }
+.ren-print-totals .balance-current {
+  font-size: 14px;
+  font-weight: 900;
+}
 
-  .parasut-extra-buttons {
-    padding-left: 158px;
-    flex-wrap: wrap;
-  }
 
-  .parasut-radio-group,
-  .parasut-stock-options {
-    grid-template-columns: 1fr;
-  }
+/* =========================================================
+   REN ERP - NEW INVOICE DARK THEME
+   STRUCTURE IS INHERITED FROM THE WORKING REN INVOICE CSS.
+   Only visual surfaces/colors are overridden here.
+========================================================= */
 
-  .parasut-radio-group button + button,
-  .parasut-stock-options button + button {
-    border-left: 0;
-    border-top: 1px solid #d2d2d2;
-  }
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor {
+  background: #14212b !important;
+  color: #e8eef2 !important;
+}
 
-  .parasut-total-area {
-    grid-template-columns: 1fr;
-  }
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-method-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-sidebar > div,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box {
+  background: #1b2a34 !important;
+  color: #e8eef2 !important;
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header * {
+  color: #e8eef2;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-breadcrumb,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-breadcrumb * {
+  color: #8fa2ad !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-card-title,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-title,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-method-card > div:first-child,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-card > div:first-child {
+  color: #e8eef2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor label,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-label,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-header,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box span,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-title span {
+  color: #9eb0ba !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor strong,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor b,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .grand,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box strong {
+  color: #edf3f6;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor input,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor select,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor textarea,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-editor-input {
+  background: #172731 !important;
+  color: #edf3f6 !important;
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor input::placeholder,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor textarea::placeholder {
+  color: #738792 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table thead,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table tbody,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table tr,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table td,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table th {
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table th {
+  background: #172731 !important;
+  color: #9fb1bb !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-table td {
+  background: #1b2a34 !important;
+  color: #d4dde2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-row:hover td {
+  background: #22343e !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-header {
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-products-header button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-add-line,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-header-actions button {
+  border-color: #3a505c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-customer-search-box,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-customer-search-wrap,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-customer-dropdown,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-suggestion-list,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-new-product-inline {
+  background: #1a2a34 !important;
+  border-color: #3a505c !important;
+  color: #e8eef2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-stock-control button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-main-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-sub-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-buttons button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-grid button {
+  background: #243640 !important;
+  border-color: #3a505c !important;
+  color: #dbe5ea !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-stock-control button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-main-buttons button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-sub-buttons button.active,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-buttons button.active {
+  background: #1f6548 !important;
+  border-color: #2f9c6d !important;
+  color: #86e0b5 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-method-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-due-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-account-card {
+  box-shadow: 0 8px 24px rgba(0,0,0,.18) !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-modal-summary > div {
+  background: #172731 !important;
+  border-color: #334650 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-modal-summary .remaining {
+  background: #173c2f !important;
+  border-color: #2e7859 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-total-box .grand,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-grand-total {
+  color: #63d29a !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-edit-save,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor button.primary,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor button.save,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor button.payment {
+  color: #effff7 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-product-delete,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor button.danger {
+  background: #4a2228 !important;
+  border-color: #8f414c !important;
+  color: #ff9ba4 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-overlay {
+  background: rgba(0,0,0,.62) !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal {
+  background: #1b2a34 !important;
+  color: #e8eef2 !important;
+  border: 1px solid #334650 !important;
+  box-shadow: 0 25px 70px rgba(0,0,0,.42) !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-head span,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-payment-modal-summary span {
+  color: #8fa2ad !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-head > button,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-modal-actions .secondary {
+  background: #243640 !important;
+  border-color: #3a505c !important;
+  color: #dbe5ea !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-note-area,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-note-area {
+  color: #dbe5ea !important;
 }

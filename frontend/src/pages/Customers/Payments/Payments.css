@@ -1,3 +1,10 @@
+/*
+  REN ERP - PAYMENTS.CSS
+  GÜVENLİ OKUNAKLI SÜRÜM
+  Mevcut çalışan yerleşim korunmuştur.
+  Sadece tipografi/readability büyütülmüştür.
+*/
+
 .payment-page {
   min-height: 100vh;
   background: #f5f7fa;
@@ -28,7 +35,7 @@
   gap: 8px;
   margin-bottom: 8px;
   color: #8a95a5;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .payment-breadcrumb strong {
@@ -37,7 +44,7 @@
 
 .payment-header h1 {
   margin: 0;
-  font-size: 27px;
+  font-size: 31px;
   font-weight: 750;
   letter-spacing: -0.4px;
 }
@@ -45,7 +52,7 @@
 .payment-header p {
   margin: 7px 0 0;
   color: #8994a3;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .payment-header-actions {
@@ -65,7 +72,7 @@
   gap: 7px;
   border-radius: 7px;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -94,7 +101,7 @@
 }
 
 .payment-primary-button span {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
 }
 
@@ -122,7 +129,7 @@
 
 .payment-summary-card span {
   color: #8b96a5;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: .3px;
 }
@@ -130,7 +137,7 @@
 .payment-summary-card strong {
   margin-top: 6px;
   color: #263247;
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 750;
 }
 
@@ -185,7 +192,7 @@
   background: #fafbfd;
   color: #263247;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .payment-search input:focus {
@@ -223,12 +230,12 @@
   background: #fff;
   color: #526073;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-date-separator {
   color: #a1aab7;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-filter {
@@ -241,7 +248,7 @@
   background: #fff;
   color: #4d596b;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -254,7 +261,7 @@
   color: #687588;
   cursor: pointer;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -269,7 +276,7 @@
   gap: 18px;
   border-bottom: 1px solid #edf0f3;
   color: #8994a3;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-result-bar strong {
@@ -298,7 +305,7 @@
   color: #8a95a4;
   text-align: left;
   white-space: nowrap;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .25px;
 }
@@ -309,7 +316,7 @@
   border-bottom: 1px solid #edf1f4;
   color: #586477;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-table tbody tr:hover {
@@ -336,14 +343,14 @@
   border-radius: 7px;
   background: #fff3e8;
   color: #b96e25;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .payment-customer strong {
   display: block;
   color: #354257;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -351,7 +358,7 @@
   display: block;
   margin-top: 3px;
   color: #9ba4b1;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 
@@ -359,13 +366,13 @@
 
 .payment-date-cell {
   color: #526073;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .payment-document {
   color: #667388;
   font-family: Consolas, monospace;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .payment-method {
@@ -376,18 +383,18 @@
   border-radius: 5px;
   background: #fff3e8;
   color: #b96e25;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .payment-account {
   color: #687588;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .payment-description {
   color: #737f90;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .payment-money {
@@ -418,7 +425,7 @@
   background: #fff;
   color: #687588;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .payment-more:hover {
@@ -451,14 +458,14 @@
 .payment-empty strong {
   display: block;
   color: #354257;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .payment-empty span {
   display: block;
   margin-top: 5px;
   color: #929cab;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 
@@ -471,7 +478,7 @@
   align-items: center;
   justify-content: space-between;
   color: #8a95a4;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .payment-footer strong {
@@ -514,7 +521,7 @@
 
 .payment-modal-header > div > span {
   color: #286fc7;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .5px;
 }
@@ -522,14 +529,14 @@
 .payment-modal-header h2 {
   margin: 5px 0 0;
   color: #172033;
-  font-size: 21px;
+  font-size: 24px;
   font-weight: 750;
 }
 
 .payment-modal-header p {
   margin: 6px 0 0;
   color: #8994a3;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-modal-close {
@@ -562,7 +569,7 @@
   display: block;
   margin-bottom: 6px;
   color: #687588;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 750;
 }
 
@@ -582,7 +589,7 @@
   background: #fafbfd;
   color: #354257;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .payment-form-field input,
@@ -619,7 +626,7 @@
   top: 50%;
   transform: translateY(-50%);
   color: #8994a3;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -652,7 +659,7 @@
 
 .payment-customer-balance span {
   color: #8b96a5;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .25px;
 }
@@ -688,7 +695,7 @@
   padding: 0 15px;
   border-radius: 7px;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }

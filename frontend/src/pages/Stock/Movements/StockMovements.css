@@ -1,1315 +1,731 @@
-/* =========================================================
-   REN ERP — STOK HAREKETLERİ
-   PARAŞÜT TEMASI
-========================================================= */
+/* REN ERP — STOK HAREKETLERİ
+   Koyu tema + kompakt düzen + REN Standart Tipografi
+*/
 
-.ren-stock-movements {
-  min-height: calc(100vh - 68px);
-  padding: 26px 30px 45px;
+.stock-movements-page {
+  min-height: 100%;
+  padding: 20px;
+  background: #14212b;
+  color: #e8eef2;
   box-sizing: border-box;
-
-  background: #f4f4f4;
-
-  color: #30343b;
-
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.ren-stock-movements-header {
+.stock-movements-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  gap: 20px;
-
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
-.ren-breadcrumb {
-  display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 8px;
-
-  color: #9299a2;
-
-  font-size: 11px;
-
-  font-weight: 400;
-}
-
-.ren-breadcrumb strong {
-  color: #68717d;
-
+.stock-movements-breadcrumb {
+  margin-bottom: 7px;
+  color: #82919b;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.ren-stock-movements-header h1 {
-  margin: 0 0 5px;
-
-  color: #252a31;
-
-  font-size: 21px;
-
-  line-height: 1.3;
-
-  font-weight: 600;
-
-  letter-spacing: -.2px;
+.stock-movements-breadcrumb span {
+  margin: 0 7px;
+  color: #53636e;
 }
 
-.ren-stock-movements-header p {
+.stock-movements-header h1 {
   margin: 0;
-
-  color: #9299a2;
-
-  font-size: 12px;
-
-  line-height: 1.45;
+  color: #edf3f6;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 750;
 }
 
-
-/* =========================================================
-   HEADER BUTONLARI
-========================================================= */
-
-.ren-header-actions {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  flex-shrink: 0;
-}
-
-.ren-button {
-  min-height: 36px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
-  padding: 0 13px;
-
-  border-radius: 6px;
-
-  font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.ren-button svg {
-  font-size: 17px;
-}
-
-.ren-button.secondary {
-  border: 1px solid #cfd1d4;
-
-  background: #ffffff;
-
-  color: #59616b;
-}
-
-.ren-button.secondary:hover {
-  border-color: #bfc3c8;
-
-  background: #fafafa;
-
-  color: #30343b;
-}
-
-
-/* =========================================================
-   ÖZET KARTLARI
-========================================================= */
-
-.ren-movement-summary {
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 12px;
-
-  margin-bottom: 16px;
-}
-
-.ren-movement-summary-card {
-  min-height: 94px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  padding: 15px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
-}
-
-.ren-movement-summary-card > div:last-child {
-  min-width: 0;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.ren-movement-summary-card span {
-  color: #9299a2;
-
-  font-size: 10px;
-
-  font-weight: 600;
-}
-
-.ren-movement-summary-card strong {
-  color: #30343b;
-
-  font-size: 20px;
-
-  line-height: 1.25;
-
-  font-weight: 600;
-}
-
-.ren-movement-summary-card small {
-  color: #a0a6ad;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   ÖZET İKONLARI
-========================================================= */
-
-.summary-icon {
-  width: 39px;
-  height: 39px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 7px;
-
-  font-size: 19px;
-}
-
-.summary-icon.blue {
-  background: #edf6fc;
-
-  color: #3d8fd1;
-}
-
-.summary-icon.green {
-  background: #eaf8f4;
-
-  color: #19a88b;
-}
-
-.summary-icon.red {
-  background: #fff0ee;
-
-  color: #e0645b;
-}
-
-.summary-icon.orange {
-  background: #fff5e5;
-
-  color: #d08c29;
-}
-
-.green-text {
-  color: #159f86 !important;
-}
-
-.red-text {
-  color: #d9564d !important;
-}
-
-
-/* =========================================================
-   SEÇİLİ ÜRÜN
-========================================================= */
-
-.ren-selected-product {
-  min-height: 72px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  margin-bottom: 16px;
-
-  padding: 12px 15px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #cfded9;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .04);
-}
-
-.ren-selected-product-icon {
-  width: 39px;
-  height: 39px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 7px;
-
-  background: #eaf8f4;
-
-  color: #19a88b;
-
-  font-size: 19px;
-}
-
-.ren-selected-product > div:nth-child(2) {
-  min-width: 0;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 2px;
-}
-
-.ren-selected-product > div:nth-child(2) span,
-.ren-selected-product-stock span {
-  color: #9299a2;
-
-  font-size: 9px;
-
-  font-weight: 600;
-}
-
-.ren-selected-product > div:nth-child(2) strong {
-  overflow: hidden;
-
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  white-space: nowrap;
-
-  text-overflow: ellipsis;
-}
-
-.ren-selected-product > div:nth-child(2) small {
-  color: #9299a2;
-
-  font-size: 10px;
-}
-
-.ren-selected-product-stock {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 3px;
-
-  margin-left: auto;
-
-  padding-left: 25px;
-
-  border-left: 1px solid #e9eaec;
-}
-
-.ren-selected-product-stock strong {
-  color: #159f86;
-
-  font-size: 14px;
-
-  font-weight: 600;
-}
-
-.ren-selected-product > button {
-  width: 30px;
-  height: 30px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-left: 5px;
-
-  padding: 0;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 5px;
-
-  background: #ffffff;
-
-  color: #9299a2;
-
-  cursor: pointer;
-}
-
-.ren-selected-product > button:hover {
-  background: #fff5f4;
-
-  border-color: #efc7c3;
-
-  color: #d9564d;
-}
-
-
-/* =========================================================
-   FİLTRELER
-========================================================= */
-
-.ren-movement-filters {
-  display: grid;
-
-  grid-template-columns:
-    minmax(230px, 1.8fr)
-    minmax(170px, 1fr)
-    minmax(170px, 1fr)
-    minmax(145px, .8fr)
-    auto
-    auto;
-
-  align-items: center;
-
-  gap: 8px;
-
-  margin-bottom: 12px;
-
-  padding: 12px;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
-}
-
-
-/* =========================================================
-   ARAMA
-========================================================= */
-
-.ren-stock-search {
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  padding: 0 10px;
-
-  box-sizing: border-box;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-}
-
-.ren-stock-search:focus-within {
-  border-color: #19b99a;
-
-  box-shadow:
-    0 0 0 2px rgba(25,185,154,.09);
-}
-
-.ren-stock-search > svg {
-  flex-shrink: 0;
-
-  color: #9299a2;
-
-  font-size: 18px;
-}
-
-.ren-stock-search input {
-  width: 100%;
-  height: 100%;
-
-  min-height: 0;
-
-  padding: 0;
-
-  border: 0;
-
-  outline: 0;
-
-  background: transparent;
-
-  color: #30343b;
-
-  font-family: inherit;
-
-  font-size: 12px;
-}
-
-.ren-stock-search input::placeholder {
-  color: #a0a6ad;
-}
-
-.ren-stock-search button {
-  width: 25px;
-  height: 25px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #9299a2;
-
-  cursor: pointer;
-}
-
-
-/* =========================================================
-   SELECT FİLTRELERİ
-========================================================= */
-
-.ren-filter-field,
-.ren-filter-date {
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 7px;
-
-  padding: 0 9px;
-
-  box-sizing: border-box;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-}
-
-.ren-filter-field > svg,
-.ren-filter-date > svg {
-  flex-shrink: 0;
-
-  color: #9299a2;
-
-  font-size: 17px;
-}
-
-.ren-filter-field select,
-.ren-filter-date input {
-  width: 100%;
-  height: 100%;
-
-  min-height: 0;
-
-  padding: 0;
-
-  border: 0;
-
-  outline: 0;
-
-  background: transparent;
-
-  color: #59616b;
-
-  font-family: inherit;
-
-  font-size: 11px;
-
-  cursor: pointer;
-}
-
-.ren-filter-field:focus-within,
-.ren-filter-date:focus-within {
-  border-color: #19b99a;
-
-  box-shadow:
-    0 0 0 2px rgba(25,185,154,.09);
-}
-
-
-/* =========================================================
-   BUGÜN
-========================================================= */
-
-.ren-today-button {
-  height: 38px;
-
-  padding: 0 12px;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  color: #59616b;
-
-  font-family: inherit;
-
-  font-size: 11px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.ren-today-button:hover {
-  background: #f7f7f7;
-
-  border-color: #bfc3c8;
-}
-
-
-/* =========================================================
-   TEMİZLE
-========================================================= */
-
-.ren-clear-filter {
-  height: 38px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 4px;
-
-  padding: 0 10px;
-
-  border: 1px solid #edc9c6;
-
-  border-radius: 6px;
-
-  background: #fff8f7;
-
-  color: #d9564d;
-
-  font-family: inherit;
-
-  font-size: 11px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.ren-clear-filter:hover {
-  background: #fff0ee;
-}
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-.ren-movement-tabs {
-  display: flex;
-  align-items: center;
-
-  gap: 2px;
-
-  margin-bottom: 0;
-
-  padding: 0 4px;
-
-  border-bottom: 1px solid #dedfe1;
-}
-
-.ren-movement-tabs button {
-  min-height: 39px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 5px;
-
-  padding: 0 14px;
-
-  border: 0;
-
-  border-bottom: 2px solid transparent;
-
-  background: transparent;
-
-  color: #7b838d;
-
-  font-family: inherit;
-
-  font-size: 11px;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.ren-movement-tabs button svg {
+.stock-movements-header p {
+  margin: 7px 0 0;
+  color: #9eacb5;
   font-size: 15px;
 }
 
-.ren-movement-tabs button:hover {
-  color: #30343b;
+.stock-movements-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #344752;
+  border-radius: 8px;
+  background: #1b2a34;
+  color: #dce5ea;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
 }
 
-.ren-movement-tabs button.active {
-  border-bottom-color: #19b99a;
-
-  color: #159f86;
+.stock-movements-refresh svg {
+  font-size: 18px;
 }
 
+.stock-movements-refresh:hover {
+  background: #243641;
+}
 
-/* =========================================================
-   TABLO KARTI
-========================================================= */
+.stock-movements-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
 
-.ren-stock-movements-table-card {
+.movement-summary-card {
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid #2c3c47;
+  border-radius: 10px;
+  background: #1b2a34;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.movement-summary-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #95a4ad;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.movement-summary-card strong {
+  display: block;
+  font-size: 21px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.movement-summary-card small {
+  display: block;
+  margin-top: 7px;
+  color: #74848f;
+  font-size: 13px;
+}
+
+.movement-summary-card.green strong {
+  color: #67cf9d;
+}
+
+.movement-summary-card.red strong {
+  color: #e97683;
+}
+
+.movement-summary-card.orange strong {
+  color: #d9a34d;
+}
+
+.stock-movements-filter-card,
+.stock-movements-table-card {
   overflow: hidden;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 0 0 8px 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35,42,50,.055);
+  border: 1px solid #2c3c47;
+  border-radius: 10px;
+  background: #1b2a34;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.13);
 }
 
+.stock-movements-filter-card {
+  margin-bottom: 14px;
+}
 
-/* =========================================================
-   TABLO ÜST BAR
-========================================================= */
-
-.ren-table-topbar {
-  min-height: 49px;
-
+.filter-card-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-
-  padding: 0 16px;
-
-  border-bottom: 1px solid #e9eaec;
-
-  background: #ffffff;
+  gap: 11px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #293a45;
+  background: #172731;
 }
 
-.ren-table-topbar > div {
-  display: flex;
-  align-items: center;
-
-  gap: 4px;
+.filter-card-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(114, 174, 225, 0.22);
+  border-radius: 8px;
+  background: rgba(114, 174, 225, 0.1);
+  color: #72aee1;
+  font-size: 18px;
 }
 
-.ren-table-topbar strong {
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 600;
-}
-
-.ren-table-topbar span {
-  color: #9299a2;
-
-  font-size: 11px;
-}
-
-
-/* =========================================================
-   TABLO SCROLL
-========================================================= */
-
-.ren-table-scroll {
-  width: 100%;
-
-  overflow-x: auto;
-}
-
-.ren-table-scroll::-webkit-scrollbar {
-  height: 6px;
-}
-
-
-/* =========================================================
-   TABLO
-========================================================= */
-
-.ren-stock-movements-table {
-  width: 100%;
-
-  min-width: 1050px;
-
-  border-collapse: collapse;
-
-  table-layout: auto;
-
-  background: #ffffff;
-
-  font-family: inherit;
-}
-
-
-/* =========================================================
-   THEAD
-========================================================= */
-
-.ren-stock-movements-table thead {
-  background: #f7f7f7;
-}
-
-.ren-stock-movements-table th {
-  height: 42px;
-
-  padding: 0 12px;
-
-  border-bottom: 1px solid #dedfe1;
-
-  color: #68717d;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  text-align: left;
-
-  white-space: nowrap;
-}
-
-.ren-stock-movements-table th:first-child {
-  padding-left: 16px;
-}
-
-
-/* =========================================================
-   TD
-========================================================= */
-
-.ren-stock-movements-table td {
-  height: 58px;
-
-  padding: 9px 12px;
-
-  border-bottom: 1px solid #e9eaec;
-
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 400;
-
-  vertical-align: middle;
-}
-
-.ren-stock-movements-table td:first-child {
-  padding-left: 16px;
-}
-
-.ren-stock-movements-table tbody tr {
-  transition: background .12s ease;
-}
-
-.ren-stock-movements-table tbody tr:hover {
-  background: #fafafa;
-}
-
-.ren-stock-movements-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-
-/* =========================================================
-   TARİH
-========================================================= */
-
-.ren-movement-date {
-  white-space: nowrap;
-}
-
-.ren-movement-date strong {
-  color: #59616b;
-
-  font-size: 11px;
-
-  font-weight: 500;
-}
-
-
-/* =========================================================
-   ÜRÜN
-========================================================= */
-
-.ren-movement-product {
-  display: flex;
-  align-items: center;
-
-  gap: 9px;
-
-  min-width: 190px;
-}
-
-.ren-movement-product-icon {
-  width: 32px;
-  height: 32px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 5px;
-
-  background: #f0f8f6;
-
-  color: #19a88b;
-
+.filter-card-title strong {
+  display: block;
+  color: #edf3f6;
   font-size: 16px;
 }
 
-.ren-movement-product > div:last-child {
-  min-width: 0;
+.filter-card-title span {
+  display: block;
+  margin-top: 3px;
+  color: #7f909b;
+  font-size: 13px;
+}
 
+.stock-movements-filters {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.7fr) minmax(135px, 0.8fr) minmax(135px, 0.8fr) 145px 145px auto;
+  gap: 10px;
+  align-items: end;
+  padding: 14px 16px 16px;
+}
+
+.stock-movements-filters label:not(.movement-search) {
   display: flex;
-
   flex-direction: column;
-
-  gap: 2px;
+  gap: 6px;
 }
 
-.ren-movement-product strong {
-  max-width: 220px;
-
-  overflow: hidden;
-
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  white-space: nowrap;
-
-  text-overflow: ellipsis;
+.stock-movements-filters label > span {
+  color: #aebbc3;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.ren-movement-product span {
-  color: #9299a2;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   HAREKET BADGE
-========================================================= */
-
-.ren-movement-badge {
-  min-height: 25px;
-
-  display: inline-flex;
-  align-items: center;
-
-  gap: 4px;
-
-  padding: 0 8px;
-
-  border-radius: 4px;
-
-  font-size: 10px;
-
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.ren-movement-badge svg {
+.stock-movements-filters input,
+.stock-movements-filters select {
+  width: 100%;
+  height: 40px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 11px;
+  border: 1px solid #344752;
+  border-radius: 8px;
+  outline: none;
+  background: #172731;
+  color: #edf3f6;
+  font-family: inherit;
   font-size: 14px;
 }
 
-.ren-movement-badge.in {
-  background: #eaf8f4;
-
-  color: #159f86;
+.stock-movements-filters input:focus,
+.stock-movements-filters select:focus {
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.1);
 }
 
-.ren-movement-badge.out {
-  background: #fff0ee;
-
-  color: #d9564d;
+.movement-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 11px;
+  border: 1px solid #344752;
+  border-radius: 8px;
+  background: #172731;
+  color: #84949e;
 }
 
-.ren-movement-badge.adjustment {
-  background: #fff5e5;
-
-  color: #b87a20;
+.movement-search:focus-within {
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.1);
 }
 
-
-/* =========================================================
-   STOK SAYILARI
-========================================================= */
-
-.ren-stock-movements-table td > strong {
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 600;
+.movement-search svg {
+  flex: 0 0 auto;
+  font-size: 19px;
 }
 
-.ren-stock-movements-table td > small {
-  color: #9299a2;
-
-  font-size: 9px;
+.movement-search input {
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-
-/* hareket */
-
-.movement-positive {
-  color: #159f86 !important;
-
-  font-weight: 600 !important;
+.movement-search input:focus {
+  box-shadow: none;
 }
 
-.movement-negative {
-  color: #d9564d !important;
-
-  font-weight: 600 !important;
+.movement-search input::placeholder {
+  color: #73838d;
 }
 
-.movement-neutral {
-  color: #b87a20 !important;
-
-  font-weight: 600 !important;
-}
-
-.new-stock-value {
-  color: #30343b !important;
-
-  font-weight: 600 !important;
-}
-
-
-/* =========================================================
-   KAYNAK
-========================================================= */
-
-.ren-source {
-  color: #68717d;
-
-  font-size: 11px;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   AÇIKLAMA
-========================================================= */
-
-.ren-movement-description {
-  display: block;
-
-  max-width: 230px;
-
-  overflow: hidden;
-
-  color: #9299a2;
-
-  font-size: 10px;
-
-  white-space: nowrap;
-
-  text-overflow: ellipsis;
-}
-
-
-/* =========================================================
-   BOŞ TABLO
-========================================================= */
-
-.ren-empty-table {
-  height: 260px !important;
-
-  padding: 35px !important;
-
-  text-align: center !important;
-
-  color: #9299a2 !important;
-}
-
-.ren-empty-table svg {
-  display: block;
-
-  margin: 0 auto 9px;
-
-  color: #b4bac1;
-
-  font-size: 30px;
-}
-
-.ren-empty-table strong {
-  display: block;
-
-  margin-bottom: 4px;
-
-  color: #59616b;
-
+.clear-filter-button {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #344752;
+  border-radius: 8px;
+  background: #202f39;
+  color: #cbd5db;
+  font-family: inherit;
   font-size: 13px;
-
-  font-weight: 600;
+  font-weight: 750;
+  cursor: pointer;
 }
 
-.ren-empty-table span {
-  color: #9299a2;
-
-  font-size: 11px;
+.clear-filter-button:hover {
+  background: #2a3d48;
 }
 
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.ren-table-footer {
-  min-height: 45px;
-
+.stock-movements-table-top {
   display: flex;
   align-items: center;
-
-  padding: 0 16px;
-
-  border-top: 1px solid #e9eaec;
-
-  background: #ffffff;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #293a45;
 }
 
-.ren-table-footer span {
-  color: #9299a2;
-
-  font-size: 10px;
-}
-
-.ren-table-footer strong {
-  color: #59616b;
-
-  font-weight: 600;
-}
-
-
-/* =========================================================
-   BİLGİ
-========================================================= */
-
-.ren-movement-info {
+.stock-movements-table-top > div:first-child {
   display: flex;
   align-items: center;
-
-  gap: 7px;
-
-  margin-top: 12px;
-
-  padding: 10px 12px;
-
-  border: 1px solid #dce9e5;
-
-  border-radius: 6px;
-
-  background: #f7fbfa;
-
-  color: #7c8985;
-
-  font-size: 10px;
+  gap: 10px;
 }
 
-.ren-movement-info svg {
-  flex-shrink: 0;
-
-  color: #19a88b;
-
+.stock-movements-table-top strong {
+  color: #edf3f6;
   font-size: 16px;
 }
 
+.stock-movements-table-top span {
+  color: #7f909b;
+  font-size: 13px;
+}
 
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+.table-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #778894;
+  font-size: 13px;
+}
 
-@media (max-width: 1200px) {
+.stock-movements-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
 
-  .ren-movement-filters {
-    grid-template-columns:
-      1.5fr
-      1fr
-      1fr
-      1fr;
+.stock-movements-table {
+  width: 100%;
+  min-width: 1140px;
+  border-collapse: collapse;
+}
+
+.stock-movements-table th {
+  height: 43px;
+  padding: 0 13px;
+  border-bottom: 1px solid #2c3c47;
+  background: #172731;
+  color: #8fa0aa;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.stock-movements-table td {
+  padding: 10px 13px;
+  border-bottom: 1px solid #273842;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.stock-movements-table tbody tr {
+  transition: background 0.14s ease;
+}
+
+.stock-movements-table tbody tr:hover {
+  background: #1e303b;
+}
+
+.stock-movements-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.date-cell,
+.product-cell,
+.source-cell,
+.description-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.date-cell strong,
+.product-cell strong,
+.source-cell strong,
+.description-cell strong {
+  color: #e9f0f3;
+  font-weight: 700;
+}
+
+.date-cell small,
+.product-cell small,
+.source-cell small,
+.description-cell small {
+  overflow: hidden;
+  color: #7f919d;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.movement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.movement-badge.in {
+  border: 1px solid rgba(57, 169, 120, 0.22);
+  background: rgba(57, 169, 120, 0.12);
+  color: #69d09f;
+}
+
+.movement-badge.out {
+  border: 1px solid rgba(217, 87, 104, 0.22);
+  background: rgba(217, 87, 104, 0.12);
+  color: #eb7e8b;
+}
+
+.movement-badge.return {
+  border: 1px solid rgba(217, 163, 77, 0.22);
+  background: rgba(217, 163, 77, 0.11);
+  color: #dfae5c;
+}
+
+.quantity-cell {
+  display: inline-block;
+  min-width: 70px;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.quantity-cell.in {
+  color: #69d09f;
+}
+
+.quantity-cell.out {
+  color: #eb7e8b;
+}
+
+.quantity-cell.return {
+  color: #dfae5c;
+}
+
+.stock-number {
+  color: #acbac2;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.stock-number.emphasis {
+  color: #edf3f6;
+  font-weight: 750;
+}
+
+.movement-detail-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #344752;
+  border-radius: 7px;
+  background: #202f39;
+  color: #72aee1;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.movement-detail-button:hover {
+  background: #29404d;
+}
+
+.stock-movements-empty {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #81919c;
+}
+
+.stock-movements-empty svg {
+  margin-bottom: 10px;
+  color: #6d808b;
+  font-size: 38px;
+}
+
+.stock-movements-empty h3 {
+  margin: 0 0 6px;
+  color: #edf3f6;
+  font-size: 18px;
+}
+
+.stock-movements-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.movement-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 12, 17, 0.74);
+  backdrop-filter: blur(3px);
+}
+
+.movement-modal {
+  width: min(720px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  border: 1px solid #344752;
+  border-radius: 12px;
+  background: #1b2a34;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+}
+
+.movement-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #2c3c47;
+  background: #172731;
+}
+
+.movement-modal-header span,
+.movement-detail-grid span,
+.movement-detail-description span {
+  display: block;
+  color: #82939e;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.movement-modal-header h2 {
+  margin: 5px 0 0;
+  color: #edf3f6;
+  font-size: 20px;
+}
+
+.movement-modal-header button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #344752;
+  border-radius: 7px;
+  background: #202f39;
+  color: #aab7bf;
+  cursor: pointer;
+  font-size: 19px;
+}
+
+.movement-modal-header button:hover {
+  color: #fff;
+  background: #293c47;
+}
+
+.movement-modal-body {
+  padding: 20px;
+}
+
+.movement-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.movement-detail-grid > div {
+  min-height: 74px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #2d404b;
+  border-radius: 8px;
+  background: #172731;
+}
+
+.movement-detail-grid strong {
+  display: block;
+  margin-top: 7px;
+  color: #edf3f6;
+  font-size: 15px;
+}
+
+.movement-detail-description {
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid #2d404b;
+  border-radius: 8px;
+  background: #172731;
+}
+
+.movement-detail-description p {
+  margin: 7px 0 0;
+  color: #c0ccd2;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1250px) {
+  .stock-movements-filters {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
-  .ren-today-button,
-  .ren-clear-filter {
-    grid-column: auto;
+  .movement-search {
+    grid-column: span 3;
   }
 
-  .ren-movement-summary {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+  .clear-filter-button {
+    justify-self: start;
   }
 }
 
-
-@media (max-width: 850px) {
-
-  .ren-stock-movements {
-    padding: 20px 18px 35px;
+@media (max-width: 900px) {
+  .stock-movements-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .ren-stock-movements-header {
+  .stock-movements-header {
     flex-direction: column;
   }
 
-  .ren-header-actions {
-    width: 100%;
-  }
-
-  .ren-button {
-    flex: 1;
-  }
-
-  .ren-movement-filters {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .ren-stock-search {
-    grid-column: 1 / -1;
+  .movement-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-
-@media (max-width: 600px) {
-
-  .ren-stock-movements {
-    padding: 17px 12px 30px;
+@media (max-width: 620px) {
+  .stock-movements-page {
+    padding: 14px;
   }
 
-  .ren-stock-movements-header h1 {
-    font-size: 19px;
-  }
-
-  .ren-header-actions {
-    flex-direction: column;
-  }
-
-  .ren-button {
-    width: 100%;
-  }
-
-  .ren-movement-summary {
+  .stock-movements-summary {
     grid-template-columns: 1fr;
   }
 
-  .ren-movement-filters {
+  .stock-movements-filters {
     grid-template-columns: 1fr;
-
-    padding: 10px;
   }
 
-  .ren-stock-search {
+  .movement-search {
     grid-column: auto;
   }
 
-  .ren-movement-tabs {
-    overflow-x: auto;
-
-    padding: 0;
-
-    white-space: nowrap;
-  }
-
-  .ren-movement-tabs button {
-    flex-shrink: 0;
-
-    padding: 0 11px;
-  }
-
-  .ren-selected-product {
-    align-items: flex-start;
-
-    flex-wrap: wrap;
-  }
-
-  .ren-selected-product-stock {
-    width: 100%;
-
-    margin-left: 51px;
-
-    padding-left: 0;
-
-    border-left: 0;
-  }
-
-  .ren-selected-product > button {
-    margin-left: auto;
-  }
-
-  .ren-stock-movements-table {
-    min-width: 1050px;
+  .movement-detail-grid {
+    grid-template-columns: 1fr;
   }
 }
+
+/* STOK HAREKET SİLME */
+.movement-actions{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+
+.movement-delete-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  padding:0;
+  border:1px solid transparent;
+  border-radius:6px;
+  background:transparent;
+  color:#e97786;
+  cursor:pointer;
+}
+
+.movement-delete-button:hover{
+  background:#3a2328;
+  border-color:#5a3038;
+  color:#ef8996;
+}
+
+.movement-delete-button svg{
+  font-size:17px;
+}
+
+.movement-action-head{
+  text-align:center !important;
+  white-space:nowrap;
+}
+
+/* STOK HAREKETİ İŞLEM BUTONLARI */
+
+.movement-action-head {
+  width: 82px;
+  text-align: center !important;
+  white-space: nowrap;
+}
+
+.movement-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.movement-delete-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #e97786;
+  cursor: pointer;
+}
+
+.movement-delete-button:hover {
+  background: #3a2328;
+  border-color: #5a3038;
+  color: #ef8996;
+}
+
+.movement-delete-button svg {
+  font-size: 17px;
+}
+
+
+.movement-actions,
+td:has(.movement-delete-button) {
+  white-space: nowrap;
+}
+
+.movement-delete-button {
+  margin-left: 5px;
+  padding: 6px 10px;
+  border: 1px solid #6a3038;
+  border-radius: 6px;
+  background: #3a2328;
+  color: #e97786;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.movement-delete-button:hover {
+  background: #512b31;
+  color: #ffffff;
+}
+

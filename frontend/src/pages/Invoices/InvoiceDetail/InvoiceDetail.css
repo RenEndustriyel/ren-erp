@@ -1,701 +1,575 @@
-/* =========================================================
-   REN ERP — FATURA DETAY
-========================================================= */
-
-.ren-invoice-detail {
-  min-height: 100%;
-  box-sizing: border-box;
-  padding: 24px 28px 45px;
-  background: #f7f9fc;
-  color: #263348;
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-}
-
-.ren-invoice-detail-loading {
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f7f9fc;
-  color: #8994a4;
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-  font-size: 10px;
-}
-
+/*
+  REN ERP - FATURA DETAY / DÜZENLE
+  CARİ / MÜŞTERİ EKRANLARIYLA UYUMLU FINAL
+  Mevcut layout korunmuş, renk ve tipografi okunaklı hale getirilmiştir.
+*/
 
 /* =========================================================
-   NOT FOUND
+   REN ERP - Invoice Detail (Paraşüt Style)
 ========================================================= */
 
-.ren-invoice-not-found {
-  min-height: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 9px;
-  text-align: center;
+:root{
+  --ren-bg:#f5f7fa;
+  --ren-card:#ffffff;
+  --ren-border:#e1e7ee;
+  --ren-text:#253044;
+  --ren-muted:#7b8492;
+  --ren-blue:#39a978;
+  --ren-blue-dark:#2d8f67;
+  --ren-green:#2b8967;
+  --ren-red:#c45151;
+  --ren-orange:#b96e25;
+  --ren-shadow:0 4px 18px rgba(30,45,65,.045);
 }
 
-.ren-invoice-not-found-icon {
-  width: 54px;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 11px;
-  background: #eef2f6;
-  color: #8793a3;
+body{
+  background:var(--ren-bg);
 }
 
-.ren-invoice-not-found-icon svg {
-  font-size: 27px;
+.ren-invoice-detail{
+  padding:24px;
+  background:var(--ren-bg);
+  min-height:100vh;
 }
 
-.ren-invoice-not-found h2 {
-  margin: 5px 0 0;
-  color: #435065;
-  font-size: 16px;
+.ren-invoice-detail-loading{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:80vh;
+  font-size:19px;
+  color:var(--ren-muted);
 }
-
-.ren-invoice-not-found p {
-  max-width: 360px;
-  margin: 0;
-  color: #9099a7;
-  font-size: 9px;
-  line-height: 1.5;
-}
-
-.ren-invoice-not-found button {
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 7px;
-  border: 1px solid #1769e8;
-  border-radius: 6px;
-  padding: 0 11px;
-  background: #1769e8;
-  color: #fff;
-  font-family: inherit;
-  font-size: 9px;
-  cursor: pointer;
-}
-
 
 /* =========================================================
-   HEADER
+HEADER
 ========================================================= */
 
-.ren-invoice-detail-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 19px;
+.ren-invoice-detail-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:20px;
+  margin-bottom:24px;
+  flex-wrap:wrap;
 }
 
-.ren-invoice-detail-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 8px;
-  border: none;
-  padding: 0;
-  background: transparent;
-  color: #687486;
-  font-family: inherit;
-  font-size: 10px;
-  cursor: pointer;
+.ren-invoice-detail-back{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:none;
+  border:none;
+  color:var(--ren-blue);
+  font-weight:600;
+  cursor:pointer;
+  padding:0;
+  margin-bottom:12px;
 }
 
-.ren-invoice-detail-back:hover {
-  color: #1769e8;
+.ren-invoice-detail-back:hover{
+  color:var(--ren-blue-dark);
 }
 
-.ren-invoice-detail-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 6px;
-  color: #919aa8;
-  font-size: 9px;
+.ren-invoice-detail-breadcrumb{
+  display:flex;
+  gap:8px;
+  color:var(--ren-muted);
+  font-size:13px;
+  margin-bottom:10px;
 }
 
-.ren-invoice-detail-breadcrumb strong {
-  color: #556176;
+.ren-invoice-title-row{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
 }
 
-.ren-invoice-title-row {
-  display: flex;
-  align-items: center;
-  gap: 11px;
+.ren-invoice-title-row h1{
+  margin:0;
+  font-size:32px;
+  color:var(--ren-text);
 }
 
-.ren-invoice-title-row > div {
-  display: flex;
-  align-items: baseline;
-  gap: 9px;
+.ren-invoice-title-row span{
+  color:var(--ren-muted);
 }
 
-.ren-invoice-title-row h1 {
-  margin: 0;
-  color: #172033;
-  font-size: 25px;
-  font-weight: 700;
-  letter-spacing: -.4px;
+.ren-invoice-detail-status{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 16px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
 }
 
-.ren-invoice-title-row > div > span {
-  color: #8c96a4;
-  font-size: 9px;
+.ren-invoice-detail-status i{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:block;
 }
 
-.ren-invoice-detail-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 22px;
-  border-radius: 20px;
-  padding: 0 8px;
-  font-size: 7px;
-  font-weight: 650;
+.ren-invoice-detail-status.paid{
+  background:#dcfce7;
+  color:#166534;
+}
+.ren-invoice-detail-status.paid i{
+  background:#16a34a;
 }
 
-.ren-invoice-detail-status i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
+.ren-invoice-detail-status.approved{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+.ren-invoice-detail-status.approved i{
+  background:#2563eb;
 }
 
-.ren-invoice-detail-status.approved,
-.ren-invoice-detail-status.paid {
-  background: #edf8f1;
-  color: #3d8a5b;
+.ren-invoice-detail-status.cancelled{
+  background:#fee2e2;
+  color:#991b1b;
+}
+.ren-invoice-detail-status.cancelled i{
+  background:#dc2626;
 }
 
-.ren-invoice-detail-status.draft {
-  background: #fff7eb;
-  color: #b27a32;
+.ren-invoice-detail-status.draft{
+  background:#fef3c7;
+  color:#92400e;
 }
-
-.ren-invoice-detail-status.cancelled {
-  background: #fff0f0;
-  color: #bd5555;
+.ren-invoice-detail-status.draft i{
+  background:#f59e0b;
 }
-
 
 /* =========================================================
-   ACTIONS
+ACTIONS
 ========================================================= */
 
-.ren-invoice-detail-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.ren-invoice-detail-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
 }
 
-.ren-invoice-detail-actions > button {
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid #dce2e9;
-  border-radius: 6px;
-  padding: 0 10px;
-  background: #fff;
-  color: #657184;
-  font-family: inherit;
-  font-size: 8px;
-  cursor: pointer;
+.ren-invoice-detail-actions button{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 18px;
+  border-radius:12px;
+  border:1px solid var(--ren-border);
+  background:#fff;
+  cursor:pointer;
+  font-weight:750;
+  transition:.2s;
 }
 
-.ren-invoice-detail-actions > button:hover {
-  border-color: #bfc9d5;
-  background: #fafbfd;
+.ren-invoice-detail-actions button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
 }
 
-.ren-invoice-detail-actions > button.primary {
-  border-color: #1769e8;
-  background: #1769e8;
-  color: #fff;
+.ren-invoice-detail-actions .primary{
+  background:var(--ren-blue);
+  color:#fff;
+  border-color:var(--ren-blue);
 }
 
-.ren-invoice-detail-actions > button.primary:hover {
-  background: #125dcc;
+.ren-invoice-detail-actions .primary:hover{
+  background:var(--ren-blue-dark);
 }
 
-.ren-invoice-more {
-  position: relative;
+.ren-invoice-more{
+  position:relative;
 }
 
-.ren-invoice-more > button {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #dce2e9;
-  border-radius: 6px;
-  background: #fff;
-  color: #687486;
-  cursor: pointer;
+.ren-invoice-more-menu{
+  position:absolute;
+  right:0;
+  top:46px;
+  background:#fff;
+  border:1px solid var(--ren-border);
+  border-radius:12px;
+  box-shadow:var(--ren-shadow);
+  min-width:180px;
+  z-index:99;
 }
 
-.ren-invoice-more-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  z-index: 30;
-  width: 170px;
-  overflow: hidden;
-  border: 1px solid #dfe5eb;
-  border-radius: 7px;
-  background: #fff;
-  box-shadow: 0 10px 30px rgba(20, 35, 55, .13);
+.ren-invoice-more-menu button{
+  width:100%;
+  justify-content:flex-start;
+  border:none;
+  border-radius:0;
 }
 
-.ren-invoice-more-menu button {
-  width: 100%;
-  height: 37px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  border: none;
-  padding: 0 10px;
-  background: #fff;
-  color: #bd5555;
-  font-family: inherit;
-  font-size: 8px;
-  text-align: left;
-  cursor: pointer;
+.ren-invoice-more-menu button:hover{
+  background:#f8fafc;
 }
-
-.ren-invoice-more-menu button:hover {
-  background: #fff3f3;
-}
-
 
 /* =========================================================
-   DOCUMENT
+DOCUMENT
 ========================================================= */
 
-.ren-invoice-document {
-  max-width: 1180px;
-  margin: 0 auto;
-  border: 1px solid #dfe5eb;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 18px rgba(25, 40, 60, .045);
+.ren-invoice-document{
+  background:var(--ren-card);
+  border-radius:24px;
+  box-shadow:var(--ren-shadow);
+  overflow:hidden;
 }
-
 
 /* =========================================================
-   DOCUMENT HEAD
+TOP
 ========================================================= */
 
-.ren-invoice-document-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 25px;
-  box-sizing: border-box;
-  border-bottom: 1px solid #edf0f4;
-  padding: 24px 26px;
+.ren-invoice-document-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:30px;
+  padding:36px;
+  border-bottom:1px solid var(--ren-border);
+  flex-wrap:wrap;
 }
 
-.ren-invoice-company {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.ren-invoice-company{
+  display:flex;
+  gap:18px;
+  align-items:center;
 }
 
-.ren-invoice-company-mark {
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: #1769e8;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .5px;
+.ren-invoice-company-mark{
+  width:64px;
+  height:64px;
+  border-radius:15px;
+  background:linear-gradient(135deg,#39a978,#2d8f67);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  font-weight:800;
+  font-size:24px;
 }
 
-.ren-invoice-company > div:last-child {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.ren-invoice-company strong{
+  display:block;
+  font-size:22px;
 }
 
-.ren-invoice-company strong {
-  color: #263348;
-  font-size: 12px;
+.ren-invoice-company span{
+  color:var(--ren-muted);
 }
 
-.ren-invoice-company span {
-  color: #8f98a6;
-  font-size: 8px;
+.ren-invoice-document-meta{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(130px,1fr));
+  gap:18px;
 }
 
-.ren-invoice-document-meta {
-  display: flex;
-  gap: 25px;
+.ren-invoice-document-meta div{
+  background:#f8fafc;
+  border-radius:14px;
+  padding:16px;
 }
 
-.ren-invoice-document-meta > div {
-  min-width: 90px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.ren-invoice-document-meta span{
+  display:block;
+  color:var(--ren-muted);
+  font-size:12px;
 }
 
-.ren-invoice-document-meta span {
-  color: #929ba8;
-  font-size: 7px;
-  text-transform: uppercase;
-  letter-spacing: .25px;
+.ren-invoice-document-meta strong{
+  display:block;
+  margin-top:6px;
 }
-
-.ren-invoice-document-meta strong {
-  color: #4d5a6e;
-  font-size: 9px;
-}
-
 
 /* =========================================================
-   PARTIES
+PARTIES
 ========================================================= */
 
-.ren-invoice-parties {
-  display: grid;
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-  gap: 0;
-  border-bottom: 1px solid #edf0f4;
+.ren-invoice-parties{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+  padding:30px 36px;
 }
 
-.ren-invoice-party {
-  min-height: 105px;
-  box-sizing: border-box;
-  padding: 17px 21px;
-  border-right: 1px solid #edf0f4;
+.ren-invoice-party{
+  border:1px solid var(--ren-border);
+  border-radius:18px;
+  padding:22px;
 }
 
-.ren-invoice-party:last-child {
-  border-right: none;
+.ren-invoice-party-label{
+  display:block;
+  color:var(--ren-muted);
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:10px;
 }
 
-.ren-invoice-party-label {
-  display: block;
-  margin-bottom: 8px;
-  color: #99a1ad;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: .3px;
+.ren-invoice-party strong{
+  display:block;
+  font-size:18px;
+  margin-bottom:8px;
 }
 
-.ren-invoice-party strong {
-  display: block;
-  margin-bottom: 5px;
-  color: #455267;
-  font-size: 10px;
+.ren-invoice-party span{
+  display:block;
+  color:var(--ren-muted);
+  margin-top:4px;
 }
-
-.ren-invoice-party > span:not(.ren-invoice-party-label) {
-  display: block;
-  margin-top: 3px;
-  color: #8994a4;
-  font-size: 8px;
-}
-
 
 /* =========================================================
-   ITEMS
+ITEMS
 ========================================================= */
 
-.ren-invoice-items-title {
-  box-sizing: border-box;
-  border-bottom: 1px solid #edf0f4;
-  padding: 14px 21px 11px;
-  color: #4b586b;
-  font-size: 9px;
-  font-weight: 700;
+.ren-invoice-items{
+  padding:0 36px 36px;
 }
 
-.ren-invoice-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
+.ren-invoice-items-title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:16px;
 }
 
-.ren-invoice-table {
-  width: 100%;
-  min-width: 820px;
-  border-collapse: collapse;
+.ren-invoice-table-wrapper{
+  border:1px solid var(--ren-border);
+  border-radius:18px;
+  overflow:hidden;
 }
 
-.ren-invoice-table th {
-  height: 38px;
-  box-sizing: border-box;
-  border-bottom: 1px solid #e7ebef;
-  padding: 0 10px;
-  background: #fafbfc;
-  color: #8993a1;
-  text-align: left;
-  white-space: nowrap;
-  font-size: 7px;
-  font-weight: 700;
+.ren-invoice-table{
+  width:100%;
+  border-collapse:collapse;
 }
 
-.ren-invoice-table td {
-  min-height: 54px;
-  box-sizing: border-box;
-  border-bottom: 1px solid #eef1f4;
-  padding: 9px 10px;
-  color: #697587;
-  font-size: 8px;
+.ren-invoice-table thead{
+  background:#f8fafc;
 }
 
-.ren-invoice-table th:first-child,
-.ren-invoice-table td:first-child {
-  width: 42px;
-  padding-left: 21px;
+.ren-invoice-table th{
+  padding:14px 16px;
+  text-align:left;
+  font-size:13px;
+  font-weight:800;
+  color:#6b7280;
 }
 
-.ren-invoice-table th:last-child,
-.ren-invoice-table td:last-child {
-  padding-right: 21px;
-  text-align: right;
+.ren-invoice-table td{
+  padding:15px 16px;
+  font-size:14px;
+  border-top:1px solid #eef2f7;
 }
 
-.ren-invoice-table tbody tr:last-child td {
-  border-bottom: none;
+.ren-invoice-table tbody tr:hover{
+  background:#fafcff;
 }
 
-.ren-invoice-product {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.ren-invoice-product strong{
+  display:block;
 }
 
-.ren-invoice-product strong {
-  color: #4b586b;
-  font-size: 8px;
+.ren-invoice-product span{
+  color:var(--ren-muted);
+  font-size:13px;
 }
 
-.ren-invoice-product span {
-  color: #a0a8b4;
-  font-size: 7px;
+.ren-invoice-no-items{
+  text-align:center;
+  color:var(--ren-muted);
+  padding:40px;
 }
-
-.ren-invoice-table td:last-child strong {
-  color: #3e4b60;
-  font-size: 8px;
-}
-
-.ren-invoice-no-items {
-  height: 100px !important;
-  text-align: center !important;
-  color: #9aa3b0 !important;
-}
-
 
 /* =========================================================
-   BOTTOM
+BOTTOM
 ========================================================= */
 
-.ren-invoice-bottom {
-  display: grid;
-  grid-template-columns:
-    1fr 330px;
-  gap: 30px;
-  box-sizing: border-box;
-  border-top: 1px solid #edf0f4;
-  padding: 22px 21px;
+.ren-invoice-bottom{
+  display:grid;
+  grid-template-columns:1.4fr .9fr;
+  gap:24px;
+  padding:0 36px 36px;
 }
 
-.ren-invoice-note {
-  padding-top: 4px;
+.ren-invoice-note{
+  border:1px solid var(--ren-border);
+  border-radius:18px;
+  padding:22px;
 }
 
-.ren-invoice-note > span {
-  display: block;
-  margin-bottom: 8px;
-  color: #99a1ad;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: .3px;
+.ren-invoice-note span{
+  display:block;
+  color:var(--ren-muted);
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:10px;
 }
 
-.ren-invoice-note p {
-  max-width: 470px;
-  margin: 0;
-  color: #7f8998;
-  font-size: 8px;
-  line-height: 1.6;
+.ren-invoice-note p{
+  margin:0;
+  line-height:1.7;
 }
 
-.ren-invoice-totals {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.ren-invoice-totals{
+  border:1px solid var(--ren-border);
+  border-radius:18px;
+  overflow:hidden;
 }
 
-.ren-invoice-totals > div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+.ren-invoice-totals div{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 22px;
+  border-bottom:1px solid #eef2f7;
 }
 
-.ren-invoice-totals span {
-  color: #8994a4;
-  font-size: 8px;
+.ren-invoice-totals div:last-child{
+  border-bottom:none;
 }
 
-.ren-invoice-totals strong {
-  color: #566276;
-  font-size: 9px;
+.ren-invoice-totals span{
+  color:var(--ren-muted);
 }
 
-.ren-invoice-totals .grand-total {
-  margin-top: 5px;
-  border-top: 1px solid #e7ebef;
-  padding-top: 12px;
+.ren-invoice-totals strong{
+  font-size:16px;
 }
 
-.ren-invoice-totals .grand-total span {
-  color: #435065;
-  font-size: 9px;
-  font-weight: 700;
+.grand-total{
+  background:linear-gradient(135deg,#39a978,#2d8f67);
 }
 
-.ren-invoice-totals .grand-total strong {
-  color: #1769e8;
-  font-size: 15px;
+.grand-total span,
+.grand-total strong{
+  color:#fff;
 }
-
 
 /* =========================================================
-   FOOTER
+FOOTER
 ========================================================= */
 
-.ren-invoice-document-footer {
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  border-top: 1px solid #edf0f4;
-  padding: 0 21px;
+.ren-invoice-document-footer{
+  border-top:1px solid var(--ren-border);
+  display:flex;
+  justify-content:space-between;
+  padding:24px 36px;
+  color:var(--ren-muted);
+  flex-wrap:wrap;
+  gap:12px;
 }
-
-.ren-invoice-document-footer span {
-  color: #a0a8b4;
-  font-size: 7px;
-}
-
 
 /* =========================================================
-   PRINT
+NOT FOUND
 ========================================================= */
 
-@media print {
-
-  .ren-invoice-detail {
-    padding: 0;
-    background: #fff;
-  }
-
-  .ren-invoice-detail-header {
-    display: none;
-  }
-
-  .ren-invoice-document {
-    max-width: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
+.ren-invoice-not-found{
+  background:#fff;
+  border-radius:22px;
+  padding:60px 40px;
+  text-align:center;
+  box-shadow:var(--ren-shadow);
 }
 
+.ren-invoice-not-found-icon{
+  width:90px;
+  height:90px;
+  border-radius:24px;
+  background:#eef7f3;
+  color:#2d8f67;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:44px;
+  margin:0 auto 22px;
+}
+
+.ren-invoice-not-found button{
+  margin-top:24px;
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  padding:12px 20px;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  cursor:pointer;
+}
 
 /* =========================================================
-   RESPONSIVE
+PRINT
 ========================================================= */
 
-@media (max-width: 900px) {
+@media print{
 
-  .ren-invoice-detail {
-    padding: 18px 15px 35px;
+  body{
+    background:#fff;
   }
 
-  .ren-invoice-detail-header {
-    align-items: stretch;
-    flex-direction: column;
+  .ren-invoice-detail{
+    padding:0;
   }
 
-  .ren-invoice-detail-actions {
-    flex-wrap: wrap;
+  .ren-invoice-detail-header{
+    display:none;
   }
 
-  .ren-invoice-document-head {
-    flex-direction: column;
-  }
-
-  .ren-invoice-document-meta {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .ren-invoice-parties {
-    grid-template-columns: 1fr;
-  }
-
-  .ren-invoice-party {
-    border-right: none;
-    border-bottom: 1px solid #edf0f4;
-  }
-
-  .ren-invoice-party:last-child {
-    border-bottom: none;
-  }
-
-  .ren-invoice-bottom {
-    grid-template-columns: 1fr;
+  .ren-invoice-document{
+    box-shadow:none;
+    border-radius:0;
   }
 
 }
 
+/* =========================================================
+RESPONSIVE
+========================================================= */
 
-@media (max-width: 600px) {
+@media(max-width:900px){
 
-  .ren-invoice-title-row {
-    align-items: flex-start;
-    flex-direction: column;
+  .ren-invoice-bottom{
+    grid-template-columns:1fr;
   }
 
-  .ren-invoice-title-row > div {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 3px;
+  .ren-invoice-document-meta{
+    grid-template-columns:1fr;
   }
 
-  .ren-invoice-document-head {
-    padding: 18px;
+}
+
+@media(max-width:640px){
+
+  .ren-invoice-detail{
+    padding:16px;
   }
 
-  .ren-invoice-document-meta {
-    flex-wrap: wrap;
-    gap: 15px;
+  .ren-invoice-document-head,
+  .ren-invoice-parties,
+  .ren-invoice-items,
+  .ren-invoice-bottom,
+  .ren-invoice-document-footer{
+    padding-left:20px;
+    padding-right:20px;
   }
 
-  .ren-invoice-bottom {
-    padding: 18px;
+  .ren-invoice-detail-actions{
+    width:100%;
+  }
+
+  .ren-invoice-detail-actions button{
+    flex:1;
+    justify-content:center;
+  }
+
+  .ren-invoice-title-row h1{
+    font-size:28px;
   }
 
 }

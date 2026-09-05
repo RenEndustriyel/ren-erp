@@ -1,27 +1,26 @@
+
 /* =========================================================
    REN ERP — KATEGORİLER
-   PARAŞÜT REFERANS TEMA
+   REN CORPORATE DARK + REN STANDART TİPOGRAFİ
+   Yerleşim korunmuştur. Renk ve okunabilirlik düzenlenmiştir.
 ========================================================= */
 
 .categories-page {
   width: 100%;
   min-height: calc(100vh - 68px);
-
-  padding: 26px 30px 45px;
-
+  padding: 22px 22px 34px;
   box-sizing: border-box;
-
-  background: #f4f4f4;
-
-  color: #30343b;
-
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  background: #14212b;
+  color: #e8eef2;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
 }
 
+.categories-page *,
+.categories-page *::before,
+.categories-page *::after {
+  box-sizing: border-box;
+}
 
 /* =========================================================
    HEADER
@@ -29,110 +28,76 @@
 
 .categories-header {
   width: 100%;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  gap: 20px;
-
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 16px;
 }
 
-.breadcrumb {
+.categories-header .breadcrumb {
   display: flex;
   align-items: center;
-
   gap: 7px;
-
-  margin-bottom: 8px;
-
-  color: #9299a2;
-
-  font-size: 11px;
-
-  font-weight: 400;
+  margin-bottom: 7px;
+  color: #8fa0ab;
+  font-size: 15px;
+  font-weight: 500;
 }
 
-.breadcrumb span {
-  color: #b8bcc1;
+.categories-header .breadcrumb span {
+  color: #62737e;
 }
 
 .categories-header h1 {
-  margin: 0 0 5px;
-
-  color: #252a31;
-
-  font-size: 21px;
-
-  line-height: 1.3;
-
-  font-weight: 600;
-
+  margin: 0 0 4px;
+  color: #f0f5f7;
+  font-size: 27px;
+  line-height: 1.25;
+  font-weight: 700;
   letter-spacing: -.2px;
 }
 
 .categories-header p {
   margin: 0;
-
-  color: #9299a2;
-
-  font-size: 12px;
-
+  color: #9aabb6;
+  font-size: 15px;
   line-height: 1.45;
 }
-
 
 /* =========================================================
    ANA BUTON
 ========================================================= */
 
-.primary-button {
-  min-height: 38px;
-
+.categories-page .primary-button {
+  min-height: 39px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   flex-shrink: 0;
-
   padding: 0 15px;
-
-  border: 1px solid #19b99a;
-
-  border-radius: 6px;
-
-  background: #19b99a;
-
-  color: #ffffff;
-
+  border: 1px solid #39a978;
+  border-radius: 8px;
+  background: #39a978;
+  color: #fff;
   font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-
-  transition:
-    background .15s ease,
-    border-color .15s ease;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .16);
+  transition: background .15s ease, border-color .15s ease;
 }
 
-.primary-button:hover {
-  background: #159f86;
-
-  border-color: #159f86;
+.categories-page .primary-button:hover {
+  background: #2d8f67;
+  border-color: #2d8f67;
 }
 
-.primary-button span {
-  font-size: 17px;
-
+.categories-page .primary-button span {
+  font-size: 19px;
   line-height: 1;
 }
-
 
 /* =========================================================
    TOOLBAR
@@ -140,871 +105,665 @@
 
 .categories-toolbar {
   width: 100%;
-
   min-height: 58px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 14px;
-
   margin-bottom: 12px;
-
-  padding: 10px 12px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
+  padding: 9px 12px;
+  background: #1b2a34;
+  border: 1px solid #2d3d47;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
-
 
 /* =========================================================
    ARAMA
 ========================================================= */
 
-.search-box {
-  width: 320px;
+.categories-page .search-box {
+  width: 480px;
   max-width: 100%;
-
-  height: 38px;
-
+  height: 39px;
   display: flex;
   align-items: center;
-
   gap: 8px;
-
-  padding: 0 10px;
-
-  box-sizing: border-box;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  transition:
-    border-color .15s ease,
-    box-shadow .15s ease;
+  padding: 0 11px;
+  border: 1px solid #354751;
+  border-radius: 7px;
+  background: #172731;
+  box-shadow: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-.search-box:focus-within {
-  border-color: #19b99a;
-
-  box-shadow:
-    0 0 0 2px rgba(25, 185, 154, .09);
+.categories-page .search-box:focus-within {
+  border-color: #39a978;
+  box-shadow: 0 0 0 2px rgba(57,169,120,.12);
 }
 
-.search-icon {
+.categories-page .search-icon {
   flex-shrink: 0;
-
-  color: #9299a2;
-
-  font-size: 18px;
-
+  color: #8ba0ac;
+  font-size: 19px;
   line-height: 1;
 }
 
-.search-box input {
+.categories-page .search-box input {
   width: 100%;
-  height: 100%;
-
+  height: 36px;
   min-height: 0;
-
+  margin: 0;
   padding: 0;
-
-  border: 0;
-
+  border: 0 !important;
+  border-radius: 0;
   outline: 0;
-
+  box-shadow: none !important;
   background: transparent;
-
-  color: #30343b;
-
+  color: #e6edf1;
   font-family: inherit;
-
-  font-size: 12px;
+  font-size: 15px;
 }
 
-.search-box input::placeholder {
-  color: #a0a6ad;
+.categories-page .search-box input::placeholder {
+  color: #738590;
 }
-
 
 /* =========================================================
    KATEGORİ SAYISI
 ========================================================= */
 
-.category-count {
+.categories-page .category-count {
+  margin-left: auto;
   display: flex;
-  align-items: center;
-
-  gap: 5px;
-
-  padding-right: 5px;
-
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
 }
 
-.category-count strong {
-  color: #30343b;
-
-  font-size: 13px;
-
-  font-weight: 600;
+.categories-page .category-count strong {
+  color: #6ad09c;
+  font-size: 22px;
+  font-weight: 750;
 }
 
-.category-count span {
-  color: #9299a2;
-
-  font-size: 11px;
+.categories-page .category-count span {
+  color: #9aabb5;
+  font-size: 15px;
 }
-
 
 /* =========================================================
    ANA KART
 ========================================================= */
 
-.categories-card {
+.categories-page .categories-card {
   width: 100%;
-
+  margin: 0;
+  padding: 0;
   overflow: hidden;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
+  background: #1b2a34;
+  border: 1px solid #2d3d47;
+  border-radius: 9px;
+  box-shadow: 0 3px 14px rgba(0,0,0,.14);
 }
-
 
 /* =========================================================
    TABLO HEADER
 ========================================================= */
 
-.table-header {
-  min-height: 44px;
-
-  display: grid;
-
+.categories-page .categories-card > .table-header {
+  display: grid !important;
   grid-template-columns:
     minmax(220px, 1.4fr)
     minmax(250px, 2fr)
     minmax(110px, .7fr)
     minmax(100px, .6fr)
-    100px;
-
+    100px !important;
   align-items: center;
-
+  width: 100%;
+  min-height: 45px;
+  margin: 0;
   padding: 0 16px;
-
-  box-sizing: border-box;
-
-  background: #f7f7f7;
-
-  border-bottom: 1px solid #dedfe1;
-
-  color: #68717d;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: .1px;
+  border: 0;
+  border-bottom: 1px solid #2d3d47;
+  border-radius: 0;
+  background: #172731;
+  color: #a6b4bd;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1;
+  box-shadow: none;
+  text-align: left;
 }
 
+.categories-page .table-header > div {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: #a9b7c0;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1;
+  text-align: left;
+}
 
 /* =========================================================
-   SATIR
+   SATIRLAR
 ========================================================= */
 
-.category-row {
-  min-height: 68px;
-
-  display: grid;
-
+.categories-page .category-row {
+  display: grid !important;
   grid-template-columns:
     minmax(220px, 1.4fr)
     minmax(250px, 2fr)
     minmax(110px, .7fr)
     minmax(100px, .6fr)
-    100px;
-
+    100px !important;
   align-items: center;
-
+  width: 100%;
+  min-height: 67px;
+  margin: 0;
   padding: 0 16px;
-
-  box-sizing: border-box;
-
-  border-bottom: 1px solid #e9eaec;
-
-  background: #ffffff;
-
+  border: 0;
+  border-bottom: 1px solid #273741;
+  border-radius: 0;
+  background: #1b2a34;
+  box-shadow: none;
   transition: background .12s ease;
 }
 
-.category-row:hover {
-  background: #fafafa;
+.categories-page .category-row:hover {
+  background: #202f39;
 }
 
-.category-row:last-child {
+.categories-page .category-row:last-child {
   border-bottom: 0;
 }
 
+.categories-page .category-row > div {
+  min-width: 0;
+}
 
 /* =========================================================
    KATEGORİ ADI
 ========================================================= */
 
-.category-name-cell {
+.categories-page .category-name-cell {
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   min-width: 0;
 }
 
-.category-icon {
+.categories-page .category-icon {
   width: 34px;
   height: 34px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
-
-  border-radius: 6px;
-
-  background: #eaf8f4;
-
-  color: #19a88b;
-
-  font-size: 15px;
-
-  font-weight: 700;
+  border-radius: 7px;
+  background: #173b2f;
+  color: #63ce98;
+  font-size: 17px;
+  font-weight: 750;
 }
 
-.category-name-cell > div:last-child {
+.categories-page .category-name-cell > div:last-child {
   min-width: 0;
-
   display: flex;
-
   flex-direction: column;
-
   gap: 3px;
 }
 
-.category-name-cell strong {
+.categories-page .category-name-cell strong {
   overflow: hidden;
-
-  color: #30343b;
-
-  font-size: 12px;
-
+  color: #edf3f6;
+  font-size: 15px;
   line-height: 1.3;
-
-  font-weight: 600;
-
+  font-weight: 700;
   white-space: nowrap;
-
   text-overflow: ellipsis;
 }
 
-.category-name-cell small {
-  color: #9299a2;
-
-  font-size: 9px;
-
+.categories-page .category-name-cell small {
+  color: #879aa5;
+  font-size: 13px;
   line-height: 1.2;
 }
-
 
 /* =========================================================
    AÇIKLAMA
 ========================================================= */
 
-.description-cell {
+.categories-page .description-cell {
   overflow: hidden;
-
   padding-right: 15px;
-
-  color: #68717d;
-
-  font-size: 11px;
-
+  color: #c1cdd3;
+  font-size: 15px;
   line-height: 1.4;
-
   white-space: nowrap;
-
   text-overflow: ellipsis;
 }
-
 
 /* =========================================================
    ÜRÜN SAYISI
 ========================================================= */
 
-.product-count {
-  color: #30343b;
-
-  font-size: 12px;
-
-  font-weight: 600;
+.categories-page .product-count {
+  color: #e1e9ed;
+  font-size: 15px;
+  font-weight: 700;
 }
 
-.product-count span {
-  color: #9299a2;
-
-  font-size: 10px;
-
-  font-weight: 400;
+.categories-page .product-count span {
+  color: #8da0ac;
+  font-size: 13px;
+  font-weight: 450;
 }
-
 
 /* =========================================================
    DURUM
 ========================================================= */
 
-.status-badge {
+.categories-page .status-badge {
   min-height: 25px;
-
   display: inline-flex;
   align-items: center;
-
   gap: 5px;
-
   padding: 0 8px;
-
-  border-radius: 4px;
-
-  font-size: 10px;
-
-  font-weight: 600;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.status-badge.active {
-  background: #eaf8f4;
-
-  color: #159f86;
+.categories-page .status-badge.active {
+  background: #173c2f;
+  color: #67d09a;
 }
 
-.status-badge.passive {
-  background: #f0f1f2;
-
-  color: #7d848c;
+.categories-page .status-badge.passive {
+  background: #2a343b;
+  color: #a0aeb6;
 }
 
-.status-dot {
+.categories-page .status-dot {
   width: 6px;
   height: 6px;
-
   flex-shrink: 0;
-
   border-radius: 50%;
-
   background: currentColor;
 }
-
 
 /* =========================================================
    İŞLEMLER
 ========================================================= */
 
-.actions {
+.categories-page .actions {
   display: flex;
   align-items: center;
-
   justify-content: flex-end;
-
   gap: 5px;
 }
 
-.actions button {
+.categories-page .edit-button,
+.categories-page .delete-button {
   width: 30px;
   height: 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
-  border-radius: 5px;
-
+  border-radius: 6px;
   font-family: inherit;
-
-  font-size: 14px;
-
+  font-size: 15px;
   cursor: pointer;
-
-  transition:
-    background .15s ease,
-    border-color .15s ease,
-    color .15s ease;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 
-.edit-button {
-  border: 1px solid #d7e7e2;
-
-  background: #f6fbf9;
-
-  color: #159f86;
+.categories-page .edit-button {
+  border: 1px solid #315067;
+  background: #1a2c38;
+  color: #72aee1;
 }
 
-.edit-button:hover {
-  border-color: #19b99a;
-
-  background: #eaf8f4;
-
-  color: #128c76;
+.categories-page .edit-button:hover {
+  border-color: #467695;
+  background: #203847;
+  color: #8bc3f2;
 }
 
-.delete-button {
-  border: 1px solid #ead0cd;
-
-  background: #fff8f7;
-
-  color: #d9564d;
+.categories-page .delete-button {
+  border: 1px solid #63383e;
+  background: #2b2024;
+  color: #e56c78;
 }
 
-.delete-button:hover {
-  border-color: #ef7065;
-
-  background: #fff0ee;
-
-  color: #c84b43;
+.categories-page .delete-button:hover {
+  border-color: #81434b;
+  background: #382227;
+  color: #f18993;
 }
-
 
 /* =========================================================
    BOŞ DURUM
 ========================================================= */
 
-.empty-state {
-  min-height: 300px;
-
+.categories-page .empty-state {
+  min-height: 270px;
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   flex-direction: column;
-
   padding: 40px 20px;
-
   text-align: center;
+  background: #1b2a34;
 }
 
-.empty-icon {
-  width: 48px;
-  height: 48px;
-
+.categories-page .empty-icon {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 14px;
+  border-radius: 10px;
+  background: #173b2f;
+  color: #63ce98;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  margin-bottom: 12px;
-
-  border-radius: 8px;
-
-  background: #f0f2f3;
-
-  color: #9299a2;
-
   font-size: 22px;
+  font-weight: 750;
 }
 
-.empty-state h3 {
-  margin: 0 0 5px;
-
-  color: #59616b;
-
-  font-size: 14px;
-
-  font-weight: 600;
+.categories-page .empty-state h3 {
+  margin: 0;
+  color: #edf3f6;
+  font-size: 19px;
+  font-weight: 700;
 }
 
-.empty-state p {
-  margin: 0 0 15px;
-
-  color: #9299a2;
-
-  font-size: 11px;
+.categories-page .empty-state p {
+  margin: 7px 0 18px;
+  color: #91a2ad;
+  font-size: 15px;
 }
-
 
 /* =========================================================
-   SECONDARY BUTON
+   SECONDARY BUTTON
 ========================================================= */
 
-.secondary-button {
-  min-height: 36px;
-
+.categories-page .secondary-button {
+  min-height: 37px;
   padding: 0 14px;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  color: #59616b;
-
+  border: 1px solid #394953;
+  border-radius: 7px;
+  background: #202f39;
+  color: #d7e1e5;
   font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
+  font-size: 15px;
+  font-weight: 650;
   cursor: pointer;
 }
 
-.secondary-button:hover {
-  background: #f7f7f7;
-
-  border-color: #bfc3c8;
-
-  color: #30343b;
+.categories-page .secondary-button:hover {
+  background: #283943;
+  border-color: #4c5e69;
+  color: #fff;
 }
-
-
-/* =========================================================
-   MODAL OVERLAY
-========================================================= */
-
-.modal-overlay {
-  position: fixed;
-
-  inset: 0;
-
-  z-index: 2000;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-
-  box-sizing: border-box;
-
-  background: rgba(25, 30, 35, .45);
-}
-
 
 /* =========================================================
    MODAL
 ========================================================= */
 
-.category-modal {
-  width: 100%;
-
-  max-width: 520px;
-
-  max-height: calc(100vh - 40px);
-
-  overflow-y: auto;
-
-  background: #ffffff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 9px;
-
-  box-shadow:
-    0 15px 40px rgba(25, 30, 35, .17);
+.categories-page .modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background: rgba(4, 9, 13, .72);
+  backdrop-filter: blur(3px);
 }
 
+.categories-page .category-modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #1b2a34;
+  border: 1px solid #344650;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
 
 /* =========================================================
    MODAL HEADER
 ========================================================= */
 
-.modal-header {
+.categories-page .modal-header {
   min-height: 72px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   padding: 0 18px;
-
-  border-bottom: 1px solid #e9eaec;
+  border-bottom: 1px solid #2d3d47;
 }
 
-.modal-header > div:first-child {
+.categories-page .modal-header > div:first-child {
   display: flex;
   align-items: center;
-
   gap: 10px;
 }
 
-.modal-icon {
+.categories-page .modal-icon {
   width: 36px;
   height: 36px;
-
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 7px;
+  background: #173b2f;
+  color: #64cf98;
+  font-size: 17px;
+  font-weight: 750;
+}
 
-  border-radius: 6px;
-
-  background: #eaf8f4;
-
-  color: #19a88b;
-
-  font-size: 16px;
-
+.categories-page .modal-header h2 {
+  margin: 0 0 3px;
+  color: #f0f5f7;
+  font-size: 19px;
   font-weight: 700;
 }
 
-.modal-header h2 {
-  margin: 0 0 3px;
-
-  color: #30343b;
-
-  font-size: 15px;
-
-  font-weight: 600;
-}
-
-.modal-header p {
+.categories-page .modal-header p {
   margin: 0;
-
-  color: #9299a2;
-
-  font-size: 10px;
+  color: #91a3ae;
+  font-size: 15px;
 }
 
-.close-button {
+.categories-page .close-button {
   width: 30px;
   height: 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 0;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 5px;
-
-  background: #ffffff;
-
-  color: #7d848c;
-
-  font-size: 19px;
-
+  border: 1px solid #394953;
+  border-radius: 6px;
+  background: #202f39;
+  color: #a4b1b8;
+  font-size: 21px;
   line-height: 1;
-
   cursor: pointer;
 }
 
-.close-button:hover {
-  background: #f7f7f7;
-
-  color: #30343b;
+.categories-page .close-button:hover {
+  background: #293b46;
+  color: #fff;
 }
-
 
 /* =========================================================
    FORM
 ========================================================= */
 
-.category-form {
+.categories-page .category-form {
   padding: 20px;
 }
 
-.form-group {
+.categories-page .form-group {
   margin-bottom: 16px;
 }
 
-.form-group label {
+.categories-page .form-group label {
   display: block;
-
   margin-bottom: 6px;
-
-  color: #59616b;
-
-  font-size: 11px;
-
-  font-weight: 600;
+  color: #c7d2d8;
+  font-size: 15px;
+  font-weight: 650;
 }
 
-.form-group label span {
+.categories-page .form-group label span {
   margin-left: 3px;
-
-  color: #ef7065;
+  color: #ef6d78;
 }
 
-.form-group input,
-.form-group textarea,
-.form-group select {
+.categories-page .form-group input,
+.categories-page .form-group textarea,
+.categories-page .form-group select {
   width: 100%;
-
   box-sizing: border-box;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
+  border: 1px solid #394a54;
+  border-radius: 7px;
   outline: none;
-
-  background: #ffffff;
-
-  color: #30343b;
-
+  background: #172731;
+  color: #e8eef2;
   font-family: inherit;
-
-  font-size: 12px;
+  font-size: 15px;
 }
 
-.form-group input,
-.form-group select {
-  height: 38px;
-
-  min-height: 38px;
-
+.categories-page .form-group input,
+.categories-page .form-group select {
+  height: 40px;
+  min-height: 40px;
   padding: 0 10px;
 }
 
-.form-group textarea {
+.categories-page .form-group textarea {
   padding: 10px;
-
   resize: vertical;
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: #a0a6ad;
+.categories-page .form-group input::placeholder,
+.categories-page .form-group textarea::placeholder {
+  color: #758791;
 }
 
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  border-color: #19b99a;
-
-  box-shadow:
-    0 0 0 2px rgba(25,185,154,.09);
+.categories-page .form-group input:focus,
+.categories-page .form-group textarea:focus,
+.categories-page .form-group select:focus {
+  border-color: #39a978;
+  box-shadow: 0 0 0 2px rgba(57,169,120,.12);
 }
-
 
 /* =========================================================
    MODAL FOOTER
 ========================================================= */
 
-.modal-footer {
+.categories-page .modal-footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   gap: 8px;
-
   margin-top: 20px;
-
   padding-top: 16px;
-
-  border-top: 1px solid #e9eaec;
+  border-top: 1px solid #2d3d47;
 }
 
-.cancel-button,
-.save-button {
-  min-height: 37px;
-
+.categories-page .cancel-button,
+.categories-page .save-button {
+  min-height: 38px;
   padding: 0 15px;
-
-  border-radius: 6px;
-
+  border-radius: 7px;
   font-family: inherit;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.cancel-button {
-  border: 1px solid #cfd1d4;
-
-  background: #ffffff;
-
-  color: #59616b;
+.categories-page .cancel-button {
+  border: 1px solid #394a54;
+  background: #202f39;
+  color: #c6d1d6;
 }
 
-.cancel-button:hover {
-  background: #f7f7f7;
+.categories-page .cancel-button:hover {
+  background: #293a44;
+  color: #fff;
 }
 
-.save-button {
-  border: 1px solid #19b99a;
-
-  background: #19b99a;
-
-  color: #ffffff;
+.categories-page .save-button {
+  border: 1px solid #39a978;
+  background: #39a978;
+  color: #fff;
 }
 
-.save-button:hover {
-  background: #159f86;
-
-  border-color: #159f86;
+.categories-page .save-button:hover {
+  background: #2d8f67;
+  border-color: #2d8f67;
 }
 
+/* =========================================================
+   REN STANDART TİPOGRAFİ
+========================================================= */
+
+.categories-page .table-header,
+.categories-page .category-row {
+  font-size: 15px;
+}
+
+.categories-page .category-row > div {
+  line-height: 1.35;
+}
 
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 1050px) {
-
-  .table-header,
-  .category-row {
+  .categories-page .table-header,
+  .categories-page .category-row {
     grid-template-columns:
       minmax(190px, 1.3fr)
       minmax(200px, 1.7fr)
       100px
       95px
-      90px;
+      90px !important;
   }
 
   .categories-page {
-    padding-left: 22px;
-    padding-right: 22px;
+    padding-left: 18px;
+    padding-right: 18px;
   }
 }
 
-
 @media (max-width: 800px) {
-
   .categories-header {
     flex-direction: column;
   }
 
-  .primary-button {
+  .categories-page .primary-button {
     align-self: flex-start;
   }
 
   .categories-toolbar {
     align-items: stretch;
-
     flex-direction: column;
   }
 
-  .search-box {
+  .categories-page .search-box {
     width: 100%;
   }
 
@@ -1016,370 +775,44 @@
     overflow-x: auto;
   }
 
-  .table-header,
-  .category-row {
+  .categories-page .table-header,
+  .categories-page .category-row {
     min-width: 850px;
   }
 }
 
-
 @media (max-width: 600px) {
-
   .categories-page {
     min-height: calc(100vh - 60px);
-
-    padding: 18px 12px 30px;
+    padding: 16px 11px 24px;
   }
 
   .categories-header h1 {
-    font-size: 19px;
+    font-size: 22px;
   }
 
   .categories-header p {
-    font-size: 11px;
+    font-size: 15px;
   }
 
-  .primary-button {
+  .categories-page .primary-button {
     width: 100%;
   }
 
   .categories-toolbar {
-    padding: 10px;
+    padding: 9px;
   }
 
-  .category-modal {
+  .categories-page .category-modal {
     max-height: calc(100vh - 24px);
   }
 
-  .modal-header {
+  .categories-page .modal-header {
     min-height: 65px;
-
     padding: 0 14px;
   }
 
-  .category-form {
+  .categories-page .category-form {
     padding: 16px;
-  }
-}
-
-/* =========================================================
-   KATEGORİLER — SON HİZALAMA OVERRIDE
-   Global theme tarafından ezilen stilleri düzeltir
-========================================================= */
-
-
-/* ---------------------------------------------------------
-   TABLO BAŞLIĞI VE SATIRLAR AYNI GRID
---------------------------------------------------------- */
-
-.categories-page .categories-card > .table-header {
-  display: grid !important;
-
-  grid-template-columns:
-    minmax(220px, 1.4fr)
-    minmax(250px, 2fr)
-    minmax(110px, .7fr)
-    minmax(100px, .6fr)
-    100px !important;
-
-  align-items: center;
-
-  width: 100%;
-
-  min-height: 44px;
-
-  margin: 0;
-
-  padding: 0 16px;
-
-  border: 0;
-
-  border-bottom: 1px solid #dedfe1;
-
-  border-radius: 0;
-
-  background: #f7f7f7;
-
-  color: #68717d;
-
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  box-shadow: none;
-
-  text-align: left;
-}
-
-
-/* ---------------------------------------------------------
-   SATIR GRID
---------------------------------------------------------- */
-
-.categories-page .category-row {
-  display: grid !important;
-
-  grid-template-columns:
-    minmax(220px, 1.4fr)
-    minmax(250px, 2fr)
-    minmax(110px, .7fr)
-    minmax(100px, .6fr)
-    100px !important;
-
-  width: 100%;
-
-  min-height: 68px;
-
-  margin: 0;
-
-  padding: 0 16px;
-
-  border: 0;
-
-  border-bottom: 1px solid #e9eaec;
-
-  border-radius: 0;
-
-  background: #fff;
-
-  box-shadow: none;
-}
-
-
-/* ---------------------------------------------------------
-   HEADER HÜCRELERİ
---------------------------------------------------------- */
-
-.categories-page .table-header > div {
-  min-width: 0;
-
-  margin: 0;
-
-  padding: 0;
-
-  color: #68717d;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  text-align: left;
-}
-
-
-/* ---------------------------------------------------------
-   SATIR HÜCRELERİ
---------------------------------------------------------- */
-
-.categories-page .category-row > div {
-  min-width: 0;
-}
-
-
-/* ---------------------------------------------------------
-   ARAMA ALANI — ÇİFT BORDER SORUNU
---------------------------------------------------------- */
-
-.categories-page .categories-toolbar {
-  min-height: 58px;
-
-  display: flex !important;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  padding: 10px 12px;
-
-  background: #fff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
-}
-
-
-.categories-page .search-box {
-  width: 480px;
-
-  max-width: 100%;
-
-  height: 38px;
-
-  display: flex !important;
-
-  align-items: center;
-
-  gap: 8px;
-
-  padding: 0 10px;
-
-  border: 1px solid #cfd1d4;
-
-  border-radius: 6px;
-
-  background: #fff;
-
-  box-shadow: none;
-}
-
-
-.categories-page .search-box input {
-  width: 100%;
-
-  height: 36px;
-
-  min-height: 0;
-
-  margin: 0;
-
-  padding: 0;
-
-  border: 0 !important;
-
-  border-radius: 0;
-
-  outline: 0;
-
-  box-shadow: none !important;
-
-  background: transparent;
-
-  color: #30343b;
-
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
-
-  font-size: 12px;
-}
-
-
-.categories-page .search-box input:focus {
-  border: 0 !important;
-
-  outline: 0;
-
-  box-shadow: none !important;
-}
-
-
-.categories-page .search-box:focus-within {
-  border-color: #19b99a;
-
-  box-shadow:
-    0 0 0 2px rgba(25, 185, 154, .09);
-}
-
-
-/* ---------------------------------------------------------
-   KATEGORİ SAYISI
---------------------------------------------------------- */
-
-.categories-page .category-count {
-  margin-left: auto;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 5px;
-}
-
-
-/* ---------------------------------------------------------
-   ANA KART — GLOBAL .table-card ÇAKIŞMASINI ENGELLE
---------------------------------------------------------- */
-
-.categories-page .categories-card {
-  width: 100%;
-
-  margin: 0;
-
-  padding: 0;
-
-  overflow: hidden;
-
-  background: #fff;
-
-  border: 1px solid #dedfe1;
-
-  border-radius: 8px;
-
-  box-shadow:
-    0 1px 3px rgba(35, 42, 50, .055);
-}
-
-
-/* ---------------------------------------------------------
-   BUTONLAR GLOBAL TEMADAN ETKİLENMESİN
---------------------------------------------------------- */
-
-.categories-page .edit-button,
-.categories-page .delete-button {
-  min-height: 30px;
-
-  width: 30px;
-
-  padding: 0;
-
-  border-radius: 5px;
-
-  font-family: inherit;
-}
-
-
-/* ---------------------------------------------------------
-   HEADER VE SAYFA GENİŞLİĞİ
---------------------------------------------------------- */
-
-.categories-page {
-  width: 100% !important;
-
-  max-width: none !important;
-
-  margin: 0 !important;
-
-  overflow-x: hidden;
-}
-
-
-/* ---------------------------------------------------------
-   MOBİL
---------------------------------------------------------- */
-
-@media (max-width: 800px) {
-
-  .categories-page .table-header,
-  .categories-page .category-row {
-    min-width: 850px;
-
-    grid-template-columns:
-      190px
-      260px
-      110px
-      100px
-      90px !important;
-  }
-
-  .categories-page .categories-card {
-    overflow-x: auto;
-  }
-
-  .categories-page .search-box {
-    width: 100%;
   }
 }

@@ -241,7 +241,7 @@ export default function EditStock() {
 
         salesMode:
           found.salesMode ||
-          "exclusive",
+          "inclusive",
 
         purchaseVat,
 
@@ -658,6 +658,75 @@ export default function EditStock() {
                 newSalesNet,
                 salesVat
               ).toFixed(
+                4
+              )
+            ),
+
+        })
+      );
+
+    };
+
+
+  /* =======================================================
+     KÂR ORANINI DEĞİŞTİR
+  ======================================================= */
+
+  const handleProfitChange =
+    (
+      value
+    ) => {
+
+      const rate =
+        numberValue(
+          value
+        );
+
+      const newSalesNet =
+        calculateSaleFromProfit(
+          purchaseNet,
+          rate
+        );
+
+      const newSalesGross =
+        grossFromNet(
+          newSalesNet,
+          salesVat
+        );
+
+      const displayPrice =
+        salesMode ===
+        "inclusive"
+          ? newSalesGross
+          : newSalesNet;
+
+      setProduct(
+        (
+          current
+        ) => ({
+
+          ...current,
+
+          profitRate:
+            value,
+
+          salePrice:
+            Number(
+              displayPrice.toFixed(
+                4
+              )
+            ),
+
+          salesNet:
+            Number(
+              newSalesNet.toFixed(
+                4
+              )
+            ),
+
+          salesGross:
+            Number(
+              newSalesGross.toFixed(
                 4
               )
             ),
@@ -1599,7 +1668,7 @@ export default function EditStock() {
           <div className="edit-stock-field">
 
             <label>
-              Alış KDV
+              Alış KDV Oranı
             </label>
 
 
@@ -1828,7 +1897,7 @@ export default function EditStock() {
           <div className="edit-stock-field">
 
             <label>
-              Satış KDV
+              Satış KDV Oranı
             </label>
 
 
@@ -1913,14 +1982,32 @@ export default function EditStock() {
             </label>
 
 
-            <input
-              value={
-                profitRate.toFixed(
-                  2
-                )
-              }
-              readOnly
-            />
+            <div className="edit-stock-percent-input">
+
+              <input
+                type="text"
+                inputMode="decimal"
+                value={
+                  Number.isFinite(profitRate)
+                    ? profitRate.toFixed(2)
+                    : "0,00"
+                }
+                onChange={(event) =>
+                  handleProfitChange(
+                    event.target.value
+                  )
+                }
+              />
+
+              <span>
+                %
+              </span>
+
+            </div>
+
+            <small>
+              Kâr oranını değiştirince satış fiyatı otomatik hesaplanır.
+            </small>
 
           </div>
 
@@ -1945,6 +2032,15 @@ export default function EditStock() {
 
         </div>
 
+
+        <div className="edit-stock-price-chain-note">
+          <strong>Fiyatlandırma bağlıdır</strong>
+          <span>
+            Alış fiyatı KDV hariç, satış fiyatı KDV dahil tutulur.
+            Alış, kâr oranı veya satış fiyatından birini değiştirdiğinizde
+            diğer değerler otomatik güncellenir.
+          </span>
+        </div>
 
         {/* AÇIKLAMA */}
 

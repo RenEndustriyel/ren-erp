@@ -1,3 +1,4 @@
+
 .due-page {
   min-height: 100vh;
   background: #f5f7fa;
@@ -29,7 +30,7 @@
   gap: 8px;
   margin-bottom: 8px;
   color: #8a95a5;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .due-breadcrumb strong {
@@ -39,7 +40,7 @@
 .due-header h1 {
   margin: 0;
   color: #172033;
-  font-size: 27px;
+  font-size: 31px;
   font-weight: 750;
   letter-spacing: -0.4px;
 }
@@ -47,7 +48,7 @@
 .due-header p {
   margin: 7px 0 0;
   color: #8994a3;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .due-secondary-button {
@@ -61,7 +62,7 @@
   background: #fff;
   color: #526073;
   text-decoration: none;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -94,7 +95,7 @@
 
 .due-summary-card span {
   color: #8b96a5;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: .25px;
 }
@@ -102,7 +103,7 @@
 .due-summary-card strong {
   margin-top: 6px;
   color: #263247;
-  font-size: 19px;
+  font-size: 22px;
   font-weight: 750;
 }
 
@@ -169,7 +170,7 @@
   background: #fafbfd;
   color: #263247;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .due-search input:focus {
@@ -207,7 +208,7 @@
   background: #fff;
   color: #4d596b;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -220,7 +221,7 @@
   color: #687588;
   cursor: pointer;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -236,11 +237,12 @@
   justify-content: space-between;
   border-bottom: 1px solid #edf0f3;
   color: #8994a3;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .due-result-bar strong {
   color: #526073;
+  font-size: 14px;
 }
 
 
@@ -262,12 +264,12 @@
   padding: 0 13px;
   background: #fafbfd;
   border-bottom: 1px solid #e5eaf0;
-  color: #8a95a4;
+  color: #596577;
   text-align: left;
   white-space: nowrap;
-  font-size: 8px;
+  font-size: 15px;
   font-weight: 800;
-  letter-spacing: .25px;
+  letter-spacing: .1px;
 }
 
 .due-table tbody td {
@@ -276,7 +278,7 @@
   border-bottom: 1px solid #edf1f4;
   color: #586477;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 13px;
 }
 
 .due-table tbody tr:hover {
@@ -303,14 +305,14 @@
   border-radius: 7px;
   background: #edf4fc;
   color: #286fc7;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .due-customer strong {
   display: block;
   color: #354257;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 650;
 }
 
@@ -318,7 +320,7 @@
   display: block;
   margin-top: 3px;
   color: #9ba4b1;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 
@@ -330,7 +332,7 @@
   min-height: 23px;
   padding: 0 8px;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -350,7 +352,7 @@
 .due-document {
   color: #667388;
   font-family: Consolas, monospace;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 
@@ -358,7 +360,7 @@
 
 .due-date {
   color: #526073;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 
@@ -377,7 +379,7 @@
   min-height: 23px;
   padding: 0 8px;
   border-radius: 5px;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 750;
 }
 
@@ -403,7 +405,7 @@
 
 .due-status-wrap small {
   color: #9ba4b1;
-  font-size: 8px;
+  font-size: 11px;
 }
 
 
@@ -419,7 +421,7 @@
 
 .due-money strong {
   color: #354257;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 750;
 }
 
@@ -445,7 +447,7 @@
   background: #fff;
   color: #526073;
   text-decoration: none;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -473,20 +475,20 @@
   border-radius: 50%;
   background: #f1f4f7;
   color: #98a2b0;
-  font-size: 21px;
+  font-size: 23px;
 }
 
 .due-empty strong {
   display: block;
   color: #354257;
-  font-size: 12px;
+  font-size: 16px;
 }
 
 .due-empty span {
   display: block;
   margin-top: 5px;
   color: #929cab;
-  font-size: 9px;
+  font-size: 13px;
 }
 
 
@@ -499,11 +501,12 @@
   align-items: center;
   justify-content: space-between;
   color: #8a95a4;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .due-footer strong {
   color: #526073;
+  font-size: 13px;
 }
 
 
@@ -543,6 +546,10 @@
 
   .due-filter {
     flex: 1;
+  }
+
+  .due-table thead th {
+    font-size: 13px;
   }
 }
 

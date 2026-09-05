@@ -60,7 +60,7 @@ const INITIAL_FORM = {
 
   profitRate: "25",
 
-  salesMode: "exclusive",
+  salesMode: "inclusive",
   salesPrice: "",
   salesVat: 20,
 

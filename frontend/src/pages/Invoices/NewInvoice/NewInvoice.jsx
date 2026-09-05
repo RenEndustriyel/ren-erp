@@ -1,18 +1,14 @@
-import { Finance } from "../../../lib/finance";
-
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import {
   MdAdd,
-  MdCalendarToday,
+  MdArrowBack,
   MdDeleteOutline,
-  MdKeyboardArrowDown,
+  MdPictureAsPdf,
+  MdPrint,
   MdSave,
   MdSearch,
+  MdPayments,
+  MdEdit,
 } from "react-icons/md";
 
 import {
@@ -20,178 +16,79 @@ import {
   addInvoice,
   updateInvoice,
   getNextInvoiceNumber,
+  deleteInvoice,
 } from "../../../lib/invoiceStore";
 
 import {
   getCustomers,
+  createCustomer,
   updateCustomerBalance,
 } from "../../../lib/customerStore";
 
 import {
   getProducts,
+  createProduct,
   changeStock,
   updateProduct,
   addProductPriceHistory,
 } from "../../../lib/stockStore";
 
+import { Finance } from "../../../lib/finance";
+
 import "./NewInvoice.css";
 
 
 /* =========================================================
-   GENEL YARDIMCILAR
+   YARDIMCILAR
 ========================================================= */
 
 function money(value) {
-  return new Intl.NumberFormat(
-    "tr-TR",
-    {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }
-  ).format(
-    Number(value) || 0
-  );
+  return new Intl.NumberFormat("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
 }
 
-
 function numberValue(value) {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
+  if (value === null || value === undefined || value === "") {
     return 0;
   }
 
-  if (
-    typeof value ===
-    "number"
-  ) {
-    return Number.isFinite(
-      value
-    )
-      ? value
-      : 0;
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : 0;
   }
 
-  let text =
-    String(
-      value
-    ).trim();
+  let text = String(value).trim();
 
-  if (
-    text.includes(",") &&
-    text.includes(".")
-  ) {
-    text =
-      text
-        .replace(
-          /\./g,
-          ""
-        )
-        .replace(
-          ",",
-          "."
-        );
-  } else if (
-    text.includes(",")
-  ) {
-    text =
-      text.replace(
-        ",",
-        "."
-      );
+  if (text.includes(",") && text.includes(".")) {
+    text = text.replace(/\./g, "").replace(",", ".");
+  } else if (text.includes(",")) {
+    text = text.replace(",", ".");
   }
 
-  const result =
-    Number(
-      text
-    );
-
-  return Number.isFinite(
-    result
-  )
-    ? result
-    : 0;
+  const result = Number(text);
+  return Number.isFinite(result) ? result : 0;
 }
-
 
 function today() {
-  return new Date()
-    .toISOString()
-    .slice(
-      0,
-      10
-    );
+  return new Date().toISOString().slice(0, 10);
 }
 
-
-function safeDateWithDays(
-  baseDateValue,
-  days = 0
-) {
-  const fallback =
-    new Date();
-
-  const parsed =
-    baseDateValue
-      ? new Date(
-          `${baseDateValue}T12:00:00`
-        )
-      : fallback;
-
-  const date =
-    Number.isNaN(
-      parsed.getTime()
-    )
-      ? fallback
-      : parsed;
-
-  date.setDate(
-    date.getDate() +
-    Number(days || 0)
-  );
-
-  return date;
+function datePlusDays(baseDate, days) {
+  const date = new Date(`${baseDate || today()}T12:00:00`);
+  date.setDate(date.getDate() + Number(days || 0));
+  return date.toISOString().slice(0, 10);
 }
-
-
-function safeIsoDate(
-  baseDateValue,
-  days = 0
-) {
-  return safeDateWithDays(
-    baseDateValue,
-    days
-  )
-    .toISOString()
-    .slice(
-      0,
-      10
-    );
-}
-
-
-/* =========================================================
-   FATURA TİPİ
-========================================================= */
 
 function normalizeType(type) {
-  const value =
-    String(
-      type || ""
-    )
-      .trim()
-      .toLowerCase();
+  const value = String(type || "").trim().toLowerCase();
 
   if (
     value === "purchase" ||
     value === "purchases" ||
     value === "buy" ||
     value === "alış" ||
-    value === "alis" ||
-    value === "alış faturası" ||
-    value === "alis faturasi"
+    value === "alis"
   ) {
     return "purchase";
   }
@@ -199,9 +96,7 @@ function normalizeType(type) {
   if (
     value === "return" ||
     value === "returns" ||
-    value === "iade" ||
-    value === "iade faturası" ||
-    value === "iade faturasi"
+    value === "iade"
   ) {
     return "return";
   }
@@ -209,45 +104,22 @@ function normalizeType(type) {
   return "sales";
 }
 
-
 function getTypeTitle(type) {
-  if (
-    type ===
-    "purchase"
-  ) {
-    return "Yeni Alış Faturası";
-  }
-
-  if (
-    type ===
-    "return"
-  ) {
-    return "Yeni İade Faturası";
-  }
-
+  if (type === "purchase") return "Yeni Alış Faturası";
+  if (type === "return") return "Yeni İade Faturası";
   return "Yeni Satış Faturası";
 }
 
-
-/* =========================================================
-   ÜRÜN
-========================================================= */
-
-function productName(
-  product
-) {
+function productName(product) {
   return (
     product?.name ||
     product?.productName ||
     product?.title ||
-    "Ürün"
+    ""
   );
 }
 
-
-function productCode(
-  product
-) {
+function productCode(product) {
   return (
     product?.code ||
     product?.stockCode ||
@@ -256,198 +128,327 @@ function productCode(
   );
 }
 
-
-function productUnit(
-  product
-) {
-  return (
-    product?.unit ||
-    product?.unitName ||
-    product?.sellingUnit ||
-    "Adet"
-  );
+function productUnit(product) {
+  return product?.unit || product?.unitName || "Adet";
 }
 
-
-function productPurchasePrice(
-  product
-) {
+function productPurchasePrice(product) {
   return numberValue(
     product?.purchaseNet ??
-    product?.purchasePrice ??
-    product?.buyPrice ??
-    product?.cost ??
-    product?.purchase ??
-    0
+      product?.purchasePrice ??
+      product?.buyPrice ??
+      product?.cost ??
+      0
   );
 }
 
-
-function productSalePrice(
-  product
-) {
+function productSalePrice(product) {
   return numberValue(
     product?.salesNet ??
-    product?.salePrice ??
-    product?.sellingPrice ??
-    product?.price ??
-    product?.sale ??
-    0
+      product?.salePrice ??
+      product?.sellingPrice ??
+      product?.price ??
+      0
   );
 }
 
-
-function productVat(
-  product
-) {
+function productVat(product) {
   return numberValue(
     product?.salesVat ??
-    product?.vatRate ??
-    product?.vat ??
-    product?.kdv ??
-    20
+      product?.vatRate ??
+      product?.vat ??
+      20
   );
 }
 
+function customerDisplayName(customer) {
+  return (
+    customer?.name ||
+    customer?.title ||
+    customer?.companyName ||
+    customer?.unvan ||
+    customer?.firmaAdi ||
+    ""
+  );
+}
 
-/* =========================================================
-   KASA / BANKA / POS
-========================================================= */
+function customerBalanceValue(customer) {
+  const candidates = [
+    customer?.balance,
+    customer?.currentBalance,
+    customer?.current_balance,
+    customer?.balanceAmount,
+    customer?.cariBalance,
+    customer?.debitBalance,
+  ];
 
-const ACCOUNT_STORAGE_KEY =
-  "ren-erp-cash-bank-accounts";
-
-const MOVEMENT_STORAGE_KEY =
-  "ren-erp-cash-bank-movements";
-
-
-function readAccounts() {
-  try {
-    const saved =
-      localStorage.getItem(
-        ACCOUNT_STORAGE_KEY
-      );
-
-    if (!saved) {
-      return [];
-    }
-
-    const parsed =
-      JSON.parse(
-        saved
-      );
-
-    return Array.isArray(
-      parsed
-    )
-      ? parsed
-      : [];
-
-  } catch {
-    return [];
+  for (const value of candidates) {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
   }
+
+  return 0;
 }
-
-
-function saveAccounts(
-  accounts
-) {
-  localStorage.setItem(
-    ACCOUNT_STORAGE_KEY,
-    JSON.stringify(
-      accounts
-    )
-  );
-
-  window.dispatchEvent(
-    new Event(
-      "ren-cash-bank-updated"
-    )
-  );
-}
-
-
-function readMovements() {
-  try {
-    const saved =
-      localStorage.getItem(
-        MOVEMENT_STORAGE_KEY
-      );
-
-    if (!saved) {
-      return [];
-    }
-
-    const parsed =
-      JSON.parse(
-        saved
-      );
-
-    return Array.isArray(
-      parsed
-    )
-      ? parsed
-      : [];
-
-  } catch {
-    return [];
-  }
-}
-
-
-function saveMovements(
-  movements
-) {
-  localStorage.setItem(
-    MOVEMENT_STORAGE_KEY,
-    JSON.stringify(
-      movements
-    )
-  );
-
-  window.dispatchEvent(
-    new Event(
-      "ren-cash-bank-updated"
-    )
-  );
-}
-
-
-/* =========================================================
-   YENİ ÜRÜN SATIRI
-========================================================= */
 
 function createItem() {
   return {
-    id:
-      `INV-ITEM-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2, 9)}`,
-
-    productId:
-      "",
-
-    productName:
-      "",
-
-    productCode:
-      "",
-
-    unit:
-      "Adet",
-
-    quantity:
-      1,
-
-    unitPrice:
-      "",
-
-    vatRate:
-      20,
-
-    discount:
-      0,
+    id: `INV-ITEM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    productId: "",
+    productName: "",
+    productCode: "",
+    quantity: 1,
+    unit: "Adet",
+    unitPrice: "",
+    vatRate: 20,
+    discount1: 0,
+    discount2: 0,
+    discount3: 0,
   };
+}
+
+
+function pdfSafeText(value) {
+  const map = {
+    "ç": "c", "Ç": "C",
+    "ğ": "g", "Ğ": "G",
+    "ı": "i", "İ": "I",
+    "ö": "o", "Ö": "O",
+    "ş": "s", "Ş": "S",
+    "ü": "u", "Ü": "U",
+    "€": "EUR", "₺": "TL",
+    "—": "-", "–": "-",
+    "•": "-", "’": "'",
+    "“": '"', "”": '"',
+  };
+
+  return String(value ?? "")
+    .replace(/[çÇğĞıİöÖşŞüÜ€₺—–•’“”]/g, (char) => map[char] || "")
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+
+function pdfEscape(value) {
+  return pdfSafeText(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
+}
+
+function pdfWrap(text, maxChars = 92) {
+  const clean = pdfSafeText(text);
+  if (!clean) return [""];
+  const words = clean.split(/\s+/);
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    if (!line) {
+      line = word;
+      return;
+    }
+
+    const candidate = `${line} ${word}`;
+
+    if (candidate.length <= maxChars) {
+      line = candidate;
+    } else {
+      lines.push(line);
+      line = word;
+    }
+  });
+
+  if (line) lines.push(line);
+  return lines;
+}
+
+function buildSimpleInvoicePdf({
+  invoiceType,
+  invoiceNo,
+  invoiceDate,
+  dueDate,
+  customer,
+  paymentMethod,
+  paymentSubMethod,
+  paymentAccountName,
+  calculatedItems,
+  totals,
+  notes,
+  existingCustomerBalance,
+  displayCustomerBalance,
+}) {
+  const typeText =
+    invoiceType === "purchase"
+      ? "ALIS NOTU"
+      : invoiceType === "return"
+      ? "IADE NOTU"
+      : "SATIS NOTU";
+
+  const customerName = customerDisplayName(customer) || "-";
+  const lines = [];
+
+  lines.push("REN ENDUSTRIYEL");
+  lines.push("Endustriyel Temizlik Urunleri");
+  lines.push(typeText);
+  lines.push(`Cari: ${customerName}`);
+  lines.push(`Tarih: ${invoiceDate || "-"}`);
+  lines.push(`No: ${invoiceNo || "-"}`);
+  if (dueDate) lines.push(`Vade: ${dueDate}`);
+  if (paymentMethod === "Peşin") {
+    const p = paymentSubMethod || "Pesin";
+    const a = paymentAccountName ? ` - ${paymentAccountName}` : "";
+    lines.push(`Odeme: ${pdfSafeText(p)}${pdfSafeText(a)}`);
+  } else {
+    lines.push("Odeme: Vadeli");
+  }
+
+  lines.push("");
+  lines.push("Aciklama                         Miktar   Fiyat       Indirim (%)   Tutar (KDV Haric)");
+  lines.push("-".repeat(92));
+
+  calculatedItems.forEach((item, index) => {
+    const name = pdfSafeText(item.productName || "-").slice(0, 32);
+    const qty = `${money(item.quantity)} ${pdfSafeText(item.unit || "ad")}`.slice(0, 12);
+    const price = `${money(item.unitPrice)} TL`;
+    const discountPercent = numberValue(item.discount1) + numberValue(item.discount2) + numberValue(item.discount3);
+    const discount = `%${money(discountPercent)}`;
+    const total = `${money(item.lineNet)} TL`;
+    lines.push(`${String(index + 1).padEnd(3)} ${name.padEnd(32)} ${qty.padStart(12)} ${price.padStart(12)} ${discount.padStart(12)} ${total.padStart(18)}`);
+  });
+
+  lines.push("-".repeat(92));
+  lines.push(`Net:           ${money(totals.subtotal)} TL`);
+  lines.push(`KDV:           ${money(totals.vat)} TL`);
+  lines.push(`Toplam:        ${money(totals.total)} TL`);
+  lines.push(`Onceki Bakiye: ${money(existingCustomerBalance)} TL`);
+  lines.push(`Guncel Bakiye: ${money(displayCustomerBalance)} TL`);
+
+  if (notes) {
+    lines.push("");
+    lines.push("Not:");
+    lines.push(...pdfWrap(notes, 92));
+  }
+  lines.push("");
+  lines.push("Tesekkur ederiz.");
+
+  const PAGE_WIDTH = 595;
+  const PAGE_HEIGHT = 842;
+  const left = 42;
+  const startY = 804;
+  const lineHeight = 13;
+  const bottom = 42;
+  const maxLines = Math.floor((startY - bottom) / lineHeight);
+
+  const pageLines = [];
+  for (let i = 0; i < lines.length; i += maxLines) {
+    pageLines.push(lines.slice(i, i + maxLines));
+  }
+
+  const objects = [];
+  const addObject = (body) => { objects.push(body); return objects.length; };
+  addObject("<< /Type /Catalog /Pages 2 0 R >>");
+  const pageObjectNumbers = [];
+  const fontObjectNumber = 3;
+  const firstPageObject = 4;
+  const firstContentObject = firstPageObject + pageLines.length;
+  pageLines.forEach((_, index) => pageObjectNumbers.push(firstPageObject + index));
+  addObject(`<< /Type /Pages /Kids [${pageObjectNumbers.map((n) => `${n} 0 R`).join(" ")}] /Count ${pageLines.length} >>`);
+  addObject("<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>");
+  pageLines.forEach((_, index) => {
+    const contentNumber = firstContentObject + index;
+    addObject(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}] /Resources << /Font << /F1 ${fontObjectNumber} 0 R >> >> /Contents ${contentNumber} 0 R >>`);
+  });
+  pageLines.forEach((page) => {
+    const commands = ["BT", "/F1 9 Tf", `${left} ${startY} Td`];
+    page.forEach((line, index) => {
+      if (index > 0) commands.push(`0 -${lineHeight} Td`);
+      commands.push(`(${pdfEscape(line)}) Tj`);
+    });
+    commands.push("ET");
+    const stream = commands.join("\n");
+    addObject(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+  });
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets[index + 1] = pdf.length;
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (let i = 1; i <= objects.length; i++) {
+    pdf += `${String(offsets[i]).padStart(10, "0")} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  return new TextEncoder().encode(pdf);
+}
+
+function getLocalAccounts() {
+  const keys = [
+    "ren-finance-accounts",
+    "ren-financial-accounts",
+    "ren-cash-bank-accounts",
+    "ren-cashbank-accounts",
+    "cashBankAccounts",
+    "cash_bank_accounts",
+  ];
+
+  for (const key of keys) {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(key) || "null");
+      if (Array.isArray(parsed) && parsed.length) {
+        return parsed;
+      }
+      if (parsed && Array.isArray(parsed.accounts) && parsed.accounts.length) {
+        return parsed.accounts;
+      }
+    } catch {
+      // Ignore malformed optional account storage.
+    }
+  }
+
+  return [
+    { id: "cash-main", name: "Ana Kasa", type: "cash" },
+    { id: "cash-shop", name: "Dükkan Kasası", type: "cash" },
+    { id: "bank-ziraat", name: "Ziraat Bankası", type: "bank" },
+    { id: "bank-garanti", name: "Garanti BBVA", type: "bank" },
+    { id: "bank-odeal", name: "Ödeal POS", type: "bank" },
+  ];
+}
+
+function getAccountName(account) {
+  return (
+    account?.name ||
+    account?.title ||
+    account?.accountName ||
+    account?.bankName ||
+    ""
+  );
+}
+
+function getAccountType(account) {
+  const raw = String(
+    account?.type ||
+      account?.accountType ||
+      account?.kind ||
+      ""
+  ).toLowerCase();
+
+  if (
+    raw.includes("cash") ||
+    raw.includes("kasa") ||
+    raw.includes("nakit")
+  ) {
+    return "cash";
+  }
+
+  return "bank";
+}
+
+function getPaymentSubMethod(method) {
+  if (method === "Nakit") return "Nakit";
+  if (method === "Kredi Kartı") return "Kredi Kartı";
+  if (method === "Havale / EFT") return "Havale / EFT";
+  return "";
 }
 
 
@@ -456,3925 +457,2202 @@ function createItem() {
 ========================================================= */
 
 export default function NewInvoice() {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get("id");
+  const queryType = params.get("type");
 
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-
-  const editId =
-    params.get(
-      "id"
-    );
-
-
-  const queryType =
-    params.get(
-      "type"
-    );
-
-
-  /* =======================================================
-     TEMEL STATE
-  ======================================================= */
-
-  const [
-    invoiceType,
-    setInvoiceType,
-  ] = useState(
-    normalizeType(
-      queryType
-    )
+  const [invoiceType, setInvoiceType] = useState(
+    normalizeType(queryType)
   );
 
+  const [customers, setCustomers] = useState(() => getCustomers() || []);
+  const [products, setProducts] = useState(() => getProducts() || []);
+  const [accounts, setAccounts] = useState(() => getLocalAccounts());
 
-  const [
-    customers,
-    setCustomers,
-  ] = useState(
-    () =>
-      getCustomers() || []
-  );
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
+  const [invoiceDate, setInvoiceDate] = useState(today());
+  const [dueDate, setDueDate] = useState(today());
+  const [invoiceNo, setInvoiceNo] = useState("");
 
-  const [
-    products,
-    setProducts,
-  ] = useState(
-    () =>
-      getProducts() || []
-  );
+  const [paymentMethod, setPaymentMethod] = useState("Vadeli");
+  const [paymentSubMethod, setPaymentSubMethod] = useState("");
+  const [paymentAccountType, setPaymentAccountType] = useState("");
+  const [paymentAccountId, setPaymentAccountId] = useState("");
+  const [paymentAccountName, setPaymentAccountName] = useState("");
+  const [paymentReference, setPaymentReference] = useState("");
 
+  const [notes, setNotes] = useState("");
+  const [items, setItems] = useState([createItem()]);
+  const [stockTracking, setStockTracking] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const [
-    customerSearch,
-    setCustomerSearch,
-  ] = useState("");
+  const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    name: "",
+    phone: "",
+    taxNumber: "",
+  });
 
+  const [newProductOpen, setNewProductOpen] = useState(false);
+  const [newProductTargetId, setNewProductTargetId] = useState("");
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    code: "",
+    unit: "Adet",
+    purchasePrice: "",
+    salePrice: "",
+    vatRate: 20,
+  });
 
-  const [
-    productSearch,
-    setProductSearch,
-  ] = useState("");
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentNote, setPaymentNote] = useState("");
 
-
-  const [
-    selectedCustomer,
-    setSelectedCustomer,
-  ] = useState(
-    null
-  );
-
-
-  const [
-    invoiceDate,
-    setInvoiceDate,
-  ] = useState(
-    today()
-  );
-
-
-  const [
-    dueDate,
-    setDueDate,
-  ] = useState(
-    today()
-  );
+  const [originalItems, setOriginalItems] = useState([]);
+  const [originalInvoiceType, setOriginalInvoiceType] = useState("");
+  const [duePreset, setDuePreset] = useState("");
 
 
-  const [
-    invoiceNo,
-    setInvoiceNo,
-  ] = useState("");
-
-
-  const [
-    paymentMethod,
-    setPaymentMethod,
-  ] = useState(
-    "Vadeli"
-  );
-
-
-  const [
-    notes,
-    setNotes,
-  ] = useState("");
-
-
-  const [
-    items,
-    setItems,
-  ] = useState(
-    [
-      createItem(),
-    ]
-  );
-
-
-  const [
-    discount,
-    setDiscount,
-  ] = useState(
-    0
-  );
-
-
-  const [
-    stockTracking,
-    setStockTracking,
-  ] = useState(
-    true
-  );
-
-
-  const [
-    saving,
-    setSaving,
-  ] = useState(
-    false
-  );
-
-
-  /* =======================================================
-     FİNANS
-  ======================================================= */
-
-  const [
-    detailInvoice,
-    setDetailInvoice,
-  ] = useState(
-    null
-  );
-
-
-  const [
-    showFinanceModal,
-    setShowFinanceModal,
-  ] = useState(
-    false
-  );
-
-
-  const [
-    financeMode,
-    setFinanceMode,
-  ] = useState(
-    "collection"
-  );
-
-
-  const [
-    accounts,
-    setAccounts,
-  ] = useState(
-    readAccounts
-  );
-
-
-  const [
-    financeAmount,
-    setFinanceAmount,
-  ] = useState(
-    ""
-  );
-
-
-  const [
-    financeDate,
-    setFinanceDate,
-  ] = useState(
-    today()
-  );
-
-
-  const [
-    financeMethod,
-    setFinanceMethod,
-  ] = useState(
-    "Havale / EFT"
-  );
-
-
-  const [
-    financeAccountId,
-    setFinanceAccountId,
-  ] = useState(
-    ""
-  );
-
-
-  const [
-    financeDescription,
-    setFinanceDescription,
-  ] = useState(
-    ""
-  );
-
-
-  const [
-    financeSaving,
-    setFinanceSaving,
-  ] = useState(
-    false
-  );
-
-
-  /* =======================================================
-     FATURA NUMARASI
-  ======================================================= */
+  /* =========================================================
+     YENİ FATURA NUMARASI
+  ========================================================= */
 
   useEffect(() => {
-
-    if (
-      editId
-    ) {
-      return;
-    }
-
+    if (editId) return;
 
     setInvoiceNo(
-      getNextInvoiceNumber(
-        normalizeType(
-          invoiceType
-        )
-      )
+      getNextInvoiceNumber(normalizeType(invoiceType))
     );
-
-  }, [
-    invoiceType,
-    editId,
-  ]);
+  }, [invoiceType, editId]);
 
 
-  /* =======================================================
-     VERİLERİ YENİLE
-  ======================================================= */
+  /* =========================================================
+     DIŞ VERİ YENİLEME
+  ========================================================= */
 
   useEffect(() => {
-
-    const refreshCustomers =
-      () => {
-
-        setCustomers(
-          getCustomers() ||
-          []
-        );
-
-      };
-
-
-    const refreshProducts =
-      () => {
-
-        setProducts(
-          getProducts() ||
-          []
-        );
-
-      };
-
-
-    const refreshAccounts =
-      () => {
-
-        setAccounts(
-          readAccounts()
-        );
-
-      };
-
-
-    window.addEventListener(
-      "ren-customers-updated",
-      refreshCustomers
-    );
-
-
-    window.addEventListener(
-      "ren-products-changed",
-      refreshProducts
-    );
-
-
-    window.addEventListener(
-      "ren-stock-updated",
-      refreshProducts
-    );
-
-
-    window.addEventListener(
-      "ren-cash-bank-updated",
-      refreshAccounts
-    );
-
-
-    return () => {
-
-      window.removeEventListener(
-        "ren-customers-updated",
-        refreshCustomers
-      );
-
-
-      window.removeEventListener(
-        "ren-products-changed",
-        refreshProducts
-      );
-
-
-      window.removeEventListener(
-        "ren-stock-updated",
-        refreshProducts
-      );
-
-
-      window.removeEventListener(
-        "ren-cash-bank-updated",
-        refreshAccounts
-      );
-
+    const refresh = () => {
+      setCustomers(getCustomers() || []);
+      setProducts(getProducts() || []);
+      setAccounts(getLocalAccounts());
     };
 
+    window.addEventListener("ren-customers-updated", refresh);
+    window.addEventListener("ren-products-changed", refresh);
+    window.addEventListener("ren-stock-updated", refresh);
+    window.addEventListener("ren-finance-updated", refresh);
+
+    return () => {
+      window.removeEventListener("ren-customers-updated", refresh);
+      window.removeEventListener("ren-products-changed", refresh);
+      window.removeEventListener("ren-stock-updated", refresh);
+      window.removeEventListener("ren-finance-updated", refresh);
+    };
   }, []);
 
 
-  /* =======================================================
-     DÜZENLENEN FATURA
-  ======================================================= */
+  /* =========================================================
+     MEVCUT FATURAYI YÜKLE
+  ========================================================= */
 
   useEffect(() => {
+    if (!editId) return;
 
-    if (
-      !editId
-    ) {
-      return;
+    const invoice = getInvoices().find(
+      (item) => String(item.id) === String(editId)
+    );
+
+    if (!invoice) return;
+
+    const type = normalizeType(invoice.type);
+
+    setInvoiceType(type);
+    setOriginalInvoiceType(type);
+    setInvoiceNo(invoice.invoiceNo || "");
+    setInvoiceDate(invoice.date || today());
+    setDueDate(invoice.dueDate || today());
+    setPaymentMethod(invoice.paymentMethod || "Vadeli");
+
+    setPaymentSubMethod(
+      invoice.paymentSubMethod ||
+        getPaymentSubMethod(invoice.paymentMethod)
+    );
+
+    setPaymentAccountType(
+      invoice.paymentAccountType || ""
+    );
+
+    setPaymentAccountId(
+      invoice.paymentAccountId || ""
+    );
+
+    setPaymentAccountName(
+      invoice.paymentAccountName || ""
+    );
+
+    setPaymentReference(
+      invoice.paymentReference || ""
+    );
+
+    setNotes(invoice.notes || "");
+    setStockTracking(invoice.stockTracking !== false);
+
+    const customer = (getCustomers() || []).find(
+      (item) =>
+        String(item.id) ===
+        String(invoice.customerId || invoice.supplierId)
+    );
+
+    if (customer) {
+      setSelectedCustomer(customer);
+    } else if (invoice.customerName || invoice.supplierName) {
+      setSelectedCustomer({
+        id:
+          invoice.customerId ||
+          invoice.supplierId ||
+          `legacy-${Date.now()}`,
+        name:
+          invoice.customerName ||
+          invoice.supplierName ||
+          "",
+        code:
+          invoice.customerCode ||
+          invoice.supplierCode ||
+          "",
+      });
     }
 
+    const loadedItems = Array.isArray(invoice.items)
+      ? invoice.items.map((item, index) => ({
+          id:
+            item.id ||
+            `INV-EDIT-${index}-${Date.now()}`,
+          productId: item.productId || "",
+          productName:
+            item.productName ||
+            item.name ||
+            "",
+          productCode:
+            item.productCode ||
+            item.code ||
+            "",
+          quantity:
+            numberValue(item.quantity) || 1,
+          unit:
+            item.unit ||
+            "Adet",
+          unitPrice:
+            numberValue(
+              item.unitPrice ??
+                item.price
+            ),
+          vatRate:
+            numberValue(
+              item.vatRate ??
+                item.vat ??
+                20
+            ),
+          discount1:
+            numberValue(
+              item.discount1 ??
+                item.discount ??
+                item.discountPercent ??
+                0
+            ),
+          discount2:
+            numberValue(item.discount2),
+          discount3:
+            numberValue(item.discount3),
+        }))
+      : [];
 
-    const invoice =
-      getInvoices().find(
-        (item) =>
-          String(
-            item.id
-          ) ===
-          String(
-            editId
-          )
-      );
-
-
-    if (
-      !invoice
-    ) {
-      return;
-    }
-
-
-    setDetailInvoice(
-      invoice
-    );
-
-
-    setInvoiceType(
-      normalizeType(
-        invoice.type
-      )
-    );
-
-
-    setInvoiceNo(
-      invoice.invoiceNo ||
-      ""
-    );
-
-
-    setInvoiceDate(
-      invoice.date ||
-      today()
-    );
-
-
-    setDueDate(
-      invoice.dueDate ||
-      today()
-    );
-
-
-    setPaymentMethod(
-      invoice.paymentMethod ||
-      "Vadeli"
-    );
-
-
-    setNotes(
-      invoice.notes ||
-      ""
-    );
-
-
-    setDiscount(
-      numberValue(
-        invoice.discountTotal ??
-        invoice.discount ??
-        0
-      )
-    );
-
-
-    setStockTracking(
-      invoice.stockTracking !==
-      false
-    );
-
-
-    const customer =
-      customers.find(
-        (item) =>
-          String(
-            item.id
-          ) ===
-          String(
-            invoice.customerId ||
-            invoice.supplierId
-          )
-      );
-
-
-    if (
-      customer
-    ) {
-      setSelectedCustomer(
-        customer
-      );
-    }
-
-
-    const loadedItems =
-      Array.isArray(
-        invoice.items
-      )
-        ? invoice.items.map(
-            (
-              item,
-              index
-            ) => ({
-
-              id:
-                item.id ||
-                `INV-EDIT-${index}-${Date.now()}`,
-
-              productId:
-                item.productId ||
-                "",
-
-              productName:
-                item.productName ||
-                item.name ||
-                "Ürün",
-
-              productCode:
-                item.productCode ||
-                item.code ||
-                "",
-
-              unit:
-                item.unit ||
-                "Adet",
-
-              quantity:
-                numberValue(
-                  item.quantity
-                ) || 1,
-
-              unitPrice:
-                numberValue(
-                  item.unitPrice ??
-                  item.price
-                ),
-
-              vatRate:
-                numberValue(
-                  item.vatRate ??
-                  item.vat ??
-                  20
-                ),
-
-              discount:
-                numberValue(
-                  item.discount
-                ),
-
-            })
-          )
-        : [];
-
-
-    setItems(
-      loadedItems.length >
-      0
+    const safeItems =
+      loadedItems.length
         ? loadedItems
-        : [
-            createItem(),
-          ]
+        : [createItem()];
+
+    setItems(safeItems);
+    setOriginalItems(
+      safeItems.map((item) => ({ ...item }))
+    );
+  }, [editId]);
+
+
+  /* =========================================================
+     CARİ ARAMA
+  ========================================================= */
+
+  const customerResults = useMemo(() => {
+    const q = customerSearch
+      .trim()
+      .toLocaleLowerCase("tr-TR");
+
+    if (!q) return [];
+
+    return customers
+      .filter((customer) => {
+        const name = customerDisplayName(customer)
+          .toLocaleLowerCase("tr-TR");
+
+        const code = String(customer.code || "")
+          .toLocaleLowerCase("tr-TR");
+
+        return name.includes(q) || code.includes(q);
+      })
+      .slice(0, 8);
+  }, [customers, customerSearch]);
+
+
+  const selectCustomer = (customer) => {
+    setSelectedCustomer(customer);
+    setCustomerSearch("");
+  };
+
+
+  const openNewCustomer = () => {
+    setNewCustomer({
+      name: customerSearch.trim(),
+      phone: "",
+      taxNumber: "",
+    });
+
+    setNewCustomerOpen(true);
+  };
+
+
+  const saveNewCustomer = () => {
+    const name = String(newCustomer.name || "").trim();
+
+    if (!name) {
+      window.alert("Cari adı boş olamaz.");
+      return;
+    }
+
+    try {
+      const created = createCustomer({
+        name,
+        phone: newCustomer.phone || "",
+        taxNumber: newCustomer.taxNumber || "",
+        type:
+          invoiceType === "purchase"
+            ? "Tedarikçi"
+            : "Müşteri",
+      });
+
+      setCustomers(getCustomers() || []);
+      setSelectedCustomer(created);
+      setCustomerSearch("");
+      setNewCustomerOpen(false);
+    } catch (error) {
+      window.alert(
+        error?.message || "Cari oluşturulamadı."
+      );
+    }
+  };
+
+
+  /* =========================================================
+     ÜRÜNLER
+  ========================================================= */
+
+  const updateItem = (id, field, value) => {
+    setItems((current) =>
+      current.map((item) =>
+        item.id === id
+          ? { ...item, [field]: value }
+          : item
+      )
+    );
+  };
+
+
+  const addEmptyLine = () => {
+    setItems((current) => [
+      ...current,
+      createItem(),
+    ]);
+  };
+
+
+  const removeItem = (id) => {
+    setItems((current) => {
+      const next = current.filter(
+        (item) => item.id !== id
+      );
+
+      return next.length
+        ? next
+        : [createItem()];
+    });
+  };
+
+
+  const changeLineProduct = (itemId, productId) => {
+    if (!productId) {
+      setItems((current) =>
+        current.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                productId: "",
+                productCode: "",
+                productName: "",
+              }
+            : item
+        )
+      );
+      return;
+    }
+
+    const product = products.find(
+      (item) =>
+        String(item.id) === String(productId)
     );
 
+    if (!product) return;
+
+    const price =
+      invoiceType === "purchase"
+        ? productPurchasePrice(product)
+        : productSalePrice(product);
+
+    setItems((current) =>
+      current.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              productId: product.id,
+              productName: productName(product),
+              productCode: productCode(product),
+              unit: productUnit(product),
+              unitPrice: price,
+              vatRate: productVat(product),
+            }
+          : item
+      )
+    );
+  };
+
+
+  const openNewProduct = (
+    itemId,
+    initialName = ""
+  ) => {
+    const item = items.find(
+      (entry) => entry.id === itemId
+    );
+
+    setNewProduct({
+      name:
+        initialName ||
+        item?.productName ||
+        "",
+      code: item?.productCode || "",
+      unit: item?.unit || "Adet",
+      purchasePrice:
+        invoiceType === "purchase"
+          ? item?.unitPrice || ""
+          : "",
+      salePrice:
+        invoiceType === "sales"
+          ? item?.unitPrice || ""
+          : "",
+      vatRate: item?.vatRate ?? 20,
+    });
+
+    setNewProductTargetId(itemId);
+    setNewProductOpen(true);
+  };
+
+
+  const saveNewProduct = () => {
+    const name = String(newProduct.name || "").trim();
+
+    if (!name) {
+      window.alert("Ürün adı boş olamaz.");
+      return;
+    }
+
+    const code =
+      String(newProduct.code || "").trim() ||
+      `FAT-${Date.now()}`;
+
+    try {
+      const product = createProduct({
+        name,
+        code,
+        barcode: code,
+        unit: newProduct.unit || "Adet",
+
+        purchaseNet:
+          numberValue(
+            newProduct.purchasePrice
+          ),
+
+        purchaseGross:
+          numberValue(
+            newProduct.purchasePrice
+          ) *
+          (1 +
+            numberValue(newProduct.vatRate) /
+              100),
+
+        purchaseVat:
+          numberValue(newProduct.vatRate),
+
+        salesNet:
+          numberValue(
+            newProduct.salePrice
+          ),
+
+        salesGross:
+          numberValue(
+            newProduct.salePrice
+          ) *
+          (1 +
+            numberValue(newProduct.vatRate) /
+              100),
+
+        salesVat:
+          numberValue(newProduct.vatRate),
+
+        openingStock: 0,
+        stockTracking: true,
+        active: true,
+      });
+
+      setProducts(getProducts() || []);
+
+      setItems((current) =>
+        current.map((item) =>
+          item.id === newProductTargetId
+            ? {
+                ...item,
+                productId: product.id,
+                productName: product.name,
+                productCode: product.code,
+                unit:
+                  product.unit ||
+                  "Adet",
+                unitPrice:
+                  invoiceType === "purchase"
+                    ? numberValue(
+                        newProduct.purchasePrice
+                      )
+                    : numberValue(
+                        newProduct.salePrice
+                      ),
+                vatRate:
+                  numberValue(
+                    newProduct.vatRate
+                  ),
+              }
+            : item
+        )
+      );
+
+      setNewProductOpen(false);
+      setNewProductTargetId("");
+
+      setNewProduct({
+        name: "",
+        code: "",
+        unit: "Adet",
+        purchasePrice: "",
+        salePrice: "",
+        vatRate: 20,
+      });
+    } catch (error) {
+      window.alert(
+        error?.message ||
+          "Ürün oluşturulamadı."
+      );
+    }
+  };
+
+
+  const productMatches = (query) => {
+    const q = String(query || "")
+      .trim()
+      .toLocaleLowerCase("tr-TR");
+
+    if (!q) return [];
+
+    return products
+      .filter((product) => {
+        const name = productName(product)
+          .toLocaleLowerCase("tr-TR");
+
+        const code = productCode(product)
+          .toLocaleLowerCase("tr-TR");
+
+        return (
+          name.includes(q) ||
+          code.includes(q)
+        );
+      })
+      .slice(0, 6);
+  };
+
+
+  /* =========================================================
+     HESAPLAMA
+  ========================================================= */
+
+  const calculatedItems = useMemo(() => {
+    return items.map((item) => {
+      const quantity =
+        Math.max(
+          0,
+          numberValue(item.quantity)
+        );
+
+      const unitPrice =
+        Math.max(
+          0,
+          numberValue(item.unitPrice)
+        );
+
+      const gross =
+        quantity * unitPrice;
+
+      const d1 = Math.min(
+        100,
+        Math.max(
+          0,
+          numberValue(
+            item.discount1 ??
+              item.discount
+          )
+        )
+      );
+
+      const d2 = Math.min(
+        100,
+        Math.max(
+          0,
+          numberValue(item.discount2)
+        )
+      );
+
+      const d3 = Math.min(
+        100,
+        Math.max(
+          0,
+          numberValue(item.discount3)
+        )
+      );
+
+      const after1 =
+        gross * (1 - d1 / 100);
+
+      const after2 =
+        after1 * (1 - d2 / 100);
+
+      const net =
+        Math.max(
+          0,
+          after2 * (1 - d3 / 100)
+        );
+
+      const vatRate =
+        Math.max(
+          0,
+          numberValue(item.vatRate)
+        );
+
+      const vat =
+        net * vatRate / 100;
+
+      return {
+        ...item,
+        quantity,
+        unitPrice,
+        discount1: d1,
+        discount2: d2,
+        discount3: d3,
+        lineGross: gross,
+        lineDiscount: gross - net,
+        lineNet: net,
+        lineVat: vat,
+        lineTotal: net + vat,
+      };
+    });
+  }, [items]);
+
+
+  const totals = useMemo(() => {
+    const subtotal =
+      calculatedItems.reduce(
+        (sum, item) =>
+          sum + item.lineNet,
+        0
+      );
+
+    const vat =
+      calculatedItems.reduce(
+        (sum, item) =>
+          sum + item.lineVat,
+        0
+      );
+
+    const discount =
+      calculatedItems.reduce(
+        (sum, item) =>
+          sum + item.lineDiscount,
+        0
+      );
+
+    return {
+      subtotal,
+      discount,
+      vat,
+      total: subtotal + vat,
+    };
+  }, [calculatedItems]);
+
+
+  const remainingBalance =
+    Math.max(
+      0,
+      totals.total -
+        numberValue(
+          editId
+            ? getInvoices().find(
+                (item) =>
+                  String(item.id) ===
+                  String(editId)
+              )?.paidAmount || 0
+            : 0
+        )
+    );
+
+
+  /* =========================================================
+     YAZDIRMA BAKİYE
+  ========================================================= */
+
+  const existingCustomerBalance =
+    customerBalanceValue(selectedCustomer);
+
+  const existingInvoice =
+    editId
+      ? getInvoices().find(
+          (item) =>
+            String(item.id) ===
+            String(editId)
+        )
+      : null;
+
+  const existingInvoiceEffect =
+    existingInvoice
+      ? normalizeType(existingInvoice.type) === "purchase"
+        ? -numberValue(existingInvoice.total)
+        : numberValue(existingInvoice.total)
+      : 0;
+
+  const currentInvoiceEffect =
+    invoiceType === "purchase"
+      ? -totals.total
+      : totals.total;
+
+  const projectedCustomerBalance =
+    existingInvoice
+      ? existingCustomerBalance - existingInvoiceEffect + currentInvoiceEffect
+      : existingCustomerBalance + currentInvoiceEffect;
+
+  const displayCustomerBalance =
+    paymentMethod === "Peşin"
+      ? projectedCustomerBalance
+      : projectedCustomerBalance;
+
+
+  /* =========================================================
+     VADE
+  ========================================================= */
+
+  const chooseDuePreset = (days) => {
+    const nextDate =
+      datePlusDays(
+        invoiceDate,
+        days
+      );
+
+    setDuePreset(String(days));
+    setDueDate(nextDate);
+  };
+
+
+  useEffect(() => {
+    const difference =
+      Math.round(
+        (
+          new Date(
+            `${dueDate}T12:00:00`
+          ).getTime() -
+          new Date(
+            `${invoiceDate}T12:00:00`
+          ).getTime()
+        ) /
+          86400000
+      );
+
+    if ([0, 7, 14, 30, 60].includes(difference)) {
+      setDuePreset(String(difference));
+    } else {
+      setDuePreset("");
+    }
+  }, [invoiceDate, dueDate]);
+
+
+  /* =========================================================
+     ÖDEME
+  ========================================================= */
+
+  const setCashPayment = () => {
+    setPaymentMethod("Peşin");
+    setPaymentSubMethod("Nakit");
+    setPaymentAccountType("cash");
+    setPaymentAccountId("");
+    setPaymentAccountName("");
+  };
+
+
+  const setCardPayment = () => {
+    setPaymentMethod("Peşin");
+    setPaymentSubMethod("Kredi Kartı");
+    setPaymentAccountType("bank");
+    setPaymentAccountId("");
+    setPaymentAccountName("");
+  };
+
+
+  const setTransferPayment = () => {
+    setPaymentMethod("Peşin");
+    setPaymentSubMethod("Havale / EFT");
+    setPaymentAccountType("bank");
+    setPaymentAccountId("");
+    setPaymentAccountName("");
+  };
+
+
+  const selectAccount = (accountId) => {
+    const account = accounts.find(
+      (entry) =>
+        String(entry.id) ===
+        String(accountId)
+    );
+
+    setPaymentAccountId(accountId || "");
+
+    setPaymentAccountName(
+      account
+        ? getAccountName(account)
+        : ""
+    );
+  };
+
+
+  const visibleAccounts = useMemo(() => {
+    if (!paymentAccountType) return [];
+
+    return accounts.filter(
+      (account) =>
+        getAccountType(account) ===
+        paymentAccountType
+    );
   }, [
-    editId,
-    customers,
+    accounts,
+    paymentAccountType,
   ]);
 
 
-  /* =======================================================
-     CARİ ARAMA
-  ======================================================= */
+  /* =========================================================
+     STOK FİYAT HİSTORY
+  ========================================================= */
 
-  const customerResults =
-    useMemo(() => {
+  const savePriceChanges = (invoiceItems) => {
+    invoiceItems.forEach((item) => {
+      if (!item.productId) return;
 
-      const query =
-        customerSearch
-          .trim()
-          .toLocaleLowerCase(
-            "tr-TR"
-          );
-
-
-      if (
-        !query
-      ) {
-        return [];
-      }
-
-
-      return customers
-        .filter(
-          (
-            customer
-          ) => {
-
-            const name =
-              String(
-                customer.name ||
-                customer.title ||
-                customer.companyName ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const code =
-              String(
-                customer.code ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            return (
-              name.includes(
-                query
-              ) ||
-              code.includes(
-                query
-              )
-            );
-
-          }
-        )
-        .slice(
-          0,
-          8
-        );
-
-    }, [
-      customers,
-      customerSearch,
-    ]);
-
-
-  /* =======================================================
-     ÜRÜN ARAMA
-  ======================================================= */
-
-  const productResults =
-    useMemo(() => {
-
-      const query =
-        productSearch
-          .trim()
-          .toLocaleLowerCase(
-            "tr-TR"
-          );
-
-
-      if (
-        !query
-      ) {
-        return [];
-      }
-
-
-      return products
-        .filter(
-          (
-            product
-          ) => {
-
-            const name =
-              productName(
-                product
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const code =
-              productCode(
-                product
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            const barcode =
-              String(
-                product?.barcode ||
-                ""
-              )
-                .toLocaleLowerCase(
-                  "tr-TR"
-                );
-
-
-            return (
-              name.includes(
-                query
-              ) ||
-              code.includes(
-                query
-              ) ||
-              barcode.includes(
-                query
-              )
-            );
-
-          }
-        )
-        .slice(
-          0,
-          12
-        );
-
-    }, [
-      products,
-      productSearch,
-    ]);
-
-
-  /* =======================================================
-     CARİ SEÇ
-  ======================================================= */
-
-  const selectCustomer =
-    (
-      customer
-    ) => {
-
-      setSelectedCustomer(
-        customer
+      const product = products.find(
+        (entry) =>
+          String(entry.id) ===
+          String(item.productId)
       );
 
+      if (!product) return;
 
-      setCustomerSearch(
-        ""
-      );
-
-    };
-
-
-  /* =======================================================
-     ÜRÜNÜ SATIRA EKLE
-  ======================================================= */
-
-  const addProductToInvoice =
-    (product) => {
-
-      /*
-        Aynı ürün zaten varsa
-        miktarını 1 artır.
-      */
-
-      const existing =
-        items.find(
-          (
-            item
-          ) =>
-            String(
-              item.productId
-            ) ===
-            String(
-              product.id
-            )
-        );
-
-
-      if (
-        existing
-      ) {
-
-        setItems(
-          items.map(
-            (
-              item
-            ) =>
-              item.id ===
-              existing.id
-                ? {
-                    ...item,
-
-                    quantity:
-                      numberValue(
-                        item.quantity
-                      ) +
-                      1,
-                  }
-                : item
-          )
-        );
-
-
-      } else {
-
-        const defaultPrice =
-          invoiceType ===
-          "purchase"
-            ? productPurchasePrice(
-                product
-              )
-            : productSalePrice(
-                product
-              );
-
-
-        /*
-          Boş bir satır varsa,
-          önce o satırı doldur.
-        */
-
-        const emptyIndex =
-          items.findIndex(
-            (
-              item
-            ) =>
-              !item.productId &&
-              !item.productName
-          );
-
-
-        const newItem = {
-
-          id:
-            `INV-ITEM-${Date.now()}-${Math.random()
-              .toString(36)
-              .slice(2, 9)}`,
-
-          productId:
-            product.id,
-
-          productName:
-            productName(
-              product
-            ),
-
-          productCode:
-            productCode(
-              product
-            ),
-
-          unit:
-            productUnit(
-              product
-            ),
-
-          quantity:
-            1,
-
-          unitPrice:
-            defaultPrice,
-
-          vatRate:
-            productVat(
-              product
-            ),
-
-          discount:
-            0,
-        };
-
-
+      if (invoiceType === "purchase") {
         if (
-          emptyIndex !==
-          -1
+          Math.abs(
+            productPurchasePrice(product) -
+              numberValue(item.unitPrice)
+          ) > 0.005
         ) {
-
-          setItems(
-            items.map(
+          updateProduct(product.id, {
+            purchaseNet:
+              numberValue(item.unitPrice),
+            purchaseGross:
+              numberValue(item.unitPrice) *
               (
-                item,
-                index
-              ) =>
-                index ===
-                emptyIndex
-                  ? newItem
-                  : item
-            )
-          );
-
-        } else {
-
-          setItems([
-            ...items,
-            newItem,
-          ]);
-
-        }
-
-      }
-
-
-      setProductSearch(
-        ""
-      );
-
-    };
-
-
-  /* =======================================================
-     BOŞ YENİ SATIR
-  ======================================================= */
-
-  const addEmptyLine =
-    () => {
-
-      setItems([
-        ...items,
-        createItem(),
-      ]);
-
-    };
-
-
-  /* =======================================================
-     SATIRDA ÜRÜN DEĞİŞTİR
-  ======================================================= */
-
-  const changeLineProduct =
-    (
-      itemId,
-      productId
-    ) => {
-
-      if (
-        !productId
-      ) {
-
-        setItems(
-          items.map(
-            (
-              item
-            ) =>
-              item.id ===
-              itemId
-                ? {
-                    ...item,
-
-                    productId:
-                      "",
-
-                    productName:
-                      "",
-
-                    productCode:
-                      "",
-
-                    unit:
-                      "Adet",
-
-                    unitPrice:
-                      "",
-
-                    vatRate:
-                      20,
-                  }
-                : item
-          )
-        );
-
-        return;
-      }
-
-
-      const product =
-        products.find(
-          (
-            item
-          ) =>
-            String(
-              item.id
-            ) ===
-            String(
-              productId
-            )
-        );
-
-
-      if (
-        !product
-      ) {
-        return;
-      }
-
-
-      const defaultPrice =
-        invoiceType ===
-        "purchase"
-          ? productPurchasePrice(
-              product
-            )
-          : productSalePrice(
-              product
-            );
-
-
-      setItems(
-        items.map(
-          (
-            item
-          ) =>
-            item.id ===
-            itemId
-              ? {
-
-                  ...item,
-
-                  productId:
-                    product.id,
-
-                  productName:
-                    productName(
-                      product
-                    ),
-
-                  productCode:
-                    productCode(
-                      product
-                    ),
-
-                  unit:
-                    productUnit(
-                      product
-                    ),
-
-                  unitPrice:
-                    defaultPrice,
-
-                  vatRate:
-                    productVat(
-                      product
-                    ),
-
-                }
-              : item
-        )
-      );
-
-    };
-
-
-  /* =======================================================
-     SATIR GÜNCELLE
-  ======================================================= */
-
-  const updateItem =
-    (
-      id,
-      field,
-      value
-    ) => {
-
-      setItems(
-        items.map(
-          (
-            item
-          ) =>
-            item.id ===
-            id
-              ? {
-                  ...item,
-                  [field]:
-                    value,
-                }
-              : item
-        )
-      );
-
-    };
-
-
-  /* =======================================================
-     SATIR SİL
-  ======================================================= */
-
-  const removeItem =
-    (id) => {
-
-      setItems(
-        items.filter(
-          (
-            item
-          ) =>
-            item.id !==
-            id
-        )
-      );
-
-
-      /*
-        Tamamen boş kalmasın.
-      */
-
-      if (
-        items.length ===
-        1
-      ) {
-
-        setItems([
-          createItem(),
-        ]);
-
-      }
-
-    };
-
-
-  /* =======================================================
-     HESAPLAMA
-  ======================================================= */
-
-  const calculated =
-    useMemo(() => {
-
-      let subtotal =
-        0;
-
-      let vatTotal =
-        0;
-
-
-      const calculatedItems =
-        items.map(
-          (
-            item
-          ) => {
-
-            const quantity =
-              numberValue(
-                item.quantity
-              );
-
-
-            const unitPrice =
-              numberValue(
-                item.unitPrice
-              );
-
-
-            const lineGross =
-              quantity *
-              unitPrice;
-
-
-            const lineDiscount =
-              lineGross *
-              (
+                1 +
                 numberValue(
-                  item.discount
-                ) /
-                100
-              );
-
-
-            const lineNet =
-              Math.max(
-                0,
-                lineGross -
-                lineDiscount
-              );
-
-
-            const vatRate =
-              numberValue(
-                item.vatRate
-              );
-
-
-            const lineVat =
-              lineNet *
-              vatRate /
-              100;
-
-
-            subtotal +=
-              lineNet;
-
-
-            vatTotal +=
-              lineVat;
-
-
-            return {
-
-              ...item,
-
-              quantity,
-
-              unitPrice,
-
-              lineGross,
-
-              lineDiscount,
-
-              lineNet,
-
-              lineVat,
-
-              lineTotal:
-                lineNet +
-                lineVat,
-
-            };
-
-          }
-        );
-
-
-      const invoiceDiscount =
-        Math.max(
-          0,
-          numberValue(
-            discount
-          )
-        );
-
-
-      const taxableSubtotal =
-        Math.max(
-          0,
-          subtotal -
-          invoiceDiscount
-        );
-
-
-      let finalVat =
-        vatTotal;
-
-
-      if (
-        subtotal >
-          0 &&
-        invoiceDiscount >
-          0
-      ) {
-
-        finalVat =
-          vatTotal *
-          (
-            taxableSubtotal /
-            subtotal
-          );
-
-      }
-
-
-      return {
-
-        calculatedItems,
-
-        subtotal,
-
-        invoiceDiscount,
-
-        vatTotal:
-          finalVat,
-
-        total:
-          taxableSubtotal +
-          finalVat,
-
-      };
-
-    }, [
-      items,
-      discount,
-    ]);
-
-
-  /* =======================================================
-     MEVCUT FATURA FİNANSI
-  ======================================================= */
-
-  const currentInvoice =
-    editId
-      ? getInvoices().find(
-          (
-            invoice
-          ) =>
-            String(
-              invoice.id
-            ) ===
-            String(
-              editId
-            )
-        )
-      : detailInvoice;
-
-
-  const isDetailInvoice =
-    Boolean(
-      editId &&
-      currentInvoice
-    );
-
-
-  const currentPaidAmount =
-    numberValue(
-      currentInvoice?.paidAmount
-    );
-
-
-  const currentTotal =
-    numberValue(
-      currentInvoice?.total
-    );
-
-
-  const currentRemaining =
-    Math.max(
-      0,
-      currentTotal -
-      currentPaidAmount
-    );
-
-
-  const isSalesInvoice =
-    normalizeType(
-      invoiceType
-    ) ===
-    "sales";
-
-
-  const isPurchaseInvoice =
-    normalizeType(
-      invoiceType
-    ) ===
-    "purchase";
-
-
-  /* =======================================================
-     FİYAT DEĞİŞİKLİĞİ BUL
-  ======================================================= */
-
-  const detectPriceChanges =
-    () => {
-
-      const priceChanges =
-        [];
-
-
-      calculated.calculatedItems.forEach(
-        (
-          item
-        ) => {
-
-          if (
-            !item.productId
-          ) {
-            return;
-          }
-
-
-          const product =
-            products.find(
-              (
-                productItem
-              ) =>
-                String(
-                  productItem.id
-                ) ===
-                String(
-                  item.productId
-                )
-            );
-
-
-          if (
-            !product
-          ) {
-            return;
-          }
-
-
-          const oldPrice =
-            invoiceType ===
-            "purchase"
-              ? productPurchasePrice(
-                  product
-                )
-              : productSalePrice(
-                  product
-                );
-
-
-          const newPrice =
-            numberValue(
-              item.unitPrice
-            );
-
-
-          if (
-            oldPrice <= 0 ||
-            newPrice <= 0
-          ) {
-            return;
-          }
-
-
-          if (
-            Math.abs(
-              oldPrice -
-              newPrice
-            ) <
-            0.005
-          ) {
-            return;
-          }
-
-
-          const difference =
-            newPrice -
-            oldPrice;
-
-
-          const percent =
-            (
-              difference /
-              oldPrice
-            ) *
-            100;
-
-
-          priceChanges.push({
-
-            item,
-
-            product,
-
-            oldPrice,
-
-            newPrice,
-
-            difference,
-
-            percent,
-
-          });
-
-        }
-      );
-
-
-      return priceChanges;
-
-    };
-
-
-  /* =======================================================
-     FİYAT UYARISI VE KAYDETME
-  ======================================================= */
-
-  const handlePriceChanges =
-    (
-      priceChanges
-    ) => {
-
-      if (
-        priceChanges.length ===
-        0
-      ) {
-        return;
-      }
-
-
-      const increaseCount =
-        priceChanges.filter(
-          (
-            item
-          ) =>
-            item.difference >
-            0
-        ).length;
-
-
-      const decreaseCount =
-        priceChanges.filter(
-          (
-            item
-          ) =>
-            item.difference <
-            0
-        ).length;
-
-
-      const detail =
-        priceChanges
-          .map(
-            (
-              change
-            ) => {
-
-              const arrow =
-                change.difference >
-                0
-                  ? "↑"
-                  : "↓";
-
-
-              return (
-
-                `${arrow} ${productName(
-                  change.product
-                )}\n` +
-
-                `Eski ${
-                  invoiceType ===
-                  "purchase"
-                    ? "alış"
-                    : "satış"
-                }: ${money(
-                  change.oldPrice
-                )} TL\n` +
-
-                `Yeni ${
-                  invoiceType ===
-                  "purchase"
-                    ? "alış"
-                    : "satış"
-                }: ${money(
-                  change.newPrice
-                )} TL\n` +
-
-                `Değişim: ${
-                  change.difference >
-                  0
-                    ? "+"
-                    : ""
-                }${money(
-                  change.difference
-                )} TL / %${Math.abs(
-                  change.percent
-                ).toFixed(
-                  1
-                )}`
-
-              );
-
-            }
-          )
-          .join(
-            "\n\n"
-          );
-
-
-      const headline =
-        invoiceType ===
-        "purchase" &&
-        increaseCount >
-          0
-          ? "🚨 TEDARİKÇİ FİYAT ARTIŞI TESPİT EDİLDİ"
-          : "⚠️ FİYAT DEĞİŞİKLİĞİ TESPİT EDİLDİ";
-
-
-      const message =
-        `${headline}\n\n` +
-
-        detail +
-
-        "\n\n" +
-
-        `${
-          increaseCount
-        } fiyat artışı` +
-
-        (
-          decreaseCount >
-          0
-            ? `, ${decreaseCount} fiyat düşüşü`
-            : ""
-        ) +
-
-        ` bulundu.\n\n` +
-
-        `Yeni fiyatları ürün kartına kaydetmek istiyor musunuz?\n\n` +
-
-        `TAMAM = Yeni fiyatları kaydet\n` +
-
-        `İPTAL = Eski ürün fiyatlarını koru`;
-
-      const confirmed =
-        window.confirm(
-          message
-        );
-
-
-      if (
-        !confirmed
-      ) {
-        return;
-      }
-
-
-      priceChanges.forEach(
-        (
-          change
-        ) => {
-
-          const product =
-            change.product;
-
-
-          const isPurchase =
-            invoiceType ===
-            "purchase";
-
-
-          const vat =
-            isPurchase
-              ? numberValue(
                   product.purchaseVat
-                )
-              : numberValue(
-                  product.salesVat
-                );
-
-
-          const grossPrice =
-            change.newPrice *
-            (
-              1 +
-              vat /
-              100
-            );
-
-
-          if (
-            isPurchase
-          ) {
-
-            updateProduct(
-              product.id,
-              {
-                purchaseNet:
-                  change.newPrice,
-
-                purchaseGross:
-                  grossPrice,
-              }
-            );
-
-          } else {
-
-            updateProduct(
-              product.id,
-              {
-                salesNet:
-                  change.newPrice,
-
-                salesGross:
-                  grossPrice,
-              }
-            );
-
-          }
-
+                ) /
+                  100
+              ),
+          });
 
           addProductPriceHistory({
-            productId:
-              product.id,
-
+            productId: product.id,
             productCode:
-              productCode(
-                product
-              ),
-
+              productCode(product),
             productName:
-              productName(
+              productName(product),
+            priceType: "purchase",
+            oldPrice:
+              productPurchasePrice(
                 product
               ),
-
-            priceType:
-              isPurchase
-                ? "purchase"
-                : "sales",
-
-            oldPrice:
-              change.oldPrice,
-
             newPrice:
-              change.newPrice,
-
+              numberValue(
+                item.unitPrice
+              ),
             supplierId:
-              isPurchase
-                ? selectedCustomer?.id ||
-                  ""
-                : "",
-
-            supplierName:
-              isPurchase
-                ? (
-                    selectedCustomer?.name ||
-                    selectedCustomer?.title ||
-                    selectedCustomer?.companyName ||
-                    ""
-                  )
-                : "",
-
-            invoiceId:
-              editId ||
+              selectedCustomer?.id ||
               "",
-
-            invoiceNo:
-              invoiceNo,
-
-            date:
-              invoiceDate,
-
+            supplierName:
+              customerDisplayName(
+                selectedCustomer
+              ),
+            invoiceId:
+              editId || "",
+            invoiceNo,
+            date: invoiceDate,
+          });
+        }
+      } else {
+        if (
+          Math.abs(
+            productSalePrice(product) -
+              numberValue(item.unitPrice)
+          ) > 0.005
+        ) {
+          updateProduct(product.id, {
+            salesNet:
+              numberValue(item.unitPrice),
+            salesGross:
+              numberValue(item.unitPrice) *
+              (
+                1 +
+                numberValue(
+                  product.salesVat
+                ) /
+                  100
+              ),
           });
 
+          addProductPriceHistory({
+            productId: product.id,
+            productCode:
+              productCode(product),
+            productName:
+              productName(product),
+            priceType: "sales",
+            oldPrice:
+              productSalePrice(
+                product
+              ),
+            newPrice:
+              numberValue(
+                item.unitPrice
+              ),
+            invoiceId:
+              editId || "",
+            invoiceNo,
+            date: invoiceDate,
+          });
         }
-      );
-
-
-      setProducts(
-        getProducts()
-      );
-
-    };
-
-
-  /* =======================================================
-     STOK YETERLİLİK KONTROLÜ
-  ======================================================= */
-
-  const checkSalesStock =
-    () => {
-
-      if (
-        invoiceType !==
-        "sales"
-      ) {
-        return null;
       }
+    });
+  };
 
 
+  /* =========================================================
+     STOK HAREKETİ
+  ========================================================= */
+
+  const stockSign = (type) => {
+    if (type === "sales") return -1;
+    return 1;
+  };
+
+
+  const applyNewInvoiceStock = (savedInvoice) => {
+    if (!stockTracking) return;
+
+    calculatedItems.forEach((item) => {
       if (
-        !stockTracking
-      ) {
-        return null;
-      }
-
-
-      return calculated.calculatedItems.find(
-        (
-          item
-        ) => {
-
-          if (
-            !item.productId
-          ) {
-            return null;
-          }
-
-
-          const product =
-            products.find(
-              (
-                p
-              ) =>
-                String(
-                  p.id
-                ) ===
-                String(
-                  item.productId
-                )
-            );
-
-
-          if (
-            !product
-          ) {
-            return null;
-          }
-
-
-          const currentStock =
-            numberValue(
-              product.stock
-            );
-
-
-          const requested =
-            numberValue(
-              item.quantity
-            );
-
-
-          /*
-            Burada artık satış
-            stok nedeniyle engellenmiyor.
-
-            Sadece bilgi amacıyla
-            kontrol ediyoruz.
-          */
-
-          if (
-            requested >
-            currentStock
-          ) {
-
-            return {
-              ...item,
-
-              currentStock,
-
-              requested,
-
-            };
-
-          }
-
-
-          return null;
-
-        }
-      );
-
-    };
-
-
-  /* =======================================================
-     STOK UYGULA
-  ======================================================= */
-
-  const applyStockMovement =
-    (
-      invoice
-    ) => {
-
-      if (
-        !stockTracking
+        !item.productId ||
+        item.quantity <= 0
       ) {
         return;
       }
-
-
-      const type =
-        normalizeType(
-          invoiceType
-        );
-
-
-      calculated.calculatedItems.forEach(
-        (
-          item
-        ) => {
-
-          const quantity =
-            numberValue(
-              item.quantity
-            );
-
-
-          if (
-            quantity <=
-              0 ||
-            !item.productId
-          ) {
-            return;
-          }
-
-
-          if (
-            type ===
-            "sales"
-          ) {
-
-            changeStock(
-              item.productId,
-              -quantity,
-              {
-
-                type:
-                  "Satış Faturası",
-
-                source:
-                  "Fatura",
-
-                sourceId:
-                  invoice.id,
-
-                description:
-                  `${invoice.invoiceNo} numaralı satış faturası.`,
-
-              }
-            );
-
-            return;
-          }
-
-
-          if (
-            type ===
-            "purchase"
-          ) {
-
-            changeStock(
-              item.productId,
-              quantity,
-              {
-
-                type:
-                  "Alış Faturası",
-
-                source:
-                  "Fatura",
-
-                sourceId:
-                  invoice.id,
-
-                description:
-                  `${invoice.invoiceNo} numaralı alış faturası.`,
-
-              }
-            );
-
-            return;
-          }
-
-
-          if (
-            type ===
-            "return"
-          ) {
-
-            changeStock(
-              item.productId,
-              quantity,
-              {
-
-                type:
-                  "İade Faturası",
-
-                source:
-                  "Fatura",
-
-                sourceId:
-                  invoice.id,
-
-                description:
-                  `${invoice.invoiceNo} numaralı iade faturası.`,
-
-              }
-            );
-
-          }
-
-        }
-      );
-
-    };
-
-
-  /* =======================================================
-     CARİ HAREKET
-  ======================================================= */
-
-  const applyCustomerMovement =
-    (
-      invoice
-    ) => {
-
-      if (
-        paymentMethod !==
-        "Vadeli"
-      ) {
-        return;
-      }
-
-
-      if (
-        !selectedCustomer
-      ) {
-        return;
-      }
-
-
-      const total =
-        numberValue(
-          calculated.total
-        );
-
-
-      if (
-        total <=
-        0
-      ) {
-        return;
-      }
-
-
-      const type =
-        normalizeType(
-          invoiceType
-        );
-
-
-      if (
-        type ===
-        "sales"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          -total
-        );
-
-        return;
-      }
-
-
-      if (
-        type ===
-        "purchase"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          total
-        );
-
-        return;
-      }
-
-
-      if (
-        type ===
-        "return"
-      ) {
-
-        updateCustomerBalance(
-          selectedCustomer.id,
-          total
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     FİNANS MODALI
-  ======================================================= */
-
-  const openFinanceModal =
-    (
-      mode
-    ) => {
-
-      if (
-        !currentInvoice
-      ) {
-        return;
-      }
-
-
-      const remaining =
-        Math.max(
-          0,
-          numberValue(
-            currentInvoice.total
-          ) -
-          numberValue(
-            currentInvoice.paidAmount
-          )
-        );
-
-
-      if (
-        remaining <=
-        0
-      ) {
-
-        alert(
-          mode ===
-          "payment"
-            ? "Bu alış faturası tamamen ödenmiştir."
-            : "Bu satış faturası tamamen tahsil edilmiştir."
-        );
-
-        return;
-      }
-
-
-      const availableAccounts =
-        readAccounts();
-
-
-      setAccounts(
-        availableAccounts
-      );
-
-
-      setFinanceMode(
-        mode
-      );
-
-
-      setFinanceAmount(
-        String(
-          remaining
-        )
-      );
-
-
-      setFinanceDate(
-        today()
-      );
-
-
-      setFinanceMethod(
-        "Havale / EFT"
-      );
-
-
-      setFinanceAccountId(
-        availableAccounts[0]?.id ||
-        ""
-      );
-
-
-      setFinanceDescription(
-        mode ===
-        "payment"
-          ? `${currentInvoice.invoiceNo} numaralı alış faturası ödemesi`
-          : `${currentInvoice.invoiceNo} numaralı satış faturası tahsilatı`
-      );
-
-
-      setShowFinanceModal(
-        true
-      );
-
-    };
-
-
-  /* =======================================================
-     FİNANS DETAYINI YENİLE
-  ======================================================= */
-
-  const refreshFinanceDetail =
-    () => {
-
-      if (
-        !editId
-      ) {
-        return;
-      }
-
-
-      const fresh =
-        getInvoices().find(
-          (
-            invoice
-          ) =>
-            String(
-              invoice.id
-            ) ===
-            String(
-              editId
-            )
-        );
-
-
-      if (
-        fresh
-      ) {
-
-        setDetailInvoice(
-          fresh
-        );
-
-
-        setAccounts(
-          readAccounts()
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     FİNANS İŞLEMİ KAYDET
-  ======================================================= */
-
-  const saveFinanceTransaction =
-    () => {
-
-      if (
-        financeSaving
-      ) {
-        return;
-      }
-
-
-      if (
-        !currentInvoice
-      ) {
-
-        alert(
-          "Fatura bulunamadı."
-        );
-
-        return;
-      }
-
 
       const amount =
-        numberValue(
-          financeAmount
+        item.quantity *
+        stockSign(
+          invoiceType
         );
 
-
-      const alreadyProcessed =
-        numberValue(
-          currentInvoice.paidAmount
-        );
-
-
-      const remaining =
-        Math.max(
-          0,
-          numberValue(
-            currentInvoice.total
-          ) -
-          alreadyProcessed
-        );
-
-
-      if (
-        amount <=
-        0
-      ) {
-
-        alert(
-          financeMode ===
-          "payment"
-            ? "Ödeme tutarı 0'dan büyük olmalıdır."
-            : "Tahsilat tutarı 0'dan büyük olmalıdır."
-        );
-
-        return;
-      }
-
-
-      if (
-        amount >
-        remaining
-      ) {
-
-        alert(
-          `Tutar kalan tutardan fazla olamaz.\n\nKalan: ${money(
-            remaining
-          )} TL`
-        );
-
-        return;
-      }
-
-
-      if (
-        !financeAccountId
-      ) {
-
-        alert(
-          "Lütfen kasa, banka veya POS hesabı seçin."
-        );
-
-        return;
-      }
-
-
-      const account =
-        readAccounts().find(
-          (
-            item
-          ) =>
-            String(
-              item.id
-            ) ===
-            String(
-              financeAccountId
-            )
-        );
-
-
-      if (
-        !account
-      ) {
-
-        alert(
-          "Finans hesabı bulunamadı."
-        );
-
-        return;
-      }
-
-
-      if (
-        !currentInvoice.customerId
-      ) {
-
-        alert(
-          financeMode ===
-          "payment"
-            ? "Bu alış faturasına bağlı tedarikçi bulunamadı."
-            : "Bu satış faturasına bağlı müşteri bulunamadı."
-        );
-
-        return;
-      }
-
-
-      setFinanceSaving(
-        true
-      );
-
-
-      try {
-
-        const newProcessed =
-          alreadyProcessed +
-          amount;
-
-
-        const completed =
-          newProcessed >=
-          numberValue(
-            currentInvoice.total
-          );
-
-
-        const updatedInvoice =
-          updateInvoice(
-            currentInvoice.id,
-            {
-
-              paidAmount:
-                newProcessed,
-
-              paymentStatus:
-                completed
-                  ? (
-                      financeMode ===
-                      "payment"
-                        ? "Ödendi"
-                        : "Tahsil Edildi"
-                    )
-                  : (
-                      financeMode ===
-                      "payment"
-                        ? "Kısmi Ödeme"
-                        : "Kısmi Tahsilat"
-                    ),
-
-              status:
-                completed
-                  ? "paid"
-                  : "open",
-
-              lastPaymentDate:
-                financeDate,
-
-              lastPaymentMethod:
-                financeMethod,
-
-              lastPaymentAccount:
-                account.name,
-
-              lastPaymentAmount:
-                amount,
-
-              updatedAt:
-                new Date()
-                  .toISOString(),
-
-            }
-          );
-
-
-        if (
-          !updatedInvoice
-        ) {
-
-          throw new Error(
-            "Fatura ödeme/tahsilat bilgisi güncellenemedi."
-          );
-
-        }
-
-
-        /* CARİ */
-
-        const normalizedType =
-          normalizeType(
-            currentInvoice.type
-          );
-
-
-        if (
-          financeMode ===
-            "collection" &&
-          normalizedType ===
-            "sales"
-        ) {
-
-          updateCustomerBalance(
-            currentInvoice.customerId,
-            amount
-          );
-
-        }
-
-
-        if (
-          financeMode ===
-            "payment" &&
-          normalizedType ===
-            "purchase"
-        ) {
-
-          updateCustomerBalance(
-            currentInvoice.customerId,
-            -amount
-          );
-
-        }
-
-
-        /* HESAP */
-
-        const currentAccounts =
-          readAccounts();
-
-
-        const updatedAccounts =
-          currentAccounts.map(
-            (
-              item
-            ) => {
-
-              if (
-                String(
-                  item.id
-                ) !==
-                String(
-                  account.id
-                )
-              ) {
-
-                return item;
-
-              }
-
-
-              const balance =
-                numberValue(
-                  item.balance
-                );
-
-
-              return {
-
-                ...item,
-
-                balance:
-                  financeMode ===
-                  "payment"
-                    ? balance -
-                      amount
-                    : balance +
-                      amount,
-
-              };
-
-            }
-          );
-
-
-        saveAccounts(
-          updatedAccounts
-        );
-
-
-        /* FİNANS HAREKETİ */
-
-        const existingMovements =
-          readMovements();
-
-
-        const movement = {
-
-          id:
-            `FIN-${Date.now()}-${Math.random()
-              .toString(36)
-              .slice(2, 8)}`,
-
-          accountId:
-            account.id,
-
-          accountName:
-            account.name,
-
-          accountType:
-            account.type,
-
-          direction:
-            financeMode ===
-            "payment"
-              ? "Çıkış"
-              : "Giriş",
-
-          amount,
-
+      const movementType =
+        invoiceType === "purchase"
+          ? "Alış Faturası"
+          : invoiceType === "return"
+          ? "İade Faturası"
+          : "Satış Faturası";
+
+      changeStock(
+        item.productId,
+        amount,
+        {
+          type: movementType,
+          source: "Fatura",
+          sourceId: savedInvoice.id,
           description:
-            financeDescription.trim() ||
-            currentInvoice.invoiceNo,
-
-          date:
-            financeDate,
-
-          method:
-            financeMethod,
-
-          source:
-            financeMode ===
-            "payment"
-              ? "payment"
-              : "collection",
-
-          sourceId:
-            currentInvoice.id,
-
-          sourceDocument:
-            currentInvoice.invoiceNo,
-
-          invoiceId:
-            currentInvoice.id,
-
-          invoiceNo:
-            currentInvoice.invoiceNo,
-
-          customerId:
-            currentInvoice.customerId,
-
-          customerName:
-            currentInvoice.customerName ||
-            currentInvoice.supplierName ||
-            selectedCustomer?.name ||
-            "",
-
-          createdAt:
-            new Date()
-              .toISOString(),
-
-        };
-
-
-        saveMovements([
-          movement,
-          ...existingMovements,
-        ]);
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-invoices-updated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-customers-updated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-cash-bank-updated"
-          )
-        );
-
-
-        setShowFinanceModal(
-          false
-        );
-
-
-        setFinanceAmount(
-          ""
-        );
-
-
-        setFinanceAccountId(
-          ""
-        );
-
-
-        setFinanceDescription(
-          ""
-        );
-
-
-        refreshFinanceDetail();
-
-
-        alert(
-          `${money(
-            amount
-          )} TL ${
-            financeMode ===
-            "payment"
-              ? "ödeme"
-              : "tahsilat"
-          } başarıyla kaydedildi.`
-        );
-
-
-      } catch (
-        error
-      ) {
-
-        console.error(
-          "REN ERP finans işlemi hatası:",
-          error
-        );
-
-
-        alert(
-          error?.message ||
-          "İşlem kaydedilirken bir hata oluştu."
-        );
-
-
-      } finally {
-
-        setFinanceSaving(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     FATURA KAYDET
-  ======================================================= */
-
-  const handleSave =
-    () => {
-
-      if (
-        saving
-      ) {
-        return;
-      }
-
-
-      if (
-        !selectedCustomer
-      ) {
-
-        alert(
-          invoiceType ===
-          "purchase"
-            ? "Lütfen tedarikçi seçin."
-            : "Lütfen cari seçin."
-        );
-
-        return;
-      }
-
-
-      /*
-        Tamamen boş satırları
-        fatura hesabından çıkarıyoruz.
-      */
-
-      const validItems =
-        calculated.calculatedItems.filter(
-          (
-            item
-          ) =>
-            item.productId &&
-            numberValue(
-              item.quantity
-            ) >
-              0 &&
-            numberValue(
-              item.unitPrice
-            ) >=
-              0
-        );
-
-
-      if (
-        validItems.length ===
-        0
-      ) {
-
-        alert(
-          "Lütfen faturaya en az bir ürün ekleyin."
-        );
-
-        return;
-      }
-
-
-      if (
-        calculated.total <=
-        0
-      ) {
-
-        alert(
-          "Fatura toplamı 0 TL olamaz."
-        );
-
-        return;
-      }
-
-
-      /*
-        Stok yalnızca uyarı için kontrol edilir.
-        Artık stok yetersizliği fatura kaydını
-        engellemez.
-      */
-
-      const stockWarning =
-        checkSalesStock();
-
-
-      if (
-        stockWarning
-      ) {
-
-        const approved =
-          window.confirm(
-            `⚠️ STOK UYARISI\n\n` +
-
-            `${stockWarning.productName}\n\n` +
-
-            `Mevcut stok: ${
-              money(
-                stockWarning.currentStock
-              )
-            }\n` +
-
-            `Faturadaki miktar: ${
-              money(
-                stockWarning.requested
-              )
-            }\n\n` +
-
-            `Stok satış miktarını karşılamıyor.\n` +
-
-            `Faturayı yine de kaydetmek ister misiniz?\n\n` +
-
-            `Stok 0'ın altına düşmeyecek.`
-          );
-
-
-        if (
-          !approved
-        ) {
-          return;
+            `${savedInvoice.invoiceNo} numaralı ${movementType.toLowerCase()}.`,
         }
+      );
+    });
+  };
 
+
+  const applyEditedInvoiceStock = (savedInvoice) => {
+    if (!stockTracking) return;
+
+    const oldMap = new Map();
+
+    originalItems.forEach((item) => {
+      if (!item.productId) return;
+
+      oldMap.set(
+        String(item.productId),
+        (
+          oldMap.get(
+            String(item.productId)
+          ) || 0
+        ) +
+          numberValue(
+            item.quantity
+          )
+      );
+    });
+
+    const newMap = new Map();
+
+    calculatedItems.forEach((item) => {
+      if (!item.productId) return;
+
+      newMap.set(
+        String(item.productId),
+        (
+          newMap.get(
+            String(item.productId)
+          ) || 0
+        ) +
+          numberValue(
+            item.quantity
+          )
+      );
+    });
+
+    const ids = new Set([
+      ...oldMap.keys(),
+      ...newMap.keys(),
+    ]);
+
+    ids.forEach((productId) => {
+      const oldQty =
+        oldMap.get(productId) || 0;
+
+      const newQty =
+        newMap.get(productId) || 0;
+
+      const delta =
+        newQty - oldQty;
+
+      if (Math.abs(delta) < 0.000001) {
+        return;
       }
 
-
-      /*
-        FİYAT KONTROLÜ
-
-        İlk kez kaydedilen faturada fiyat farklıysa
-        kullanıcıya soruyoruz.
-
-        Kullanıcı yeni fiyatı kabul ederse:
-        - ürün kartı güncellenir
-        - geçmişe kayıt düşer
-
-        Reddederse:
-        - fatura yeni fiyatıyla kaydolur
-        - ürün kartındaki eski fiyat korunur
-      */
-
-      const priceChanges =
-        detectPriceChanges();
-
-
-      if (
-        priceChanges.length >
-        0
-      ) {
-
-        handlePriceChanges(
-          priceChanges
+      const amount =
+        delta *
+        stockSign(
+          invoiceType
         );
 
-      }
+      const movementType =
+        invoiceType === "purchase"
+          ? "Alış Faturası Düzeltme"
+          : invoiceType === "return"
+          ? "İade Faturası Düzeltme"
+          : "Satış Faturası Düzeltme";
+
+      changeStock(
+        productId,
+        amount,
+        {
+          type: movementType,
+          source: "Fatura Düzenleme",
+          sourceId:
+            savedInvoice.id,
+          description:
+            `${savedInvoice.invoiceNo} faturasının miktar değişikliği.`,
+        }
+      );
+    });
+  };
 
 
-      setSaving(
-        true
+  /* =========================================================
+     CARİ
+  ========================================================= */
+
+  const applyCariForNewInvoice = () => {
+    if (!selectedCustomer) return;
+    if (paymentMethod !== "Vadeli") return;
+
+    if (invoiceType === "sales") {
+      updateCustomerBalance(
+        selectedCustomer.id,
+        -totals.total
+      );
+    }
+
+    if (invoiceType === "purchase") {
+      updateCustomerBalance(
+        selectedCustomer.id,
+        totals.total
+      );
+    }
+
+    if (invoiceType === "return") {
+      updateCustomerBalance(
+        selectedCustomer.id,
+        totals.total
+      );
+    }
+  };
+
+
+  /* =========================================================
+     SİL
+  ========================================================= */
+
+  const handleDelete = () => {
+    if (!editId) {
+      window.alert(
+        "Silinecek kayıt henüz kaydedilmedi."
+      );
+      return;
+    }
+
+    const current =
+      getInvoices().find(
+        (item) =>
+          String(item.id) ===
+          String(editId)
       );
 
-
-      try {
-
-        const normalizedType =
-          normalizeType(
-            invoiceType
-          );
-
-
-        /* =================================================
-           FİNANS SİSTEMİ
-        ================================================= */
-
-        const financeInvoice = {
-
-          id:
-            editId ||
-            Date.now(),
-
-          customerId:
-            selectedCustomer.id,
-
-          customerName:
-            selectedCustomer.name ||
-            selectedCustomer.unvan ||
-            selectedCustomer.firmaAdi ||
-            selectedCustomer.title ||
-            "",
-
-          total:
-            Number(
-              calculated.total
-            ),
-
-          subtotal:
-            Number(
-              calculated.subtotal ||
-              0
-            ),
-
-          vat:
-            Number(
-              calculated.vatTotal ||
-              0
-            ),
-
-          discount:
-            Number(
-              calculated.invoiceDiscount ||
-              0
-            ),
-
-          type:
-            normalizedType,
-
-          invoiceNo:
-            invoiceNo,
-
-          date:
-            invoiceDate,
-
-          items:
-            validItems.map(
-              (
-                item
-              ) => ({
-                productId:
-                  item.productId,
-
-                productName:
-                  item.productName,
-
-                quantity:
-                  Number(
-                    item.quantity
-                  ),
-
-                unitPrice:
-                  Number(
-                    item.unitPrice
-                  ),
-
-                total:
-                  Number(
-                    item.lineTotal
-                  ),
-              })
-            ),
-
-        };
-
-
-        if (
-          Finance &&
-          typeof Finance.saveInvoice ===
-            "function"
-        ) {
-
-          Finance.saveInvoice(
-            financeInvoice
-          );
-
-
-          window.dispatchEvent(
-            new Event(
-              "ren-finance-updated"
-            )
-          );
-
-        }
-
-
-        /* =================================================
-           FATURA KAYDI
-        ================================================= */
-
-        const customerName =
-          selectedCustomer.name ||
-          selectedCustomer.title ||
-          selectedCustomer.companyName ||
-          selectedCustomer.unvan ||
-          "";
-
-
-        const invoiceData = {
-
-          type:
-            normalizedType,
-
-          invoiceNo,
-
-          date:
-            invoiceDate,
-
-          dueDate,
-
-          customerId:
-            selectedCustomer.id,
-
-          customerName,
-
-          customerCode:
-            selectedCustomer.code ||
-            "",
-
-
-          supplierId:
-            normalizedType ===
-            "purchase"
-              ? selectedCustomer.id
-              : "",
-
-          supplierName:
-            normalizedType ===
-            "purchase"
-              ? customerName
-              : "",
-
-          supplierCode:
-            normalizedType ===
-            "purchase"
-              ? (
-                  selectedCustomer.code ||
-                  ""
-                )
-              : "",
-
-
-          paymentMethod,
-
-          paymentStatus:
-            paymentMethod ===
-            "Peşin"
-              ? "Ödendi"
-              : "Bekliyor",
-
-          status:
-            paymentMethod ===
-            "Peşin"
-              ? "paid"
-              : "open",
-
-
-          stockTracking,
-
-          items:
-            validItems,
-
-          subtotal:
-            calculated.subtotal,
-
-          discountTotal:
-            calculated.invoiceDiscount,
-
-          discount:
-            calculated.invoiceDiscount,
-
-          vatTotal:
-            calculated.vatTotal,
-
-          total:
-            calculated.total,
-
-          notes,
-
-          updatedAt:
-            new Date()
-              .toISOString(),
-
-        };
-
-
-        let saved;
-
-
-        if (
-          editId
-        ) {
-
-          saved =
-            updateInvoice(
-              editId,
-              invoiceData
-            );
-
-        } else {
-
-          saved =
-            addInvoice(
-              invoiceData
-            );
-
-        }
-
-
-        if (
-          !saved
-        ) {
-
-          throw new Error(
-            "Fatura kaydedilemedi."
-          );
-
-        }
-
-
-        /*
-          Yeni faturada hareket oluştur.
-          Mevcut faturayı düzenlerken
-          tekrar stok/cari hareketi yaratma.
-        */
-
-        if (
-          !editId
-        ) {
-
-          applyStockMovement(
-            saved
-          );
-
-
-          applyCustomerMovement(
-            saved
-          );
-
-        }
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-invoices-updated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-stock-updated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-stock-movements-changed"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-customers-updated"
-          )
-        );
-
-
-        window.dispatchEvent(
-          new Event(
-            "ren-cash-bank-updated"
-          )
-        );
-
-
-        alert(
-          `${saved.invoiceNo} numaralı fatura başarıyla kaydedildi.`
-        );
-
-
-        window.location.href =
-          `/invoices/detail?id=${encodeURIComponent(
-            saved.id
-          )}`;
-
-      } catch (
-        error
-      ) {
-
-        console.error(
-          "REN ERP fatura kaydetme hatası:",
-          error
-        );
-
-
-        alert(
-          error?.message ||
-          "Fatura kaydedilirken bir hata oluştu."
-        );
-
-
-        setSaving(
-          false
-        );
-
-      }
-
-    };
-
-
-  /* =======================================================
-     ÇIKIŞ
-  ======================================================= */
-
-  const closeInvoice =
-    () => {
+    if (!current) {
+      window.alert(
+        "Fatura bulunamadı."
+      );
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `${current.invoiceNo || "Bu fatura"} silinsin mi?`
+      );
+
+    if (!confirmed) return;
+
+    try {
+      deleteInvoice(current.id);
+      window.dispatchEvent(
+        new Event("ren-invoices-updated")
+      );
 
       window.location.href =
         "/invoices";
+    } catch (error) {
+      console.error(error);
 
+      window.alert(
+        error?.message ||
+          "Fatura silinemedi."
+      );
+    }
+  };
+
+
+  /* =========================================================
+     YAZDIR / PDF
+  ========================================================= */
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handlePdf = () => {
+    const pdfBytes = buildSimpleInvoicePdf({
+      invoiceType,
+      invoiceNo,
+      invoiceDate,
+      dueDate,
+      customer: selectedCustomer,
+      paymentMethod,
+      paymentSubMethod,
+      paymentAccountName,
+      calculatedItems,
+      totals,
+      notes,
+      existingCustomerBalance,
+      displayCustomerBalance,
+    });
+
+    const blob = new Blob(
+      [pdfBytes],
+      { type: "application/pdf" }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const pdfWindow =
+      window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+    if (!pdfWindow) {
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+      link.target = "_blank";
+      link.rel =
+        "noopener,noreferrer";
+      link.click();
+    }
+
+    window.setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 60000);
+  };
+
+
+  /* =========================================================
+     TAHSİLAT
+  ========================================================= */
+
+  const handleOpenPayment = () => {
+    setPaymentAmount(
+      remainingBalance > 0
+        ? remainingBalance.toFixed(2)
+        : totals.total.toFixed(2)
+    );
+
+    setPaymentNote("");
+    setPaymentModalOpen(true);
+  };
+
+
+  const handleSavePayment = () => {
+    const amount =
+      numberValue(paymentAmount);
+
+    if (!amount || amount <= 0) {
+      window.alert(
+        "Tahsilat tutarını girin."
+      );
+      return;
+    }
+
+    if (amount > totals.total) {
+      window.alert(
+        "Tahsilat faturanın toplamından büyük olamaz."
+      );
+      return;
+    }
+
+    const current =
+      editId
+        ? getInvoices().find(
+            (item) =>
+              String(item.id) ===
+              String(editId)
+          )
+        : null;
+
+    if (!current) {
+      window.alert(
+        "Önce faturayı kaydedin."
+      );
+      return;
+    }
+
+    const existingPaid =
+      numberValue(
+        current.paidAmount
+      );
+
+    const newPaid =
+      existingPaid + amount;
+
+    const status =
+      newPaid >= numberValue(current.total)
+        ? "paid"
+        : "partial";
+
+    const paymentEntry = {
+      id: `PAY-${Date.now()}`,
+      invoiceId: current.id,
+      invoiceNo:
+        current.invoiceNo || "",
+      date: today(),
+      amount,
+      method:
+        paymentSubMethod ||
+        "Nakit",
+      accountType:
+        paymentAccountType ||
+        "",
+      accountId:
+        paymentAccountId ||
+        "",
+      accountName:
+        paymentAccountName ||
+        "",
+      note:
+        paymentNote.trim(),
     };
 
+    const updated = {
+      ...current,
+      paidAmount: newPaid,
+      paymentStatus:
+        status === "paid"
+          ? invoiceType === "purchase"
+            ? "Ödendi"
+            : "Tahsil Edildi"
+          : "Kısmi Ödendi",
+      status,
+      lastPayment:
+        paymentEntry,
+      payments: [
+        ...(Array.isArray(
+          current.payments
+        )
+          ? current.payments
+          : []),
+        paymentEntry,
+      ],
+      updatedAt:
+        new Date().toISOString(),
+    };
 
-  /* =======================================================
+    updateInvoice(
+      current.id,
+      updated
+    );
+
+    window.dispatchEvent(
+      new Event("ren-invoices-updated")
+    );
+
+    window.dispatchEvent(
+      new Event("ren-finance-updated")
+    );
+
+    setPaymentModalOpen(false);
+
+    window.alert(
+      `${money(amount)} ₺ tahsilat/ödeme kaydedildi.`
+    );
+  };
+
+
+  /* =========================================================
+     KAYDET
+  ========================================================= */
+
+  const handleSave = () => {
+    if (saving) return;
+
+    if (!selectedCustomer) {
+      window.alert(
+        invoiceType === "purchase"
+          ? "Lütfen tedarikçi seçin."
+          : "Lütfen müşteri seçin."
+      );
+      return;
+    }
+
+    if (!invoiceNo.trim()) {
+      window.alert(
+        "Fatura numarası girin."
+      );
+      return;
+    }
+
+    if (!invoiceDate) {
+      window.alert(
+        "Fatura tarihini girin."
+      );
+      return;
+    }
+
+    const invalidName =
+      calculatedItems.find(
+        (item) =>
+          String(
+            item.productName || ""
+          ).trim() &&
+          !item.productId
+      );
+
+    if (invalidName) {
+      openNewProduct(
+        invalidName.id,
+        invalidName.productName
+      );
+
+      window.alert(
+        `"${invalidName.productName}" stok kartına bağlı değil. Önce ürünü oluşturun.`
+      );
+
+      return;
+    }
+
+    const validItems =
+      calculatedItems.filter(
+        (item) =>
+          item.productId &&
+          item.quantity > 0
+      );
+
+    if (!validItems.length) {
+      window.alert(
+        "Faturaya en az bir ürün ekleyin."
+      );
+      return;
+    }
+
+    if (totals.total <= 0) {
+      window.alert(
+        "Fatura toplamı 0 TL olamaz."
+      );
+      return;
+    }
+
+    if (
+      paymentMethod === "Peşin" &&
+      !paymentSubMethod
+    ) {
+      window.alert(
+        "Peşin ödeme için Nakit, Kredi Kartı veya Havale / EFT seçin."
+      );
+      return;
+    }
+
+    if (
+      paymentMethod === "Peşin" &&
+      !paymentAccountName
+    ) {
+      window.alert(
+        "Peşin ödeme için Kasa veya Banka hesabı seçin."
+      );
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const type =
+        normalizeType(
+          invoiceType
+        );
+
+      savePriceChanges(
+        validItems
+      );
+
+      const previous =
+        editId
+          ? getInvoices().find(
+              (item) =>
+                String(item.id) ===
+                String(editId)
+            )
+          : null;
+
+      const invoiceData = {
+        ...(previous || {}),
+
+        type,
+        invoiceNo:
+          invoiceNo.trim(),
+        date: invoiceDate,
+        dueDate,
+
+        customerId:
+          selectedCustomer.id,
+        customerName:
+          customerDisplayName(
+            selectedCustomer
+          ),
+        customerCode:
+          selectedCustomer.code ||
+          "",
+
+        supplierId:
+          type === "purchase"
+            ? selectedCustomer.id
+            : "",
+
+        supplierName:
+          type === "purchase"
+            ? customerDisplayName(
+                selectedCustomer
+              )
+            : "",
+
+        supplierCode:
+          type === "purchase"
+            ? selectedCustomer.code ||
+              ""
+            : "",
+
+        paymentMethod,
+        paymentSubMethod,
+        paymentAccountType,
+        paymentAccountId,
+        paymentAccountName,
+        paymentReference,
+
+        paymentStatus:
+          paymentMethod === "Peşin"
+            ? "Ödendi"
+            : previous?.paymentStatus ||
+              "Bekliyor",
+
+        status:
+          previous?.status ||
+          (
+            paymentMethod === "Peşin"
+              ? "paid"
+              : "open"
+          ),
+
+        stockTracking,
+
+        items: validItems.map(
+          (item) => ({
+            id: item.id,
+            productId:
+              item.productId,
+            productName:
+              item.productName,
+            productCode:
+              item.productCode,
+            unit: item.unit,
+            quantity:
+              item.quantity,
+            unitPrice:
+              item.unitPrice,
+            vatRate:
+              item.vatRate,
+            discount1:
+              item.discount1,
+            discount2:
+              item.discount2,
+            discount3:
+              item.discount3,
+            discount:
+              item.lineDiscount,
+            lineGross:
+              item.lineGross,
+            lineDiscount:
+              item.lineDiscount,
+            lineNet:
+              item.lineNet,
+            lineVat:
+              item.lineVat,
+            lineTotal:
+              item.lineTotal,
+            total:
+              item.lineTotal,
+          })
+        ),
+
+        subtotal:
+          totals.subtotal,
+        discountTotal:
+          totals.discount,
+        discount:
+          totals.discount,
+        vatTotal:
+          totals.vat,
+        kdvTotal:
+          totals.vat,
+        total:
+          totals.total,
+
+        notes,
+
+        updatedAt:
+          new Date().toISOString(),
+      };
+
+      let saved;
+
+      if (editId) {
+        saved =
+          updateInvoice(
+            editId,
+            invoiceData
+          );
+      } else {
+        saved =
+          addInvoice(
+            invoiceData
+          );
+      }
+
+      if (!saved) {
+        throw new Error(
+          "Fatura kaydedilemedi."
+        );
+      }
+
+      if (editId) {
+        if (
+          originalInvoiceType &&
+          originalInvoiceType !==
+            type
+        ) {
+          window.alert(
+            "Fatura türü değişti. Stok farkı oluşturulmadı; lütfen stok hareketini kontrol edin."
+          );
+        } else {
+          applyEditedInvoiceStock(
+            saved
+          );
+        }
+      } else {
+        applyNewInvoiceStock(
+          saved
+        );
+        applyCariForNewInvoice();
+      }
+
+      if (
+        Finance &&
+        typeof Finance.saveInvoice ===
+          "function"
+      ) {
+        Finance.saveInvoice({
+          id: saved.id,
+          customerId:
+            saved.customerId,
+          customerName:
+            saved.customerName,
+          total:
+            saved.total,
+          subtotal:
+            saved.subtotal,
+          vat:
+            saved.vatTotal,
+          discount:
+            saved.discountTotal,
+          type:
+            saved.type,
+          invoiceNo:
+            saved.invoiceNo,
+          date:
+            saved.date,
+          items:
+            saved.items,
+          paymentMethod:
+            saved.paymentMethod,
+          paymentSubMethod:
+            saved.paymentSubMethod,
+          paymentAccountName:
+            saved.paymentAccountName,
+        });
+
+        window.dispatchEvent(
+          new Event(
+            "ren-finance-updated"
+          )
+        );
+      }
+
+      window.dispatchEvent(
+        new Event(
+          "ren-invoices-updated"
+        )
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "ren-invoices-changed"
+        )
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "ren-stock-updated"
+        )
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "ren-stock-movements-changed"
+        )
+      );
+
+      window.dispatchEvent(
+        new Event(
+          "ren-customers-updated"
+        )
+      );
+
+      window.alert(
+        `${saved.invoiceNo} numaralı fatura başarıyla kaydedildi.`
+      );
+
+      window.location.href =
+        `/invoices/detail?id=${encodeURIComponent(
+          saved.id
+        )}`;
+    } catch (error) {
+      console.error(
+        "REN ERP fatura kaydetme hatası:",
+        error
+      );
+
+      window.alert(
+        error?.message ||
+          "Fatura kaydedilirken hata oluştu."
+      );
+
+      setSaving(false);
+    }
+  };
+
+
+  /* =========================================================
+     ÇIKIŞ
+  ========================================================= */
+
+  const close = () => {
+    window.location.href =
+      "/invoices";
+  };
+
+
+  /* =========================================================
      RENDER
-  ======================================================= */
+  ========================================================= */
+
+  const paymentIsCash =
+    paymentMethod === "Peşin" &&
+    paymentSubMethod === "Nakit";
+
+  const paymentIsBank =
+    paymentMethod === "Peşin" &&
+    (
+      paymentSubMethod ===
+        "Kredi Kartı" ||
+      paymentSubMethod ===
+        "Havale / EFT"
+    );
+
+  const createCustomerSearchButton =
+    customerSearch.trim() &&
+    customerResults.length === 0;
 
   return (
+    <div className="ren-invoice-edit ren-invoice-active-editor">
 
-    <div className="parasut-invoice-page">
-
-
-      {/* ===================================================
+      {/* =================================================
           HEADER
-      =================================================== */}
+      ================================================= */}
 
-      <div className="parasut-page-header">
+      <header className="ren-invoice-edit-header">
 
-        <div className="parasut-page-title">
+        <div>
+          <button
+            type="button"
+            className="ren-invoice-edit-back"
+            onClick={close}
+          >
+            <MdArrowBack />
+            Fatura Listesi
+          </button>
 
-          <div className="parasut-breadcrumb">
-
-            <span>
-              Faturalar
-            </span>
-
-            <b>
-              ›
-            </b>
-
-            <span>
-              {
-                invoiceType ===
-                "purchase"
-                  ? "Alış"
-                  : invoiceType ===
-                    "return"
-                    ? "İade"
-                    : "Satış"
-              }
-            </span>
-
+          <div className="ren-invoice-edit-breadcrumb">
+            <span>Faturalar</span>
+            <span>›</span>
+            <strong>
+              {getTypeTitle(invoiceType)}
+            </strong>
           </div>
 
+          <div className="ren-editor-title-line">
+            <div>
+              <h1>
+                {editId
+                  ? "Fatura Düzenle"
+                  : getTypeTitle(
+                      invoiceType
+                    )}
+              </h1>
 
-          <h1>
+              <p>
+                {invoiceNo ||
+                  "Yeni fatura"}
+              </p>
+            </div>
 
-            {
-              editId
-                ? "Fatura Detayı"
-                : getTypeTitle(
-                    invoiceType
-                  )
-            }
-
-          </h1>
-
+            {editId && (
+              <span className="ren-editor-active-badge">
+                <MdEdit />
+                DÜZENLEME AKTİF
+              </span>
+            )}
+          </div>
         </div>
 
-
-        <div className="parasut-header-actions">
-
-          {
-            isDetailInvoice &&
-            isSalesInvoice && (
-
-              <button
-                type="button"
-                className="parasut-save-button"
-                onClick={() =>
-                  openFinanceModal(
-                    "collection"
-                  )
-                }
-                disabled={
-                  currentRemaining <=
-                  0
-                }
-              >
-                {
-                  currentRemaining <=
-                  0
-                    ? "TAHSİL EDİLDİ"
-                    : "+ TAHSİLAT EKLE"
-                }
-              </button>
-
-            )
-          }
-
-
-          {
-            isDetailInvoice &&
-            isPurchaseInvoice && (
-
-              <button
-                type="button"
-                className="parasut-save-button"
-                onClick={() =>
-                  openFinanceModal(
-                    "payment"
-                  )
-                }
-                disabled={
-                  currentRemaining <=
-                  0
-                }
-              >
-                {
-                  currentRemaining <=
-                  0
-                    ? "ÖDENDİ"
-                    : "+ ÖDEME EKLE"
-                }
-              </button>
-
-            )
-          }
-
+        <div className="ren-invoice-edit-header-actions">
 
           <button
             type="button"
-            className="parasut-cancel-button"
-            onClick={
-              closeInvoice
-            }
+            className="secondary"
+            onClick={handlePrint}
+          >
+            <MdPrint />
+            YAZDIR
+          </button>
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={handlePdf}
+          >
+            <MdPictureAsPdf />
+            PDF
+          </button>
+
+          {editId && (
+            <>
+              <button
+                type="button"
+                className="payment"
+                onClick={handleOpenPayment}
+              >
+                <MdPayments />
+                TAHSİLAT EKLE
+              </button>
+
+              <button
+                type="button"
+                className="danger"
+                onClick={handleDelete}
+              >
+                <MdDeleteOutline />
+                SİL
+              </button>
+            </>
+          )}
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={close}
           >
             VAZGEÇ
           </button>
 
-
-          {
-            !isDetailInvoice && (
-
-              <button
-                type="button"
-                className="parasut-save-button"
-                disabled={
-                  saving
-                }
-                onClick={
-                  handleSave
-                }
-              >
-
-                <MdSave />
-
-                {
-                  saving
-                    ? "KAYDEDİLİYOR..."
-                    : "KAYDET"
-                }
-
-              </button>
-
-            )
-          }
-
-
           <button
             type="button"
-            className="parasut-save-arrow"
+            className="primary"
+            onClick={handleSave}
+            disabled={saving}
           >
-            <MdKeyboardArrowDown />
+            <MdSave />
+            {saving
+              ? "KAYDEDİLİYOR..."
+              : "KAYDET"}
           </button>
 
         </div>
+      </header>
 
-      </div>
 
+      {/* =================================================
+          TOP INFORMATION
+      ================================================= */}
 
-      {/* ===================================================
-          ANA FATURA BİLGİLERİ
-      =================================================== */}
+      <div className="ren-invoice-edit-top-grid">
 
-      <div className="parasut-invoice-card">
+        {/* CARİ */}
+
+        <div className="ren-invoice-edit-card customer-card">
+
+          <div className="ren-editor-label">
+            {invoiceType === "purchase"
+              ? "TEDARİKÇİ"
+              : "MÜŞTERİ"}
+          </div>
+
+          {selectedCustomer ? (
+            <div className="ren-selected-customer">
+              <div>
+                <strong>
+                  {customerDisplayName(
+                    selectedCustomer
+                  )}
+                </strong>
+
+                <span>
+                  {selectedCustomer.code ||
+                    ""}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setSelectedCustomer(
+                    null
+                  )
+                }
+              >
+                Değiştir
+              </button>
+            </div>
+          ) : (
+            <div className="ren-customer-search-wrap">
+
+              <div className="ren-customer-search-box">
+                <MdSearch />
+
+                <input
+                  value={
+                    customerSearch
+                  }
+                  onChange={(event) =>
+                    setCustomerSearch(
+                      event.target.value
+                    )
+                  }
+                  placeholder={
+                    invoiceType ===
+                    "purchase"
+                      ? "Tedarikçi ara..."
+                      : "Müşteri ara..."
+                  }
+                />
+              </div>
+
+              {(customerResults.length >
+                0 ||
+                createCustomerSearchButton) && (
+                <div className="ren-customer-dropdown">
+
+                  {customerResults.map(
+                    (customer) => (
+                      <button
+                        key={
+                          customer.id
+                        }
+                        type="button"
+                        onClick={() =>
+                          selectCustomer(
+                            customer
+                          )
+                        }
+                      >
+                        <strong>
+                          {customerDisplayName(
+                            customer
+                          )}
+                        </strong>
+
+                        <span>
+                          {customer.code ||
+                            ""}
+                        </span>
+                      </button>
+                    )
+                  )}
+
+                  {createCustomerSearchButton && (
+                    <button
+                      type="button"
+                      className="new-option"
+                      onClick={
+                        openNewCustomer
+                      }
+                    >
+                      ＋ "{customerSearch}"
+                      {" "}
+                      adında yeni{" "}
+                      {invoiceType ===
+                      "purchase"
+                        ? "tedarikçi"
+                        : "müşteri"}{" "}
+                      oluştur
+                    </button>
+                  )}
+
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
 
 
         {/* FATURA NO */}
 
-        <div className="parasut-row parasut-invoice-name-row">
+        <div className="ren-invoice-edit-card compact">
 
-          <div className="parasut-row-icon document-icon">
-            ▤
-          </div>
-
-          <div className="parasut-label">
+          <div className="ren-editor-label">
             FATURA NO
           </div>
 
-          <div className="parasut-control">
-
-            <input
-              className="parasut-input"
-              value={
-                invoiceNo
-              }
-              onChange={(
-                event
-              ) =>
-                setInvoiceNo(
-                  event.target.value
-                )
-              }
-              readOnly={
-                Boolean(
-                  editId
-                )
-              }
-            />
-
-          </div>
-
-        </div>
-
-
-        {/* CARİ */}
-
-        <div className="parasut-row customer-row">
-
-          <div className="parasut-row-icon">
-            ▦
-          </div>
-
-          <div className="parasut-label">
-
-            {
-              invoiceType ===
-              "purchase"
-                ? "TEDARİKÇİ"
-                : "MÜŞTERİ"
-            }
-
-          </div>
-
-
-          <div className="parasut-control customer-control">
-
-            {
-              selectedCustomer ? (
-
-                <div className="selected-customer">
-
-                  <strong>
-                    {
-                      selectedCustomer.name ||
-                      selectedCustomer.title ||
-                      selectedCustomer.companyName
-                    }
-                  </strong>
-
-
-                  <span>
-                    {
-                      selectedCustomer.code ||
-                      ""
-                    }
-                  </span>
-
-
-                  {
-                    !editId && (
-
-                      <button
-                        type="button"
-                        onClick={() => {
-
-                          setSelectedCustomer(
-                            null
-                          );
-
-                          setCustomerSearch(
-                            ""
-                          );
-
-                        }}
-                      >
-                        Değiştir
-                      </button>
-
-                    )
-                  }
-
-                </div>
-
-              ) : (
-
-                <div className="parasut-search-box">
-
-                  <MdSearch />
-
-                  <input
-                    value={
-                      customerSearch
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setCustomerSearch(
-                        event.target.value
-                      )
-                    }
-                    placeholder={
-                      invoiceType ===
-                      "purchase"
-                        ? "Tedarikçi ara..."
-                        : "Müşteri ara..."
-                    }
-                  />
-
-
-                  {
-                    customerResults.length >
-                    0 && (
-
-                      <div className="parasut-dropdown">
-
-                        {
-                          customerResults.map(
-                            (
-                              customer
-                            ) => (
-
-                              <button
-                                type="button"
-                                key={
-                                  customer.id
-                                }
-                                onClick={() =>
-                                  selectCustomer(
-                                    customer
-                                  )
-                                }
-                              >
-
-                                <strong>
-                                  {
-                                    customer.name ||
-                                    customer.title ||
-                                    customer.companyName
-                                  }
-                                </strong>
-
-                                <span>
-                                  {
-                                    customer.code ||
-                                    ""
-                                  }
-                                </span>
-
-                              </button>
-
-                            )
-                          )
-                        }
-
-                      </div>
-
-                    )
-                  }
-
-                </div>
-
+          <input
+            className="ren-editor-input"
+            value={invoiceNo}
+            onChange={(event) =>
+              setInvoiceNo(
+                event.target.value
               )
             }
-
-
-            <div className="parasut-help-text">
-
-              <span>
-                ⓘ
-              </span>
-
-              Kayıtlı bir cari seçebilirsiniz.
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* CARİ BİLGİSİ */}
-
-        <div className="parasut-row customer-info-row">
-
-          <div className="parasut-row-icon">
-            ▤
-          </div>
-
-          <div className="parasut-label">
-            CARİ BİLGİLERİ
-          </div>
-
-          <div className="parasut-control">
-
-            {
-              selectedCustomer ? (
-
-                <div className="customer-information">
-
-                  {
-                    selectedCustomer.phone ||
-                    selectedCustomer.email ||
-                    selectedCustomer.city ||
-                    "—"
-                  }
-
-                </div>
-
-              ) : (
-
-                <div className="empty-value">
-                  —
-                </div>
-
-              )
-            }
-
-          </div>
-
-        </div>
-
-
-        {/* TAHSİLAT DURUMU */}
-
-        <div className="parasut-row payment-status-row">
-
-          <div className="parasut-row-icon">
-            ?
-          </div>
-
-          <div className="parasut-label">
-            TAHSİLAT DURUMU
-          </div>
-
-          <div className="parasut-control">
-
-            <div className="parasut-radio-group">
-
-              <button
-                type="button"
-                className={
-                  paymentMethod ===
-                  "Vadeli"
-                    ? "selected"
-                    : ""
-                }
-                onClick={() =>
-                  setPaymentMethod(
-                    "Vadeli"
-                  )
-                }
-                disabled={
-                  Boolean(
-                    editId
-                  )
-                }
-              >
-
-                <span className="radio-dot">
-                  ✓
-                </span>
-
-                TAHSİL EDİLECEK
-
-              </button>
-
-
-              <button
-                type="button"
-                className={
-                  paymentMethod ===
-                  "Peşin"
-                    ? "selected"
-                    : ""
-                }
-                onClick={() =>
-                  setPaymentMethod(
-                    "Peşin"
-                  )
-                }
-                disabled={
-                  Boolean(
-                    editId
-                  )
-                }
-              >
-
-                <span className="radio-dot">
-                  ✓
-                </span>
-
-                TAHSİL EDİLDİ
-
-              </button>
-
-            </div>
-
-          </div>
-
+          />
         </div>
 
 
         {/* TARİH */}
 
-        <div className="parasut-row">
+        <div className="ren-invoice-edit-card compact">
 
-          <div className="parasut-row-icon">
-            <MdCalendarToday />
+          <div className="ren-editor-label">
+            TARİH
           </div>
 
-          <div className="parasut-label">
-            DÜZENLEME TARİHİ
-          </div>
-
-          <div className="parasut-control">
-
-            <div className="parasut-date-input">
-
-              <input
-                type="date"
-                value={
-                  invoiceDate
-                }
-                onChange={(
-                  event
-                ) =>
-                  setInvoiceDate(
-                    event.target.value
-                  )
-                }
-                disabled={
-                  Boolean(
-                    editId
-                  )
-                }
-              />
-
-              <MdCalendarToday />
-
-            </div>
-
-          </div>
-
+          <input
+            className="ren-editor-input"
+            type="date"
+            value={invoiceDate}
+            onChange={(event) =>
+              setInvoiceDate(
+                event.target.value
+              )
+            }
+          />
         </div>
 
 
         {/* VADE */}
 
-        <div className="parasut-row">
+        <div className="ren-invoice-edit-card compact">
 
-          <div className="parasut-row-icon">
-            ●
+          <div className="ren-editor-label">
+            VADE
           </div>
 
-          <div className="parasut-label">
-            VADE TARİHİ
-          </div>
-
-          <div className="parasut-control">
-
-            <div className="parasut-due-buttons">
-
-              {
-                [
-                  {
-                    label:
-                      "AYNI GÜN",
-                    days:
-                      0,
-                  },
-                  {
-                    label:
-                      "7 GÜN",
-                    days:
-                      7,
-                  },
-                  {
-                    label:
-                      "14 GÜN",
-                    days:
-                      14,
-                  },
-                  {
-                    label:
-                      "30 GÜN",
-                    days:
-                      30,
-                  },
-                  {
-                    label:
-                      "60 GÜN",
-                    days:
-                      60,
-                  },
-                ].map(
-                  (
-                    option
-                  ) => (
-
-                    <button
-                      type="button"
-                      key={
-                        option.days
-                      }
-                      className={
-                        dueDate ===
-                        safeIsoDate(
-                          invoiceDate,
-                          option.days
-                        )
-                          ? "active"
-                          : ""
-                      }
-                      onClick={() =>
-                        setDueDate(
-                          safeIsoDate(
-                            invoiceDate,
-                            option.days
-                          )
-                        )
-                      }
-                      disabled={
-                        Boolean(
-                          editId
-                        )
-                      }
-                    >
-                      {
-                        option.label
-                      }
-                    </button>
-
-                  )
-                )
-              }
-
-            </div>
-
-
-            <div className="parasut-date-input">
-
-              <input
-                type="date"
-                value={
-                  dueDate
-                }
-                onChange={(
-                  event
-                ) =>
-                  setDueDate(
-                    event.target.value
-                  )
-                }
-                disabled={
-                  Boolean(
-                    editId
-                  )
-                }
-              />
-
-              <MdCalendarToday />
-
-            </div>
-
-          </div>
-
+          <input
+            className="ren-editor-input"
+            type="date"
+            value={dueDate}
+            onChange={(event) =>
+              setDueDate(
+                event.target.value
+              )
+            }
+          />
         </div>
 
-
-        {/* EXTRA */}
-
-        <div className="parasut-extra-buttons">
-
-          <button
-            type="button"
-          >
-            + FATURA NO EKLE
-          </button>
-
-          <button
-            type="button"
-          >
-            ₺ DÖVİZ DEĞİŞTİR
-          </button>
-
-          <button
-            type="button"
-          >
-            + SİPARİŞ BİLGİSİ EKLE
-          </button>
-
-        </div>
+      </div>
 
 
-        {/* STOK TAKİBİ */}
+      {/* =================================================
+          PAYMENT
+      ================================================= */}
 
-        <div className="parasut-stock-section">
+      <div className="ren-payment-area">
 
-          <div className="parasut-row-icon">
-            ▦
+        <div className="ren-payment-method-card">
+
+          <div className="ren-editor-label">
+            ÖDEME / TAHSİLAT
           </div>
 
-          <div className="parasut-label">
-            STOK TAKİBİ
-          </div>
-
-
-          <div className="parasut-stock-options">
+          <div className="ren-payment-main-buttons">
 
             <button
               type="button"
               className={
-                stockTracking
+                paymentMethod ===
+                "Vadeli"
                   ? "active"
                   : ""
               }
-              onClick={() =>
-                setStockTracking(
-                  true
-                )
-              }
-              disabled={
-                Boolean(
-                  editId
-                )
-              }
+              onClick={() => {
+                setPaymentMethod(
+                  "Vadeli"
+                );
+                setPaymentSubMethod(
+                  ""
+                );
+                setPaymentAccountType(
+                  ""
+                );
+                setPaymentAccountId(
+                  ""
+                );
+                setPaymentAccountName(
+                  ""
+                );
+              }}
             >
-
-              <span className="stock-radio">
-
-                {
-                  stockTracking
-                    ? "✓"
-                    : "○"
-                }
-
-              </span>
-
-
-              <div>
-
-                <strong>
-                  STOK HAREKETİ OLUŞTUR
-                </strong>
-
-                <small>
-                  Fatura kaydedildiğinde stok hareketi oluşturulur.
-                </small>
-
-              </div>
-
+              VADELİ
             </button>
-
 
             <button
               type="button"
               className={
-                !stockTracking
+                paymentMethod ===
+                "Peşin"
                   ? "active"
                   : ""
               }
-              onClick={() =>
-                setStockTracking(
-                  false
-                )
-              }
-              disabled={
-                Boolean(
-                  editId
-                )
-              }
-            >
+              onClick={() => {
+                setPaymentMethod(
+                  "Peşin"
+                );
 
-              <span className="stock-radio">
-
-                {
-                  !stockTracking
-                    ? "✓"
-                    : "○"
+                if (
+                  !paymentSubMethod
+                ) {
+                  setCashPayment();
                 }
-
-              </span>
-
-
-              <div>
-
-                <strong>
-                  STOK HAREKETİ OLUŞTURMA
-                </strong>
-
-                <small>
-                  Fatura stok miktarını değiştirmeden kaydedilir.
-                </small>
-
-              </div>
-
+              }}
+            >
+              PEŞİN
             </button>
+
+          </div>
+
+          {paymentMethod === "Peşin" && (
+            <div className="ren-payment-sub-buttons">
+
+              <button
+                type="button"
+                className={
+                  paymentSubMethod ===
+                  "Nakit"
+                    ? "active"
+                    : ""
+                }
+                onClick={
+                  setCashPayment
+                }
+              >
+                NAKİT
+              </button>
+
+              <button
+                type="button"
+                className={
+                  paymentSubMethod ===
+                  "Kredi Kartı"
+                    ? "active"
+                    : ""
+                }
+                onClick={
+                  setCardPayment
+                }
+              >
+                KREDİ KARTI
+              </button>
+
+              <button
+                type="button"
+                className={
+                  paymentSubMethod ===
+                  "Havale / EFT"
+                    ? "active"
+                    : ""
+                }
+                onClick={
+                  setTransferPayment
+                }
+              >
+                HAVALE / EFT
+              </button>
+
+            </div>
+          )}
+
+        </div>
+
+
+        <div className="ren-due-card">
+
+          <div className="ren-editor-label">
+            HIZLI VADE
+          </div>
+
+          <div className="ren-due-buttons">
+
+            {[
+              [0, "AYNI GÜN"],
+              [7, "7 GÜN"],
+              [14, "14 GÜN"],
+              [30, "30 GÜN"],
+              [60, "60 GÜN"],
+            ].map(
+              ([days, label]) => (
+                <button
+                  key={days}
+                  type="button"
+                  className={
+                    duePreset ===
+                    String(days)
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    chooseDuePreset(
+                      days
+                    )
+                  }
+                >
+                  {label}
+                </button>
+              )
+            )}
 
           </div>
 
@@ -4383,1830 +2661,1267 @@ export default function NewInvoice() {
       </div>
 
 
-      {/* ===================================================
-          SAĞ PANEL
-      =================================================== */}
+      {/* =================================================
+          PAYMENT ACCOUNT
+      ================================================= */}
 
-      <aside className="parasut-side-column">
+      {paymentMethod === "Peşin" && (
+        <div className="ren-payment-account-card">
 
-        <div className="parasut-side-card">
+          <div className="ren-payment-account-title">
+            <div>
+              <strong>
+                {paymentSubMethod ||
+                  "Peşin Ödeme"}
+              </strong>
 
-          <div className="side-card-title">
-            📂 FATURA KATEGORİSİ
+              <span>
+                Ödeme hareketinin işleneceği
+                kasa veya banka hesabını seçin.
+              </span>
+            </div>
           </div>
 
-          <div className="side-select">
+          <div className="ren-payment-account-grid">
 
-            <span>
-              KATEGORİSİZ
-            </span>
+            <label>
+              <span>
+                HESAP TÜRÜ
+              </span>
 
-            <MdKeyboardArrowDown />
+              <select
+                value={
+                  paymentAccountType
+                }
+                onChange={(event) => {
+                  setPaymentAccountType(
+                    event.target.value
+                  );
 
-          </div>
+                  setPaymentAccountId(
+                    ""
+                  );
 
-          <p>
-            Faturalarınızı kategori bazında takip edebilirsiniz.
-          </p>
-
-        </div>
-
-
-        <div className="parasut-side-card">
-
-          <div className="side-card-title">
-            🏷️ ETİKETLER
-          </div>
-
-          <div className="side-select">
-
-            <span>
-              ETİKETSİZ
-            </span>
-
-            <MdKeyboardArrowDown />
-
-          </div>
-
-          <p>
-            Faturaları etiket bazında takip edebilirsiniz.
-          </p>
-
-        </div>
-
-
-        {
-          isDetailInvoice && (
-
-            <div className="parasut-side-card">
-
-              <div className="side-card-title">
-                FATURA DURUMU
-              </div>
-
-
-              <div
-                style={{
-                  padding:
-                    "12px 0",
+                  setPaymentAccountName(
+                    ""
+                  );
                 }}
               >
+                <option value="">
+                  Hesap türü seçin
+                </option>
 
-                <div
-                  style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    marginBottom:
-                      "8px",
-                  }}
-                >
+                {paymentIsCash && (
+                  <option value="cash">
+                    Kasa
+                  </option>
+                )}
 
-                  <span>
-                    Toplam
-                  </span>
-
-                  <strong>
-                    {
-                      money(
-                        currentTotal
-                      )
-                    } TL
-                  </strong>
-
-                </div>
+                {paymentIsBank && (
+                  <option value="bank">
+                    Banka / POS
+                  </option>
+                )}
+              </select>
+            </label>
 
 
-                <div
-                  style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    marginBottom:
-                      "8px",
-                  }}
-                >
+            <label>
+              <span>
+                {paymentAccountType ===
+                "cash"
+                  ? "KASA"
+                  : "BANKA / POS"}
+              </span>
 
-                  <span>
-                    Ödenen
-                  </span>
-
-                  <strong
-                    style={{
-                      color:
-                        "#3d8b63",
-                    }}
-                  >
-                    {
-                      money(
-                        currentPaidAmount
-                      )
-                    } TL
-                  </strong>
-
-                </div>
-
-
-                <div
-                  style={{
-                    display:
-                      "flex",
-                    justifyContent:
-                      "space-between",
-                    paddingTop:
-                      "9px",
-                    borderTop:
-                      "1px solid #eee",
-                  }}
-                >
-
-                  <span>
-                    Kalan
-                  </span>
-
-                  <strong
-                    style={{
-                      color:
-                        currentRemaining >
-                        0
-                          ? "#c84d48"
-                          : "#3d8b63",
-                    }}
-                  >
-                    {
-                      money(
-                        currentRemaining
-                      )
-                    } TL
-                  </strong>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          )
-        }
-
-      </aside>
-
-
-      {/* ===================================================
-          ÜRÜNLER
-      =================================================== */}
-
-      <section className="parasut-products-card">
-
-        <div className="parasut-products-header">
-
-          <div className="product-header-title">
-            HİZMET / ÜRÜN
-          </div>
-
-          <div>
-            MİKTAR
-          </div>
-
-          <div>
-            BİRİM
-          </div>
-
-          <div>
-            BR. FİYAT
-          </div>
-
-          <div>
-            VERGİ
-          </div>
-
-          <div>
-            TOPLAM
-          </div>
-
-          <div />
-
-        </div>
-
-
-        {/* =================================================
-            HIZLI ÜRÜN ARAMA
-        ================================================= */}
-
-        {
-          !editId && (
-
-            <div className="parasut-product-entry">
-
-              <div className="parasut-product-search">
-
-                <MdSearch />
-
-                <input
-                  value={
-                    productSearch
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setProductSearch(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Ürün adı, kodu veya barkod ara..."
-                />
-
-
-                {
-                  productResults.length >
-                  0 && (
-
-                    <div className="parasut-product-dropdown">
-
-                      {
-                        productResults.map(
-                          (
-                            product
-                          ) => (
-
-                            <button
-                              type="button"
-                              key={
-                                product.id
-                              }
-                              onClick={() =>
-                                addProductToInvoice(
-                                  product
-                                )
-                              }
-                            >
-
-                              <div>
-
-                                <strong>
-                                  {
-                                    productName(
-                                      product
-                                    )
-                                  }
-                                </strong>
-
-                                <small>
-                                  {
-                                    productCode(
-                                      product
-                                    )
-                                  }
-                                </small>
-
-                              </div>
-
-
-                              <span>
-
-                                ₺
-                                {
-                                  money(
-                                    invoiceType ===
-                                    "purchase"
-                                      ? productPurchasePrice(
-                                          product
-                                        )
-                                      : productSalePrice(
-                                          product
-                                        )
-                                  )
-                                }
-
-                              </span>
-
-                            </button>
-
-                          )
-                        )
-                      }
-
-                    </div>
-
+              <select
+                value={
+                  paymentAccountId
+                }
+                onChange={(event) =>
+                  selectAccount(
+                    event.target.value
                   )
                 }
-
-              </div>
-
-
-              <div
-                className="product-quantity-input"
-                style={{
-                  display:
-                    "flex",
-                  alignItems:
-                    "center",
-                  justifyContent:
-                    "center",
-                  color:
-                    "#9a",
-                }}
-              >
-                1
-              </div>
-
-
-              <div className="product-unit">
-                Adet
-              </div>
-
-
-              <div className="product-price-input">
-                0,00
-              </div>
-
-
-              <div className="product-vat">
-                KDV
-              </div>
-
-
-              <div className="product-total">
-                0,00₺
-              </div>
-
-
-              <button
-                className="product-plus-button"
-                type="button"
-                onClick={
-                  addEmptyLine
+                disabled={
+                  !paymentAccountType
                 }
-                title="Yeni ürün satırı ekle"
               >
-                +
-              </button>
+                <option value="">
+                  {paymentAccountType
+                    ? "Hesap seçin"
+                    : "Önce hesap türünü seçin"}
+                </option>
+
+                {visibleAccounts.map(
+                  (account) => (
+                    <option
+                      key={
+                        account.id
+                      }
+                      value={
+                        account.id
+                      }
+                    >
+                      {getAccountName(
+                        account
+                      )}
+                    </option>
+                  )
+                )}
+              </select>
+            </label>
+
+
+            <label>
+              <span>
+                REFERANS / AÇIKLAMA
+              </span>
+
+              <input
+                value={
+                  paymentReference
+                }
+                onChange={(event) =>
+                  setPaymentReference(
+                    event.target.value
+                  )
+                }
+                placeholder="Slip no, dekont no..."
+              />
+            </label>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* =================================================
+          PRODUCTS
+      ================================================= */}
+
+      <div className="ren-invoice-edit-card products-card">
+
+        <div className="ren-products-header">
+
+          <div>
+            <strong>
+              Ürünler
+            </strong>
+
+            <span>
+              Fatura satırlarını buradan
+              tamamen düzenleyebilirsiniz.
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="ren-add-line"
+            onClick={addEmptyLine}
+          >
+            <MdAdd />
+            SATIR EKLE
+          </button>
+
+        </div>
+
+
+        <div className="ren-product-table-scroll">
+
+          <div className="ren-product-table">
+
+            <div className="ren-product-row ren-product-head">
+
+              <div>ÜRÜN</div>
+              <div>MİKTAR</div>
+              <div>BİRİM</div>
+              <div>BR. FİYAT</div>
+              <div>KDV</div>
+              <div>İSKONTO 1 / 2 / 3</div>
+              <div>NET</div>
+              <div>TOPLAM</div>
+              <div></div>
 
             </div>
 
-          )
-        }
 
-
-        {/* =================================================
-            ÜRÜN SATIRLARI
-        ================================================= */}
-
-        {
-          calculated.calculatedItems.map(
-            (
-              item
-            ) => (
-
-              <div
-                className="parasut-product-row"
-                key={
-                  item.id
-                }
-              >
-
-
-                {/* ÜRÜN */}
-
-                <div className="product-name-cell">
-
-                  {
-                    editId ? (
-
-                      <div>
-
-                        <strong>
-                          {
-                            item.productName ||
-                            "Ürün"
-                          }
-                        </strong>
-
-                        <small>
-                          {
-                            item.productCode ||
-                            ""
-                          }
-                        </small>
-
-                      </div>
-
-                    ) : (
-
-                      <select
-                        value={
-                          item.productId
-                        }
-                        onChange={(
-                          event
-                        ) =>
-                          changeLineProduct(
-                            item.id,
-                            event.target.value
-                          )
-                        }
-                        style={{
-                          width:
-                            "100%",
-                          minHeight:
-                            "36px",
-                          border:
-                            "1px solid #ddd",
-                          borderRadius:
-                            "4px",
-                          background:
-                            "#fff",
-                          fontSize:
-                            "11px",
-                        }}
-                      >
-
-                        <option value="">
-                          Ürün seçin
-                        </option>
-
-
-                        {
-                          products.map(
-                            (
-                              product
-                            ) => (
-
-                              <option
-                                key={
-                                  product.id
-                                }
-                                value={
-                                  product.id
-                                }
-                              >
-
-                                {
-                                  productName(
-                                    product
-                                  )
-                                }
-
-                              </option>
-
-                            )
-                          )
-                        }
-
-                      </select>
-
-                    )
-                  }
-
-                </div>
-
-
-                {/* MİKTAR */}
-
-                <div>
-
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={
-                      item.quantity
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateItem(
-                        item.id,
-                        "quantity",
-                        event.target.value
-                      )
-                    }
-                    disabled={
-                      Boolean(
-                        editId
-                      )
-                    }
-                  />
-
-                </div>
-
-
-                {/* BİRİM */}
-
-                <div>
-
-                  {
-                    item.unit ||
-                    "Adet"
-                  }
-
-                </div>
-
-
-                {/* BİRİM FİYAT */}
-
-                <div>
-
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={
-                      item.unitPrice
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateItem(
-                        item.id,
-                        "unitPrice",
-                        event.target.value
-                      )
-                    }
-                    disabled={
-                      Boolean(
-                        editId
-                      )
-                    }
-                  />
-
-                </div>
-
-
-                {/* KDV */}
-
-                <div>
-
-                  <select
-                    value={
-                      item.vatRate
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateItem(
-                        item.id,
-                        "vatRate",
-                        event.target.value
-                      )
-                    }
-                    disabled={
-                      Boolean(
-                        editId
-                      )
-                    }
-                  >
-
-                    <option value="0">
-                      KDV %0
-                    </option>
-
-                    <option value="1">
-                      KDV %1
-                    </option>
-
-                    <option value="10">
-                      KDV %10
-                    </option>
-
-                    <option value="20">
-                      KDV %20
-                    </option>
-
-                  </select>
-
-                </div>
-
-
-                {/* TOPLAM */}
-
-                <div className="product-total strong">
-
-                  {
-                    money(
-                      item.lineTotal
-                    )
-                  }₺
-
-                </div>
-
-
-                {/* SİL */}
-
-                <button
-                  className="product-delete-button"
-                  type="button"
-                  onClick={() =>
-                    removeItem(
-                      item.id
-                    )
-                  }
-                  disabled={
-                    Boolean(
-                      editId
-                    )
-                  }
+            {calculatedItems.map(
+              (item) => (
+                <div
+                  className="ren-product-row"
+                  key={item.id}
                 >
 
-                  <MdDeleteOutline />
+                  {/* PRODUCT */}
 
-                </button>
+                  <div className="ren-product-cell product-cell">
 
-              </div>
+                    <input
+                      value={
+                        item.productName ||
+                        ""
+                      }
+                      onChange={(event) => {
+                        updateItem(
+                          item.id,
+                          "productName",
+                          event.target
+                            .value
+                        );
 
-            )
-          )
-        }
+                        if (
+                          item.productId
+                        ) {
+                          updateItem(
+                            item.id,
+                            "productId",
+                            ""
+                          );
+                        }
+                      }}
+                      placeholder="Ürün adı"
+                    />
+
+                    {item.productName &&
+                      !item.productId && (
+                        <>
+                          <div className="ren-product-suggestion-list">
+
+                            {productMatches(
+                              item.productName
+                            ).map(
+                              (
+                                product
+                              ) => (
+                                <button
+                                  key={
+                                    product.id
+                                  }
+                                  type="button"
+                                  onClick={() =>
+                                    changeLineProduct(
+                                      item.id,
+                                      product.id
+                                    )
+                                  }
+                                >
+                                  <span>
+                                    {productName(
+                                      product
+                                    )}
+                                  </span>
+
+                                  <small>
+                                    {productCode(
+                                      product
+                                    )}
+                                  </small>
+                                </button>
+                              )
+                            )}
+
+                          </div>
+
+                          <button
+                            type="button"
+                            className="ren-new-product-inline"
+                            onClick={() =>
+                              openNewProduct(
+                                item.id
+                              )
+                            }
+                          >
+                            ＋ Yeni ürün oluştur
+                          </button>
+                        </>
+                      )}
+
+                    {item.productId && (
+                      <small className="ren-product-code">
+                        Kod:
+                        {" "}
+                        {item.productCode ||
+                          "-"}
+                      </small>
+                    )}
+
+                  </div>
 
 
-        {/* =================================================
-            YENİ SATIR
-        ================================================= */}
+                  {/* QUANTITY */}
 
-        {
-          !editId && (
+                  <div className="ren-product-cell">
 
-            <button
-              className="parasut-add-line"
-              type="button"
-              onClick={
-                addEmptyLine
-              }
-            >
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={
+                        item.quantity
+                      }
+                      onChange={(event) =>
+                        updateItem(
+                          item.id,
+                          "quantity",
+                          event.target
+                            .value
+                        )
+                      }
+                    />
 
-              <MdAdd />
-
-              YENİ SATIR EKLE
-
-            </button>
-
-          )
-        }
+                  </div>
 
 
-        {/* =================================================
-            TOPLAMLAR
-        ================================================= */}
+                  {/* UNIT */}
 
-        <div className="parasut-total-area">
+                  <div className="ren-product-cell">
 
-          <div className="total-profit">
+                    <input
+                      value={
+                        item.unit || ""
+                      }
+                      onChange={(event) =>
+                        updateItem(
+                          item.id,
+                          "unit",
+                          event.target
+                            .value
+                        )
+                      }
+                    />
 
-            {
-              invoiceType ===
-              "purchase"
-                ? "Toplam Maliyet:"
-                : "Toplam Kâr:"
-            }
+                  </div>
 
-            <strong>
-              —
-            </strong>
+
+                  {/* PRICE */}
+
+                  <div className="ren-product-cell">
+
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={
+                        item.unitPrice
+                      }
+                      onChange={(event) =>
+                        updateItem(
+                          item.id,
+                          "unitPrice",
+                          event.target
+                            .value
+                        )
+                      }
+                    />
+
+                  </div>
+
+
+                  {/* VAT */}
+
+                  <div className="ren-product-cell">
+
+                    <select
+                      value={
+                        item.vatRate
+                      }
+                      onChange={(event) =>
+                        updateItem(
+                          item.id,
+                          "vatRate",
+                          event.target
+                            .value
+                        )
+                      }
+                    >
+                      <option value="0">
+                        %0
+                      </option>
+
+                      <option value="1">
+                        %1
+                      </option>
+
+                      <option value="10">
+                        %10
+                      </option>
+
+                      <option value="20">
+                        %20
+                      </option>
+                    </select>
+
+                  </div>
+
+
+                  {/* DISCOUNTS */}
+
+                  <div className="ren-discount-grid">
+
+                    {[
+                      "discount1",
+                      "discount2",
+                      "discount3",
+                    ].map(
+                      (field) => (
+                        <input
+                          key={
+                            field
+                          }
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={
+                            item[
+                              field
+                            ] ?? 0
+                          }
+                          onChange={(event) =>
+                            updateItem(
+                              item.id,
+                              field,
+                              event.target
+                                .value
+                            )
+                          }
+                        />
+                      )
+                    )}
+
+                  </div>
+
+
+                  {/* NET */}
+
+                  <div className="ren-product-number">
+                    {money(
+                      item.lineNet
+                    )}
+                    {" "}
+                    ₺
+                  </div>
+
+
+                  {/* TOTAL */}
+
+                  <div className="ren-product-number total">
+                    {money(
+                      item.lineTotal
+                    )}
+                    {" "}
+                    ₺
+                  </div>
+
+
+                  {/* DELETE */}
+
+                  <button
+                    type="button"
+                    className="ren-product-delete"
+                    onClick={() =>
+                      removeItem(
+                        item.id
+                      )
+                    }
+                    title="Satırı sil"
+                  >
+                    <MdDeleteOutline />
+                  </button>
+
+                </div>
+              )
+            )}
+
+          </div>
+
+        </div>
+
+
+        {/* NOTE / TOTAL */}
+
+        <div className="ren-invoice-bottom-area">
+
+          <div className="ren-invoice-note-area">
+
+            <label>
+              <span>
+                NOT
+              </span>
+
+              <textarea
+                value={notes}
+                onChange={(event) =>
+                  setNotes(
+                    event.target.value
+                  )
+                }
+                placeholder="Fatura notu..."
+                rows="5"
+              />
+            </label>
 
           </div>
 
 
-          <div className="total-box">
+          <div className="ren-invoice-total-box">
 
             <div>
-
               <span>
                 ARA TOPLAM
               </span>
 
               <strong>
-                {
-                  money(
-                    calculated.subtotal
-                  )
-                }₺
+                {money(
+                  totals.subtotal
+                )}
+                {" "}
+                ₺
               </strong>
-
             </div>
 
-
             <div>
-
               <span>
                 İSKONTO
               </span>
 
-
-              <div className="discount-field">
-
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={
-                    discount
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    setDiscount(
-                      event.target.value
-                    )
-                  }
-                  disabled={
-                    Boolean(
-                      editId
-                    )
-                  }
-                />
-
-                <span>
-                  ₺
-                </span>
-
-              </div>
-
+              <strong>
+                {money(
+                  totals.discount
+                )}
+                {" "}
+                ₺
+              </strong>
             </div>
 
-
             <div>
-
               <span>
-                TOPLAM KDV
+                KDV
               </span>
 
               <strong>
-                {
-                  money(
-                    calculated.vatTotal
-                  )
-                }₺
+                {money(
+                  totals.vat
+                )}
+                {" "}
+                ₺
               </strong>
-
             </div>
 
-
-            <div className="grand-total">
-
+            <div className="grand">
               <span>
                 GENEL TOPLAM
               </span>
 
               <strong>
-                {
-                  money(
-                    calculated.total
-                  )
-                }₺
+                {money(
+                  totals.total
+                )}
+                {" "}
+                ₺
               </strong>
-
             </div>
-
-
-            {
-              isDetailInvoice && (
-
-                <div
-                  className="grand-total"
-                  style={{
-                    marginTop:
-                      "8px",
-                    borderTop:
-                      "1px solid #eee",
-                    paddingTop:
-                      "8px",
-                  }}
-                >
-
-                  <span>
-                    KALAN
-                  </span>
-
-
-                  <strong
-                    style={{
-                      color:
-                        currentRemaining >
-                        0
-                          ? "#c84d48"
-                          : "#3d8b63",
-                    }}
-                  >
-
-                    {
-                      money(
-                        currentRemaining
-                      )
-                    }₺
-
-                  </strong>
-
-                </div>
-
-              )
-            }
 
           </div>
 
         </div>
 
-      </section>
 
+        {/* STOCK */}
 
-      {/* ===================================================
-          ALT BUTONLAR
-      =================================================== */}
+        <div className="ren-stock-control">
 
-      <div className="parasut-bottom-actions">
+          <div>
+            <strong>
+              STOK TAKİBİ
+            </strong>
 
-        <button
-          type="button"
-          className="bottom-cancel"
-          onClick={
-            closeInvoice
-          }
-        >
-          VAZGEÇ
-        </button>
+            <span>
+              Fatura kaydedildiğinde stok
+              hareketini yönetir.
+            </span>
+          </div>
 
+          <button
+            type="button"
+            className={
+              stockTracking
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setStockTracking(
+                true
+              )
+            }
+          >
+            STOK HAREKETİ OLUŞTUR
+          </button>
 
-        {
-          isDetailInvoice &&
-          isSalesInvoice && (
+          <button
+            type="button"
+            className={
+              !stockTracking
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setStockTracking(
+                false
+              )
+            }
+          >
+            STOK HAREKETİ YOK
+          </button>
 
-            <button
-              type="button"
-              className="bottom-save"
-              onClick={() =>
-                openFinanceModal(
-                  "collection"
-                )
-              }
-              disabled={
-                currentRemaining <=
-                0
-              }
-            >
-              {
-                currentRemaining <=
-                0
-                  ? "TAHSİL EDİLDİ"
-                  : "+ TAHSİLAT EKLE"
-              }
-            </button>
-
-          )
-        }
-
-
-        {
-          isDetailInvoice &&
-          isPurchaseInvoice && (
-
-            <button
-              type="button"
-              className="bottom-save"
-              onClick={() =>
-                openFinanceModal(
-                  "payment"
-                )
-              }
-              disabled={
-                currentRemaining <=
-                0
-              }
-            >
-              {
-                currentRemaining <=
-                0
-                  ? "ÖDENDİ"
-                  : "+ ÖDEME EKLE"
-              }
-            </button>
-
-          )
-        }
-
-
-        {
-          !isDetailInvoice && (
-
-            <button
-              type="button"
-              className="bottom-save"
-              disabled={
-                saving
-              }
-              onClick={
-                handleSave
-              }
-            >
-
-              <MdSave />
-
-              {
-                saving
-                  ? "KAYDEDİLİYOR..."
-                  : "KAYDET"
-              }
-
-            </button>
-
-          )
-        }
+        </div>
 
       </div>
 
 
-      {/* ===================================================
-          TAHSİLAT / ÖDEME MODALI
-      =================================================== */}
+      {/* =================================================
+          MODAL - CUSTOMER
+      ================================================= */}
 
-      {
-        showFinanceModal && (
+      {newCustomerOpen && (
+        <div className="ren-modal-overlay">
+          <div className="ren-modal">
 
-          <div
-            style={{
-              position:
-                "fixed",
-              inset:
-                0,
-              zIndex:
-                9999,
-              background:
-                "rgba(0,0,0,.45)",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "center",
-              padding:
-                "20px",
-            }}
-            onMouseDown={(
-              event
-            ) => {
+            <div className="ren-modal-head">
+              <div>
+                <strong>
+                  Yeni{" "}
+                  {invoiceType ===
+                  "purchase"
+                    ? "Tedarikçi"
+                    : "Müşteri"}
+                </strong>
 
-              if (
-                event.target ===
-                event.currentTarget
-              ) {
-
-                setShowFinanceModal(
-                  false
-                );
-
-              }
-
-            }}
-          >
-
-            <div
-              style={{
-                width:
-                  "100%",
-                maxWidth:
-                  "620px",
-                background:
-                  "#fff",
-                borderRadius:
-                  "10px",
-                boxShadow:
-                  "0 20px 60px rgba(0,0,0,.18)",
-                overflow:
-                  "hidden",
-              }}
-            >
-
-              <div
-                style={{
-                  padding:
-                    "22px 24px",
-                  borderBottom:
-                    "1px solid #eee",
-                  display:
-                    "flex",
-                  justifyContent:
-                    "space-between",
-                  alignItems:
-                    "flex-start",
-                }}
-              >
-
-                <div>
-
-                  <div
-                    style={{
-                      fontSize:
-                        "10px",
-                      fontWeight:
-                        700,
-                      color:
-                        "#8a95a3",
-                      marginBottom:
-                        "5px",
-                    }}
-                  >
-
-                    {
-                      financeMode ===
-                      "payment"
-                        ? "FATURA ÖDEMESİ"
-                        : "FATURA TAHSİLATI"
-                    }
-
-                  </div>
-
-
-                  <h2
-                    style={{
-                      margin:
-                        0,
-                      fontSize:
-                        "22px",
-                      color:
-                        "#242b34",
-                    }}
-                  >
-
-                    {
-                      financeMode ===
-                      "payment"
-                        ? "Ödeme Ekle"
-                        : "Tahsilat Ekle"
-                    }
-
-                  </h2>
-
-
-                  <p
-                    style={{
-                      margin:
-                        "6px 0 0",
-                      fontSize:
-                        "12px",
-                      color:
-                        "#8a95a3",
-                    }}
-                  >
-
-                    {
-                      currentInvoice?.invoiceNo
-                    } numaralı fatura
-
-                  </p>
-
-                </div>
-
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowFinanceModal(
-                      false
-                    )
-                  }
-                  style={{
-                    border:
-                      0,
-                    background:
-                      "#f2f3f5",
-                    width:
-                      "34px",
-                    height:
-                      "34px",
-                    borderRadius:
-                      "50%",
-                    fontSize:
-                      "20px",
-                    cursor:
-                      "pointer",
-                  }}
-                >
-                  ×
-                </button>
-
+                <span>
+                  Cari kartı oluştur
+                </span>
               </div>
 
-
-              {/* ÖZET */}
-
-              <div
-                style={{
-                  display:
-                    "grid",
-                  gridTemplateColumns:
-                    "repeat(3,1fr)",
-                  gap:
-                    "10px",
-                  padding:
-                    "18px 24px",
-                  background:
-                    "#fafbfc",
-                }}
+              <button
+                type="button"
+                onClick={() =>
+                  setNewCustomerOpen(
+                    false
+                  )
+                }
               >
+                ×
+              </button>
+            </div>
 
-                <div
-                  style={{
-                    padding:
-                      "12px",
-                    background:
-                      "#fff",
-                    border:
-                      "1px solid #eee",
-                    borderRadius:
-                      "6px",
-                  }}
+            {[
+              ["name", "Cari adı"],
+              ["phone", "Telefon"],
+              ["taxNumber", "Vergi No"],
+            ].map(
+              ([field, label]) => (
+                <label
+                  key={field}
+                  className="ren-modal-field"
                 >
-
-                  <span
-                    style={{
-                      display:
-                        "block",
-                      fontSize:
-                        "9px",
-                      color:
-                        "#999",
-                      fontWeight:
-                        700,
-                      marginBottom:
-                        "4px",
-                    }}
-                  >
-                    FATURA
+                  <span>
+                    {label}
                   </span>
 
-
-                  <strong>
-                    {
-                      money(
-                        currentTotal
-                      )
-                    } TL
-                  </strong>
-
-                </div>
-
-
-                <div
-                  style={{
-                    padding:
-                      "12px",
-                    background:
-                      "#fff",
-                    border:
-                      "1px solid #eee",
-                    borderRadius:
-                      "6px",
-                  }}
-                >
-
-                  <span
-                    style={{
-                      display:
-                        "block",
-                      fontSize:
-                        "9px",
-                      color:
-                        "#999",
-                      fontWeight:
-                        700,
-                      marginBottom:
-                        "4px",
-                    }}
-                  >
-
-                    {
-                      financeMode ===
-                      "payment"
-                        ? "ÖDENEN"
-                        : "TAHSİL EDİLEN"
+                  <input
+                    autoFocus={
+                      field ===
+                      "name"
                     }
-
-                  </span>
-
-
-                  <strong
-                    style={{
-                      color:
-                        "#3d8b63",
-                    }}
-                  >
-
-                    {
-                      money(
-                        currentPaidAmount
-                      )
-                    } TL
-
-                  </strong>
-
-                </div>
-
-
-                <div
-                  style={{
-                    padding:
-                      "12px",
-                    background:
-                      "#fff",
-                    border:
-                      "1px solid #eee",
-                    borderRadius:
-                      "6px",
-                  }}
-                >
-
-                  <span
-                    style={{
-                      display:
-                        "block",
-                      fontSize:
-                        "9px",
-                      color:
-                        "#999",
-                      fontWeight:
-                        700,
-                      marginBottom:
-                        "4px",
-                    }}
-                  >
-                    KALAN
-                  </span>
-
-
-                  <strong
-                    style={{
-                      color:
-                        currentRemaining >
-                        0
-                          ? "#c84a43"
-                          : "#3d8b63",
-                    }}
-                  >
-
-                    {
-                      money(
-                        currentRemaining
-                      )
-                    } TL
-
-                  </strong>
-
-                </div>
-
-              </div>
-
-
-              {/* FORM */}
-
-              <div
-                style={{
-                  padding:
-                    "22px 24px",
-                }}
-              >
-
-                <div
-                  style={{
-                    marginBottom:
-                      "16px",
-                  }}
-                >
-
-                  <label
-                    style={{
-                      display:
-                        "block",
-                      marginBottom:
-                        "7px",
-                      fontSize:
-                        "11px",
-                      fontWeight:
-                        700,
-                      color:
-                        "#666",
-                    }}
-                  >
-
-                    {
-                      financeMode ===
-                      "payment"
-                        ? "Tedarikçi"
-                        : "Müşteri"
-                    }
-
-                  </label>
-
-
-                  <div
-                    style={{
-                      minHeight:
-                        "42px",
-                      display:
-                        "flex",
-                      alignItems:
-                        "center",
-                      padding:
-                        "0 12px",
-                      border:
-                        "1px solid #ddd",
-                      borderRadius:
-                        "5px",
-                      background:
-                        "#f8f9fa",
-                      fontSize:
-                        "12px",
-                    }}
-                  >
-
-                    <strong>
-
-                      {
-                        currentInvoice?.customerName ||
-                        currentInvoice?.supplierName ||
-                        selectedCustomer?.name ||
-                        "Cari"
-                      }
-
-                    </strong>
-
-                  </div>
-
-                </div>
-
-
-                <div
-                  style={{
-                    display:
-                      "grid",
-                    gridTemplateColumns:
-                      "1fr 1fr",
-                    gap:
-                      "14px",
-                    marginBottom:
-                      "16px",
-                  }}
-                >
-
-                  <div>
-
-                    <label
-                      style={{
-                        display:
-                          "block",
-                        marginBottom:
-                          "7px",
-                        fontSize:
-                          "11px",
-                        fontWeight:
-                          700,
-                        color:
-                          "#666",
-                      }}
-                    >
-
-                      {
-                        financeMode ===
-                        "payment"
-                          ? "Ödeme Tutarı"
-                          : "Tahsilat Tutarı"
-                      }
-
-                    </label>
-
-
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={
-                        financeAmount
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setFinanceAmount(
-                          event.target.value
-                        )
-                      }
-                      style={{
-                        width:
-                          "100%",
-                        boxSizing:
-                          "border-box",
-                        height:
-                          "42px",
-                        border:
-                          "1px solid #ddd",
-                        borderRadius:
-                          "5px",
-                        padding:
-                          "0 12px",
-                        fontSize:
-                          "13px",
-                      }}
-                    />
-
-                  </div>
-
-
-                  <div>
-
-                    <label
-                      style={{
-                        display:
-                          "block",
-                        marginBottom:
-                          "7px",
-                        fontSize:
-                          "11px",
-                        fontWeight:
-                          700,
-                        color:
-                          "#666",
-                      }}
-                    >
-                      Tarih
-                    </label>
-
-
-                    <input
-                      type="date"
-                      value={
-                        financeDate
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setFinanceDate(
-                          event.target.value
-                        )
-                      }
-                      style={{
-                        width:
-                          "100%",
-                        boxSizing:
-                          "border-box",
-                        height:
-                          "42px",
-                        border:
-                          "1px solid #ddd",
-                        borderRadius:
-                          "5px",
-                        padding:
-                          "0 12px",
-                        fontSize:
-                          "12px",
-                      }}
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div
-                  style={{
-                    display:
-                      "grid",
-                    gridTemplateColumns:
-                      "1fr 1fr",
-                    gap:
-                      "14px",
-                    marginBottom:
-                      "16px",
-                  }}
-                >
-
-                  <div>
-
-                    <label
-                      style={{
-                        display:
-                          "block",
-                        marginBottom:
-                          "7px",
-                        fontSize:
-                          "11px",
-                        fontWeight:
-                          700,
-                        color:
-                          "#666",
-                      }}
-                    >
-                      Ödeme Yöntemi
-                    </label>
-
-
-                    <select
-                      value={
-                        financeMethod
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setFinanceMethod(
-                          event.target.value
-                        )
-                      }
-                      style={{
-                        width:
-                          "100%",
-                        height:
-                          "42px",
-                        border:
-                          "1px solid #ddd",
-                        borderRadius:
-                          "5px",
-                        padding:
-                          "0 10px",
-                        fontSize:
-                          "12px",
-                      }}
-                    >
-
-                      <option>
-                        Nakit
-                      </option>
-
-                      <option>
-                        Havale / EFT
-                      </option>
-
-                      <option>
-                        Kredi Kartı
-                      </option>
-
-                      <option>
-                        POS
-                      </option>
-
-                      <option>
-                        Çek
-                      </option>
-
-                      <option>
-                        Diğer
-                      </option>
-
-                    </select>
-
-                  </div>
-
-
-                  <div>
-
-                    <label
-                      style={{
-                        display:
-                          "block",
-                        marginBottom:
-                          "7px",
-                        fontSize:
-                          "11px",
-                        fontWeight:
-                          700,
-                        color:
-                          "#666",
-                      }}
-                    >
-                      Kasa / Banka / POS
-                    </label>
-
-
-                    <select
-                      value={
-                        financeAccountId
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setFinanceAccountId(
-                          event.target.value
-                        )
-                      }
-                      style={{
-                        width:
-                          "100%",
-                        height:
-                          "42px",
-                        border:
-                          "1px solid #ddd",
-                        borderRadius:
-                          "5px",
-                        padding:
-                          "0 10px",
-                        fontSize:
-                          "12px",
-                      }}
-                    >
-
-                      <option value="">
-                        Hesap seçin
-                      </option>
-
-
-                      {
-                        accounts.map(
-                          (
-                            account
-                          ) => (
-
-                            <option
-                              key={
-                                account.id
-                              }
-                              value={
-                                account.id
-                              }
-                            >
-
-                              {
-                                account.name
-                              }
-
-                              {" — "}
-
-                              {
-                                account.type
-                              }
-
-                              {" — ₺"}
-
-                              {
-                                money(
-                                  account.balance
-                                )
-                              }
-
-                            </option>
-
-                          )
-                        )
-                      }
-
-                    </select>
-
-                  </div>
-
-                </div>
-
-
-                <div>
-
-                  <label
-                    style={{
-                      display:
-                        "block",
-                      marginBottom:
-                        "7px",
-                      fontSize:
-                        "11px",
-                      fontWeight:
-                        700,
-                      color:
-                        "#666",
-                    }}
-                  >
-                    Açıklama
-                  </label>
-
-
-                  <textarea
-                    rows="3"
                     value={
-                      financeDescription
+                      newCustomer[
+                        field
+                      ]
                     }
-                    onChange={(
-                      event
-                    ) =>
-                      setFinanceDescription(
-                        event.target.value
+                    onChange={(event) =>
+                      setNewCustomer(
+                        (current) => ({
+                          ...current,
+                          [field]:
+                            event.target
+                              .value,
+                        })
                       )
                     }
-                    style={{
-                      width:
-                        "100%",
-                      boxSizing:
-                        "border-box",
-                      border:
-                        "1px solid #ddd",
-                      borderRadius:
-                        "5px",
-                      padding:
-                        "10px 12px",
-                      resize:
-                        "vertical",
-                      fontSize:
-                        "12px",
-                    }}
                   />
+                </label>
+              )
+            )}
 
-                </div>
+            <div className="ren-modal-actions">
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setNewCustomerOpen(
+                    false
+                  )
+                }
+              >
+                VAZGEÇ
+              </button>
 
+              <button
+                type="button"
+                className="primary"
+                onClick={
+                  saveNewCustomer
+                }
+              >
+                CARİYİ KAYDET
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
+      {/* =================================================
+          MODAL - PRODUCT
+      ================================================= */}
+
+      {newProductOpen && (
+        <div className="ren-modal-overlay">
+          <div className="ren-modal wide">
+
+            <div className="ren-modal-head">
+              <div>
+                <strong>
+                  Yeni Ürün
+                </strong>
+
+                <span>
+                  Stok kartı oluştur
+                </span>
               </div>
 
-
-              {/* FOOTER */}
-
-              <div
-                style={{
-                  display:
-                    "flex",
-                  justifyContent:
-                    "flex-end",
-                  gap:
-                    "8px",
-                  padding:
-                    "16px 24px",
-                  borderTop:
-                    "1px solid #eee",
-                  background:
-                    "#fafbfc",
+              <button
+                type="button"
+                onClick={() => {
+                  setNewProductOpen(
+                    false
+                  );
+                  setNewProductTargetId(
+                    ""
+                  );
                 }}
               >
+                ×
+              </button>
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowFinanceModal(
-                      false
+
+            <label className="ren-modal-field">
+              <span>
+                ÜRÜN ADI
+              </span>
+
+              <input
+                autoFocus
+                value={
+                  newProduct.name
+                }
+                onChange={(event) =>
+                  setNewProduct(
+                    (current) => ({
+                      ...current,
+                      name:
+                        event.target
+                          .value,
+                    })
+                  )
+                }
+              />
+            </label>
+
+
+            <div className="ren-modal-two">
+
+              {[
+                ["code", "KOD / BARKOD"],
+                ["unit", "BİRİM"],
+                [
+                  "purchasePrice",
+                  "ALIŞ FİYATI",
+                ],
+                [
+                  "salePrice",
+                  "SATIŞ FİYATI",
+                ],
+              ].map(
+                ([field, label]) => (
+                  <label
+                    key={field}
+                    className="ren-modal-field"
+                  >
+                    <span>
+                      {label}
+                    </span>
+
+                    <input
+                      type={
+                        field.includes(
+                          "Price"
+                        )
+                          ? "number"
+                          : "text"
+                      }
+                      value={
+                        newProduct[
+                          field
+                        ]
+                      }
+                      onChange={(event) =>
+                        setNewProduct(
+                          (current) => ({
+                            ...current,
+                            [field]:
+                              event.target
+                                .value,
+                          })
+                        )
+                      }
+                    />
+                  </label>
+                )
+              )}
+
+              <label className="ren-modal-field">
+                <span>
+                  KDV
+                </span>
+
+                <select
+                  value={
+                    newProduct.vatRate
+                  }
+                  onChange={(event) =>
+                    setNewProduct(
+                      (current) => ({
+                        ...current,
+                        vatRate:
+                          event.target
+                            .value,
+                      })
                     )
                   }
-                  style={{
-                    minHeight:
-                      "40px",
-                    padding:
-                      "0 18px",
-                    border:
-                      "1px solid #ddd",
-                    borderRadius:
-                      "5px",
-                    background:
-                      "#fff",
-                    color:
-                      "#666",
-                    fontWeight:
-                      700,
-                    cursor:
-                      "pointer",
-                  }}
                 >
-                  VAZGEÇ
-                </button>
+                  <option value="0">
+                    %0
+                  </option>
+
+                  <option value="1">
+                    %1
+                  </option>
+
+                  <option value="10">
+                    %10
+                  </option>
+
+                  <option value="20">
+                    %20
+                  </option>
+                </select>
+              </label>
+
+            </div>
 
 
-                <button
-                  type="button"
-                  onClick={
-                    saveFinanceTransaction
-                  }
-                  disabled={
-                    financeSaving
-                  }
-                  style={{
-                    minHeight:
-                      "40px",
-                    padding:
-                      "0 20px",
-                    border:
-                      0,
-                    borderRadius:
-                      "5px",
-                    background:
-                      "#59534f",
-                    color:
-                      "#fff",
-                    fontWeight:
-                      700,
-                    cursor:
-                      "pointer",
-                    opacity:
-                      financeSaving
-                        ? 0.6
-                        : 1,
-                  }}
-                >
+            <div className="ren-modal-actions">
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => {
+                  setNewProductOpen(
+                    false
+                  );
+                  setNewProductTargetId(
+                    ""
+                  );
+                }}
+              >
+                VAZGEÇ
+              </button>
 
-                  {
-                    financeSaving
-                      ? "KAYDEDİLİYOR..."
-                      : financeMode ===
-                        "payment"
-                      ? "ÖDEMEYİ KAYDET"
-                      : "TAHSİLATI KAYDET"
-                  }
+              <button
+                type="button"
+                className="primary"
+                onClick={
+                  saveNewProduct
+                }
+              >
+                ÜRÜNÜ OLUŞTUR
+              </button>
+            </div>
 
-                </button>
+          </div>
+        </div>
+      )}
 
+
+      {/* =================================================
+          MODAL - PAYMENT
+      ================================================= */}
+
+      {paymentModalOpen && (
+        <div className="ren-modal-overlay">
+          <div className="ren-modal">
+
+            <div className="ren-modal-head">
+              <div>
+                <strong>
+                  Tahsilat / Ödeme Ekle
+                </strong>
+
+                <span>
+                  Faturanın kalan bakiyesine
+                  ödeme kaydı ekleyin.
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setPaymentModalOpen(
+                    false
+                  )
+                }
+              >
+                ×
+              </button>
+            </div>
+
+
+            <div className="ren-payment-modal-summary">
+
+              <div>
+                <span>
+                  FATURA TOPLAMI
+                </span>
+
+                <strong>
+                  {money(
+                    totals.total
+                  )}
+                  {" "}
+                  ₺
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  KAYITLI ÖDENEN
+                </span>
+
+                <strong>
+                  {money(
+                    numberValue(
+                      editId
+                        ? getInvoices().find(
+                            (item) =>
+                              String(
+                                item.id
+                              ) ===
+                              String(
+                                editId
+                              )
+                          )
+                            ?.paidAmount ||
+                            0
+                        : 0
+                    )
+                  )}
+                  {" "}
+                  ₺
+                </strong>
+              </div>
+
+              <div className="remaining">
+                <span>
+                  KALAN
+                </span>
+
+                <strong>
+                  {money(
+                    remainingBalance
+                  )}
+                  {" "}
+                  ₺
+                </strong>
               </div>
 
             </div>
 
+
+            <label className="ren-modal-field">
+              <span>
+                TUTAR
+              </span>
+
+              <input
+                type="number"
+                min="0"
+                max={totals.total}
+                step="0.01"
+                value={
+                  paymentAmount
+                }
+                onChange={(event) =>
+                  setPaymentAmount(
+                    event.target.value
+                  )
+                }
+              />
+            </label>
+
+
+            <div className="ren-modal-two">
+
+              <label className="ren-modal-field">
+                <span>
+                  YÖNTEM
+                </span>
+
+                <select
+                  value={
+                    paymentSubMethod
+                  }
+                  onChange={(event) => {
+                    const value =
+                      event.target.value;
+
+                    setPaymentSubMethod(
+                      value
+                    );
+
+                    if (
+                      value === "Nakit"
+                    ) {
+                      setPaymentAccountType(
+                        "cash"
+                      );
+                    } else {
+                      setPaymentAccountType(
+                        "bank"
+                      );
+                    }
+
+                    setPaymentAccountId(
+                      ""
+                    );
+
+                    setPaymentAccountName(
+                      ""
+                    );
+                  }}
+                >
+                  <option value="">
+                    Seçin
+                  </option>
+
+                  <option>
+                    Nakit
+                  </option>
+
+                  <option>
+                    Kredi Kartı
+                  </option>
+
+                  <option>
+                    Havale / EFT
+                  </option>
+                </select>
+              </label>
+
+
+              <label className="ren-modal-field">
+                <span>
+                  {paymentAccountType ===
+                  "cash"
+                    ? "KASA"
+                    : "BANKA / POS"}
+                </span>
+
+                <select
+                  value={
+                    paymentAccountId
+                  }
+                  onChange={(event) =>
+                    selectAccount(
+                      event.target
+                        .value
+                    )
+                  }
+                >
+                  <option value="">
+                    Hesap seçin
+                  </option>
+
+                  {accounts
+                    .filter(
+                      (account) =>
+                        getAccountType(
+                          account
+                        ) ===
+                        (
+                          paymentAccountType ||
+                          "cash"
+                        )
+                    )
+                    .map(
+                      (account) => (
+                        <option
+                          key={
+                            account.id
+                          }
+                          value={
+                            account.id
+                          }
+                        >
+                          {getAccountName(
+                            account
+                          )}
+                        </option>
+                      )
+                    )}
+                </select>
+              </label>
+
+            </div>
+
+
+            <label className="ren-modal-field">
+              <span>
+                NOT
+              </span>
+
+              <textarea
+                rows="3"
+                value={
+                  paymentNote
+                }
+                onChange={(event) =>
+                  setPaymentNote(
+                    event.target.value
+                  )
+                }
+                placeholder="Tahsilat notu..."
+              />
+            </label>
+
+
+            <div className="ren-modal-actions">
+              <button
+                type="button"
+                className="secondary"
+                onClick={() =>
+                  setPaymentModalOpen(
+                    false
+                  )
+                }
+              >
+                VAZGEÇ
+              </button>
+
+              <button
+                type="button"
+                className="payment"
+                onClick={
+                  handleSavePayment
+                }
+              >
+                <MdPayments />
+                TAHSİLATI KAYDET
+              </button>
+            </div>
+
           </div>
+        </div>
+      )}
 
-        )
-      }
 
+      {/* =================================================
+          SADE YAZDIR / PDF CIKTISI
+      ================================================= */}
+      <div className="ren-print-document">
+        <div className="ren-simple-print-head">
+          <div>
+            <strong>REN ENDÜSTRİYEL</strong>
+            <span>Endüstriyel Temizlik Ürünleri</span>
+          </div>
+          <strong className="ren-simple-print-type">
+            {invoiceType === "purchase" ? "ALIŞ NOTU" : invoiceType === "return" ? "İADE NOTU" : "SATIŞ NOTU"}
+          </strong>
+        </div>
+
+        <div className="ren-simple-print-info">
+          <div><span>{invoiceType === "purchase" ? "Tedarikçi" : "Müşteri"}</span><strong>{customerDisplayName(selectedCustomer) || "-"}</strong></div>
+          <div><span>Tarih</span><strong>{invoiceDate || "-"}</strong></div>
+          <div><span>No</span><strong>{invoiceNo || "-"}</strong></div>
+          <div><span>Vade</span><strong>{dueDate || "-"}</strong></div>
+        </div>
+
+        <table className="ren-simple-print-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Açıklama</th>
+              <th>Miktar</th>
+              <th>Fiyat</th>
+              <th>İndirim (%)</th>
+              <th>Tutar (KDV Hariç)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {calculatedItems.map((item, index) => {
+              const discountPercent = numberValue(item.discount1) + numberValue(item.discount2) + numberValue(item.discount3);
+              return (
+                <tr key={`simple-print-${item.id}`}>
+                  <td>{index + 1}</td>
+                  <td>
+                    {item.productName || "-"}
+                    {item.productCode && <small>{item.productCode}</small>}
+                  </td>
+                  <td>{money(item.quantity)} {item.unit || "ad"}</td>
+                  <td>{money(item.unitPrice)} ₺</td>
+                  <td>%{money(discountPercent)}</td>
+                  <td>{money(item.lineNet)} ₺</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        <div className="ren-simple-print-totals">
+          <div><span>Net</span><strong>{money(totals.subtotal)} ₺</strong></div>
+          <div><span>KDV</span><strong>{money(totals.vat)} ₺</strong></div>
+          <div><span>Toplam</span><strong>{money(totals.total)} ₺</strong></div>
+          <div><span>Önceki Bakiye</span><strong>{money(existingCustomerBalance)} ₺</strong></div>
+          <div><span>Güncel Bakiye</span><strong>{money(displayCustomerBalance)} ₺</strong></div>
+        </div>
+
+        {paymentMethod === "Peşin" && (
+          <div className="ren-simple-print-payment">
+            Ödeme: {paymentSubMethod || "Peşin"}{paymentAccountName ? ` - ${paymentAccountName}` : ""}
+          </div>
+        )}
+
+        {notes && (
+          <div className="ren-simple-print-note">
+            Not: {notes}
+          </div>
+        )}
+
+        <div className="ren-simple-print-thanks">Teşekkür ederiz.</div>
+      </div>
     </div>
-
   );
 }

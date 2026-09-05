@@ -819,3 +819,292 @@
     min-width: 54px;
   }
 }
+
+/* =========================================================
+   REN ERP - CASH & BANK DARK THEME OVERRIDE
+   Mevcut yerleşim ve ölçülere dokunmaz.
+   Sadece renk / yüzey / okunabilirlik standardını değiştirir.
+========================================================= */
+
+.cash-bank-page,
+.cash-bank-container {
+  background: #14212b !important;
+  color: #e8eef2 !important;
+}
+
+.cash-bank-header h1,
+.cash-bank-header h2,
+.cash-bank-card-header h1,
+.cash-bank-card-header h2,
+.cash-bank-account-balance,
+.cash-bank-summary-card strong {
+  color: #e8eef2 !important;
+}
+
+.cash-bank-breadcrumb {
+  color: #94a3ad !important;
+}
+
+.cash-bank-header p,
+.cash-bank-header span,
+.cash-bank-card-header span,
+.cash-bank-account-footer,
+.cash-bank-iban,
+.cash-bank-empty,
+.cash-bank-coming {
+  color: #9caab5 !important;
+}
+
+/* Kartlar */
+.cash-bank-card,
+.cash-bank-account,
+.cash-bank-summary-card {
+  background: #1b2a34 !important;
+  border-color: #2d3b46 !important;
+  color: #e8eef2 !important;
+}
+
+.cash-bank-summary-card.highlight {
+  background: #173c2f !important;
+  border-color: #2f9168 !important;
+}
+
+.cash-bank-summary-card.highlight strong,
+.cash-bank-summary-card.highlight .cash-bank-money {
+  color: #59c08d !important;
+}
+
+/* Hesap ikonları */
+.cash-bank-account-icon {
+  background: #172731 !important;
+  color: #72aee1 !important;
+  border-color: #35434f !important;
+}
+
+/* Hesap bakiyesi */
+.cash-bank-account-balance,
+.cash-bank-money {
+  color: #39a978 !important;
+}
+
+/* Sekmeler */
+.cash-bank-tabs {
+  border-color: #2d3b46 !important;
+}
+
+.cash-bank-tabs button {
+  background: transparent !important;
+  color: #9caab5 !important;
+  border-color: transparent !important;
+}
+
+.cash-bank-tabs button:hover {
+  background: #1d2b34 !important;
+  color: #e8eef2 !important;
+}
+
+.cash-bank-tabs button.active {
+  background: #173c2f !important;
+  color: #59c08d !important;
+  border-color: #39a978 !important;
+}
+
+/* Butonlar */
+.cash-bank-primary-button,
+.cash-bank-small-primary {
+  background: #39a978 !important;
+  border-color: #39a978 !important;
+  color: #ffffff !important;
+}
+
+.cash-bank-primary-button:hover,
+.cash-bank-small-primary:hover {
+  background: #2f9168 !important;
+  border-color: #2f9168 !important;
+}
+
+.cash-bank-secondary-button {
+  background: #172731 !important;
+  border-color: #35434f !important;
+  color: #c7d1d8 !important;
+}
+
+.cash-bank-secondary-button:hover {
+  background: #243640 !important;
+  color: #e8eef2 !important;
+}
+
+.cash-bank-header-actions button {
+  color: #c7d1d8 !important;
+}
+
+/* Form */
+.cash-bank-form-group label {
+  color: #c1ccd4 !important;
+}
+
+.cash-bank-form-group input,
+.cash-bank-form-group select,
+.cash-bank-form-group textarea,
+.cash-bank-modal input,
+.cash-bank-modal select,
+.cash-bank-modal textarea {
+  background: #172731 !important;
+  color: #e8eef2 !important;
+  border-color: #35434f !important;
+}
+
+.cash-bank-form-group input::placeholder,
+.cash-bank-form-group textarea::placeholder,
+.cash-bank-modal input::placeholder,
+.cash-bank-modal textarea::placeholder {
+  color: #71808c !important;
+}
+
+.cash-bank-form-group input:focus,
+.cash-bank-form-group select:focus,
+.cash-bank-form-group textarea:focus,
+.cash-bank-modal input:focus,
+.cash-bank-modal select:focus,
+.cash-bank-modal textarea:focus {
+  border-color: #39a978 !important;
+  box-shadow: 0 0 0 3px rgba(57,169,120,.12) !important;
+  outline: none !important;
+}
+
+/* Tablo */
+.cash-bank-table-wrapper,
+.cash-bank-table {
+  background: #1b2a34 !important;
+}
+
+.cash-bank-table {
+  border-color: #2d3b46 !important;
+}
+
+.cash-bank-table thead,
+.cash-bank-table th {
+  background: #17232d !important;
+  color: #9aaab5 !important;
+  border-color: #2d3b46 !important;
+}
+
+.cash-bank-table td {
+  background: #1b2a34 !important;
+  color: #c7d1d8 !important;
+  border-color: #273640 !important;
+}
+
+.cash-bank-table tbody tr:hover td {
+  background: #1d2b34 !important;
+}
+
+/* Gelir/Gider */
+.cash-bank-direction.income {
+  color: #59c08d !important;
+  background: #173c2f !important;
+}
+
+.cash-bank-direction.expense {
+  color: #e97786 !important;
+  background: #3a2328 !important;
+}
+
+/* Durum */
+.cash-bank-status {
+  border-color: #35434f !important;
+  background: #172731 !important;
+  color: #c7d1d8 !important;
+}
+
+.cash-bank-status.active,
+.cash-bank-status.success,
+.cash-bank-status.open {
+  background: #173c2f !important;
+  color: #59c08d !important;
+}
+
+.cash-bank-status.inactive,
+.cash-bank-status.cancelled,
+.cash-bank-status.danger {
+  background: #3a2328 !important;
+  color: #e97786 !important;
+}
+
+/* Modal */
+.cash-bank-modal-overlay {
+  background: rgba(0, 0, 0, .68) !important;
+}
+
+.cash-bank-modal {
+  background: #1b2a34 !important;
+  border-color: #35434f !important;
+  color: #e8eef2 !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.42) !important;
+}
+
+.cash-bank-modal-header {
+  background: #172731 !important;
+  border-color: #2d3b46 !important;
+  color: #e8eef2 !important;
+}
+
+.cash-bank-modal-footer {
+  background: #172731 !important;
+  border-color: #2d3b46 !important;
+}
+
+.cash-bank-modal-cancel {
+  background: #243640 !important;
+  border-color: #35434f !important;
+  color: #c7d1d8 !important;
+}
+
+.cash-bank-modal-submit {
+  background: #39a978 !important;
+  border-color: #39a978 !important;
+  color: #ffffff !important;
+}
+
+.cash-bank-modal-submit:hover {
+  background: #2f9168 !important;
+}
+
+/* Tehlikeli işlem */
+.cash-bank-page button.danger,
+.cash-bank-modal button.danger {
+  color: #e97786 !important;
+}
+
+.cash-bank-page button.danger:hover,
+.cash-bank-modal button.danger:hover {
+  background: #3a2328 !important;
+  color: #ef8996 !important;
+}
+
+/* Boş durum / entegrasyon */
+.cash-bank-integration-icon {
+  background: #172731 !important;
+  color: #72aee1 !important;
+}
+
+.cash-bank-integration-info {
+  background: #1b2a34 !important;
+  border-color: #2d3b46 !important;
+  color: #c7d1d8 !important;
+}
+
+.cash-bank-empty strong,
+.cash-bank-coming strong {
+  color: #e8eef2 !important;
+}
+
+.cash-bank-empty svg,
+.cash-bank-coming svg {
+  color: #81919e !important;
+}
+
+/* Genel border güvenliği */
+.cash-bank-page hr {
+  border-color: #2d3b46 !important;
+}

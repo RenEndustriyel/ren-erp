@@ -1,104 +1,116 @@
 .edit-stock-page {
-  min-height: calc(100vh - 68px);
-  padding: 28px;
-  background: #f2f2f2;
-  color: #555;
-  font-family:
-    "Open Sans",
-    "Segoe UI",
-    Arial,
-    sans-serif;
+  --es-green: #39a978;
+  --es-green-dark: #2d8f67;
+  --es-green-soft: #edf8f3;
+  --es-bg: #f4f6f8;
+  --es-border: #e3e8ec;
+  --es-text: #202a34;
+  --es-muted: #7f8a95;
+  width: 100%;
+  min-height: calc(100vh - 74px);
+  padding: 24px;
+  background: var(--es-bg);
+  color: var(--es-text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+}
+
+.edit-stock-page *,
+.edit-stock-page *::before,
+.edit-stock-page *::after {
   box-sizing: border-box;
 }
 
 .edit-stock-header {
+  width: min(1180px, 100%);
+  margin: 0 auto 18px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 20px;
 }
 
 .edit-stock-breadcrumb {
   display: flex;
-  align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
-  color: #999;
+  color: #8a95a0;
   font-size: 12px;
+  line-height: 1.4;
 }
 
 .edit-stock-breadcrumb span {
-  color: #c5c5c5;
+  color: #b0bac3;
 }
 
 .edit-stock-header h1 {
-  margin: 0;
-  color: #292929;
-  font-size: 22px;
-  font-weight: 600;
+  margin: 8px 0 0;
+  color: #202a34;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
 }
 
 .edit-stock-actions {
   display: flex;
-  gap: 8px;
+  gap: 9px;
 }
 
 .edit-stock-cancel,
 .edit-stock-save {
-  height: 40px;
-  padding: 0 18px;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 12px;
   cursor: pointer;
 }
 
 .edit-stock-cancel {
-  border: 1px solid #ccc;
+  border: 1px solid #dfe5ea;
   background: #fff;
-  color: #777;
+  color: #59646f;
 }
 
 .edit-stock-save {
-  border: 1px solid #59534f;
-  background: #59534f;
+  border: 0;
+  background: var(--es-green);
   color: #fff;
+  font-weight: 650;
+  box-shadow: 0 5px 12px rgba(57, 169, 120, 0.14);
 }
 
 .edit-stock-save:disabled {
-  opacity: .6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .edit-stock-card {
-  max-width: 1100px;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 24px 22px;
+  border: 1px solid var(--es-border);
+  border-radius: 13px;
   background: #fff;
-  border: 1px solid #dedede;
-  border-radius: 5px;
-  padding: 0 24px 24px;
-  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(26, 39, 50, 0.025);
 }
 
 .edit-stock-section-title {
-  padding: 20px 0 14px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #e4e4e4;
-  color: #666;
-  font-size: 13px;
+  margin: 0 0 17px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid #edf0f3;
+  color: #2a3540;
+  font-size: 15px;
+  line-height: 1.3;
   font-weight: 700;
 }
 
 .edit-stock-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
 }
 
 .edit-stock-field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+  min-width: 0;
 }
 
 .edit-stock-field.full {
@@ -106,56 +118,135 @@
 }
 
 .edit-stock-field label {
-  color: #777;
-  font-size: 11px;
-  font-weight: 700;
+  display: block;
+  margin-bottom: 7px;
+  color: #5f6b76;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 600;
 }
 
 .edit-stock-field input,
 .edit-stock-field select,
 .edit-stock-field textarea {
   width: 100%;
-  min-height: 40px;
-  padding: 0 11px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  outline: none;
+  min-height: 42px;
+  border: 1px solid #dfe5e9;
+  border-radius: 8px;
   background: #fff;
-  color: #555;
-  font-family: inherit;
-  font-size: 12px;
-  box-sizing: border-box;
+  color: #37424d;
+  padding: 0 11px;
+  font-size: 13px;
+  line-height: 1.3;
+  outline: 0;
 }
 
 .edit-stock-field textarea {
-  padding: 10px 11px;
+  min-height: 104px;
+  padding: 11px;
   resize: vertical;
 }
 
 .edit-stock-field input:focus,
 .edit-stock-field select:focus,
 .edit-stock-field textarea:focus {
-  border-color: #999;
+  border-color: #91cfb2;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.08);
+}
+
+.edit-stock-field small {
+  display: block;
+  margin-top: 5px;
+  color: #8e99a3;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.edit-stock-percent-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #a9d6be;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.edit-stock-percent-input input {
+  min-height: 42px;
+  border: 0;
+  box-shadow: none;
+  font-size: 13px;
+}
+
+.edit-stock-percent-input span {
+  padding-right: 12px;
+  color: var(--es-green-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* KDV Hariç / Dahil seçimini daha kompakt tutuyoruz. */
+.edit-stock-field.full > div > button {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 5px 12px !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.edit-stock-price-chain-note {
+  margin: 15px 0 18px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  background: #f4f8f6;
+  color: #77838d;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.edit-stock-price-chain-note strong {
+  color: #4d5d56;
+  white-space: nowrap;
+  font-weight: 700;
 }
 
 .edit-stock-bottom {
+  margin-top: 20px;
+  padding-top: 16px;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 28px;
-  padding-top: 18px;
-  border-top: 1px solid #e4e4e4;
+  gap: 9px;
+  border-top: 1px solid #edf0f3;
 }
 
-@media (max-width: 750px) {
+@media (max-width: 950px) {
+  .edit-stock-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
   .edit-stock-page {
-    padding: 18px 14px;
+    padding: 16px 12px 24px;
   }
 
   .edit-stock-header {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .edit-stock-actions {
+    width: 100%;
+  }
+
+  .edit-stock-cancel,
+  .edit-stock-save {
+    flex: 1;
   }
 
   .edit-stock-grid {
@@ -164,5 +255,9 @@
 
   .edit-stock-field.full {
     grid-column: auto;
+  }
+
+  .edit-stock-card {
+    padding: 18px 15px;
   }
 }

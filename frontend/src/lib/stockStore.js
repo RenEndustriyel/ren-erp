@@ -124,46 +124,29 @@ const DEFAULT_UNITS = [
    GENEL STORAGE
 ========================================================= */
 
-function read(
-  key,
-  fallback = []
-) {
+function read(key, fallback = []) {
   try {
-    const raw =
-      localStorage.getItem(
-        key
-      );
+    const raw = localStorage.getItem(key);
 
     if (!raw) {
       return fallback;
     }
 
-    const parsed =
-      JSON.parse(
-        raw
-      );
+    const parsed = JSON.parse(raw);
 
-    return Array.isArray(
-      parsed
-    )
+    return Array.isArray(parsed)
       ? parsed
       : fallback;
-
   } catch {
     return fallback;
   }
 }
 
 
-function write(
-  key,
-  value
-) {
+function write(key, value) {
   localStorage.setItem(
     key,
-    JSON.stringify(
-      value
-    )
+    JSON.stringify(value)
   );
 }
 
@@ -172,9 +155,7 @@ function write(
    SAYI
 ========================================================= */
 
-function normalizeNumber(
-  value
-) {
+function normalizeNumber(value) {
   if (
     value === null ||
     value === undefined ||
@@ -183,55 +164,30 @@ function normalizeNumber(
     return 0;
   }
 
-  if (
-    typeof value ===
-    "number"
-  ) {
-    return Number.isFinite(
-      value
-    )
+  if (typeof value === "number") {
+    return Number.isFinite(value)
       ? value
       : 0;
   }
 
-  let text =
-    String(
-      value
-    ).trim();
+  let text = String(value).trim();
 
   if (
     text.includes(",") &&
     text.includes(".")
   ) {
-    text =
-      text
-        .replace(
-          /\./g,
-          ""
-        )
-        .replace(
-          ",",
-          "."
-        );
-
+    text = text
+      .replace(/\./g, "")
+      .replace(",", ".");
   } else if (
     text.includes(",")
   ) {
-    text =
-      text.replace(
-        ",",
-        "."
-      );
+    text = text.replace(",", ".");
   }
 
-  const result =
-    Number(
-      text
-    );
+  const result = Number(text);
 
-  return Number.isFinite(
-    result
-  )
+  return Number.isFinite(result)
     ? result
     : 0;
 }
@@ -255,10 +211,7 @@ function calculateProfit(
       saleNet
     );
 
-  if (
-    purchase <=
-    0
-  ) {
+  if (purchase <= 0) {
     return 0;
   }
 
@@ -304,8 +257,7 @@ function calculateStatus(
       : 15;
 
   if (
-    quantity <=
-    0
+    quantity <= 0
   ) {
     return "empty";
   }
@@ -649,10 +601,8 @@ export function createProduct(
 
 
   if (
-    stock !==
-    0
+    stock !== 0
   ) {
-
     addStockMovement({
       productId:
         product.id,
@@ -683,7 +633,6 @@ export function createProduct(
       description:
         "Yeni ürün açılış stok kaydı.",
     });
-
   }
 
 
@@ -857,14 +806,12 @@ export function getCategories() {
     existing.length ===
     0
   ) {
-
     write(
       CATEGORIES_KEY,
       DEFAULT_CATEGORIES
     );
 
     return DEFAULT_CATEGORIES;
-
   }
 
 
@@ -908,14 +855,12 @@ export function getBrands() {
     existing.length ===
     0
   ) {
-
     write(
       BRANDS_KEY,
       DEFAULT_BRANDS
     );
 
     return DEFAULT_BRANDS;
-
   }
 
 
@@ -959,14 +904,12 @@ export function getUnits() {
     existing.length ===
     0
   ) {
-
     write(
       UNITS_KEY,
       DEFAULT_UNITS
     );
 
     return DEFAULT_UNITS;
-
   }
 
 
@@ -1126,11 +1069,9 @@ export function changeStock(
 
 
   if (!product) {
-
     throw new Error(
       "Stok değişikliği yapılacak ürün bulunamadı."
     );
-
   }
 
 
@@ -1160,8 +1101,7 @@ export function changeStock(
 
 
   const newStock =
-    rawNewStock <
-    0
+    rawNewStock < 0
       ? 0
       : rawNewStock;
 
@@ -1201,8 +1141,7 @@ export function changeStock(
     type:
       options.type ||
       (
-        amount >=
-        0
+        amount >= 0
           ? "Stok Girişi"
           : "Stok Çıkışı"
       ),
@@ -1214,10 +1153,8 @@ export function changeStock(
     description:
       options.description ||
       (
-        amount <
-          0 &&
-        newStock ===
-          0 &&
+        amount < 0 &&
+        newStock === 0 &&
         previousStock +
           amount <
           0
@@ -1309,8 +1246,7 @@ export function addProductPriceHistory(
 
 
   const changePercent =
-    oldPrice >
-    0
+    oldPrice > 0
       ? (
           (
             changeAmount /
@@ -1322,7 +1258,6 @@ export function addProductPriceHistory(
 
 
   const record = {
-
     id:
       data.id ||
       `PRICE-${Date.now()}-${Math.random()
@@ -1375,7 +1310,6 @@ export function addProductPriceHistory(
 
     createdAt:
       new Date().toISOString(),
-
   };
 
 
@@ -1437,7 +1371,6 @@ export function updateProductsBulk(
       (
         product
       ) => {
-
         if (
           !selectedIds.includes(
             String(
@@ -1482,7 +1415,6 @@ export function updateProductsBulk(
 
 
         return updated;
-
       }
     );
 
@@ -1537,7 +1469,6 @@ export function recalculateProduct(
 
 
   return {
-
     ...product,
 
     purchaseNet,
@@ -1566,7 +1497,6 @@ export function recalculateProduct(
         product.criticalStock,
         product.active
       ),
-
   };
 }
 

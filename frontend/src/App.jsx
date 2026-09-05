@@ -4,7 +4,7 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-
+import Checks from "./pages/CashBank/Checks/Checks";
 import Layout from "./components/Layout/Layout";
 
 /* =========================================================

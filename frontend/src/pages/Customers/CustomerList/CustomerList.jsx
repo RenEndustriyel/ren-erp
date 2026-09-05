@@ -138,6 +138,14 @@ export default function CustomerList() {
     null
   );
 
+  const [
+    sortConfig,
+    setSortConfig,
+  ] = useState({
+    key: null,
+    direction: "asc",
+  });
+
 
   /* =======================================================
      YENİLE
@@ -320,6 +328,72 @@ export default function CustomerList() {
       balanceFilter,
     ]);
 
+
+  /* =======================================================
+     SIRALAMA
+  ======================================================= */
+
+  const getSortValue = (
+    customer,
+    key
+  ) => {
+    if (key === "account") {
+      return customerName(customer).toLocaleLowerCase("tr-TR");
+    }
+
+    if (key === "type") {
+      return String(customer?.type || "").toLocaleLowerCase("tr-TR");
+    }
+
+    if (key === "phone") {
+      return String(customer?.phone || "").toLocaleLowerCase("tr-TR");
+    }
+
+    if (key === "location") {
+      return `${customer?.district || ""} ${customer?.city || ""}`.toLocaleLowerCase("tr-TR");
+    }
+
+    if (key === "balance") {
+      return Number(customer?.balance) || 0;
+    }
+
+    if (key === "status") {
+      return String(customer?.status || "Aktif").toLocaleLowerCase("tr-TR");
+    }
+
+    return "";
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((current) => ({
+      key,
+      direction:
+        current.key === key && current.direction === "asc"
+          ? "desc"
+          : "asc",
+    }));
+  };
+
+  const sortedCustomers = useMemo(() => {
+    if (!sortConfig.key) {
+      return filteredCustomers;
+    }
+
+    return [...filteredCustomers].sort((a, b) => {
+      const aValue = getSortValue(a, sortConfig.key);
+      const bValue = getSortValue(b, sortConfig.key);
+
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortConfig.direction === "asc"
+          ? aValue - bValue
+          : bValue - aValue;
+      }
+
+      return sortConfig.direction === "asc"
+        ? String(aValue).localeCompare(String(bValue), "tr")
+        : String(bValue).localeCompare(String(aValue), "tr");
+    });
+  }, [filteredCustomers, sortConfig]);
 
   /* =======================================================
      FİLTRE TEMİZLE
@@ -804,29 +878,36 @@ export default function CustomerList() {
 
                 <tr>
 
-                  <th>
-                    HESAP
-                  </th>
-
-                  <th>
-                    TÜR
-                  </th>
-
-                  <th>
-                    TELEFON
-                  </th>
-
-                  <th>
-                    KONUM
-                  </th>
-
-                  <th className="customer-money-head">
-                    BAKİYE
-                  </th>
-
-                  <th>
-                    DURUM
-                  </th>
+                  {[
+                    ["account", "HESAP"],
+                    ["type", "TÜR"],
+                    ["phone", "TELEFON"],
+                    ["location", "KONUM"],
+                    ["balance", "BAKİYE"],
+                    ["status", "DURUM"],
+                  ].map(([key, label]) => (
+                    <th
+                      key={key}
+                      className={
+                        key === "balance"
+                          ? "customer-money-head customer-sortable"
+                          : "customer-sortable"
+                      }
+                      onClick={() => handleSort(key)}
+                      title={`${label} sütununu sırala`}
+                    >
+                      <span className="customer-th-content">
+                        {label}
+                        <span className="customer-sort-icon">
+                          {sortConfig.key === key
+                            ? sortConfig.direction === "asc"
+                              ? "↑"
+                              : "↓"
+                            : "↕"}
+                        </span>
+                      </span>
+                    </th>
+                  ))}
 
                   <th className="customer-actions-head">
                     İŞLEMLER
@@ -840,7 +921,7 @@ export default function CustomerList() {
               <tbody>
 
                 {
-                  filteredCustomers.length ===
+                  sortedCustomers.length ===
                   0 ? (
 
                     <tr>
@@ -869,7 +950,7 @@ export default function CustomerList() {
 
                   ) : (
 
-                    filteredCustomers.map(
+                    sortedCustomers.map(
                       (
                         customer
                       ) => {

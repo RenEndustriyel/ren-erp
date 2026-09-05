@@ -1,121 +1,336 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  NavLink,
-  Outlet,
-  useLocation,
-} from "react-router-dom";
+  MdAddBusiness,
+  MdAddShoppingCart,
+  MdAddBox,
+  MdApps,
+  MdArrowDropDown,
+  MdArrowForwardIos,
+  MdAssignment,
+  MdBarChart,
+  MdBusiness,
+  MdCalendarMonth,
+  MdCategory,
+  MdClose,
+  MdDashboard,
+  MdDescription,
+  MdExpandLess,
+  MdExpandMore,
+  MdGroup,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowRight,
+  MdMenu,
+  MdNotificationsNone,
+  MdPayments,
+  MdPersonAdd,
+  MdPointOfSale,
+  MdReceiptLong,
+  MdSettings,
+  MdShoppingCart,
+  MdStorefront,
+  MdSupportAgent,
+  MdAccountBalanceWallet,
+} from "react-icons/md";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import "./Layout.css";
 import "../../styles/cari-status.css";
 
+const MENU = {
+  stock: [
+    ["/stock/list", "Stok Listesi", MdStorefront],
+    ["/stock/new", "Yeni Stok", MdAddBox],
+    ["/stock/categories", "Kategoriler", MdCategory],
+    ["/stock/brands", "Markalar", MdBusiness],
+    ["/stock/units", "Birimler", MdApps],
+    ["/stock/movements", "Stok Hareketleri", MdBarChart],
+    ["/stock/bulk", "Toplu İşlemler", MdDescription],
+  ],
+  customers: [
+    ["/customers", "Hesap Listesi", MdGroup, true],
+    ["/customers/new", "Yeni Hesap", MdPersonAdd],
+    ["/customers/movements", "Cari Hareket", MdReceiptLong],
+    ["/customers/transfer", "Cari Virman", MdArrowForwardIos],
+    ["/customers/collections", "Tahsilat", MdPayments],
+    ["/customers/payments", "Ödeme", MdPointOfSale],
+    ["/customers/due-tracking", "Vade Takibi", MdCalendarMonth],
+    ["/customers/reports", "Cari Raporlar", MdBarChart],
+  ],
+  orders: [
+    ["/orders?type=all", "Tüm Sipariş / Teklifler", MdAssignment],
+    ["/orders?type=offer", "Teklifler", MdDescription],
+    ["/orders?type=new-offer", "Yeni Teklif", MdAddBox],
+    ["/orders?type=order", "Siparişler", MdShoppingCart],
+    ["/orders?type=new-order", "Yeni Sipariş", MdAddShoppingCart],
+    ["/orders?type=converted", "Tekliften Siparişe", MdArrowForwardIos],
+    ["/orders?type=invoice", "Siparişten Faturaya", MdReceiptLong],
+    ["/orders?type=reports", "Sipariş / Teklif Raporu", MdBarChart],
+  ],
+  invoices: [
+    ["/invoices", "Fatura Listesi", MdDescription, true],
+    ["/invoices/new", "Yeni Fatura", MdAddBox],
+    ["/invoices/sales", "Satış Faturaları", MdPointOfSale],
+    ["/invoices/purchases", "Alış Faturaları", MdShoppingCart],
+    ["/invoices/returns", "İade Faturaları", MdReceiptLong],
+    ["/invoices/reports", "Fatura Raporları", MdBarChart],
+  ],
+  cash: [
+    ["/cash-bank/accounts", "Kasa ve Bankalar", MdAccountBalanceWallet],
+    ["/cash-bank/checks", "Çekler", MdDescription],
+    ["/cash-bank/reports", "Kasa / Banka Raporu", MdBarChart],
+    ["/cash-bank/cash-flow", "Nakit Akışı Raporu", MdPayments],
+  ],
+};
+
+function GroupButton({
+  label,
+  icon: Icon,
+  open,
+  active,
+  onClick,
+}) {
+  return (
+    <button
+      type="button"
+      className={`ren-menu-item ren-menu-parent ${active ? "section-active" : ""}`}
+      onClick={onClick}
+    >
+      <span className="ren-menu-icon">
+        <Icon />
+      </span>
+      <span className="ren-menu-label">{label}</span>
+      <span className="ren-menu-arrow">
+        {open ? <MdExpandLess /> : <MdExpandMore />}
+      </span>
+    </button>
+  );
+}
+
+function Submenu({ items }) {
+  return (
+    <div className="ren-submenu">
+      {items.map(([to, label, Icon, exact]) => (
+        <NavLink
+          key={`${to}-${label}`}
+          to={to}
+          end={Boolean(exact)}
+          className={({ isActive }) =>
+            `ren-submenu-item ${isActive ? "active" : ""}`
+          }
+        >
+          <span className="ren-submenu-icon">
+            <Icon />
+          </span>
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </div>
+  );
+}
+
+function SimpleMenuItem({
+  to,
+  label,
+  icon: Icon,
+  active,
+  end = false,
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `ren-menu-item ${active || isActive ? "active" : ""}`
+      }
+    >
+      <span className="ren-menu-icon">
+        <Icon />
+      </span>
+      <span className="ren-menu-label">{label}</span>
+    </NavLink>
+  );
+}
+
+function QuickActionMenu({ onNavigate }) {
+  const actions = useMemo(
+    () => [
+      {
+        label: "Yeni Cari",
+        icon: MdPersonAdd,
+        path: "/customers/new",
+      },
+      {
+        label: "Yeni Satış",
+        icon: MdPointOfSale,
+        path: "/quick-sale",
+      },
+      {
+        label: "Yeni Alış",
+        icon: MdShoppingCart,
+        path: "/invoices/new",
+      },
+      {
+        label: "Yeni Ürün",
+        icon: MdAddBox,
+        path: "/stock/new",
+      },
+      {
+        label: "Proje Ekle",
+        icon: MdAssignment,
+        path: "/orders?type=new-order",
+        note: "Sipariş / teklif alanı",
+      },
+    ],
+    []
+  );
+
+  return (
+    <div className="ren-quick-menu">
+      {actions.map((action) => {
+        const Icon = action.icon;
+
+        return (
+          <button
+            type="button"
+            className="ren-quick-menu-item"
+            key={action.label}
+            onClick={() => onNavigate(action.path)}
+          >
+            <span className="ren-quick-menu-icon">
+              <Icon />
+            </span>
+
+            <span className="ren-quick-menu-copy">
+              <strong>{action.label}</strong>
+              {action.note ? <small>{action.note}</small> : null}
+            </span>
+
+            <MdKeyboardArrowRight className="ren-quick-menu-arrow" />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const quickMenuRef = useRef(null);
 
-  const [stockOpen, setStockOpen] =
-    useState(false);
+  const [stockOpen, setStockOpen] = useState(false);
+  const [customerOpen, setCustomerOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [cashOpen, setCashOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [uiMode, setUiMode] = useState(
+    () => localStorage.getItem("ren_ui_mode") || "basic"
+  );
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("ren_theme") || "light"
+  );
 
-  const [customerOpen, setCustomerOpen] =
-    useState(false);
+  const pathname = location.pathname;
 
-  const [ordersOpen, setOrdersOpen] =
-    useState(false);
-
-  const [invoiceOpen, setInvoiceOpen] =
-    useState(false);
-
-  const [cashOpen, setCashOpen] =
-    useState(false);
-
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
-
-  const isStockPage =
-    location.pathname.startsWith(
-      "/stock"
-    );
-
-  const isCustomerPage =
-    location.pathname.startsWith(
-      "/customers"
-    );
-
-  const isOrdersPage =
-    location.pathname.startsWith(
-      "/orders"
-    );
-
-  const isInvoicePage =
-    location.pathname.startsWith(
-      "/invoices"
-    );
-
-  const isCashPage =
-    location.pathname.startsWith(
-      "/cash-bank"
-    );
-
-  const isQuickSalePage =
-    location.pathname.startsWith(
-      "/quick-sale"
-    );
+  const isStockPage = pathname.startsWith("/stock");
+  const isCustomerPage = pathname.startsWith("/customers");
+  const isOrdersPage = pathname.startsWith("/orders");
+  const isInvoicePage = pathname.startsWith("/invoices");
+  const isCashPage = pathname.startsWith("/cash-bank");
+  const isQuickSalePage = pathname.startsWith("/quick-sale");
 
   useEffect(() => {
     setSidebarOpen(false);
-  }, [location.pathname]);
+    setQuickOpen(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
-    if (
-      sidebarOpen &&
-      window.innerWidth <= 650
-    ) {
-      document.body.style.overflow =
-        "hidden";
+    if (isStockPage) setStockOpen(true);
+    if (isCustomerPage) setCustomerOpen(true);
+    if (isOrdersPage) setOrdersOpen(true);
+    if (isInvoicePage) setInvoiceOpen(true);
+    if (isCashPage) setCashOpen(true);
+  }, [
+    isStockPage,
+    isCustomerPage,
+    isOrdersPage,
+    isInvoicePage,
+    isCashPage,
+  ]);
+
+  useEffect(() => {
+    const closeQuickMenu = (event) => {
+      if (
+        quickMenuRef.current &&
+        !quickMenuRef.current.contains(event.target)
+      ) {
+        setQuickOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeQuickMenu);
+
+    return () => {
+      document.removeEventListener("mousedown", closeQuickMenu);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("ren_ui_mode", uiMode);
+  }, [uiMode]);
+
+  useEffect(() => {
+    localStorage.setItem("ren_theme", theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    document.body.setAttribute("data-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (sidebarOpen && window.innerWidth <= 900) {
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow =
-        "";
+      document.body.style.overflow = "";
     }
 
     return () => {
-      document.body.style.overflow =
-        "";
+      document.body.style.overflow = "";
     };
   }, [sidebarOpen]);
 
-  return (
-    <div className="ren-layout">
+  const runQuickAction = (path) => {
+    setQuickOpen(false);
+    navigate(path);
+  };
 
-      {sidebarOpen && (
+  const toggleTheme = () => {
+    setTheme((current) =>
+      current === "dark" ? "light" : "dark"
+    );
+  };
+
+  return (
+    <div className={`ren-layout ren-ui-${uiMode} ren-theme-${theme}`}>
+      {sidebarOpen ? (
         <button
           type="button"
           className="ren-sidebar-overlay"
           aria-label="Menüyü kapat"
-          onClick={() =>
-            setSidebarOpen(false)
-          }
+          onClick={() => setSidebarOpen(false)}
         />
-      )}
+      ) : null}
 
       <aside
-        className={`ren-sidebar ${
-          sidebarOpen
-            ? "mobile-open"
-            : ""
-        }`}
+        className={`ren-sidebar ${sidebarOpen ? "mobile-open" : ""}`}
       >
-
-        {/* LOGO */}
-
         <div className="ren-logo">
-
           <div className="ren-logo-mark">
-            R
+            <span>R</span>
           </div>
 
-          <div>
-            <div className="ren-logo-title">
-              REN ERP
-            </div>
-
+          <div className="ren-logo-copy">
+            <div className="ren-logo-title">REN ERP</div>
             <div className="ren-logo-subtitle">
               İşletme Yönetim Sistemi
             </div>
@@ -125,828 +340,236 @@ export default function Layout() {
             type="button"
             className="ren-mobile-close"
             aria-label="Menüyü kapat"
-            onClick={() =>
-              setSidebarOpen(false)
-            }
+            onClick={() => setSidebarOpen(false)}
           >
-            ×
+            <MdClose />
           </button>
-
         </div>
-
-        {/* MENÜ */}
 
         <nav className="ren-menu">
+          <div className="ren-menu-section">GENEL</div>
 
-          <div className="ren-menu-section">
-            GENEL
-          </div>
-
-
-          {/* GENEL BAKIŞ */}
-
-          <NavLink
+          <SimpleMenuItem
             to="/dashboard"
-            className={({ isActive }) =>
-              `ren-menu-item ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
+            label="Genel Bakış"
+            icon={MdDashboard}
+            end
+          />
 
-            <span className="ren-menu-icon">
-              ▦
-            </span>
-
-            <span>
-              Genel Bakış
-            </span>
-
-          </NavLink>
-
-
-          {/* HIZLI SATIŞ */}
-
-          <NavLink
+          <SimpleMenuItem
             to="/quick-sale"
-            className={
-              `ren-menu-item ${
-                isQuickSalePage
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
+            label="Hızlı Satış"
+            icon={MdPointOfSale}
+            active={isQuickSalePage}
+          />
 
-            <span className="ren-menu-icon">
-              ₺
-            </span>
+          <div className="ren-menu-divider" />
 
-            <span>
-              Hızlı Satış
-            </span>
+          <GroupButton
+            label="Stok"
+            icon={MdStorefront}
+            open={stockOpen}
+            active={isStockPage}
+            onClick={() => setStockOpen((value) => !value)}
+          />
+          {stockOpen ? <Submenu items={MENU.stock} /> : null}
 
-          </NavLink>
-
-
-          {/* STOK */}
-
-          <button
-            type="button"
-            className={`ren-menu-item ren-menu-parent ${
-              isStockPage
-                ? "section-active"
-                : ""
-            }`}
+          <GroupButton
+            label="Müşteri - Tedarikçi"
+            icon={MdGroup}
+            open={customerOpen}
+            active={isCustomerPage}
             onClick={() =>
-              setStockOpen(
-                (value) =>
-                  !value
-              )
+              setCustomerOpen((value) => !value)
             }
-          >
+          />
+          {customerOpen ? (
+            <Submenu items={MENU.customers} />
+          ) : null}
 
-            <span className="ren-menu-icon">
-              ▣
-            </span>
+          <GroupButton
+            label="Sipariş - Teklif"
+            icon={MdAssignment}
+            open={ordersOpen}
+            active={isOrdersPage}
+            onClick={() => setOrdersOpen((value) => !value)}
+          />
+          {ordersOpen ? <Submenu items={MENU.orders} /> : null}
 
-            <span>
-              Stok
-            </span>
-
-            <span className="ren-menu-arrow">
-              {stockOpen
-                ? "⌃"
-                : "⌄"}
-            </span>
-
-          </button>
-
-
-          {stockOpen && (
-            <div className="ren-submenu">
-
-              <NavLink
-                to="/stock/list"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Stok Listesi
-              </NavLink>
-
-              <NavLink
-                to="/stock/new"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Yeni Stok
-              </NavLink>
-
-              <NavLink
-                to="/stock/categories"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Kategoriler
-              </NavLink>
-
-              <NavLink
-                to="/stock/brands"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Markalar
-              </NavLink>
-
-              <NavLink
-                to="/stock/units"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Birimler
-              </NavLink>
-
-              <NavLink
-                to="/stock/movements"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Stok Hareketleri
-              </NavLink>
-
-              <NavLink
-                to="/stock/bulk"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Toplu İşlemler
-              </NavLink>
-
-            </div>
-          )}
-
-
-          {/* MÜŞTERİ - TEDARİKÇİ */}
-
-          <button
-            type="button"
-            className={`ren-menu-item ren-menu-parent ${
-              isCustomerPage
-                ? "section-active"
-                : ""
-            }`}
+          <GroupButton
+            label="Faturalar"
+            icon={MdDescription}
+            open={invoiceOpen}
+            active={isInvoicePage}
             onClick={() =>
-              setCustomerOpen(
-                (value) =>
-                  !value
-              )
+              setInvoiceOpen((value) => !value)
             }
-          >
-
-            <span className="ren-menu-icon">
-              ◉
-            </span>
-
-            <span>
-              Müşteri - Tedarikçi
-            </span>
-
-            <span className="ren-menu-arrow">
-              {customerOpen
-                ? "⌃"
-                : "⌄"}
-            </span>
-
-          </button>
-
-
-          {customerOpen && (
-            <div className="ren-submenu">
-
-              <NavLink
-                to="/customers"
-                end
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Hesap Listesi
-              </NavLink>
-
-              <NavLink
-                to="/customers/new"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Yeni Hesap
-              </NavLink>
-
-              <NavLink
-                to="/customers/movements"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Cari Hareket
-              </NavLink>
-
-              <NavLink
-                to="/customers/transfer"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Cari Virman
-              </NavLink>
-
-              <NavLink
-                to="/customers/collections"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Tahsilat
-              </NavLink>
-
-              <NavLink
-                to="/customers/payments"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Ödeme
-              </NavLink>
-
-              <NavLink
-                to="/customers/due-tracking"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Vade Takibi
-              </NavLink>
-
-              <NavLink
-                to="/customers/reports"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Cari Raporlar
-              </NavLink>
-
-            </div>
-          )}
-
-
-          {/* SİPARİŞ - TEKLİF */}
-
-          <button
-            type="button"
-            className={`ren-menu-item ren-menu-parent ${
-              isOrdersPage
-                ? "section-active"
-                : ""
-            }`}
-            onClick={() =>
-              setOrdersOpen(
-                (value) =>
-                  !value
-              )
-            }
-          >
-
-            <span className="ren-menu-icon">
-              ▤
-            </span>
-
-            <span>
-              Sipariş - Teklif
-            </span>
-
-            <span className="ren-menu-arrow">
-              {ordersOpen
-                ? "⌃"
-                : "⌄"}
-            </span>
-
-          </button>
-
-
-          {ordersOpen && (
-            <div className="ren-submenu">
-
-              <NavLink
-                to="/orders?type=all"
-                className="ren-submenu-item"
-              >
-                Tüm Sipariş / Teklifler
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=offer"
-                className="ren-submenu-item"
-              >
-                Teklifler
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=new-offer"
-                className="ren-submenu-item"
-              >
-                Yeni Teklif
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=order"
-                className="ren-submenu-item"
-              >
-                Siparişler
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=new-order"
-                className="ren-submenu-item"
-              >
-                Yeni Sipariş
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=converted"
-                className="ren-submenu-item"
-              >
-                Tekliften Siparişe
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=invoice"
-                className="ren-submenu-item"
-              >
-                Siparişten Faturaya
-              </NavLink>
-
-              <NavLink
-                to="/orders?type=reports"
-                className="ren-submenu-item"
-              >
-                Sipariş / Teklif Raporu
-              </NavLink>
-
-            </div>
-          )}
-
-
-          {/* FATURALAR */}
-
-          <button
-            type="button"
-            className={`ren-menu-item ren-menu-parent ${
-              isInvoicePage
-                ? "section-active"
-                : ""
-            }`}
-            onClick={() =>
-              setInvoiceOpen(
-                (value) =>
-                  !value
-              )
-            }
-          >
-
-            <span className="ren-menu-icon">
-              ▥
-            </span>
-
-            <span>
-              Faturalar
-            </span>
-
-            <span className="ren-menu-arrow">
-              {invoiceOpen
-                ? "⌃"
-                : "⌄"}
-            </span>
-
-          </button>
-
-
-          {invoiceOpen && (
-            <div className="ren-submenu">
-
-              <NavLink
-                to="/invoices"
-                end
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Fatura Listesi
-              </NavLink>
-
-              <NavLink
-                to="/invoices/new"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Yeni Fatura
-              </NavLink>
-
-              <NavLink
-                to="/invoices/sales"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Satış Faturaları
-              </NavLink>
-
-              <NavLink
-                to="/invoices/purchases"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Alış Faturaları
-              </NavLink>
-
-              <NavLink
-                to="/invoices/returns"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                İade Faturaları
-              </NavLink>
-
-              <NavLink
-                to="/invoices/reports"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Fatura Raporları
-              </NavLink>
-
-            </div>
-          )}
-
-
-          {/* NAKİT */}
-
-          <button
-            type="button"
-            className={`ren-menu-item ren-menu-parent ${
-              isCashPage
-                ? "section-active"
-                : ""
-            }`}
-            onClick={() =>
-              setCashOpen(
-                (value) =>
-                  !value
-              )
-            }
-          >
-
-            <span className="ren-menu-icon">
-              ₺
-            </span>
-
-            <span>
-              Nakit
-            </span>
-
-            <span className="ren-menu-arrow">
-              {cashOpen
-                ? "⌃"
-                : "⌄"}
-            </span>
-
-          </button>
-
-
-          {cashOpen && (
-            <div className="ren-submenu">
-
-              <NavLink
-                to="/cash-bank/accounts"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Kasa ve Bankalar
-              </NavLink>
-
-              <NavLink
-                to="/cash-bank/checks"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Çekler
-              </NavLink>
-
-              <NavLink
-                to="/cash-bank/reports"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Kasa / Banka Raporu
-              </NavLink>
-
-              <NavLink
-                to="/cash-bank/cash-flow"
-                className={({ isActive }) =>
-                  `ren-submenu-item ${
-                    isActive
-                      ? "active"
-                      : ""
-                  }`
-                }
-              >
-                Nakit Akışı Raporu
-              </NavLink>
-
-            </div>
-          )}
-
-
-          {/* RAPORLAR */}
-
-          <NavLink
+          />
+          {invoiceOpen ? (
+            <Submenu items={MENU.invoices} />
+          ) : null}
+
+          <GroupButton
+            label="Nakit"
+            icon={MdAccountBalanceWallet}
+            open={cashOpen}
+            active={isCashPage}
+            onClick={() => setCashOpen((value) => !value)}
+          />
+          {cashOpen ? <Submenu items={MENU.cash} /> : null}
+
+          <SimpleMenuItem
             to="/reports"
-            className={({ isActive }) =>
-              `ren-menu-item ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
+            label="Raporlar"
+            icon={MdBarChart}
+          />
 
-            <span className="ren-menu-icon">
-              ▥
-            </span>
-
-            <span>
-              Raporlar
-            </span>
-
-          </NavLink>
-
-
-          {/* REN AI */}
-
-          <NavLink
+          <SimpleMenuItem
             to="/assistant"
-            className={({ isActive }) =>
-              `ren-menu-item ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
+            label="REN AI"
+            icon={MdApps}
+          />
 
-            <span className="ren-menu-icon">
-              ✦
-            </span>
-
-            <span>
-              REN AI
-            </span>
-
-          </NavLink>
-
-
-          {/* AYARLAR */}
-
-          <NavLink
+          <SimpleMenuItem
             to="/settings"
-            className={({ isActive }) =>
-              `ren-menu-item ${
-                isActive
-                  ? "active"
-                  : ""
-              }`
-            }
-          >
-
-            <span className="ren-menu-icon">
-              ⚙
-            </span>
-
-            <span>
-              Ayarlar
-            </span>
-
-          </NavLink>
-
+            label="Ayarlar"
+            icon={MdSettings}
+          />
         </nav>
 
-
         <div className="ren-sidebar-bottom">
-
           <div className="ren-user-card">
-
-            <div className="ren-user-avatar">
-              R
-            </div>
+            <div className="ren-user-avatar">R</div>
 
             <div className="ren-user-info">
-
-              <strong>
-                REN Endüstriyel
-              </strong>
-
-              <span>
-                Yönetici
-              </span>
-
+              <strong>REN Endüstriyel</strong>
+              <span>Yönetici</span>
             </div>
 
+            <MdKeyboardArrowDown className="ren-user-arrow" />
           </div>
-
         </div>
-
       </aside>
 
-
       <main className="ren-main">
-
         <header className="ren-topbar">
-
           <div className="ren-topbar-left">
-
             <button
               type="button"
               className="ren-mobile-menu-button"
               aria-label="Menüyü aç"
-              onClick={() =>
-                setSidebarOpen(
-                  true
-                )
-              }
+              onClick={() => setSidebarOpen(true)}
             >
-              ☰
+              <MdMenu />
             </button>
 
-            <div className="ren-topbar-title">
-              REN ERP
+            <div className="ren-breadcrumb">
+              <span>Anasayfa</span>
+              <b>/</b>
+              <strong>
+                {pathname === "/dashboard"
+                  ? "Özet"
+                  : pathname === "/quick-sale"
+                  ? "Hızlı Satış"
+                  : pathname.startsWith("/stock")
+                  ? "Stok"
+                  : pathname.startsWith("/customers")
+                  ? "Cari"
+                  : pathname.startsWith("/invoices")
+                  ? "Faturalar"
+                  : pathname.startsWith("/cash-bank")
+                  ? "Nakit"
+                  : pathname.startsWith("/reports")
+                  ? "Raporlar"
+                  : pathname.startsWith("/orders")
+                  ? "Sipariş - Teklif"
+                  : "REN ERP"}
+              </strong>
             </div>
-
           </div>
 
-
           <div className="ren-topbar-right">
+            <div className="ren-view-switch">
+              <button
+                type="button"
+                className={uiMode === "basic" ? "active" : ""}
+                onClick={() => setUiMode("basic")}
+              >
+                Temel
+              </button>
+
+              <button
+                type="button"
+                className={uiMode === "advanced" ? "active" : ""}
+                onClick={() => setUiMode("advanced")}
+              >
+                Gelişmiş
+              </button>
+            </div>
 
             <button
               type="button"
-              className="ren-topbar-button"
+              className="ren-theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Gündüz görünümüne geç" : "Gece görünümüne geç"}
+              title={theme === "dark" ? "Gündüz görünümü" : "Gece görünümü"}
             >
-              ?
+              {theme === "dark" ? "☀" : "☾"}
+              <span>{theme === "dark" ? "Gündüz" : "Gece"}</span>
             </button>
 
+            <div className="ren-quick-action-wrap" ref={quickMenuRef}>
+              <button
+                type="button"
+                className={`ren-quick-action-button ${
+                  quickOpen ? "open" : ""
+                }`}
+                onClick={() => setQuickOpen((value) => !value)}
+              >
+                <MdAddBox />
+                Hızlı İşlem
+                <MdArrowDropDown />
+              </button>
 
-            <div className="ren-profile">
-
-              <div className="ren-profile-avatar">
-                ME
-              </div>
-
-              <div className="ren-profile-info">
-
-                <strong>
-                  Mehmet
-                </strong>
-
-                <span>
-                  REN Endüstriyel
-                </span>
-
-              </div>
-
+              {quickOpen ? (
+                <QuickActionMenu onNavigate={runQuickAction} />
+              ) : null}
             </div>
 
+            <button
+              type="button"
+              className="ren-topbar-icon-button"
+              aria-label="Uygulamalar"
+            >
+              <MdApps />
+            </button>
+
+            <button
+              type="button"
+              className="ren-topbar-icon-button ren-notification-button"
+              aria-label="Bildirimler"
+            >
+              <MdNotificationsNone />
+              <span />
+            </button>
+
+            <div className="ren-profile">
+              <div className="ren-profile-avatar">ME</div>
+
+              <div className="ren-profile-info">
+                <strong>Mehmet</strong>
+                <span>REN Endüstriyel</span>
+              </div>
+
+              <MdKeyboardArrowDown className="ren-profile-arrow" />
+            </div>
           </div>
-
         </header>
-
 
         <div className="ren-content">
           <Outlet />
         </div>
-
       </main>
-
     </div>
   );
 }

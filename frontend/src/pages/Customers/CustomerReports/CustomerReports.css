@@ -1,7 +1,14 @@
+/* =========================================================
+   REN ERP — CARİ RAPORLAR
+   Gerçek CustomerReports yapısı korunmuştur.
+   Yalnızca tema, tipografi ve okunabilirlik düzenlenmiştir.
+   Layout / Sidebar / Topbar etkilenmez.
+========================================================= */
+
 .customer-reports-page {
   min-height: 100vh;
-  background: #f5f7fa;
-  color: #172033;
+  background: #14212b !important;
+  color: #e8eef2 !important;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
@@ -11,7 +18,6 @@
   padding: 30px 32px 40px;
   box-sizing: border-box;
 }
-
 
 /* HEADER */
 
@@ -28,26 +34,30 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  color: #8a95a5;
-  font-size: 11px;
+  color: #8193a1 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
 }
 
 .customer-reports-breadcrumb strong {
-  color: #7c8797;
+  color: #b9c6ce !important;
 }
 
 .customer-reports-header h1 {
   margin: 0;
-  color: #172033;
-  font-size: 27px;
-  font-weight: 750;
+  color: #edf3f6 !important;
+  font-size: 30px !important;
+  line-height: 1.12;
+  font-weight: 750 !important;
   letter-spacing: -0.4px;
 }
 
 .customer-reports-header p {
   margin: 7px 0 0;
-  color: #8994a3;
-  font-size: 12px;
+  color: #9aaab5 !important;
+  font-size: 14px !important;
+  line-height: 1.5;
+  font-weight: 500 !important;
 }
 
 .customer-reports-secondary {
@@ -56,26 +66,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #dce3eb;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid #354650 !important;
   border-radius: 7px;
-  background: #fff;
-  color: #526073;
+  background: #1b2a34 !important;
+  color: #dce6eb !important;
   text-decoration: none;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 13px !important;
+  font-weight: 700 !important;
 }
 
 .customer-reports-secondary:hover {
-  color: #286fc7;
-  background: #f7f9fb;
+  color: #ffffff !important;
+  background: #20323d !important;
+  border-color: #4a5c68 !important;
 }
-
 
 /* SUMMARY */
 
 .customer-reports-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 11px;
   margin-bottom: 11px;
 }
@@ -87,39 +99,43 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid #e1e7ee;
+  border: 1px solid #2d3d47 !important;
   border-radius: 8px;
-  background: #fff;
+  background: #1b2a34 !important;
 }
 
 .customer-report-card span {
-  color: #8b96a5;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .25px;
+  display: block;
+  color: #93a3ae !important;
+  font-size: 11px !important;
+  line-height: 1.2;
+  font-weight: 800 !important;
+  letter-spacing: 0.25px;
 }
 
 .customer-report-card strong {
+  display: block;
   margin-top: 6px;
-  color: #263247;
-  font-size: 18px;
-  font-weight: 750;
+  color: #edf3f6 !important;
+  font-size: 21px !important;
+  line-height: 1.2;
+  font-weight: 750 !important;
+  white-space: nowrap;
 }
 
 .customer-report-card strong.debt {
-  color: #bd4d43;
+  color: #e97786 !important;
 }
 
 .customer-report-card strong.credit {
-  color: #2b8967;
+  color: #42bd88 !important;
 }
-
 
 /* MINI SUMMARY */
 
 .customer-reports-mini-summary {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 11px;
   margin-bottom: 15px;
 }
@@ -131,41 +147,46 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #e1e7ee;
+  gap: 12px;
+  border: 1px solid #2d3d47 !important;
   border-radius: 8px;
-  background: #fff;
+  background: #1b2a34 !important;
 }
 
 .customer-reports-mini-summary span {
-  color: #8b96a5;
-  font-size: 8px;
-  font-weight: 800;
+  display: block;
+  color: #93a3ae !important;
+  font-size: 11px !important;
+  line-height: 1.2;
+  font-weight: 800 !important;
 }
 
 .customer-reports-mini-summary strong {
-  color: #526073;
-  font-size: 14px;
+  display: block;
+  color: #dce6eb !important;
+  font-size: 17px !important;
+  line-height: 1.2;
+  font-weight: 750 !important;
+  white-space: nowrap;
 }
 
 .customer-reports-mini-summary strong.debt {
-  color: #bd4d43;
+  color: #e97786 !important;
 }
 
 .customer-reports-mini-summary strong.credit {
-  color: #2b8967;
+  color: #42bd88 !important;
 }
-
 
 /* CARD */
 
 .customer-reports-card {
   overflow: hidden;
-  border: 1px solid #e1e7ee;
+  border: 1px solid #2d3d47 !important;
   border-radius: 9px;
-  background: #fff;
-  box-shadow: 0 4px 18px rgba(30, 45, 65, .035);
+  background: #1b2a34 !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
-
 
 /* TOOLBAR */
 
@@ -176,13 +197,14 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  border-bottom: 1px solid #e8edf2;
+  border-bottom: 1px solid #293b45 !important;
 }
 
 .customer-reports-search {
   position: relative;
   width: 350px;
   height: 39px;
+  flex-shrink: 0;
 }
 
 .customer-reports-search > span {
@@ -190,8 +212,10 @@
   left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9aa5b4;
-  font-size: 18px;
+  color: #7f94a1 !important;
+  font-size: 20px !important;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .customer-reports-search input {
@@ -199,19 +223,25 @@
   height: 100%;
   padding: 0 35px;
   box-sizing: border-box;
-  border: 1px solid #dce3eb;
+  border: 1px solid #354650 !important;
   border-radius: 7px;
   outline: none;
-  background: #fafbfd;
-  color: #263247;
+  background: #172731 !important;
+  color: #e7edf2 !important;
+  color-scheme: dark;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px !important;
+  line-height: 1;
+}
+
+.customer-reports-search input::placeholder {
+  color: #718490 !important;
 }
 
 .customer-reports-search input:focus {
-  background: #fff;
-  border-color: #83aee0;
-  box-shadow: 0 0 0 3px rgba(40, 111, 199, .07);
+  background: #192b35 !important;
+  border-color: #39a978 !important;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.12) !important;
 }
 
 .customer-reports-search button {
@@ -221,40 +251,60 @@
   transform: translateY(-50%);
   width: 22px;
   height: 22px;
-  border: 0;
+  padding: 0;
+  border: 0 !important;
   border-radius: 50%;
-  background: #eef2f6;
-  color: #687588;
+  background: #263944 !important;
+  color: #b8c5cc !important;
   cursor: pointer;
+  line-height: 20px;
+  font-size: 15px !important;
+}
+
+.customer-reports-search button:hover {
+  background: #324853 !important;
+  color: #ffffff !important;
 }
 
 .customer-reports-filter {
   height: 39px;
   min-width: 160px;
   padding: 0 10px;
-  border: 1px solid #dce3eb;
+  box-sizing: border-box;
+  border: 1px solid #354650 !important;
   border-radius: 7px;
   outline: none;
-  background: #fff;
-  color: #4d596b;
+  background: #172731 !important;
+  color: #dce6eb !important;
+  color-scheme: dark;
   font-family: inherit;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.customer-reports-filter:focus {
+  border-color: #39a978 !important;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.12) !important;
 }
 
 .customer-reports-clear {
   height: 36px;
   padding: 0 11px;
-  border: 1px solid #dce3eb;
+  box-sizing: border-box;
+  border: 1px solid #354650 !important;
   border-radius: 7px;
-  background: #fff;
-  color: #687588;
+  background: #202f39 !important;
+  color: #dce6eb !important;
   cursor: pointer;
   font-family: inherit;
-  font-size: 10px;
-  font-weight: 650;
+  font-size: 11px !important;
+  font-weight: 650 !important;
 }
 
+.customer-reports-clear:hover {
+  background: #263943 !important;
+  border-color: #4a5c68 !important;
+}
 
 /* RESULT */
 
@@ -265,15 +315,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #edf0f3;
-  color: #8994a3;
-  font-size: 10px;
+  gap: 18px;
+  border-bottom: 1px solid #263640 !important;
+  color: #91a2ad !important;
+  font-size: 12px !important;
+  line-height: 1.2;
 }
 
 .customer-reports-result strong {
-  color: #526073;
+  color: #e4edf1 !important;
+  font-weight: 700 !important;
 }
-
 
 /* TABLE */
 
@@ -286,34 +338,39 @@
   width: 100%;
   min-width: 1250px;
   border-collapse: collapse;
+  background: #1b2a34 !important;
 }
 
 .customer-reports-table thead th {
   height: 40px;
   padding: 0 12px;
-  background: #fafbfd;
-  border-bottom: 1px solid #e5eaf0;
-  color: #8a95a4;
+  box-sizing: border-box;
+  background: #172731 !important;
+  border-bottom: 1px solid #30404a !important;
+  color: #8ea2ad !important;
   text-align: left;
   white-space: nowrap;
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: .25px;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.25px;
+  vertical-align: middle;
 }
 
 .customer-reports-table tbody td {
   height: 62px;
   padding: 7px 12px;
-  border-bottom: 1px solid #edf1f4;
-  color: #586477;
+  box-sizing: border-box;
+  border-bottom: 1px solid #273740 !important;
+  color: #ccd7dd !important;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 13px !important;
+  line-height: 1.25;
+  vertical-align: middle;
 }
 
 .customer-reports-table tbody tr:hover {
-  background: #fafcff;
+  background: #1e303a !important;
 }
-
 
 /* CUSTOMER */
 
@@ -321,7 +378,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  min-width: 210px;
+  min-width: 240px;
 }
 
 .report-avatar {
@@ -332,50 +389,60 @@
   align-items: center;
   justify-content: center;
   border-radius: 7px;
-  background: #edf4fc;
-  color: #286fc7;
-  font-size: 10px;
-  font-weight: 800;
+  background: #1f3540 !important;
+  color: #72aee1 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.report-customer > div {
+  min-width: 0;
+  display: block;
 }
 
 .report-customer strong {
   display: block;
-  color: #354257;
-  font-size: 10px;
-  font-weight: 650;
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #edf3f6 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
 }
 
 .report-customer small {
   display: block;
   margin-top: 3px;
-  color: #9ba4b1;
+  color: #81939e !important;
   font-family: Consolas, monospace;
-  font-size: 8px;
+  font-size: 10px !important;
 }
-
 
 /* TYPE */
 
 .report-type {
   display: inline-flex;
   align-items: center;
-  min-height: 23px;
+  min-height: 24px;
   padding: 0 8px;
+  box-sizing: border-box;
   border-radius: 5px;
-  font-size: 8px;
-  font-weight: 700;
+  white-space: nowrap;
+  font-size: 11px !important;
+  font-weight: 700 !important;
 }
 
 .report-type.customer {
-  background: #edf4fc;
-  color: #286fc7;
+  background: #17382d !important;
+  color: #69cf9d !important;
+  border: 1px solid #285f4a !important;
 }
 
 .report-type.supplier {
-  background: #fff3e8;
-  color: #b96e25;
+  background: #3b3020 !important;
+  color: #e2b76f !important;
+  border: 1px solid #66502f !important;
 }
-
 
 /* MONEY */
 
@@ -388,26 +455,26 @@
 }
 
 .report-money strong {
-  font-size: 9px;
-  font-weight: 750;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  white-space: nowrap;
 }
 
 .report-money strong.debt {
-  color: #bd4d43;
+  color: #e97786 !important;
 }
 
 .report-money strong.credit {
-  color: #2b8967;
+  color: #42bd88 !important;
 }
 
 .report-money > span {
-  color: #b0b7c0;
+  color: #96a6b0 !important;
 }
 
 .report-money .neutral {
-  color: #8994a3;
+  color: #aab7bf !important;
 }
-
 
 /* MOVEMENT */
 
@@ -415,16 +482,16 @@
   min-width: 28px;
   height: 23px;
   padding: 0 7px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 5px;
-  background: #f1f4f7;
-  color: #687588;
-  font-size: 8px;
-  font-weight: 750;
+  background: #202f39 !important;
+  color: #b7c5cd !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
 }
-
 
 /* ACTION */
 
@@ -439,30 +506,31 @@
 .report-detail-button {
   height: 29px;
   padding: 0 10px;
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #dce3eb;
+  border: 1px solid #354650 !important;
   border-radius: 6px;
-  background: #fff;
-  color: #526073;
+  background: #202f39 !important;
+  color: #72aee1 !important;
   text-decoration: none;
-  font-size: 8px;
-  font-weight: 700;
+  font-size: 11px !important;
+  font-weight: 700 !important;
 }
 
 .report-detail-button:hover {
-  border-color: #a9c5e6;
-  color: #286fc7;
-  background: #f7faff;
+  border-color: #5c7890 !important;
+  color: #91c2ec !important;
+  background: #263943 !important;
 }
-
 
 /* EMPTY */
 
 .customer-reports-empty {
   height: 230px !important;
   text-align: center !important;
+  color: #7f919c !important;
 }
 
 .customer-reports-empty > div {
@@ -473,48 +541,49 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #f1f4f7;
-  color: #98a2b0;
-  font-size: 21px;
+  background: #202f39 !important;
+  color: #8ea3ad !important;
+  font-size: 21px !important;
 }
 
 .customer-reports-empty strong {
   display: block;
-  color: #354257;
-  font-size: 12px;
+  color: #d8e2e7 !important;
+  font-size: 13px !important;
 }
 
 .customer-reports-empty span {
   display: block;
   margin-top: 5px;
-  color: #929cab;
-  font-size: 9px;
+  color: #8799a4 !important;
+  font-size: 11px !important;
 }
-
 
 /* FOOTER */
 
 .customer-reports-footer {
   min-height: 52px;
   padding: 0 15px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #8a95a4;
-  font-size: 9px;
+  gap: 18px;
+  color: #8ea0ab !important;
+  font-size: 11px !important;
 }
 
 .customer-reports-footer strong {
-  color: #526073;
+  color: #d9e3e8 !important;
+  font-weight: 700 !important;
 }
-
 
 /* RESPONSIVE */
 
 @media (max-width: 1200px) {
   .customer-reports-summary,
   .customer-reports-mini-summary {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .customer-reports-toolbar {
@@ -523,6 +592,7 @@
 
   .customer-reports-search {
     width: 100%;
+    flex-shrink: 1;
   }
 }
 
@@ -550,5 +620,42 @@
   .customer-reports-summary,
   .customer-reports-mini-summary {
     grid-template-columns: 1fr;
+  }
+}
+
+/* PRINT */
+
+@media print {
+  .customer-reports-page {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .customer-reports-secondary,
+  .customer-reports-toolbar {
+    display: none !important;
+  }
+
+  .customer-report-card,
+  .customer-reports-mini-summary > div,
+  .customer-reports-card {
+    background: #fff !important;
+    color: #111 !important;
+    border-color: #d7dde3 !important;
+    box-shadow: none !important;
+  }
+
+  .customer-reports-table {
+    background: #fff !important;
+  }
+
+  .customer-reports-table thead th {
+    background: #f5f7f9 !important;
+    color: #253245 !important;
+  }
+
+  .customer-reports-table tbody td {
+    color: #273244 !important;
+    border-color: #e3e7eb !important;
   }
 }

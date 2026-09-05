@@ -1,158 +1,188 @@
+/* =========================================================
+   REN ERP — TOPLU İŞLEMLER
+   Koyu tema + kompakt düzen + REN Standart Tipografi
+   Mevcut BulkOperations.jsx sınıfları korunmuştur.
+========================================================= */
+
 .bulk-page {
   min-height: 100%;
-  padding: 30px;
-  background: #f6f8fb;
-  color: #172033;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #14212b;
+  color: #e8eef2;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .bulk-header {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .breadcrumb {
-  color: #7b8495;
+  color: #82919b;
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 }
 
 .breadcrumb span {
   margin: 0 7px;
-  color: #b2b8c3;
+  color: #52636e;
 }
 
 .bulk-header h1 {
   margin: 0;
-  font-size: 30px;
+  color: #edf3f6;
+  font-size: 22px;
+  line-height: 1.2;
   font-weight: 750;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.2px;
 }
 
 .bulk-header p {
-  margin: 8px 0 0;
-  color: #7b8495;
-  font-size: 14px;
+  margin: 7px 0 0;
+  color: #9eacb5;
+  font-size: 15px;
+  line-height: 1.5;
 }
+
+/* =========================================================
+   BAŞARI
+========================================================= */
 
 .success-message {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 12px 15px;
-  margin-bottom: 14px;
-  border: 1px solid #ccebdc;
+  gap: 10px;
+  padding: 11px 14px;
+  margin-bottom: 13px;
+  border: 1px solid rgba(57, 169, 120, 0.25);
   border-radius: 9px;
-  background: #eefaf4;
-  color: #16834b;
-  font-size: 12px;
+  background: rgba(57, 169, 120, 0.10);
+  color: #69d09f;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .success-message span {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #16834b;
+  background: #39a978;
   color: #fff;
 }
 
+/* =========================================================
+   KARTLAR
+========================================================= */
+
 .operation-card,
-.products-card {
-  background: #fff;
-  border: 1px solid #e0e5ec;
-  border-radius: 12px;
-  box-shadow:
-    0 3px 12px
-    rgba(25, 40, 65, 0.035);
+.products-card,
+.bulk-price-preview {
+  background: #1b2a34;
+  border: 1px solid #2c3c47;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.13);
 }
 
 .operation-card {
-  padding: 20px;
-  margin-bottom: 14px;
+  padding: 18px;
+  margin-bottom: 13px;
 }
+
+/* =========================================================
+   BÖLÜM BAŞLIĞI
+========================================================= */
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 11px;
+  margin-bottom: 17px;
 }
 
 .section-icon {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
   border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #edf4ff;
-  color: #1769e8;
-  font-size: 19px;
+  background: rgba(114, 174, 225, 0.11);
+  border: 1px solid rgba(114, 174, 225, 0.18);
+  color: #72aee1;
+  font-size: 18px;
   font-weight: 800;
 }
 
 .section-title h2,
 .products-toolbar h2 {
   margin: 0;
+  color: #edf3f6;
   font-size: 16px;
+  line-height: 1.2;
   font-weight: 750;
 }
 
 .section-title p,
 .products-toolbar p {
   margin: 4px 0 0;
-  color: #8a94a4;
-  font-size: 11px;
+  color: #7f909b;
+  font-size: 13px;
+  line-height: 1.4;
 }
+
+/* =========================================================
+   İŞLEM FORMU
+========================================================= */
 
 .operation-grid {
   display: grid;
-  grid-template-columns:
-    1fr 1fr 0.8fr;
-  gap: 13px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(250px, 0.8fr);
+  gap: 12px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 7px;
-  color: #344055;
-  font-size: 11px;
+  margin-bottom: 6px;
+  color: #b7c3ca;
+  font-size: 13px;
+  line-height: 1.2;
   font-weight: 750;
 }
 
 .form-group select,
 .value-input {
   width: 100%;
-  height: 44px;
+  height: 42px;
   box-sizing: border-box;
-  border: 1px solid #dce2e9;
+  border: 1px solid #344752;
   border-radius: 8px;
-  background: #fff;
+  background: #172731;
   outline: 0;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 .form-group select {
   padding: 0 11px;
-  color: #273347;
+  color: #edf3f6;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .form-group select:focus,
 .value-input:focus-within {
-  border-color: #1769e8;
-  box-shadow:
-    0 0 0 3px
-    rgba(23, 105, 232, 0.08);
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.09);
+}
+
+.form-group select option {
+  background: #172731;
+  color: #edf3f6;
 }
 
 .value-input {
@@ -168,115 +198,299 @@
   border: 0;
   outline: 0;
   font-family: inherit;
-  font-size: 13px;
-  color: #202b3c;
+  font-size: 14px;
+  color: #edf3f6;
+  background: transparent;
+}
+
+.value-input input::placeholder {
+  color: #74848e;
 }
 
 .value-input span {
-  padding: 0 12px;
-  color: #7c8798;
-  font-size: 12px;
+  min-width: 41px;
+  padding: 0 11px;
+  color: #84949d;
+  font-size: 13px;
   font-weight: 750;
+  text-align: center;
 }
 
 .operation-info {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 15px;
+  margin-top: 13px;
   padding: 10px 12px;
+  border: 1px solid #293a45;
   border-radius: 7px;
-  background: #f7f9fb;
-  color: #697588;
-  font-size: 11px;
+  background: #172731;
+  color: #84949d;
+  font-size: 13px;
 }
 
 .operation-info strong {
-  color: #344055;
+  color: #c8d3d9;
 }
+
+/* =========================================================
+   FİYAT ÖNİZLEME
+========================================================= */
+
+.bulk-price-preview {
+  margin-bottom: 13px;
+  overflow: hidden;
+}
+
+.bulk-price-preview-header {
+  min-height: 60px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #293a45;
+  background: #172731;
+}
+
+.bulk-price-preview-header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.bulk-price-preview-header strong {
+  color: #edf3f6;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.bulk-price-preview-header > div > span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(57, 169, 120, 0.12);
+  color: #69d09f;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.bulk-price-preview-header > span {
+  color: #788994;
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.bulk-preview-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.bulk-preview-row {
+  min-height: 62px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 125px 28px 125px;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid #273842;
+  background: #1b2a34;
+  transition: background .15s ease;
+}
+
+.bulk-preview-row:hover {
+  background: #1e303b;
+}
+
+.bulk-preview-row:last-child {
+  border-bottom: 0;
+}
+
+.bulk-preview-row > div {
+  min-width: 0;
+}
+
+.bulk-preview-row > div strong {
+  display: block;
+  overflow: hidden;
+  color: #e5edf1;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulk-preview-row > div small {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #7f919b;
+  font-size: 12px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-old,
+.preview-new {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-old {
+  color: #8796a0;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.preview-arrow {
+  color: #637580;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.preview-new {
+  color: #69d09f;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.bulk-preview-more {
+  padding: 10px 16px;
+  border-top: 1px solid #293a45;
+  background: #172731;
+  color: #7f909b;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =========================================================
+   ÜRÜNLER KARTI
+========================================================= */
 
 .products-card {
   overflow: hidden;
 }
 
 .products-toolbar {
-  min-height: 70px;
-  padding: 15px 20px;
+  min-height: 66px;
+  padding: 13px 18px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e7ebf0;
+  border-bottom: 1px solid #293a45;
+  background: #1b2a34;
 }
 
 .selected-count {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  color: #8a94a4;
-  font-size: 11px;
+  color: #84949e;
+  font-size: 13px;
 }
 
 .selected-count strong {
-  color: #1769e8;
-  font-size: 18px;
+  color: #69d09f;
+  font-size: 20px;
+  line-height: 1;
 }
 
 .search-row {
-  padding: 13px 20px;
+  padding: 11px 18px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  border-bottom: 1px solid #edf0f4;
+  gap: 8px;
+  border-bottom: 1px solid #293a45;
+  background: #1b2a34;
 }
 
 .bulk-search {
-  height: 42px;
+  height: 40px;
   flex: 1;
-  border: 1px solid #dfe4eb;
+  min-width: 0;
+  border: 1px solid #344752;
   border-radius: 8px;
-  background: #fbfcfe;
+  background: #172731;
   display: flex;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 11px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.bulk-search:focus-within {
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.08);
 }
 
 .bulk-search span {
-  color: #7c8798;
+  color: #82939e;
   font-size: 21px;
-  margin-right: 8px;
+  line-height: 1;
+  margin-right: 7px;
 }
 
 .bulk-search input {
   width: 100%;
+  min-width: 0;
   border: 0;
   outline: 0;
   background: transparent;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
+  color: #edf3f6;
+}
+
+.bulk-search input::placeholder {
+  color: #73838e;
 }
 
 .select-all-button,
 .clear-selection {
-  height: 42px;
+  height: 40px;
   padding: 0 13px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 750;
 }
 
 .select-all-button {
-  border: 1px solid #d6e2f8;
-  background: #f2f6fd;
-  color: #1769e8;
+  border: 1px solid rgba(114, 174, 225, 0.25);
+  background: rgba(114, 174, 225, 0.09);
+  color: #72aee1;
+}
+
+.select-all-button:hover {
+  background: rgba(114, 174, 225, 0.15);
 }
 
 .clear-selection {
-  border: 1px solid #e5d8d8;
-  background: #fff8f8;
-  color: #c84747;
+  border: 1px solid rgba(217, 87, 104, 0.24);
+  background: rgba(217, 87, 104, 0.08);
+  color: #e77887;
 }
+
+.clear-selection:hover {
+  background: rgba(217, 87, 104, 0.14);
+}
+
+/* =========================================================
+   ÜRÜN TABLOSU
+========================================================= */
 
 .product-table {
   overflow-x: auto;
@@ -286,32 +500,32 @@
 .product-row {
   min-width: 850px;
   display: grid;
-  grid-template-columns:
-    45px minmax(270px, 1.8fr)
-    130px 100px 100px 90px 80px;
+  grid-template-columns: 45px minmax(270px, 1.8fr) 130px 100px 100px 90px 80px;
   align-items: center;
   gap: 12px;
-  padding: 0 20px;
+  padding: 0 18px;
 }
 
 .product-table-header {
-  min-height: 48px;
-  background: #fafbfd;
-  border-bottom: 1px solid #e2e6ec;
-  color: #7a8494;
-  font-size: 10px;
+  min-height: 45px;
+  background: #172731;
+  border-bottom: 1px solid #2c3c47;
+  color: #8fa0aa;
+  font-size: 12px;
   font-weight: 800;
+  letter-spacing: .15px;
 }
 
 .product-row {
-  min-height: 70px;
-  border-bottom: 1px solid #edf0f4;
-  transition: background 0.15s ease;
+  min-height: 66px;
+  border-bottom: 1px solid #273842;
+  background: #1b2a34;
+  transition: background .15s ease;
 }
 
 .product-row:hover,
 .product-row.selected {
-  background: #f8fbff;
+  background: #1e303b;
 }
 
 .checkbox-cell {
@@ -323,95 +537,118 @@
 .checkbox-cell input {
   width: 16px;
   height: 16px;
-  accent-color: #1769e8;
+  accent-color: #39a978;
   cursor: pointer;
+}
+
+.product-info {
+  min-width: 0;
 }
 
 .product-info strong {
   display: block;
-  color: #253145;
-  font-size: 12px;
+  overflow: hidden;
+  color: #e6eef2;
+  font-size: 14px;
+  line-height: 1.35;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .product-info small {
   display: block;
   margin-top: 4px;
-  color: #9aa3b1;
-  font-size: 10px;
+  color: #7f909b;
+  font-size: 12px;
 }
 
 .brand-cell {
-  color: #687487;
-  font-size: 11px;
+  overflow: hidden;
+  color: #98a7b0;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .price-cell {
-  color: #59667a;
-  font-size: 11px;
+  color: #aab6bd;
+  font-size: 13px;
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .price-cell.sale {
-  color: #1769e8;
-  font-weight: 750;
+  color: #69d09f;
+  font-weight: 800;
 }
 
 .profit-cell {
-  color: #16834b;
-  font-size: 11px;
-  font-weight: 750;
+  color: #69d09f;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .stock-cell {
-  color: #273347;
-  font-size: 12px;
+  color: #d6e0e5;
+  font-size: 14px;
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .empty-products {
-  padding: 55px;
+  padding: 55px 20px;
   text-align: center;
-  color: #8a94a4;
-  font-size: 12px;
+  color: #81919b;
+  font-size: 14px;
 }
 
+/* =========================================================
+   ALT / UYGULAMA
+========================================================= */
+
 .products-footer {
-  min-height: 64px;
-  padding: 0 20px;
+  min-height: 65px;
+  padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #8a94a4;
-  font-size: 11px;
+  gap: 15px;
+  color: #84949e;
+  font-size: 13px;
+  background: #1b2a34;
 }
 
 .apply-button {
-  min-height: 42px;
+  min-height: 41px;
   padding: 0 18px;
-  border: 0;
+  border: 1px solid #39a978;
   border-radius: 8px;
-  background: #1769e8;
+  background: #39a978;
   color: #fff;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 750;
   cursor: pointer;
-  box-shadow:
-    0 5px 15px
-    rgba(23, 105, 232, 0.16);
+  box-shadow: 0 5px 15px rgba(57, 169, 120, 0.13);
 }
 
 .apply-button:hover:not(:disabled) {
-  background: #0f5ed7;
+  background: #2d8f67;
 }
 
 .apply-button:disabled {
-  background: #cbd3df;
+  border-color: #344752;
+  background: #293944;
+  color: #71818b;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-/* MODAL */
+/* =========================================================
+   MODAL
+========================================================= */
 
 .modal-overlay {
   position: fixed;
@@ -421,105 +658,171 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(15, 24, 39, 0.48);
-  backdrop-filter: blur(2px);
+  background: rgba(6, 12, 17, 0.74);
+  backdrop-filter: blur(3px);
 }
 
 .confirm-modal {
-  width: min(430px, 100%);
-  padding: 27px;
+  width: min(450px, 100%);
+  padding: 25px;
   box-sizing: border-box;
-  border-radius: 14px;
-  background: #fff;
+  border: 1px solid #344752;
+  border-radius: 12px;
+  background: #1b2a34;
   text-align: center;
-  box-shadow:
-    0 22px 65px
-    rgba(8, 20, 40, 0.22);
+  box-shadow: 0 22px 65px rgba(0, 0, 0, 0.34);
 }
 
 .confirm-icon {
   width: 48px;
   height: 48px;
-  margin: 0 auto 15px;
+  margin: 0 auto 14px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff5df;
-  color: #d88900;
+  background: rgba(217, 163, 77, 0.11);
+  border: 1px solid rgba(217, 163, 77, 0.18);
+  color: #dda652;
   font-size: 21px;
   font-weight: 800;
 }
 
 .confirm-modal h2 {
   margin: 0;
-  color: #172033;
-  font-size: 18px;
+  color: #edf3f6;
+  font-size: 20px;
+  line-height: 1.3;
 }
 
 .confirm-modal p {
-  margin: 10px 0 15px;
-  color: #7b8495;
-  font-size: 12px;
-  line-height: 1.6;
+  margin: 9px 0 14px;
+  color: #94a4ae;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .confirm-value {
   display: inline-block;
-  padding: 9px 14px;
+  padding: 8px 13px;
   border-radius: 7px;
-  background: #edf4ff;
-  color: #1769e8;
+  background: rgba(57, 169, 120, 0.12);
+  color: #69d09f;
   font-size: 15px;
   font-weight: 800;
+}
+
+.confirm-price-change {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 9px;
+  margin: 14px 0 5px;
+  padding: 10px 11px;
+  border: 1px solid #2d404b;
+  border-radius: 8px;
+  background: #172731;
+  text-align: left;
+}
+
+.confirm-price-change span {
+  color: #81919b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.confirm-price-change strong {
+  color: #a3b0b7;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.confirm-price-change b {
+  color: #647580;
+  font-size: 14px;
+}
+
+.confirm-price-change strong.new {
+  color: #69d09f;
 }
 
 .confirm-actions {
   display: flex;
   justify-content: center;
   gap: 9px;
-  margin-top: 22px;
+  margin-top: 20px;
 }
 
 .cancel-button,
 .confirm-button {
-  min-height: 41px;
+  min-height: 40px;
   padding: 0 16px;
   border-radius: 8px;
-  font-size: 12px;
+  font-family: inherit;
+  font-size: 13px;
   font-weight: 750;
   cursor: pointer;
 }
 
 .cancel-button {
-  border: 1px solid #dce1e8;
-  background: #fff;
-  color: #566173;
+  border: 1px solid #344752;
+  background: #202f39;
+  color: #c5d0d6;
+}
+
+.cancel-button:hover {
+  background: #293c47;
 }
 
 .confirm-button {
-  border: 1px solid #1769e8;
-  background: #1769e8;
+  border: 1px solid #39a978;
+  background: #39a978;
   color: #fff;
 }
 
 .confirm-button:hover {
-  background: #0f5ed7;
+  background: #2d8f67;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1050px) {
+  .operation-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .operation-grid .form-group:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .bulk-preview-row {
+    grid-template-columns: minmax(220px, 1fr) 110px 24px 110px;
+  }
 }
 
 @media (max-width: 900px) {
   .bulk-page {
-    padding: 20px 15px;
+    padding: 18px 15px 30px;
+  }
+
+  .bulk-header h1 {
+    font-size: 21px;
   }
 
   .operation-grid {
     grid-template-columns: 1fr;
   }
 
+  .operation-grid .form-group:last-child {
+    grid-column: auto;
+  }
+
   .products-toolbar {
     align-items: flex-start;
     flex-direction: column;
-    gap: 10px;
+    gap: 9px;
   }
 
   .search-row {
@@ -529,11 +832,90 @@
 
   .bulk-search {
     width: 100%;
-    box-sizing: border-box;
   }
 
   .select-all-button,
   .clear-selection {
     width: 100%;
+  }
+
+  .bulk-price-preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .bulk-preview-list {
+    max-height: none;
+  }
+
+  .bulk-preview-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 7px 12px;
+  }
+
+  .preview-old,
+  .preview-arrow,
+  .preview-new {
+    grid-row: 2;
+  }
+
+  .preview-old {
+    grid-column: 1;
+    text-align: left;
+  }
+
+  .preview-arrow {
+    grid-column: 1;
+    margin-left: 82px;
+  }
+
+  .preview-new {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .products-footer {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 13px 18px 16px;
+  }
+
+  .apply-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .bulk-page {
+    padding: 15px 12px 25px;
+  }
+
+  .bulk-header h1 {
+    font-size: 20px;
+  }
+
+  .bulk-header p {
+    font-size: 14px;
+  }
+
+  .operation-card {
+    padding: 15px;
+  }
+
+  .products-toolbar,
+  .search-row,
+  .bulk-price-preview-header {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .bulk-preview-row {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .confirm-modal {
+    padding: 21px 17px;
   }
 }

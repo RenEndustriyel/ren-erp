@@ -2,8 +2,8 @@
   min-height: 100vh;
   padding: 30px 34px 50px;
   box-sizing: border-box;
-  background: #f6f8fb;
-  color: #172033;
+  background: #14212b;
+  color: #e8eef2;
   font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
@@ -27,7 +27,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #3977c9;
+  color: #72aee1;
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -43,18 +43,18 @@
   align-items: center;
   gap: 8px;
   margin-top: 15px;
-  color: #9aa5b4;
+  color: #94a3ad;
   font-size: 10px;
 }
 
 .ren-return-invoices-breadcrumb strong {
-  color: #526075;
+  color: #c1ccd4;
   font-weight: 600;
 }
 
 .ren-return-invoices-header h1 {
   margin: 12px 0 5px;
-  color: #172033;
+  color: #e8eef2;
   font-size: 27px;
   line-height: 1.2;
   font-weight: 700;
@@ -63,7 +63,7 @@
 
 .ren-return-invoices-header p {
   margin: 0;
-  color: #7c8798;
+  color: #9caab5;
   font-size: 12px;
 }
 
@@ -76,8 +76,8 @@
   padding: 0 18px;
   border: 0;
   border-radius: 7px;
-  background: #286fc7;
-  color: #fff;
+  background: #39a978;
+  color: #1b2a34;
   font-family: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -86,7 +86,7 @@
 }
 
 .ren-return-invoices-new:hover {
-  background: #2163b4;
+  background: #2f9168;
 }
 
 .ren-return-invoices-new svg {
@@ -109,15 +109,15 @@
   min-height: 92px;
   padding: 17px 19px;
   box-sizing: border-box;
-  border: 1px solid #e2e7ee;
+  border: 1px solid #2d3b46;
   border-radius: 8px;
-  background: #fff;
+  background: #1b2a34;
 }
 
 .ren-return-invoices-summary span {
   display: block;
   margin-bottom: 8px;
-  color: #8b96a6;
+  color: #9aaab5;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.6px;
@@ -125,7 +125,7 @@
 
 .ren-return-invoices-summary strong {
   display: block;
-  color: #172033;
+  color: #e8eef2;
   font-size: 19px;
   font-weight: 700;
 }
@@ -137,9 +137,9 @@
 
 .ren-return-invoices-card {
   overflow: hidden;
-  border: 1px solid #e1e6ed;
+  border: 1px solid #2d3b46;
   border-radius: 9px;
-  background: #fff;
+  background: #1b2a34;
 }
 
 
@@ -153,7 +153,7 @@
   justify-content: space-between;
   gap: 15px;
   padding: 15px 18px;
-  border-bottom: 1px solid #e9edf2;
+  border-bottom: 1px solid #263640;
 }
 
 .ren-return-invoices-search {
@@ -164,19 +164,19 @@
   height: 37px;
   padding: 0 11px;
   box-sizing: border-box;
-  border: 1px solid #dfe5ec;
+  border: 1px solid #35434f;
   border-radius: 6px;
-  background: #f8fafc;
+  background: #172731;
 }
 
 .ren-return-invoices-search:focus-within {
-  border-color: #a9c6e5;
-  background: #fff;
+  border-color: #4c8fc5;
+  background: #1b2a34;
 }
 
 .ren-return-invoices-search svg {
   flex: 0 0 auto;
-  color: #8b96a6;
+  color: #9aaab5;
   font-size: 19px;
 }
 
@@ -187,13 +187,13 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #263246;
+  color: #d6e0e7;
   font-family: inherit;
   font-size: 11px;
 }
 
 .ren-return-invoices-search input::placeholder {
-  color: #a3adba;
+  color: #81919e;
 }
 
 .ren-return-invoices-filters {
@@ -207,11 +207,11 @@
   height: 37px;
   padding: 0 10px;
   box-sizing: border-box;
-  border: 1px solid #dfe5ec;
+  border: 1px solid #35434f;
   border-radius: 6px;
   outline: 0;
-  background: #fff;
-  color: #657185;
+  background: #1b2a34;
+  color: #b2bdc6;
   font-family: inherit;
   font-size: 10px;
   font-weight: 600;
@@ -235,14 +235,14 @@
 }
 
 .ren-return-invoices-table thead {
-  background: #fafbfd;
+  background: #17232d;
 }
 
 .ren-return-invoices-table th {
   height: 43px;
   padding: 0 14px;
-  border-bottom: 1px solid #e7ebf0;
-  color: #8b96a6;
+  border-bottom: 1px solid #2d3b46;
+  color: #9aaab5;
   font-size: 9px;
   font-weight: 700;
   text-align: left;
@@ -253,14 +253,14 @@
 .ren-return-invoices-table td {
   height: 67px;
   padding: 8px 14px;
-  border-bottom: 1px solid #edf0f4;
-  color: #526075;
+  border-bottom: 1px solid #273640;
+  color: #c1ccd4;
   font-size: 10px;
   white-space: nowrap;
 }
 
 .ren-return-invoices-table tbody tr:hover {
-  background: #fbfcfe;
+  background: #1d2b34;
 }
 
 .ren-return-invoices-table tbody tr:last-child td {
@@ -279,7 +279,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #286fc7;
+  color: #39a978;
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
@@ -313,8 +313,8 @@
   height: 31px;
   flex: 0 0 31px;
   border-radius: 7px;
-  background: #edf4fd;
-  color: #3977c9;
+  background: #1d3547;
+  color: #72aee1;
   font-size: 11px;
   font-weight: 700;
 }
@@ -329,14 +329,14 @@
   display: block;
   max-width: 220px;
   overflow: hidden;
-  color: #263246;
+  color: #d6e0e7;
   font-size: 10px;
   font-weight: 650;
   text-overflow: ellipsis;
 }
 
 .ren-return-invoice-party span {
-  color: #9aa5b4;
+  color: #94a3ad;
   font-size: 8px;
 }
 
@@ -352,7 +352,7 @@
   padding: 0 8px;
   border-radius: 5px;
   background: #f3f6fa;
-  color: #657185;
+  color: #b2bdc6;
   font-size: 9px;
   font-weight: 600;
 }
@@ -376,18 +376,18 @@
 }
 
 .ren-return-invoice-status.paid {
-  background: #edf8f2;
-  color: #2f8a58;
+  background: #173c2f;
+  color: #59c08d;
 }
 
 .ren-return-invoice-status.open {
-  background: #fff5e8;
-  color: #b7771b;
+  background: #1b2a345e8;
+  color: #dda652;
 }
 
 .ren-return-invoice-status.cancelled {
-  background: #f5f5f6;
-  color: #858b94;
+  background: #2a3137;
+  color: #9aa3aa;
 }
 
 
@@ -396,7 +396,7 @@
 ========================================================= */
 
 .ren-return-invoice-total {
-  color: #172033;
+  color: #e8eef2;
   font-size: 11px;
   font-weight: 700;
 }
@@ -423,18 +423,18 @@
   border: 0;
   border-radius: 5px;
   background: transparent;
-  color: #8b96a6;
+  color: #9aaab5;
   cursor: pointer;
 }
 
 .ren-return-invoice-actions button:hover {
-  background: #f0f4f8;
-  color: #286fc7;
+  background: #243640;
+  color: #39a978;
 }
 
 .ren-return-invoice-actions button.danger:hover {
-  background: #fff1f1;
-  color: #c25a5a;
+  background: #1b2a341f1;
+  color: #e97786;
 }
 
 .ren-return-invoice-actions svg {
@@ -462,18 +462,18 @@
 
 .ren-return-invoices-empty svg {
   margin-bottom: 4px;
-  color: #a3adba;
+  color: #81919e;
   font-size: 34px;
 }
 
 .ren-return-invoices-empty strong {
-  color: #526075;
+  color: #c1ccd4;
   font-size: 12px;
 }
 
 .ren-return-invoices-empty span {
   max-width: 430px;
-  color: #9aa5b4;
+  color: #94a3ad;
   font-size: 9px;
   line-height: 1.5;
 }
@@ -486,8 +486,8 @@
   padding: 9px 13px;
   border: 0;
   border-radius: 6px;
-  background: #286fc7;
-  color: #fff;
+  background: #39a978;
+  color: #1b2a34;
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
@@ -495,12 +495,12 @@
 }
 
 .ren-return-invoices-empty button:hover {
-  background: #2163b4;
+  background: #2f9168;
 }
 
 .ren-return-invoices-empty button svg {
   margin: 0;
-  color: #fff;
+  color: #1b2a34;
   font-size: 15px;
 }
 
@@ -515,13 +515,13 @@
   justify-content: space-between;
   min-height: 46px;
   padding: 0 18px;
-  border-top: 1px solid #edf0f4;
-  color: #9aa5b4;
+  border-top: 1px solid #273640;
+  color: #94a3ad;
   font-size: 9px;
 }
 
 .ren-return-invoices-footer strong {
-  color: #4b586b;
+  color: #aebbc5;
   font-weight: 700;
 }
 
@@ -583,4 +583,52 @@
     gap: 4px;
     padding: 8px 14px;
   }
+}
+
+/* =========================================================
+   REN ERP DARK THEME
+   Mevcut yerleşim/ölçüler korunur. Sadece renk paleti değişir.
+========================================================= */
+
+.ren-return-invoices {
+  color-scheme: dark;
+}
+
+.ren-return-invoices input,
+.ren-return-invoices select {
+  color-scheme: dark;
+}
+
+.ren-return-invoices-table,
+.ren-return-invoices-table tbody,
+.ren-return-invoices-table tr {
+  background: transparent;
+}
+
+.ren-return-invoices-summary strong,
+.ren-return-invoice-total {
+  color: #39a978;
+}
+
+.ren-return-invoice-no {
+  color: #72aee1;
+}
+
+.ren-return-invoice-actions button.danger {
+  color: #e97786;
+}
+
+.ren-return-invoice-actions button.danger:hover {
+  background: #3a2328;
+  color: #ef8996;
+}
+
+.ren-return-invoices-new,
+.ren-return-invoices-empty button {
+  background: #39a978;
+}
+
+.ren-return-invoices-new:hover,
+.ren-return-invoices-empty button:hover {
+  background: #2f9168;
 }

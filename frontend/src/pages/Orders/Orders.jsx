@@ -1533,6 +1533,381 @@ export default function Orders() {
 
 
   /* =======================================================
+     YAZDIR / PDF
+  ======================================================= */
+
+  function buildPrintableDocument({
+    documentNo,
+    type,
+    date,
+    validUntil,
+    dueDate,
+    customerName,
+    customerCode,
+    items,
+    notes,
+    totals: summaryTotals,
+  }) {
+    const rows = (items || []).map((item, index) => {
+      const quantity = num(item.quantity);
+      const unitPrice = num(item.unitPrice);
+      const discountRate = num(item.discount);
+      const vatRate = num(item.vat);
+      const gross = quantity * unitPrice;
+      const discountAmount = gross * (discountRate / 100);
+      const net = gross - discountAmount;
+      const vatAmount = net * (vatRate / 100);
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>
+            <strong>${productLabel(item)}</strong>
+            ${item.productCode ? `<div class="muted">${item.productCode}</div>` : ""}
+          </td>
+          <td>${quantity}</td>
+          <td>${item.unit || "Adet"}</td>
+          <td class="right">₺${money(unitPrice)}</td>
+          <td class="right">${discountRate}%</td>
+          <td class="right">${vatRate}%</td>
+          <td class="right"><strong>₺${money(net + vatAmount)}</strong></td>
+        </tr>
+      `;
+    }).join("");
+
+    const secondaryDate =
+      type === "Teklif"
+        ? validUntil
+        : dueDate;
+
+    return `
+      <!doctype html>
+      <html lang="tr">
+      <head>
+        <meta charset="UTF-8" />
+        <title>${documentNo || type}</title>
+        <style>
+          * { box-sizing: border-box; }
+          body {
+            margin: 0;
+            padding: 34px;
+            color: #172033;
+            font-family: Arial, "Segoe UI", sans-serif;
+            background: #fff;
+          }
+          .sheet {
+            max-width: 980px;
+            margin: 0 auto;
+          }
+          .top {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            padding-bottom: 22px;
+            border-bottom: 2px solid #286fc7;
+          }
+          .brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #286fc7;
+          }
+          .subtitle {
+            margin-top: 5px;
+            color: #6f7b8b;
+            font-size: 12px;
+          }
+          .document {
+            text-align: right;
+          }
+          .document h1 {
+            margin: 0;
+            font-size: 27px;
+            font-weight: 800;
+          }
+          .document .no {
+            margin-top: 6px;
+            color: #286fc7;
+            font-size: 14px;
+            font-weight: 800;
+          }
+          .meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin: 24px 0;
+          }
+          .box {
+            padding: 15px;
+            border: 1px solid #dfe5ec;
+            border-radius: 8px;
+          }
+          .label {
+            margin-bottom: 6px;
+            color: #8994a3;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+          }
+          .value {
+            color: #263247;
+            font-size: 14px;
+            font-weight: 700;
+          }
+          .muted {
+            margin-top: 3px;
+            color: #8b96a5;
+            font-size: 10px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+          }
+          th {
+            padding: 11px 8px;
+            background: #f5f7fa;
+            border-bottom: 1px solid #dfe5ec;
+            color: #6b7686;
+            text-align: left;
+            font-size: 10px;
+          }
+          td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #edf0f3;
+            font-size: 12px;
+          }
+          .right { text-align: right; }
+          .bottom {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 22px;
+            margin-top: 26px;
+          }
+          .notes {
+            min-height: 130px;
+            padding: 15px;
+            border: 1px solid #dfe5ec;
+            border-radius: 8px;
+          }
+          .notes-text {
+            margin-top: 8px;
+            color: #526073;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+          }
+          .totals {
+            border: 1px solid #dfe5ec;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 14px;
+            border-bottom: 1px solid #edf0f3;
+            font-size: 12px;
+          }
+          .total-row span { color: #718092; }
+          .total-row strong { color: #263247; }
+          .grand {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 14px;
+            background: #286fc7;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+          }
+          .footer {
+            margin-top: 36px;
+            padding-top: 12px;
+            border-top: 1px solid #e5eaf0;
+            color: #919aa7;
+            font-size: 10px;
+            text-align: center;
+          }
+          @media print {
+            body { padding: 0; }
+            .sheet { max-width: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="sheet">
+          <div class="top">
+            <div>
+              <div class="brand">REN ERP</div>
+              <div class="subtitle">İşletme Yönetim Sistemi</div>
+            </div>
+            <div class="document">
+              <h1>${type || "Belge"}</h1>
+              <div class="no">${documentNo || "Taslak"}</div>
+            </div>
+          </div>
+
+          <div class="meta">
+            <div class="box">
+              <div class="label">Müşteri</div>
+              <div class="value">${customerName || "—"}</div>
+              ${customerCode ? `<div class="muted">Cari Kodu: ${customerCode}</div>` : ""}
+            </div>
+            <div class="box">
+              <div class="label">Belge Bilgileri</div>
+              <div class="value">Tarih: ${formatDate(date)}</div>
+              ${secondaryDate ? `<div class="muted">${type === "Teklif" ? "Geçerlilik" : "Vade"}: ${formatDate(secondaryDate)}</div>` : ""}
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ÜRÜN</th>
+                <th>MİKTAR</th>
+                <th>BİRİM</th>
+                <th class="right">BİRİM FİYAT</th>
+                <th class="right">İSKONTO</th>
+                <th class="right">KDV</th>
+                <th class="right">TOPLAM</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+
+          <div class="bottom">
+            <div class="notes">
+              <div class="label">Açıklama / Not</div>
+              <div class="notes-text">${notes || "—"}</div>
+            </div>
+            <div class="totals">
+              <div class="total-row"><span>Brüt Toplam</span><strong>₺${money(summaryTotals.gross)}</strong></div>
+              <div class="total-row"><span>İskonto</span><strong>- ₺${money(summaryTotals.discount)}</strong></div>
+              <div class="total-row"><span>Ara Toplam</span><strong>₺${money(summaryTotals.subtotal)}</strong></div>
+              <div class="total-row"><span>KDV</span><strong>₺${money(summaryTotals.vat)}</strong></div>
+              <div class="grand"><span>GENEL TOPLAM</span><span>₺${money(summaryTotals.total)}</span></div>
+            </div>
+          </div>
+
+          <div class="footer">
+            REN ERP · ${new Date().toLocaleString("tr-TR")}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+
+  function openPrintableHtml(html, title = "REN ERP Belgesi") {
+    const printWindow =
+      window.open(
+        "",
+        "_blank",
+        "width=1100,height=800"
+      );
+
+    if (!printWindow) {
+      alert(
+        "Yazdırma penceresi açılamadı. Tarayıcı açılır pencereyi engelliyor olabilir."
+      );
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.document.title = title;
+
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 300);
+  }
+
+
+  function printOrder(order) {
+    const orderTotals = calculateTotals(
+      Array.isArray(order.items)
+        ? order.items
+        : []
+    );
+
+    openPrintableHtml(
+      buildPrintableDocument({
+        documentNo: order.number,
+        type: order.type || "Belge",
+        date: order.date,
+        validUntil: order.validUntil,
+        dueDate: order.dueDate,
+        customerName: order.customerName,
+        customerCode: order.customerCode,
+        items: order.items || [],
+        notes: order.notes || "",
+        totals: {
+          gross: num(order.gross ?? orderTotals.gross),
+          discount: num(order.discount ?? orderTotals.discount),
+          subtotal: num(order.subtotal ?? orderTotals.subtotal),
+          vat: num(order.vat ?? orderTotals.vat),
+          total: num(order.total ?? orderTotals.total),
+        },
+      }),
+      order.number || "REN ERP Belgesi"
+    );
+  }
+
+
+  function printCurrentForm() {
+    const orderTotals = calculateTotals(
+      form.items || []
+    );
+
+    const documentNo =
+      editingId !== null
+        ? (
+            orders.find(
+              (order) =>
+                String(order.id) ===
+                String(editingId)
+            )?.number ||
+            `${form.type || "Belge"} - Önizleme`
+          )
+        : `${form.type || "Belge"} - Taslak`;
+
+    printOrder({
+      number: documentNo,
+      type: form.type,
+      date: form.date,
+      validUntil: form.validUntil,
+      dueDate: form.dueDate,
+      customerName: form.customerName,
+      customerCode: form.customerCode,
+      items: form.items,
+      notes: form.notes,
+      ...orderTotals,
+    });
+  }
+
+
+  function viewOrder(order) {
+    printOrder(order);
+  }
+
+
+  function createPdf(order) {
+    // Tarayıcıdaki yazdırma penceresinden "PDF olarak kaydet" kullanılabilir.
+    printOrder(order);
+  }
+
+
+  function createPdfFromForm() {
+    // Tarayıcıdaki yazdırma penceresinden "PDF olarak kaydet" kullanılabilir.
+    printCurrentForm();
+  }
+
+
+  /* =======================================================
      SİL
   ======================================================= */
 
@@ -2867,6 +3242,42 @@ export default function Orders() {
                                   <button
                                     type="button"
                                     onClick={() =>
+                                      viewOrder(
+                                        order
+                                      )
+                                    }
+                                  >
+                                    Görüntüle
+                                  </button>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      printOrder(
+                                        order
+                                      )
+                                    }
+                                  >
+                                    Yazdır
+                                  </button>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      createPdf(
+                                        order
+                                      )
+                                    }
+                                  >
+                                    PDF
+                                  </button>
+
+
+                                  <button
+                                    type="button"
+                                    onClick={() =>
                                       openEdit(
                                         order
                                       )
@@ -3834,28 +4245,179 @@ export default function Orders() {
 
               <div className="orders-form-footer">
 
-                <button
-                  type="button"
-                  className="orders-modal-cancel"
-                  onClick={
-                    closeForm
-                  }
-                >
-                  Vazgeç
-                </button>
+                <div className="orders-form-footer-left">
 
-
-                <button
-                  type="submit"
-                  className="orders-modal-submit"
-                >
                   {
-                    editingId !==
-                    null
-                      ? "Değişiklikleri Kaydet"
-                      : `${form.type}yi Kaydet`
+                    editingId !== null && (
+
+                      <>
+
+                        <button
+                          type="button"
+                          className="orders-secondary-button"
+                          onClick={
+                            printCurrentForm
+                          }
+                        >
+                          Yazdır
+                        </button>
+
+
+                        <button
+                          type="button"
+                          className="orders-secondary-button"
+                          onClick={
+                            createPdfFromForm
+                          }
+                        >
+                          PDF
+                        </button>
+
+
+                        {
+                          form.type ===
+                          "Teklif" && (
+
+                            <button
+                              type="button"
+                              className="orders-secondary-button"
+                              onClick={() => {
+
+                                const current =
+                                  orders.find(
+                                    (order) =>
+                                      String(
+                                        order.id
+                                      ) ===
+                                      String(
+                                        editingId
+                                      )
+                                  );
+
+                                if (
+                                  current
+                                ) {
+                                  convertOfferToOrder(
+                                    current
+                                  );
+                                  closeForm();
+                                }
+
+                              }}
+                            >
+                              Siparişe Çevir
+                            </button>
+
+                          )
+                        }
+
+
+                        {
+                          form.type ===
+                          "Sipariş" && (() => {
+
+                            const current =
+                              orders.find(
+                                (order) =>
+                                  String(
+                                    order.id
+                                  ) ===
+                                  String(
+                                    editingId
+                                  )
+                              );
+
+                            if (
+                              !current ||
+                              current.invoiceId
+                            ) {
+                              return null;
+                            }
+
+                            return (
+                              <button
+                                type="button"
+                                className="orders-secondary-button"
+                                onClick={() => {
+
+                                  convertOrderToInvoice(
+                                    current
+                                  );
+
+                                }}
+                              >
+                                Faturaya Çevir
+                              </button>
+                            );
+
+                          })()
+                        }
+
+
+                        <button
+                          type="button"
+                          className="orders-secondary-button danger"
+                          onClick={() => {
+
+                            const current =
+                              orders.find(
+                                (order) =>
+                                  String(
+                                    order.id
+                                  ) ===
+                                  String(
+                                    editingId
+                                  )
+                              );
+
+                            if (
+                              current
+                            ) {
+                              deleteOrder(
+                                current
+                              );
+                              closeForm();
+                            }
+
+                          }}
+                        >
+                          Sil
+                        </button>
+
+                      </>
+
+                    )
                   }
-                </button>
+
+                </div>
+
+
+                <div className="orders-form-footer-right">
+
+                  <button
+                    type="button"
+                    className="orders-modal-cancel"
+                    onClick={
+                      closeForm
+                    }
+                  >
+                    Kapat
+                  </button>
+
+
+                  <button
+                    type="submit"
+                    className="orders-modal-submit"
+                  >
+                    {
+                      editingId !==
+                      null
+                        ? "Değişiklikleri Kaydet"
+                        : `${form.type}yi Kaydet`
+                    }
+                  </button>
+
+                </div>
 
               </div>
 

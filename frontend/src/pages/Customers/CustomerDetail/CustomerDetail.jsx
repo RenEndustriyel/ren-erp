@@ -12,6 +12,8 @@ import {
 
 import {
   getCustomerById,
+  getCustomers,
+  updateCustomerBalance,
 } from "../../../lib/customerStore";
 
 import {
@@ -176,6 +178,51 @@ function isPurchaseInvoice(
 }
 
 
+const collectionStorageKey =
+  "ren-erp-collections";
+
+const accountStorageKey =
+  "ren-erp-cash-bank-accounts";
+
+const movementStorageKey =
+  "ren-erp-cash-bank-movements";
+
+const paymentMethods = [
+  "Nakit",
+  "Kredi Kartı",
+  "Havale / EFT",
+  "Çek",
+  "Diğer",
+];
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getStoredArray(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error("REN ERP veri okunamadı:", error);
+    return [];
+  }
+}
+
+function createCollectionDocumentNumber(collections) {
+  const year = new Date().getFullYear();
+  const numbers = collections
+    .map((item) => {
+      const match = String(item?.document || "").match(/THS-\d{4}-(\d+)/);
+      return match ? Number(match[1]) : 0;
+    })
+    .filter(Boolean);
+  const next = numbers.length ? Math.max(...numbers) + 1 : 1;
+  return `THS-${year}-${String(next).padStart(4, "0")}`;
+}
+
+
 /* =========================================================
    HAREKETİ NORMALLEŞTİR
 ========================================================= */
@@ -306,6 +353,23 @@ export default function CustomerDetail() {
   ] = useState(null);
 
 
+  const [
+    showCollection,
+    setShowCollection,
+  ] = useState(false);
+
+  const [
+    collectionForm,
+    setCollectionForm,
+  ] = useState({
+    date: today(),
+    amount: "",
+    method: "Nakit",
+    accountId: "",
+    description: "",
+  });
+
+
   /* =======================================================
      VERİLERİ YENİLE
   ======================================================= */
@@ -415,73 +479,16 @@ export default function CustomerDetail() {
   ]);
 
 
-  /* =======================================================
-     CARİ YOK
-  ======================================================= */
-
-  if (!customer) {
-
-    return (
-      <div className="customer-detail-page">
-
-        <div className="customer-detail-container">
-
-          <div
-            className="customer-detail-card customer-detail-full-card"
-            style={{
-              padding: "40px",
-            }}
-          >
-
-            <h2>
-              Cari bulunamadı
-            </h2>
-
-            <p>
-              Görüntülemek istediğiniz cari kayıt bulunamadı.
-            </p>
-
-            <button
-              type="button"
-              onClick={() =>
-                navigate(
-                  "/customers"
-                )
-              }
-            >
-              CARİ LİSTESİNE DÖN
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-    );
-
-  }
-
-
-  /* =======================================================
-     CARİ TÜRÜ
-  ======================================================= */
-
-  const customerType =
-    String(
-      customer.type ||
-      ""
-    )
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      );
-
-
-  const isSupplier =
-    customerType ===
-      "tedarikçi" ||
-    customerType ===
-      "tedarikci";
+  useEffect(() => {
+    if (!showCollection) return;
+    const accounts = getStoredArray(accountStorageKey);
+    if (!collectionForm.accountId && accounts.length) {
+      setCollectionForm((prev) => ({
+        ...prev,
+        accountId: accounts[0].id,
+      }));
+    }
+  }, [showCollection, collectionForm.accountId]);
 
 
   /* =======================================================
@@ -568,6 +575,29 @@ export default function CustomerDetail() {
     }, [
       movements,
     ]);
+
+
+
+  /* =======================================================
+     CARİ TÜRÜ
+  ======================================================= */
+
+  const customerType =
+    String(
+      customer?.type ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+
+  const isSupplier =
+    customerType ===
+      "tedarikçi" ||
+    customerType ===
+      "tedarikci";
 
 
   /* =======================================================
@@ -916,6 +946,54 @@ export default function CustomerDetail() {
     ]);
 
 
+
+
+  /* =======================================================
+     CARİ YOK
+  ======================================================= */
+
+  if (!customer) {
+
+    return (
+      <div className="customer-detail-page">
+
+        <div className="customer-detail-container">
+
+          <div
+            className="customer-detail-card customer-detail-full-card"
+            style={{
+              padding: "40px",
+            }}
+          >
+
+            <h2>
+              Cari bulunamadı
+            </h2>
+
+            <p>
+              Görüntülemek istediğiniz cari kayıt bulunamadı.
+            </p>
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  "/customers"
+                )
+              }
+            >
+              CARİ LİSTESİNE DÖN
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    );
+
+  }
+
   /* =======================================================
      SON HAREKETLER
   ======================================================= */
@@ -1018,17 +1096,135 @@ export default function CustomerDetail() {
     };
 
 
+  const saveDirectCollection =
+    (event) => {
+
+      event.preventDefault();
+
+      const amount = numberValue(collectionForm.amount);
+
+      if (!amount || amount <= 0) {
+        alert("Lütfen geçerli bir tahsilat tutarı girin.");
+        return;
+      }
+
+      if (!collectionForm.accountId) {
+        alert("Lütfen kasa, banka veya POS hesabı seçin.");
+        return;
+      }
+
+      const accounts = getStoredArray(accountStorageKey);
+      const account = accounts.find(
+        (item) => String(item.id) === String(collectionForm.accountId)
+      );
+
+      if (!account) {
+        alert("Finans hesabı bulunamadı.");
+        return;
+      }
+
+      const collections = getStoredArray(collectionStorageKey);
+      const document = createCollectionDocumentNumber(collections);
+      const newCollectionRecord = {
+        id: Date.now(),
+        document,
+        customerId: customer.id,
+        customerName: getCustomerName(customer),
+        customerCode: customer.code || "",
+        date: collectionForm.date,
+        amount,
+        method: collectionForm.method,
+        accountId: account.id,
+        account: account.name,
+        accountType: account.type,
+        description:
+          collectionForm.description.trim() ||
+          `${collectionForm.method} tahsilat`,
+        source: "collection",
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedCollections = [newCollectionRecord, ...collections];
+
+      const updatedAccounts = accounts.map((item) =>
+        String(item.id) === String(account.id)
+          ? { ...item, balance: numberValue(item.balance) + amount }
+          : item
+      );
+
+      const movements = getStoredArray(movementStorageKey);
+      const newMovement = {
+        id: `THS-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        accountId: account.id,
+        accountName: account.name,
+        accountType: account.type,
+        direction: "Giriş",
+        amount,
+        description: `${document} - ${getCustomerName(customer)} tahsilatı`,
+        date: collectionForm.date,
+        method: collectionForm.method,
+        source: "collection",
+        sourceId: newCollectionRecord.id,
+        sourceDocument: document,
+        customerId: customer.id,
+        customerName: getCustomerName(customer),
+        createdAt: new Date().toISOString(),
+      };
+
+      updateCustomerBalance(customer.id, amount);
+
+      localStorage.setItem(
+        collectionStorageKey,
+        JSON.stringify(updatedCollections)
+      );
+      localStorage.setItem(
+        accountStorageKey,
+        JSON.stringify(updatedAccounts)
+      );
+      localStorage.setItem(
+        movementStorageKey,
+        JSON.stringify([newMovement, ...movements])
+      );
+
+      [
+        "ren-customers-updated",
+        "ren-customer-movements-updated",
+        "ren-collections-updated",
+        "ren-cash-bank-updated",
+        "ren-finance-updated",
+      ].forEach((name) => window.dispatchEvent(new Event(name)));
+
+      setCustomer(getCustomerById(customer.id) || customer);
+      setCollectionForm({
+        date: today(),
+        amount: "",
+        method: "Nakit",
+        accountId: account.id,
+        description: "",
+      });
+      setShowCollection(false);
+
+      alert(`${document} numaralı tahsilat kaydedildi.`);
+
+    };
+
+
   const newCollection =
     () => {
 
-      navigate(
-        "/customers/collections",
-        {
-          state: {
-            customer,
-          },
-        }
+      const accounts = getStoredArray(
+        accountStorageKey
       );
+
+      setCollectionForm({
+        date: today(),
+        amount: "",
+        method: "Nakit",
+        accountId: accounts[0]?.id || "",
+        description: "",
+      });
+
+      setShowCollection(true);
 
     };
 
@@ -3298,6 +3494,175 @@ export default function CustomerDetail() {
         </div>
 
       </div>
+
+
+      {showCollection && (
+
+        <div
+          className="customer-detail-modal-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setShowCollection(false);
+            }
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(24, 32, 38, 0.42)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+
+          <div
+            style={{
+              width: "min(640px, 100%)",
+              background: "#fff",
+              borderRadius: "12px",
+              border: "1px solid #e2e6e9",
+              boxShadow: "0 22px 60px rgba(0,0,0,.18)",
+              overflow: "hidden",
+            }}
+          >
+
+            <div
+              style={{
+                padding: "20px 22px",
+                borderBottom: "1px solid #edf0f2",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "16px",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: 700, color: "#39a978", marginBottom: "6px" }}>
+                  REN ERP · TAHSİLAT
+                </div>
+                <h2 style={{ margin: 0, fontSize: "21px", color: "#263238" }}>Tahsilat Ekle</h2>
+                <div style={{ marginTop: "5px", color: "#68727b", fontSize: "13px" }}>
+                  {getCustomerName(customer)} {customer.code ? `· ${customer.code}` : ""}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCollection(false)}
+                style={{
+                  width: "34px",
+                  height: "34px",
+                  border: "1px solid #e2e6e9",
+                  borderRadius: "8px",
+                  background: "#fff",
+                  fontSize: "22px",
+                  color: "#66717a",
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={saveDirectCollection}>
+              <div
+                style={{
+                  padding: "22px",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "16px",
+                }}
+              >
+                <div style={{ gridColumn: "1 / -1", background: "#f7faf8", border: "1px solid #dcefe5", borderRadius: "8px", padding: "12px 14px" }}>
+                  <div style={{ fontSize: "11px", color: "#78838b", marginBottom: "4px", fontWeight: 700 }}>CARİ HESAP</div>
+                  <strong style={{ fontSize: "14px", color: "#2d3a42" }}>{getCustomerName(customer)}</strong>
+                </div>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#56616a" }}>
+                  Tarih
+                  <input
+                    type="date"
+                    value={collectionForm.date}
+                    onChange={(event) => setCollectionForm((prev) => ({ ...prev, date: event.target.value }))}
+                    required
+                    style={{ height: "42px", border: "1px solid #d8dee2", borderRadius: "7px", padding: "0 11px", fontSize: "14px" }}
+                  />
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#56616a" }}>
+                  Tahsilat Tutarı
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={collectionForm.amount}
+                      onChange={(event) => setCollectionForm((prev) => ({ ...prev, amount: event.target.value }))}
+                      placeholder="0,00"
+                      required
+                      style={{ width: "100%", height: "42px", border: "1px solid #d8dee2", borderRadius: "7px", padding: "0 45px 0 11px", fontSize: "15px", fontWeight: 700, boxSizing: "border-box" }}
+                    />
+                    <span style={{ position: "absolute", right: "12px", top: "12px", color: "#7a848c", fontSize: "12px" }}>TL</span>
+                  </div>
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#56616a" }}>
+                  Ödeme Yöntemi
+                  <select
+                    value={collectionForm.method}
+                    onChange={(event) => setCollectionForm((prev) => ({ ...prev, method: event.target.value }))}
+                    style={{ height: "42px", border: "1px solid #d8dee2", borderRadius: "7px", padding: "0 11px", fontSize: "14px" }}
+                  >
+                    {paymentMethods.map((method) => <option key={method} value={method}>{method}</option>)}
+                  </select>
+                </label>
+
+                <label style={{ display: "flex", flexDirection: "column", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#56616a" }}>
+                  Kasa / Banka / POS
+                  <select
+                    value={collectionForm.accountId}
+                    onChange={(event) => setCollectionForm((prev) => ({ ...prev, accountId: event.target.value }))}
+                    required
+                    style={{ height: "42px", border: "1px solid #d8dee2", borderRadius: "7px", padding: "0 11px", fontSize: "14px" }}
+                  >
+                    <option value="">Hesap seçin</option>
+                    {getStoredArray(accountStorageKey).filter((a) => a.status !== "Pasif").map((account) => (
+                      <option key={account.id} value={account.id}>{account.name} · {account.type}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "7px", fontSize: "12px", fontWeight: 700, color: "#56616a" }}>
+                  Açıklama
+                  <textarea
+                    value={collectionForm.description}
+                    onChange={(event) => setCollectionForm((prev) => ({ ...prev, description: event.target.value }))}
+                    placeholder="Tahsilat açıklaması..."
+                    rows="3"
+                    style={{ border: "1px solid #d8dee2", borderRadius: "7px", padding: "10px 11px", fontSize: "14px", resize: "vertical" }}
+                  />
+                </label>
+              </div>
+
+              <div style={{ padding: "0 22px 20px", display: "flex", justifyContent: "flex-end", gap: "9px" }}>
+                <button
+                  type="button"
+                  onClick={() => setShowCollection(false)}
+                  style={{ height: "40px", padding: "0 16px", border: "1px solid #d8dee2", borderRadius: "7px", background: "#fff", color: "#59636b", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="submit"
+                  style={{ height: "40px", padding: "0 18px", border: "0", borderRadius: "7px", background: "#39a978", color: "#fff", fontWeight: 700, cursor: "pointer" }}
+                >
+                  Tahsilatı Kaydet
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

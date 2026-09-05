@@ -1,8 +1,8 @@
 .brands-page {
   min-height: 100%;
-  padding: 30px;
-  background: #f6f8fb;
-  color: #172033;
+  padding: 22px;
+  background: #14212b;
+  color: #e8eef2;
   font-family:
     Inter,
     -apple-system,
@@ -20,24 +20,24 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 26px;
+  margin-bottom: 16px;
 }
 
 .breadcrumb {
-  color: #7b8495;
-  font-size: 13px;
+  color: #9aabb6;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 9px;
 }
 
 .breadcrumb span {
   margin: 0 7px;
-  color: #b2b8c3;
+  color: #62737e;
 }
 
 .brands-header h1 {
   margin: 0;
-  font-size: 30px;
+  font-size: 27px;
   line-height: 1.15;
   font-weight: 750;
   letter-spacing: -0.6px;
@@ -45,17 +45,17 @@
 
 .brands-header p {
   margin: 8px 0 0;
-  color: #7b8495;
-  font-size: 14px;
+  color: #9aabb6;
+  font-size: 15px;
 }
 
 .primary-button {
   border: 0;
   border-radius: 9px;
   background: #1769e8;
-  color: #fff;
+  color: #ffffff;
   padding: 12px 18px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -80,11 +80,11 @@
 ========================================================= */
 
 .brands-toolbar {
-  background: #fff;
+  background: #1b2a34;
   border: 1px solid #e2e7ee;
   border-radius: 12px;
-  min-height: 70px;
-  padding: 12px 15px;
+  min-height: 58px;
+  padding: 9px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -94,10 +94,10 @@
 }
 
 .search-box {
-  height: 44px;
+  height: 34px;
   width: min(450px, 100%);
   border: 1px solid #dfe4eb;
-  background: #fbfcfe;
+  background: #172731;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -116,12 +116,12 @@
   outline: 0;
   background: transparent;
   width: 100%;
-  font-size: 14px;
-  color: #1d2738;
+  font-size: 15px;
+  color: #e6edf1;
 }
 
 .search-box input::placeholder {
-  color: #9aa3b2;
+  color: #758791;
 }
 
 .brand-count {
@@ -129,12 +129,12 @@
   align-items: baseline;
   gap: 7px;
   padding-right: 5px;
-  color: #778295;
-  font-size: 13px;
+  color: #9aabb5;
+  font-size: 14px;
 }
 
 .brand-count strong {
-  color: #172033;
+  color: #e8eef2;
   font-size: 19px;
 }
 
@@ -144,7 +144,7 @@
 
 .brands-card {
   overflow: hidden;
-  background: #fff;
+  background: #1b2a34;
   border: 1px solid #e0e5ec;
   border-radius: 12px;
   box-shadow: 0 3px 12px rgba(25, 40, 65, 0.035);
@@ -152,7 +152,7 @@
 
 .table-header {
   min-height: 50px;
-  padding: 0 22px;
+  padding: 0 16px;
   display: grid;
   grid-template-columns:
     minmax(230px, 1.3fr)
@@ -161,18 +161,18 @@
     130px
     120px;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   border-bottom: 1px solid #e2e6ec;
-  background: #fafbfd;
-  color: #7a8494;
-  font-size: 11px;
+  background: #172731;
+  color: #a6b4bd;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.45px;
 }
 
 .brand-row {
-  min-height: 76px;
-  padding: 0 22px;
+  min-height: 67px;
+  padding: 0 16px;
   display: grid;
   grid-template-columns:
     minmax(230px, 1.3fr)
@@ -181,7 +181,7 @@
     130px
     120px;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
   border-bottom: 1px solid #edf0f4;
   transition: background 0.15s ease;
 }
@@ -191,7 +191,7 @@
 }
 
 .brand-row:hover {
-  background: #f9fbff;
+  background: #202f39;
 }
 
 /* =========================================================
@@ -206,23 +206,23 @@
 }
 
 .brand-icon {
-  width: 39px;
-  height: 39px;
+  width: 34px;
+  height: 34px;
   border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  background: #edf4ff;
-  color: #1769e8;
+  background: #173b2f;
+  color: #63ce98;
   font-size: 17px;
   font-weight: 800;
 }
 
 .brand-name-cell strong {
   display: block;
-  color: #202b3c;
-  font-size: 14px;
+  color: #edf3f6;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -230,23 +230,23 @@
   display: block;
   margin-top: 4px;
   color: #9aa3b1;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .description-cell {
-  color: #657083;
-  font-size: 13px;
+  color: #c1cdd3;
+  font-size: 14px;
   line-height: 1.4;
 }
 
 .product-count {
-  color: #273347;
-  font-size: 13px;
+  color: #e1e9ed;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .product-count span {
-  color: #9aa3b2;
+  color: #758791;
   font-weight: 500;
 }
 
@@ -260,18 +260,18 @@
   gap: 7px;
   padding: 6px 10px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .status-badge.active {
-  color: #16834b;
-  background: #eaf8f1;
+  color: #67d09a;
+  background: #173c2f;
 }
 
 .status-badge.passive {
-  color: #7a8494;
-  background: #f0f2f5;
+  color: #a6b4bd;
+  background: #2a343b;
 }
 
 .status-dot {
@@ -297,7 +297,7 @@
   height: 34px;
   border: 1px solid #e1e5eb;
   border-radius: 7px;
-  background: #fff;
+  background: #1b2a34;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -306,23 +306,23 @@
 }
 
 .edit-button {
-  color: #1769e8;
+  color: #63ce98;
   font-size: 17px;
 }
 
 .delete-button {
-  color: #e53935;
-  font-size: 14px;
+  color: #e56c78;
+  font-size: 15px;
 }
 
 .edit-button:hover {
-  background: #edf4ff;
+  background: #173b2f;
   border-color: #c9dcff;
 }
 
 .delete-button:hover {
-  background: #fff0f0;
-  border-color: #ffd0d0;
+  background: #382227;
+  border-color: #81434b;
 }
 
 /* =========================================================
@@ -339,8 +339,8 @@
   height: 58px;
   margin: 0 auto 15px;
   border-radius: 13px;
-  background: #edf4ff;
-  color: #1769e8;
+  background: #173b2f;
+  color: #63ce98;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -355,14 +355,14 @@
 
 .empty-state p {
   margin: 7px 0 20px;
-  color: #8791a1;
-  font-size: 13px;
+  color: #91a2ad;
+  font-size: 14px;
 }
 
 .secondary-button {
-  border: 1px solid #d6dce5;
-  background: #fff;
-  color: #334055;
+  border: 1px solid #394a54;
+  background: #1b2a34;
+  color: #d7e1e5;
   border-radius: 8px;
   padding: 10px 15px;
   font-weight: 700;
@@ -377,7 +377,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(15, 24, 39, 0.48);
+  background: rgba(4, 9, 13, 0.72);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
@@ -387,7 +387,7 @@
 
 .brand-modal {
   width: min(560px, 100%);
-  background: #fff;
+  background: #1b2a34;
   border-radius: 14px;
   box-shadow: 0 22px 65px rgba(8, 20, 40, 0.22);
   overflow: hidden;
@@ -414,22 +414,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #edf4ff;
-  color: #1769e8;
+  background: #173b2f;
+  color: #63ce98;
   font-size: 18px;
   font-weight: 800;
 }
 
 .modal-header h2 {
   margin: 0;
-  color: #172033;
+  color: #e8eef2;
   font-size: 18px;
 }
 
 .modal-header p {
   margin: 4px 0 0;
   color: #8a94a4;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .close-button {
@@ -437,15 +437,15 @@
   height: 34px;
   border: 0;
   border-radius: 7px;
-  background: #f3f5f8;
-  color: #687487;
+  background: #202f39;
+  color: #a4b1b8;
   font-size: 23px;
   line-height: 1;
   cursor: pointer;
 }
 
 .close-button:hover {
-  background: #e9edf2;
+  background: #293b46;
 }
 
 /* =========================================================
@@ -464,12 +464,12 @@
   display: block;
   margin-bottom: 8px;
   color: #344055;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 750;
 }
 
 .form-group label span {
-  color: #e53935;
+  color: #e56c78;
   margin-left: 3px;
 }
 
@@ -480,18 +480,18 @@
   box-sizing: border-box;
   border: 1px solid #dce2e9;
   border-radius: 8px;
-  background: #fff;
-  color: #202b3c;
+  background: #1b2a34;
+  color: #edf3f6;
   padding: 11px 12px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 15px;
   outline: none;
   transition: 0.15s ease;
 }
 
 .form-group input,
 .form-group select {
-  height: 44px;
+  height: 34px;
 }
 
 .form-group textarea {
@@ -502,7 +502,7 @@
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: #1769e8;
+  border-color: #63ce98;
   box-shadow:
     0 0 0 3px
     rgba(
@@ -531,21 +531,21 @@
   min-height: 42px;
   padding: 0 17px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 750;
   cursor: pointer;
 }
 
 .cancel-button {
   border: 1px solid #dce1e8;
-  background: #fff;
-  color: #566173;
+  background: #1b2a34;
+  color: #c6d1d6;
 }
 
 .save-button {
   border: 1px solid #1769e8;
   background: #1769e8;
-  color: #fff;
+  color: #ffffff;
 }
 
 .save-button:hover {
@@ -568,7 +568,7 @@
   }
 
   .description-cell {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
 
@@ -607,4 +607,143 @@
   .brand-row {
     min-width: 850px;
   }
+}
+
+/* =========================================================
+   REN ERP — MARKALAR DARK TEMA
+   Sonradan eklenen sınıflar için güvenli tema katmanı.
+========================================================= */
+
+.brands-page {
+  background: #14212b;
+  color: #e8eef2;
+}
+
+.brands-page .brands-toolbar,
+.brands-page .brands-card {
+  background: #1b2a34;
+  border-color: #2d3d47;
+}
+
+.brands-page .table-header {
+  background: #172731;
+  border-color: #2d3d47;
+  color: #a9b7c0;
+}
+
+.brands-page .brand-row {
+  background: #1b2a34;
+  border-color: #273741;
+}
+
+.brands-page .brand-row:hover {
+  background: #202f39;
+}
+
+.brands-page .search-box {
+  background: #172731;
+  border-color: #354751;
+}
+
+.brands-page .search-box input {
+  color: #e6edf1;
+}
+
+.brands-page .brand-icon {
+  background: #173b2f;
+  color: #63ce98;
+}
+
+.brands-page .brand-name-cell strong {
+  color: #edf3f6;
+}
+
+.brands-page .brand-name-cell small,
+.brands-page .description-cell,
+.brands-page .brand-count span {
+  color: #9aabb6;
+}
+
+.brands-page .product-count {
+  color: #e1e9ed;
+}
+
+.brands-page .status-badge.active {
+  background: #173c2f;
+  color: #67d09a;
+}
+
+.brands-page .status-badge.passive {
+  background: #2a343b;
+  color: #a0aeb6;
+}
+
+.brands-page .edit-button {
+  background: #1a2c38;
+  border-color: #315067;
+  color: #72aee1;
+}
+
+.brands-page .delete-button {
+  background: #2b2024;
+  border-color: #63383e;
+  color: #e56c78;
+}
+
+.brands-page .modal-overlay {
+  background: rgba(4, 9, 13, .72);
+}
+
+.brands-page .brand-modal {
+  background: #1b2a34;
+  border: 1px solid #344650;
+}
+
+.brands-page .modal-header {
+  border-color: #2d3d47;
+}
+
+.brands-page .modal-icon {
+  background: #173b2f;
+  color: #64cf98;
+}
+
+.brands-page .modal-header h2,
+.brands-page .form-group label {
+  color: #edf3f6;
+}
+
+.brands-page .modal-header p {
+  color: #91a3ae;
+}
+
+.brands-page .close-button,
+.brands-page .cancel-button {
+  background: #202f39;
+  border-color: #394953;
+  color: #c6d1d6;
+}
+
+.brands-page .form-group input,
+.brands-page .form-group textarea,
+.brands-page .form-group select {
+  background: #172731;
+  border-color: #394a54;
+  color: #e8eef2;
+}
+
+.brands-page .form-group input::placeholder,
+.brands-page .form-group textarea::placeholder {
+  color: #758791;
+}
+
+.brands-page .modal-footer {
+  border-color: #2d3d47;
+}
+
+.brands-page .save-button,
+.brands-page .primary-button {
+  background: #39a978;
+  border-color: #39a978;
+  color: #fff;
 }

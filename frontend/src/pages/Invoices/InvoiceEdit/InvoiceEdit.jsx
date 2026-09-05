@@ -9,6 +9,9 @@ import {
   MdArrowBack,
   MdDeleteOutline,
   MdSave,
+  MdPrint,
+  MdPictureAsPdf,
+  MdPayments,
 } from "react-icons/md";
 
 import {
@@ -520,6 +523,14 @@ export default function InvoiceEdit() {
      GERİ
   ===================================================== */
 
+  const handlePrint = () => window.print();
+
+  const handlePdf = () => window.print();
+
+  const handlePayment = () => {
+    window.alert("Tahsilat ekranı sonraki adımda cari hareketine bağlanacak.");
+  };
+
   const handleBack = () => {
     if (invoiceId) {
       window.location.href =
@@ -622,6 +633,21 @@ export default function InvoiceEdit() {
 
         <div className="ren-invoice-edit-header-actions">
 
+          <button type="button" className="secondary" onClick={handlePrint}>
+            <MdPrint />
+            Yazdır
+          </button>
+
+          <button type="button" className="secondary" onClick={handlePdf}>
+            <MdPictureAsPdf />
+            PDF
+          </button>
+
+          <button type="button" className="secondary" onClick={handlePayment}>
+            <MdPayments />
+            Tahsilat
+          </button>
+
           <button
             type="button"
             className="secondary"
@@ -639,7 +665,7 @@ export default function InvoiceEdit() {
             <MdSave />
             {saving
               ? "Kaydediliyor..."
-              : "Değişiklikleri Kaydet"}
+              : "Kaydet & Düzenlemeye Devam"}
           </button>
 
         </div>

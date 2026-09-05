@@ -664,18 +664,36 @@ export default function Reports() {
       );
 
 
+  /*
+   * LİKİT VARLIK
+   *
+   * Kasa & Banka ekranındaki hesaplama ile
+   * birebir aynı olmalı:
+   *
+   * Kasa + Banka + POS
+   *
+   * Böylece diğer türdeki hesaplar yanlışlıkla
+   * toplam likit varlığa dahil edilmez.
+   */
   const totalLiquidity =
-    accounts.reduce(
-      (
-        total,
-        account
-      ) =>
-        total +
-        num(
-          account.balance
-        ),
-      0
-    );
+    accounts
+      .filter(
+        (account) =>
+          account.type === "Kasa" ||
+          account.type === "Banka" ||
+          account.type === "POS"
+      )
+      .reduce(
+        (
+          total,
+          account
+        ) =>
+          total +
+          num(
+            account.balance
+          ),
+        0
+      );
 
 
   const receivables =
