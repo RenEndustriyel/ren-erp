@@ -1,0 +1,656 @@
+/* =========================================================
+   REN ERP — HESAP LİSTESİ
+   Müşteri - Tedarikçi / Hesap Listesi
+   Koyu tema + kompakt düzen + REN Standart Tipografi
+========================================================= */
+
+.account-page {
+  min-height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  background: #14212b;
+  color: #e8eef2;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page-breadcrumb {
+  margin-bottom: 8px;
+  color: #82919b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #edf3f6;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
+.page-header p {
+  margin: 7px 0 0;
+  color: #9eacb5;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn-outline,
+.btn-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 13px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-outline {
+  border: 1px solid #344752;
+  background: #1b2a34;
+  color: #cbd6dc;
+}
+
+.btn-outline:hover {
+  background: #243641;
+  color: #edf3f6;
+}
+
+.btn-outline svg,
+.btn-green svg {
+  font-size: 17px;
+}
+
+.btn-green {
+  border: 1px solid #39a978;
+  background: #39a978;
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(57, 169, 120, 0.13);
+}
+
+.btn-green:hover {
+  background: #2d8f67;
+}
+
+.actions-menu {
+  position: relative;
+}
+
+.actions-menu > .btn-outline {
+  gap: 5px;
+}
+
+.actions-dropdown {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  z-index: 50;
+  width: 220px;
+  padding: 6px;
+  border: 1px solid #344752;
+  border-radius: 10px;
+  background: #1b2a34;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
+}
+
+.actions-dropdown button {
+  width: 100%;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #d7e0e5;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.actions-dropdown button:hover {
+  background: #243641;
+}
+
+.actions-dropdown button svg {
+  color: #91a4af;
+  font-size: 18px;
+}
+
+.actions-dropdown button.danger {
+  color: #e97786;
+}
+
+.actions-dropdown button.danger svg {
+  color: #e97786;
+}
+
+.divider {
+  height: 1px;
+  margin: 6px 2px;
+  background: #2d404b;
+}
+
+/* =========================================================
+   ÖZET KARTLARI
+========================================================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 15px;
+  box-sizing: border-box;
+  border: 1px solid #2c3c47;
+  border-radius: 10px;
+  background: #1b2a34;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
+}
+
+.summary-card .icon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  font-size: 18px;
+}
+
+.summary-card > div:last-child {
+  min-width: 0;
+}
+
+.summary-card span {
+  display: block;
+  color: #91a0aa;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.summary-card h3 {
+  margin: 5px 0 0;
+  color: #edf3f6;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-card.blue .icon {
+  background: rgba(114, 174, 225, 0.12);
+}
+
+.summary-card.green .icon {
+  background: rgba(57, 169, 120, 0.12);
+}
+
+.summary-card.purple .icon {
+  background: rgba(157, 127, 211, 0.12);
+}
+
+.summary-card.red .icon {
+  background: rgba(217, 87, 104, 0.12);
+}
+
+.summary-card.blue h3 {
+  color: #72aee1;
+}
+
+.summary-card.green h3 {
+  color: #69d09f;
+}
+
+.summary-card.purple h3 {
+  color: #b49be2;
+}
+
+.summary-card.red h3 {
+  color: #e97786;
+}
+
+/* =========================================================
+   SEKME
+========================================================= */
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 12px;
+  padding: 4px;
+  width: fit-content;
+  border: 1px solid #2c3c47;
+  border-radius: 9px;
+  background: #172731;
+}
+
+.tabs button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #8fa0aa;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  color: #d8e1e6;
+  background: #1f313c;
+}
+
+.tabs button.active {
+  background: #39a978;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(57, 169, 120, 0.12);
+}
+
+/* =========================================================
+   ARAÇ ÇUBUĞU
+========================================================= */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid #344752;
+  border-radius: 8px;
+  background: #172731;
+  color: #81929d;
+}
+
+.search-box:focus-within {
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.09);
+}
+
+.search-box svg {
+  flex: 0 0 auto;
+  font-size: 19px;
+}
+
+.search-box input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #edf3f6;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.search-box input::placeholder {
+  color: #71818b;
+}
+
+/* =========================================================
+   TABLO
+========================================================= */
+
+.table-card {
+  overflow: hidden;
+  border: 1px solid #2c3c47;
+  border-radius: 10px;
+  background: #1b2a34;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.13);
+}
+
+.table-card table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+}
+
+.table-card th {
+  height: 45px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2c3c47;
+  background: #172731;
+  color: #8fa0aa;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.table-card td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #273842;
+  color: #b7c3c9;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.table-card tbody tr {
+  transition: background 0.14s ease;
+}
+
+.table-card tbody tr:hover {
+  background: #1e303b;
+}
+
+.table-card tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-card td:first-child,
+.table-card th:first-child {
+  width: 40px;
+  padding-left: 15px;
+  padding-right: 8px;
+}
+
+.table-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #39a978;
+  cursor: pointer;
+}
+
+.company {
+  color: #edf3f6 !important;
+  font-size: 14px !important;
+  font-weight: 750;
+}
+
+.type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 27px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.type.customer {
+  border: 1px solid rgba(57, 169, 120, 0.22);
+  background: rgba(57, 169, 120, 0.11);
+  color: #69d09f;
+}
+
+.type.supplier {
+  border: 1px solid rgba(114, 174, 225, 0.22);
+  background: rgba(114, 174, 225, 0.10);
+  color: #72aee1;
+}
+
+.positive {
+  color: #69d09f !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.negative {
+  color: #e97786 !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(57, 169, 120, 0.22);
+  border-radius: 999px;
+  background: rgba(57, 169, 120, 0.10);
+  color: #69d09f;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.row-actions button {
+  width: 33px;
+  height: 33px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #344752;
+  border-radius: 7px;
+  background: #202f39;
+  color: #8fa7b4;
+  cursor: pointer;
+}
+
+.row-actions button:hover {
+  background: #293c47;
+  color: #edf3f6;
+}
+
+.row-actions button:first-child:hover {
+  color: #72aee1;
+}
+
+.row-actions button:nth-child(2):hover {
+  color: #69d09f;
+}
+
+.row-actions button:nth-child(3):hover {
+  color: #d0a65b;
+}
+
+.row-actions svg {
+  font-size: 17px;
+}
+
+/* =========================================================
+   ALT BÖLÜM / SAYFALAMA
+========================================================= */
+
+.table-footer {
+  min-height: 61px;
+  padding: 0 15px 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border-top: 1px solid #293a45;
+  background: #172731;
+  color: #81919b;
+  font-size: 13px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #344752;
+  border-radius: 7px;
+  background: #1b2a34;
+  color: #9aa9b2;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: #243641;
+  color: #edf3f6;
+}
+
+.pagination button.active {
+  border-color: #39a978;
+  background: #39a978;
+  color: #fff;
+}
+
+/* =========================================================
+   DAR EKRAN
+========================================================= */
+
+@media (max-width: 1250px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .header-actions {
+    max-width: 620px;
+  }
+
+  .table-card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .account-page {
+    padding: 17px 15px 30px;
+  }
+
+  .page-header {
+    flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    max-width: none;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    width: 100%;
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .toolbar .btn-outline {
+    order: 2;
+  }
+}
+
+@media (max-width: 620px) {
+  .account-page {
+    padding: 14px 12px 24px;
+  }
+
+  .page-header h1 {
+    font-size: 20px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+  }
+
+  .header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .header-actions > .btn-green,
+  .actions-menu {
+    grid-column: 1 / -1;
+  }
+
+  .header-actions .btn-outline,
+  .header-actions .btn-green,
+  .actions-menu > .btn-outline {
+    width: 100%;
+  }
+
+  .actions-dropdown {
+    left: 0;
+    right: auto;
+    width: min(240px, calc(100vw - 24px));
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .tabs button {
+    flex: 0 0 auto;
+  }
+
+  .toolbar .btn-outline {
+    flex: 1;
+  }
+
+  .table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
