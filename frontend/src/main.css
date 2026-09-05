@@ -1,32 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-/* ===================================================
-   REN ERP PREMIUM THEME v2
-   (Sadece Global Tema - Modüllere Dokunmaz)
-=================================================== */
-
 :root{
   --primary:#2563EB;
   --primary-dark:#1D4ED8;
-
-  --sidebar:#0F172A;
-  --sidebar-hover:#1E293B;
-
   --bg:#F8FAFC;
   --surface:#FFFFFF;
   --surface-2:#F1F5F9;
-
-  --border:#E2E8F0;
-
-  --text:#0F172A;
+  --border:#E5E7EB;
+  --text:#111827;
   --muted:#64748B;
-
   --success:#16A34A;
   --danger:#DC2626;
   --warning:#EA580C;
-
   --radius:16px;
-  --shadow:0 8px 24px rgba(15,23,42,.08);
+  --shadow:0 8px 24px rgba(15,23,42,.06);
 }
 
 *{
@@ -43,13 +30,11 @@ body,
 }
 
 body{
-  font-family:Roboto,"Segoe UI",Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  font-size:15px;
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  font-family: Roboto, "Segoe UI", Arial, sans-serif;
+  background:#F3F3F3;
+  color:#333;
+  font-size:13px;
+  line-height:1.4;
 }
 
 a{
@@ -66,13 +51,6 @@ textarea{
 
 button{
   cursor:pointer;
-  border:none;
-  border-radius:10px;
-  transition:.18s ease;
-}
-
-button:hover{
-  transform:translateY(-1px);
 }
 
 ::-webkit-scrollbar{
@@ -91,197 +69,4 @@ button:hover{
 
 ::selection{
   background:#DBEAFE;
-}
-
-/* ===================================================
-   TYPOGRAPHY
-=================================================== */
-
-h1{
-  font-size:28px;
-  font-weight:700;
-  color:var(--text);
-}
-
-h2{
-  font-size:22px;
-  font-weight:700;
-  color:var(--text);
-}
-
-h3{
-  font-size:18px;
-  font-weight:600;
-  color:var(--text);
-}
-
-p,
-span,
-label,
-td,
-th,
-input,
-select,
-textarea{
-  font-size:14px;
-}
-
-small,
-.text-muted{
-  color:var(--muted);
-}
-
-/* ===================================================
-   LAYOUT
-=================================================== */
-
-.main-content,
-.content,
-.page{
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* ===================================================
-   SIDEBAR (Sınıf varsa otomatik uygulanır)
-=================================================== */
-
-.sidebar{
-  background:var(--sidebar) !important;
-  color:#fff;
-}
-
-.sidebar a,
-.sidebar button{
-  color:#CBD5E1 !important;
-  font-size:15px !important;
-  font-weight:500;
-}
-
-.sidebar a:hover,
-.sidebar button:hover,
-.sidebar .active{
-  background:var(--sidebar-hover) !important;
-  color:#fff !important;
-}
-
-/* ===================================================
-   CARDS
-=================================================== */
-
-.card,
-.dashboard-card,
-.stat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-}
-
-/* ===================================================
-   FORMS
-=================================================== */
-
-input,
-select,
-textarea{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:10px 12px;
-  color:var(--text);
-}
-
-input:focus,
-select:focus,
-textarea:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(37,99,235,.15);
-}
-
-/* ===================================================
-   TABLES
-=================================================== */
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-}
-
-thead{
-  background:var(--surface-2);
-}
-
-th{
-  background:var(--surface-2);
-  color:var(--muted);
-  font-weight:600;
-}
-
-td,
-th{
-  padding:14px;
-  border-bottom:1px solid var(--border);
-}
-
-tbody tr:hover{
-  background:#F8FAFC;
-}
-
-/* ===================================================
-   KPI
-=================================================== */
-
-.kpi-value{
-  font-size:30px;
-  font-weight:700;
-}
-
-.kpi-label{
-  color:var(--muted);
-}
-
-/* ===================================================
-   BADGES
-=================================================== */
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-}
-
-/* ===================================================
-   FIXES
-=================================================== */
-
-/* Beyaz zeminde beyaz yazıyı düzelt */
-.text-white{
-  color:inherit !important;
-}
-
-.bg-white .text-white{
-  color:var(--text) !important;
-}
-
-/* Çok açık gri yazıları koyulaştır */
-.text-gray-100,
-.text-gray-200,
-.text-gray-300{
-  color:var(--text) !important;
-}
-
-/* Kart içi başlıklar */
-.card h1,
-.card h2,
-.card h3,
-.dashboard-card h1,
-.dashboard-card h2,
-.dashboard-card h3{
-  color:var(--text);
 }

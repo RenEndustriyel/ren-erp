@@ -1,179 +1,144 @@
+import { useEffect, useMemo, useState } from "react";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
+  MdAccountBalance,
+  MdAdd,
   MdArrowForward,
   MdCalendarToday,
-  MdCreditCard,
+  MdCheckCircle,
+  MdDescription,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowRight,
+  MdLocalAtm,
+  MdMoreVert,
   MdPayments,
   MdReceiptLong,
-  MdShoppingCart,
+  MdSearch,
   MdTrendingDown,
   MdTrendingUp,
-  MdWallet,
 } from "react-icons/md";
 
-import {
-  getInvoices,
-} from "../../lib/invoiceStore";
-
-import {
-  getCustomers,
-} from "../../lib/customerStore";
-
-import {
-  getProducts,
-} from "../../lib/stockStore";
+import { getInvoices } from "../../lib/invoiceStore";
+import { getCustomers } from "../../lib/customerStore";
+import { getProducts } from "../../lib/stockStore";
 
 import "./Overview.css";
 
+const ACCOUNT_KEYS = [
+  "ren-erp-cash-bank-accounts",
+  "ren-finance-accounts",
+  "ren-cashbank-accounts",
+];
 
-/* =========================================================
-   YARDIMCI FONKSİYONLAR
-========================================================= */
+const money = (value) =>
+  new Intl.NumberFormat("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
 
-function toNumber(value) {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return 0;
-  }
+const dateKey = (value) => {
+  if (!value) return "";
+  const raw = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
 
-  if (
-    typeof value === "number"
-  ) {
-    return Number.isFinite(value)
-      ? value
-      : 0;
-  }
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
 
-  let text =
-    String(value).trim();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate()
+  ).padStart(2, "0")}`;
+};
 
-  if (
-    text.includes(",") &&
-    text.includes(".")
-  ) {
-    text =
-      text
-        .replace(/\./g, "")
-        .replace(",", ".");
-  } else if (
-    text.includes(",")
-  ) {
-    text =
-      text.replace(",", ".");
-  }
-
-  const result =
-    Number(text);
-
-  return Number.isFinite(result)
-    ? result
-    : 0;
-}
-
-
-function money(value) {
-  return new Intl.NumberFormat(
-    "tr-TR",
-    {
-      style: "currency",
-      currency: "TRY",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }
-  ).format(
-    toNumber(value)
-  );
-}
-
-
-function normalizeType(type) {
-  const value =
-    String(type || "")
-      .trim()
-      .toLocaleLowerCase(
-        "tr-TR"
-      );
+const typeOf = (value) => {
+  const type = String(value || "").toLowerCase();
 
   if (
-    value === "purchase" ||
-    value === "purchases" ||
-    value === "buy" ||
-    value === "alış" ||
-    value === "alis" ||
-    value.includes("alış") ||
-    value.includes("alis")
+    type.includes("alış") ||
+    type.includes("alis") ||
+    type.includes("purchase")
   ) {
     return "purchase";
   }
 
-  if (
-    value === "return" ||
-    value === "returns" ||
-    value === "iade" ||
-    value.includes("iade")
-  ) {
+  if (type.includes("iade") || type.includes("return")) {
     return "return";
   }
 
   return "sales";
-}
+};
 
-
-function getInvoiceDate(
-  invoice
-) {
-  return (
-    invoice?.date ||
-    invoice?.invoiceDate ||
-    ""
-  );
-}
-
-
-function getInvoiceTotal(
-  invoice
-) {
-  return toNumber(
+const totalOf = (invoice) =>
+  Number(
     invoice?.total ??
-    invoice?.grandTotal ??
-    invoice?.netTotal ??
-    0
+      invoice?.grandTotal ??
+      invoice?.amount ??
+      invoice?.totalAmount ??
+      0
+  ) || 0;
+
+const paidOf = (invoice) =>
+  Number(
+    invoice?.paidAmount ??
+      invoice?.paymentAmount ??
+      invoice?.paid ??
+      0
+  ) || 0;
+
+const isPaid = (invoice) => {
+  const status = String(
+    invoice?.status || invoice?.paymentStatus || ""
+  ).toLowerCase();
+
+  return (
+    status.includes("paid") ||
+    status.includes("ödendi") ||
+    status.includes("tahsil") ||
+    status.includes("tamam")
   );
-}
+};
 
+const getAccountType = (account) => {
+  const type = String(
+    account?.type || account?.accountType || ""
+  ).toLowerCase();
 
-function getCustomerName(
-  invoice,
-  customers
-) {
-  if (
-    invoice?.customerName
-  ) {
-    return invoice.customerName;
+  return type.includes("kasa") ||
+    type.includes("cash") ||
+    type.includes("nakit")
+    ? "cash"
+    : "bank";
+};
+
+const getAccountName = (account) =>
+  account?.name ||
+  account?.title ||
+  account?.accountName ||
+  account?.bankName ||
+  "Hesap";
+
+const loadAccounts = () => {
+  for (const key of ACCOUNT_KEYS) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(key) || "null");
+
+      if (Array.isArray(raw)) return raw;
+      if (raw?.accounts && Array.isArray(raw.accounts)) {
+        return raw.accounts;
+      }
+    } catch {}
   }
 
-  if (
-    invoice?.supplierName
-  ) {
-    return invoice.supplierName;
-  }
+  return [];
+};
 
-  const customer =
-    customers.find(
-      (item) =>
-        String(item.id) ===
-        String(
-          invoice?.customerId
-        )
-    );
+const customerOf = (invoice, customers) => {
+  if (invoice?.customerName) return invoice.customerName;
+  if (invoice?.supplierName) return invoice.supplierName;
+
+  const customer = customers.find(
+    (item) =>
+      String(item.id) ===
+      String(invoice?.customerId || invoice?.supplierId)
+  );
 
   return (
     customer?.name ||
@@ -181,467 +146,108 @@ function getCustomerName(
     customer?.companyName ||
     "Cari"
   );
-}
+};
 
+const daysToDue = (invoice, today) => {
+  const due = dateKey(invoice?.dueDate || invoice?.date);
+  if (!due) return null;
 
-function getInvoiceNumber(
-  invoice
-) {
-  return (
-    invoice?.invoiceNo ||
-    invoice?.number ||
-    invoice?.documentNo ||
-    `FAT-${invoice?.id || ""}`
+  return Math.round(
+    (new Date(`${due}T12:00:00`).getTime() -
+      new Date(`${today}T12:00:00`).getTime()) /
+      86400000
   );
-}
+};
 
-
-function getInvoiceTime(
-  invoice
-) {
-  const raw =
-    invoice?.createdAt ||
-    invoice?.updatedAt ||
-    invoice?.date;
-
-  if (!raw) {
-    return "—";
-  }
-
-  const date =
-    new Date(raw);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return "—";
-  }
-
-  return date.toLocaleTimeString(
-    "tr-TR",
-    {
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
-}
-
-
-function sameDay(
-  invoiceDate,
-  targetDate
-) {
-  if (!invoiceDate) {
-    return false;
-  }
-
-  const raw =
-    String(invoiceDate);
-
-  const date =
-    new Date(
-      raw.includes("T")
-        ? raw
-        : `${raw}T12:00:00`
+const getQuickSales = () => {
+  try {
+    const raw = JSON.parse(
+      localStorage.getItem("ren_erp_quick_sales") || "[]"
     );
 
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return false;
-  }
+    if (!Array.isArray(raw)) return [];
 
-  return (
-    date.getFullYear() ===
-      targetDate.getFullYear() &&
-    date.getMonth() ===
-      targetDate.getMonth() &&
-    date.getDate() ===
-      targetDate.getDate()
-  );
-}
-
-
-function sameMonth(
-  invoiceDate,
-  targetDate
-) {
-  if (!invoiceDate) {
-    return false;
-  }
-
-  const raw =
-    String(invoiceDate);
-
-  const date =
-    new Date(
-      raw.includes("T")
-        ? raw
-        : `${raw}T12:00:00`
-    );
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return false;
-  }
-
-  return (
-    date.getFullYear() ===
-      targetDate.getFullYear() &&
-    date.getMonth() ===
-      targetDate.getMonth()
-  );
-}
-
-
-/* =========================================================
-   ÜRÜN MALİYETİ
-========================================================= */
-
-function getProductCost(
-  product
-) {
-  if (!product) {
-    return 0;
-  }
-
-  return toNumber(
-    product.purchaseNet ??
-    product.purchasePrice ??
-    product.buyPrice ??
-    product.cost ??
-    product.purchase ??
-    0
-  );
-}
-
-
-/* =========================================================
-   FATURA SATIR KÂRI
-========================================================= */
-
-function calculateInvoiceProfit(
-  invoice,
-  products
-) {
-  if (
-    normalizeType(
-      invoice?.type
-    ) !== "sales"
-  ) {
-    return 0;
-  }
-
-  const invoiceItems =
-    Array.isArray(
-      invoice?.items
-    )
-      ? invoice.items
-      : [];
-
-  return invoiceItems.reduce(
-    (
-      totalProfit,
-      item
-    ) => {
-
-      const quantity =
-        toNumber(
-          item.quantity
-        );
-
-      if (
-        quantity <= 0
-      ) {
-        return totalProfit;
-      }
-
-      const product =
-        products.find(
-          (productItem) =>
-            String(
-              productItem.id
-            ) ===
-            String(
-              item.productId
-            )
-        );
-
-      const purchasePrice =
-        getProductCost(
-          product
-        );
-
-      const salePrice =
-        toNumber(
-          item.unitPrice ??
-          item.price ??
-          item.salesNet ??
+    return raw.map((sale) => ({
+      id: sale.id || `quick-${Date.now()}-${Math.random()}`,
+      type: "sales",
+      invoiceNo:
+        sale.number ||
+        sale.saleNumber ||
+        sale.invoiceNo ||
+        sale.id ||
+        "Hızlı Satış",
+      date: sale.date || sale.createdAt,
+      createdAt:
+        sale.createdAt ||
+        `${sale.date || dateKey(new Date())}T${sale.time || "00:00"}:00`,
+      customerName:
+        sale.customerName ||
+        sale.customer ||
+        "Hızlı Satış",
+      notes: sale.notes || "Hızlı Satış",
+      total: Number(
+        sale.total ||
+          sale.grandTotal ||
+          sale.totalAmount ||
           0
-        );
+      ),
+      status:
+        sale.paymentType === "credit"
+          ? "Veresiye"
+          : "Tamamlandı",
+      __quickSale: true,
+    }));
+  } catch {
+    return [];
+  }
+};
 
-      const lineDiscount =
-        toNumber(
-          item.discount ??
-          item.lineDiscount ??
-          0
-        );
-
-      const grossSale =
-        salePrice *
-        quantity;
-
-      const netSale =
-        Math.max(
-          0,
-          grossSale -
-          lineDiscount
-        );
-
-      const cost =
-        purchasePrice *
-        quantity;
-
-      return (
-        totalProfit +
-        (
-          netSale -
-          cost
-        )
-      );
-
-    },
-    0
+function MoneyRing({ title, amount, percent, type = "green" }) {
+  const safePercent = Math.max(
+    0,
+    Math.min(100, Number(percent) || 0)
   );
-}
 
-
-/* =========================================================
-   KÂR VERİSİ
-========================================================= */
-
-function calculateProfitData(
-  invoices,
-  products
-) {
-  let salesTotal = 0;
-  let profitTotal = 0;
-
-  invoices
-    .filter(
-      (invoice) =>
-        normalizeType(
-          invoice.type
-        ) === "sales"
-    )
-    .forEach(
-      (invoice) => {
-
-        salesTotal +=
-          getInvoiceTotal(
-            invoice
-          );
-
-        profitTotal +=
-          calculateInvoiceProfit(
-            invoice,
-            products
-          );
-
-      }
-    );
-
-  const profitMargin =
-    salesTotal > 0
-      ? (
-          profitTotal /
-          salesTotal
-        ) *
-        100
-      : 0;
-
-  return {
-    salesTotal,
-    profitTotal,
-    profitMargin,
-  };
-}
-
-
-/* =========================================================
-   BUGÜNÜN TARİHİ
-========================================================= */
-
-function normalizeTodayDate(
-  value
-) {
-  if (!value) {
-    return "";
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return "";
-  }
-
-  const year =
-    date.getFullYear();
-
-  const month =
-    String(
-      date.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
-
-  const day =
-    String(
-      date.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
-
-  return `${year}-${month}-${day}`;
-}
-
-
-/* =========================================================
-   TODAY CARD
-========================================================= */
-
-function TodayCard({
-  icon: Icon,
-  title,
-  amount,
-  change,
-  type,
-}) {
   return (
-    <article
-      className={`ren-today-card ${type}`}
-    >
+    <article className={`def-ring-card ${type}`}>
+      <span className="def-ring-title">{title}</span>
 
-      <div className="ren-today-icon">
-        <Icon />
+      <div
+        className="def-ring"
+        style={{
+          "--ring-progress": `${safePercent}%`,
+        }}
+      >
+        <div className="def-ring-inner">
+          <strong>₺{money(amount)}</strong>
+          <span>%{Math.round(safePercent)}</span>
+        </div>
       </div>
-
-      <div className="ren-today-content">
-
-        <span>
-          {title}
-        </span>
-
-        <strong>
-          {amount}
-        </strong>
-
-      </div>
-
-      <div className="ren-today-change">
-
-        <MdTrendingUp />
-
-        {change}
-
-      </div>
-
     </article>
   );
 }
 
-
-/* =========================================================
-   FINANCE CARD
-========================================================= */
-
-function FinanceCard({
-  icon: Icon,
-  title,
-  amount,
-  type,
-  detail,
-}) {
+function EmptyState({ children = "Kayıt bulunamadı." }) {
   return (
-    <article className="ren-finance-card">
-
-      <div
-        className={`ren-finance-icon ${type}`}
-      >
-        <Icon />
-      </div>
-
-      <div className="ren-finance-title">
-        {title}
-      </div>
-
-      <div
-        className={`ren-finance-amount ${type}`}
-      >
-        {amount}
-      </div>
-
-      <div className="ren-finance-detail">
-        {detail}
-      </div>
-
-    </article>
+    <div className="def-empty-state">
+      <MdCheckCircle />
+      <span>{children}</span>
+    </div>
   );
 }
-
-
-/* =========================================================
-   OVERVIEW
-========================================================= */
 
 export default function Overview() {
-
-  const [
-    refreshKey,
-    setRefreshKey,
-  ] = useState(0);
-
-
-  const [
-    now,
-    setNow,
-  ] = useState(
-    () => new Date()
-  );
-
-
-  /* =======================================================
-     VERİLERİ YENİLE
-  ======================================================= */
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [now, setNow] = useState(new Date());
+  const [period, setPeriod] = useState("Tüm zamanlar");
+  const [agendaView, setAgendaView] = useState("Haftalık");
+  const [agendaSearch, setAgendaSearch] = useState("");
 
   useEffect(() => {
-
-    const refresh =
-      () => {
-        setNow(
-          new Date()
-        );
-
-        setRefreshKey(
-          (value) =>
-            value + 1
-        );
-      };
-
+    const refresh = () => {
+      setNow(new Date());
+      setRefreshKey((value) => value + 1);
+    };
 
     const events = [
       "ren-invoices-updated",
@@ -651,643 +257,1110 @@ export default function Overview() {
       "ren-products-changed",
       "ren-customers-updated",
       "ren-cash-bank-updated",
-      "ren-orders-updated",
+      "storage",
     ];
 
-
-    events.forEach(
-      (eventName) => {
-
-        window.addEventListener(
-          eventName,
-          refresh
-        );
-
-      }
+    events.forEach((eventName) =>
+      window.addEventListener(eventName, refresh)
     );
 
-
-    const storageRefresh =
-      (event) => {
-
-        const relevantKeys = [
-          "ren_erp_products",
-          "ren_erp_categories",
-          "ren_erp_brands",
-          "ren_erp_units",
-          "ren_erp_stock_movements",
-          "ren_erp_customers",
-          "ren-erp-orders",
-          "ren-erp-cash-bank-accounts",
-          "ren-erp-cash-bank-movements",
-        ];
-
-
-        if (
-          !event.key ||
-          relevantKeys.includes(
-            event.key
-          )
-        ) {
-
-          refresh();
-
-        }
-
-      };
-
-
-    window.addEventListener(
-      "storage",
-      storageRefresh
-    );
-
+    const timer = window.setInterval(refresh, 30000);
 
     return () => {
-
-      events.forEach(
-        (eventName) => {
-
-          window.removeEventListener(
-            eventName,
-            refresh
-          );
-
-        }
+      events.forEach((eventName) =>
+        window.removeEventListener(eventName, refresh)
       );
-
-
-      window.removeEventListener(
-        "storage",
-        storageRefresh
-      );
-
+      window.clearInterval(timer);
     };
-
   }, []);
 
+  const invoices = useMemo(
+    () => getInvoices() || [],
+    [refreshKey]
+  );
 
-  /* =======================================================
-     VERİLER
-  ======================================================= */
+  const customers = useMemo(
+    () => getCustomers() || [],
+    [refreshKey]
+  );
 
-  const invoices =
-    useMemo(
-      () =>
-        getInvoices() || [],
-      [refreshKey]
-    );
+  const products = useMemo(
+    () => getProducts() || [],
+    [refreshKey]
+  );
 
+  const accounts = useMemo(
+    () => loadAccounts(),
+    [refreshKey]
+  );
 
-  const customers =
-    useMemo(
-      () =>
-        getCustomers() || [],
-      [refreshKey]
-    );
+  const today = dateKey(now);
+  const currentMonth = today.slice(0, 7);
 
+  const sales = invoices.filter(
+    (invoice) => typeOf(invoice.type) === "sales"
+  );
 
-  const products =
-    useMemo(
-      () =>
-        getProducts() || [],
-      [refreshKey]
-    );
+  const purchases = invoices.filter(
+    (invoice) => typeOf(invoice.type) === "purchase"
+  );
 
+  const quickSales = useMemo(
+    () => getQuickSales(),
+    [refreshKey, today]
+  );
 
-  /* =======================================================
-     BUGÜN
-  ======================================================= */
+  const invoiceRecent = invoices.map((invoice) => ({
+    ...invoice,
+    __quickSale: false,
+  }));
 
-  const todayInvoices =
-    useMemo(
-      () =>
-        invoices.filter(
+  const recent = [
+    ...invoiceRecent,
+    ...quickSales.filter(
+      (quickSale) =>
+        !invoiceRecent.some(
           (invoice) =>
-            sameDay(
-              getInvoiceDate(
-                invoice
-              ),
-              now
-            )
-        ),
-      [
-        invoices,
-        now,
-      ]
-    );
-
-
-  /* =======================================================
-     BU AY
-  ======================================================= */
-
-  const monthInvoices =
-    useMemo(
-      () =>
-        invoices.filter(
-          (invoice) =>
-            sameMonth(
-              getInvoiceDate(
-                invoice
-              ),
-              now
-            )
-        ),
-      [
-        invoices,
-        now,
-      ]
-    );
-
-
-  /* =======================================================
-     BUGÜNKÜ SATIŞ
-  ======================================================= */
-
-  const todaySales =
-    todayInvoices
-      .filter(
-        (invoice) =>
-          normalizeType(
-            invoice.type
-          ) === "sales"
-      )
-      .reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          getInvoiceTotal(
-            invoice
-          ),
-        0
-      );
-
-
-  /* =======================================================
-     BUGÜNKÜ ALIŞ
-  ======================================================= */
-
-  const todayPurchases =
-    todayInvoices
-      .filter(
-        (invoice) =>
-          normalizeType(
-            invoice.type
-          ) === "purchase"
-      )
-      .reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          getInvoiceTotal(
-            invoice
-          ),
-        0
-      );
-
-
-  /* =======================================================
-     BU AY SATIŞ
-  ======================================================= */
-
-  const monthSales =
-    monthInvoices
-      .filter(
-        (invoice) =>
-          normalizeType(
-            invoice.type
-          ) === "sales"
-      )
-      .reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          getInvoiceTotal(
-            invoice
-          ),
-        0
-      );
-
-
-  /* =======================================================
-     BU AY ALIŞ
-  ======================================================= */
-
-  const monthPurchases =
-    monthInvoices
-      .filter(
-        (invoice) =>
-          normalizeType(
-            invoice.type
-          ) === "purchase"
-      )
-      .reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          getInvoiceTotal(
-            invoice
-          ),
-        0
-      );
-
-
-  /* =======================================================
-     BU AY KÂR
-  ======================================================= */
-
-  const monthProfitData =
-    calculateProfitData(
-      monthInvoices,
-      products
-    );
-
-
-  /* =======================================================
-     BUGÜN KÂR
-  ======================================================= */
-
-  const todayProfitData =
-    calculateProfitData(
-      todayInvoices,
-      products
-    );
-
-
-  /* =======================================================
-     ADET
-  ======================================================= */
-
-  const todaySalesCount =
-    todayInvoices.filter(
-      (invoice) =>
-        normalizeType(
-          invoice.type
-        ) === "sales"
-    ).length;
-
-
-  const todayPurchaseCount =
-    todayInvoices.filter(
-      (invoice) =>
-        normalizeType(
-          invoice.type
-        ) === "purchase"
-    ).length;
-
-
-  const monthSalesCount =
-    monthInvoices.filter(
-      (invoice) =>
-        normalizeType(
-          invoice.type
-        ) === "sales"
-    ).length;
-
-
-  const monthPurchaseCount =
-    monthInvoices.filter(
-      (invoice) =>
-        normalizeType(
-          invoice.type
-        ) === "purchase"
-    ).length;
-
-
-  /* =======================================================
-     BUGÜNKÜ İŞLEMLER
-  ======================================================= */
-
-  const transactions =
-    useMemo(() => {
-
-      return todayInvoices
-        .slice()
-        .sort(
-          (
-            first,
-            second
-          ) => {
-
-            const firstRaw =
-              first.createdAt ||
-              first.updatedAt ||
-              getInvoiceDate(
-                first
-              );
-
-            const secondRaw =
-              second.createdAt ||
-              second.updatedAt ||
-              getInvoiceDate(
-                second
-              );
-
-            const firstDate =
-              new Date(
-                firstRaw
-              );
-
-            const secondDate =
-              new Date(
-                secondRaw
-              );
-
-            const firstTime =
-              Number.isNaN(
-                firstDate.getTime()
-              )
-                ? 0
-                : firstDate.getTime();
-
-            const secondTime =
-              Number.isNaN(
-                secondDate.getTime()
-              )
-                ? 0
-                : secondDate.getTime();
-
-            return (
-              secondTime -
-              firstTime
-            );
-
-          }
+            String(invoice.sourceId || "") ===
+              String(quickSale.invoiceNo || "") ||
+            String(invoice.id || "") ===
+              String(quickSale.id || "")
         )
-        .slice(
-          0,
-          10
+    ),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(
+          b.createdAt ||
+            b.date ||
+            0
+        ).getTime() -
+        new Date(
+          a.createdAt ||
+            a.date ||
+            0
+        ).getTime()
+    )
+    .slice(0, 7);
+
+  const todaySalesInvoices = [
+    ...sales,
+    ...quickSales,
+  ].filter(
+    (invoice) =>
+      dateKey(invoice.date || invoice.createdAt) === today
+  );
+
+  const todayPurchaseInvoices = purchases.filter(
+    (invoice) =>
+      dateKey(invoice.date || invoice.createdAt) === today
+  );
+
+  const todaySales = todaySalesInvoices.reduce(
+    (sum, invoice) => sum + totalOf(invoice),
+    0
+  );
+
+  const todayPurchases = todayPurchaseInvoices.reduce(
+    (sum, invoice) => sum + totalOf(invoice),
+    0
+  );
+
+  const monthSales = [
+    ...sales,
+    ...quickSales,
+  ]
+    .filter(
+      (invoice) =>
+        dateKey(invoice.date || invoice.createdAt).startsWith(
+          currentMonth
         )
-        .map(
-          (invoice) => {
+    )
+    .reduce((sum, invoice) => sum + totalOf(invoice), 0);
 
-            const normalizedType =
-              normalizeType(
-                invoice.type
-              );
+  const monthPurchases = purchases
+    .filter(
+      (invoice) =>
+        dateKey(invoice.date || invoice.createdAt).startsWith(
+          currentMonth
+        )
+    )
+    .reduce((sum, invoice) => sum + totalOf(invoice), 0);
 
-            let type =
-              "Satış";
+  const toCollect = [
+    ...sales,
+    ...quickSales,
+  ].filter((invoice) => !isPaid(invoice));
 
-            let color =
-              "blue";
+  const toPay = purchases.filter(
+    (invoice) => !isPaid(invoice)
+  );
 
-            let icon =
-              MdShoppingCart;
-
-
-            if (
-              normalizedType ===
-              "purchase"
-            ) {
-
-              type =
-                "Alış";
-
-              color =
-                "orange";
-
-              icon =
-                MdReceiptLong;
-
-            }
-
-
-            if (
-              normalizedType ===
-              "return"
-            ) {
-
-              type =
-                "İade";
-
-              color =
-                "red";
-
-              icon =
-                MdReceiptLong;
-
-            }
-
-
-            return {
-
-              id:
-                invoice.id,
-
-              time:
-                getInvoiceTime(
-                  invoice
-                ),
-
-              type,
-
-              description:
-                getCustomerName(
-                  invoice,
-                  customers
-                ),
-
-              document:
-                getInvoiceNumber(
-                  invoice
-                ),
-
-              amount:
-                money(
-                  getInvoiceTotal(
-                    invoice
-                  )
-                ),
-
-              color,
-
-              icon,
-
-              status:
-                invoice.status ||
-                invoice.paymentStatus ||
-                "Tamamlandı",
-
-            };
-
-          }
-        );
-
-    }, [
-      todayInvoices,
-      customers,
-    ]);
-
-
-  /* =======================================================
-     BUGÜN ÖZET
-  ======================================================= */
-
-  const todayReturnTotal =
-    todayInvoices
-      .filter(
-        (invoice) =>
-          normalizeType(
-            invoice.type
-          ) === "return"
-      )
-      .reduce(
-        (
-          total,
-          invoice
-        ) =>
-          total +
-          getInvoiceTotal(
-            invoice
-          ),
+  const collectTotal = toCollect.reduce(
+    (sum, invoice) =>
+      sum +
+      Math.max(
+        totalOf(invoice) - paidOf(invoice),
         0
-      );
+      ),
+    0
+  );
 
+  const payTotal = toPay.reduce(
+    (sum, invoice) =>
+      sum +
+      Math.max(
+        totalOf(invoice) - paidOf(invoice),
+        0
+      ),
+    0
+  );
 
-  const todayNetSales =
-    todaySales -
-    todayReturnTotal;
-
-
-  /* =======================================================
-     TARİH
-  ======================================================= */
-
-  const formattedDate =
-    now.toLocaleDateString(
-      "tr-TR",
-      {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
+  const overdueCollect = toCollect
+    .filter(
+      (invoice) =>
+        (daysToDue(invoice, today) ?? 0) < 0
+    )
+    .reduce(
+      (sum, invoice) =>
+        sum +
+        Math.max(
+          totalOf(invoice) - paidOf(invoice),
+          0
+        ),
+      0
     );
 
-
-  const formattedDay =
-    now.toLocaleDateString(
-      "tr-TR",
-      {
-        weekday: "long",
-      }
+  const overduePay = toPay
+    .filter(
+      (invoice) =>
+        (daysToDue(invoice, today) ?? 0) < 0
+    )
+    .reduce(
+      (sum, invoice) =>
+        sum +
+        Math.max(
+          totalOf(invoice) - paidOf(invoice),
+          0
+        ),
+      0
     );
 
+  const cashBalance = accounts
+    .filter(
+      (account) =>
+        getAccountType(account) === "cash"
+    )
+    .reduce(
+      (sum, account) =>
+        sum +
+        Number(
+          account?.balance ??
+            account?.currentBalance ??
+            account?.amount ??
+            0
+        ),
+      0
+    );
 
-  /* =======================================================
-     EKRAN
-  ======================================================= */
+  const bankBalance = accounts
+    .filter(
+      (account) =>
+        getAccountType(account) === "bank"
+    )
+    .reduce(
+      (sum, account) =>
+        sum +
+        Number(
+          account?.balance ??
+            account?.currentBalance ??
+            account?.amount ??
+            0
+        ),
+      0
+    );
+
+  const totalIncome = monthSales;
+  const totalExpense = monthPurchases;
+  const profit = totalIncome - totalExpense;
+  const totalCash = bankBalance + cashBalance;
+
+  const stockQty = products.reduce(
+    (sum, product) =>
+      sum + Number(product?.stock || 0),
+    0
+  );
+
+  const criticalProducts = products.filter(
+    (product) =>
+      Number(product?.stock || 0) <=
+      Number(product?.criticalStock ?? 15)
+  ).length;
+
+  const upcomingCollections = [...toCollect]
+    .sort(
+      (a, b) =>
+        (daysToDue(a, today) ?? 9999) -
+        (daysToDue(b, today) ?? 9999)
+    )
+    .slice(0, 4);
+
+  const upcomingPayments = [...toPay]
+    .sort(
+      (a, b) =>
+        (daysToDue(a, today) ?? 9999) -
+        (daysToDue(b, today) ?? 9999)
+    )
+    .slice(0, 4);
+
+  const profitIncomePercent =
+    totalIncome > 0
+      ? (Math.max(profit, 0) / totalIncome) * 100
+      : 0;
+
+  const profitExpensePercent =
+    totalIncome > 0
+      ? (Math.max(totalExpense, 0) / totalIncome) * 100
+      : 0;
+
+  const recentCashAccounts = accounts
+    .slice(0, 3)
+    .map((account) => ({
+      name: getAccountName(account),
+      balance: Number(
+        account?.balance ??
+          account?.currentBalance ??
+          account?.amount ??
+          0
+      ),
+    }));
+
+  const dayStart = new Date(now);
+  dayStart.setHours(0, 0, 0, 0);
+
+  const agendaDays = Array.from({ length: 5 }, (_, index) => {
+    const day = new Date(dayStart);
+    day.setDate(day.getDate() + index);
+
+    return {
+      date: day,
+      key: dateKey(day),
+    };
+  });
+
+  const filteredRecent = recent.filter((item) => {
+    const query = agendaSearch.trim().toLocaleLowerCase("tr-TR");
+    if (!query) return true;
+
+    const text = [
+      item.invoiceNo,
+      item.customerName,
+      item.supplierName,
+      item.notes,
+      item.description,
+      item.__quickSale ? "hızlı satış" : "",
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("tr-TR");
+
+    return text.includes(query);
+  });
+
+  const openQuickAction = (path) => {
+    window.location.href = path;
+  };
+
+  const formattedToday = now.toLocaleDateString(
+    "tr-TR",
+    {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }
+  );
 
   return (
-    <div className="ren-overview ren-parasut-layout">
-      <div className="ren-main-column">
-        <header className="ren-overview-header">
-          <div>
-            <span className="ren-eyebrow">GENEL BAKIŞ</span>
-            <h1>Hoş geldiniz</h1>
-            <p>İşletmenizin güncel finansal durumunu buradan takip edin.</p>
-          </div>
-
-          <div className="ren-date-box">
-            <MdCalendarToday />
-            <div>
-              <strong>{formattedDate}</strong>
-              <span>{formattedDay}</span>
+    <div className="def-dashboard">
+      <div className="def-dashboard-grid">
+        <main className="def-main-column">
+          <section className="def-welcome-card">
+            <div className="def-welcome-tabs">
+              <button type="button">Nakit Akışı</button>
+              <button className="active" type="button">
+                Özet
+              </button>
             </div>
-          </div>
-        </header>
 
-        <section className="ren-kpi-grid">
-          <TodayCard icon={MdShoppingCart} title="Bugünkü Satış" amount={money(todayNetSales)} change={`${todaySalesCount} fatura`} type="sales"/>
-          <TodayCard icon={MdTrendingUp} title="Bugünkü Kâr" amount={money(todayProfitData.profitTotal)} change={`%${todayProfitData.profitMargin.toFixed(1)} marj`} type="collections"/>
-          <FinanceCard icon={MdTrendingUp} title="Bu Ayın Cirosu" amount={money(monthSales)} type="blue" detail={`${monthSalesCount} satış faturası`}/>
-          <FinanceCard icon={MdTrendingDown} title="Bu Ayın Alışları" amount={money(monthPurchases)} type="red" detail={`${monthPurchaseCount} alış faturası`}/>
-        </section>
+            <div className="def-welcome-list">
+              {[
+                [
+                  "Geciken ödemeler",
+                  overduePay,
+                  "/payments",
+                ],
+                [
+                  "Geciken tahsilatlar",
+                  overdueCollect,
+                  "/collections",
+                ],
+                [
+                  "Vade girilmemiş ödemeler",
+                  0,
+                  "/payments",
+                ],
+                [
+                  "Vade girilmemiş tahsilatlar",
+                  0,
+                  "/collections",
+                ],
+                [
+                  "Yaklaşan ödemeler",
+                  Math.max(payTotal - overduePay, 0),
+                  "/payments",
+                ],
+                [
+                  "Yaklaşan tahsilatlar",
+                  Math.max(
+                    collectTotal - overdueCollect,
+                    0
+                  ),
+                  "/collections",
+                ],
+              ].map(([label, amount, path]) => (
+                <button
+                  key={label}
+                  className="def-summary-row"
+                  type="button"
+                  onClick={() => openQuickAction(path)}
+                >
+                  <span>{label}</span>
+                  <strong>
+                    ₺{money(amount)}
+                    <MdKeyboardArrowRight />
+                  </strong>
+                </button>
+              ))}
+            </div>
+          </section>
 
-        <section className="ren-cash-card">
-          <div className="cash-box"><span>Nakit Girişi</span><strong>{money(todaySales)}</strong></div>
-          <div className="cash-box"><span>Nakit Çıkışı</span><strong>{money(todayPurchases)}</strong></div>
-          <div className="cash-box"><span>Net Akış</span><strong>{money(todayNetSales-todayPurchases)}</strong></div>
-        </section>
+          <section className="def-agenda-card">
+            <div className="def-section-title-row">
+              <div>
+                <h2>Ajanda</h2>
+                <span>
+                  Planlanmış etkinliklerinizi gözden geçirin
+                </span>
+              </div>
 
-        <section className="ren-transactions">
-          <header className="ren-transactions-header">
-            <div><h2>Son Hareketler</h2><p>Bugünkü faturalar ve işlemler</p></div>
-            <button className="ren-view-button">Tüm Faturalar</button>
-          </header>
+              <div className="def-agenda-actions">
+                <label className="def-search">
+                  <MdSearch />
+                  <input
+                    value={agendaSearch}
+                    onChange={(event) =>
+                      setAgendaSearch(
+                        event.target.value
+                      )
+                    }
+                    placeholder="Kayıtlarda ara..."
+                  />
+                </label>
 
-          <table className="ren-table">
-            <thead>
-              <tr><th>SAAT</th><th>İŞLEM</th><th>AÇIKLAMA</th><th>BELGE</th><th>TUTAR</th></tr>
-            </thead>
-            <tbody>
-              {transactions.length ? transactions.map(item=>(
-                <tr key={item.id}>
-                  <td>{item.time}</td>
-                  <td>{item.type}</td>
-                  <td>{item.description}</td>
-                  <td>{item.document}</td>
-                  <td>{item.amount}</td>
-                </tr>
-              )):(
-                <tr><td colSpan="5" className="ren-empty-transactions">Bugün henüz işlem yok.</td></tr>
+                <button
+                  className="def-select"
+                  type="button"
+                  onClick={() =>
+                    setAgendaView((value) =>
+                      value === "Haftalık"
+                        ? "Aylık"
+                        : "Haftalık"
+                    )
+                  }
+                >
+                  {agendaView}
+                  <MdKeyboardArrowDown />
+                </button>
+
+                <button
+                  className="def-filter-btn"
+                  type="button"
+                >
+                  Filtre
+                </button>
+
+                <button
+                  className="def-add-btn"
+                  type="button"
+                  onClick={() =>
+                    openQuickAction("/calendar")
+                  }
+                >
+                  <MdAdd />
+                  Ekle
+                </button>
+              </div>
+            </div>
+
+            <div className="def-calendar-head">
+              {agendaDays.map((day) => (
+                <div key={day.key}>
+                  <span>
+                    {day.date
+                      .toLocaleDateString(
+                        "tr-TR",
+                        {
+                          day: "numeric",
+                          month: "long",
+                          weekday: "short",
+                        }
+                      )
+                      .toLocaleUpperCase("tr-TR")}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="def-calendar-body">
+              <div className="def-calendar-note">
+                <MdCalendarToday />
+                <div>
+                  <strong>{formattedToday}</strong>
+                  <span>
+                    Hızlı satış, fatura ve tahsilat
+                    hareketleri burada takip edilebilir.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="def-large-grid">
+            <article className="def-card def-finance-card">
+              <div className="def-card-heading">
+                <div>
+                  <h2>Gelir - Gider</h2>
+                  <span>Gelir ve gider grafiği</span>
+                  <small>En güncel finansal durum</small>
+                </div>
+
+                <button
+                  className="def-select"
+                  type="button"
+                  onClick={() =>
+                    setPeriod((value) =>
+                      value === "Tüm zamanlar"
+                        ? "Bu ay"
+                        : "Tüm zamanlar"
+                    )
+                  }
+                >
+                  {period}
+                  <MdKeyboardArrowDown />
+                </button>
+              </div>
+
+              <div className="def-profit-visual">
+                <div
+                  className="def-profit-arc"
+                  style={{
+                    "--profit-rotation": `${Math.min(
+                      180,
+                      Math.max(
+                        0,
+                        profitIncomePercent * 1.8
+                      )
+                    )}deg`,
+                  }}
+                >
+                  <div className="def-profit-hole">
+                    <span>Kâr</span>
+                    <strong>
+                      ₺{money(profit)}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="def-income-expense">
+                <div>
+                  <span className="dot green" />
+                  <label>Gelir</label>
+                  <strong>
+                    ₺{money(totalIncome)}
+                  </strong>
+                  <small>
+                    %{Math.round(
+                      totalIncome
+                        ? 100
+                        : 0
+                    )}
+                  </small>
+                </div>
+
+                <div>
+                  <span className="dot gray" />
+                  <label>Gider</label>
+                  <strong>
+                    ₺{money(totalExpense)}
+                  </strong>
+                  <small>
+                    %{Math.round(
+                      totalIncome
+                        ? (totalExpense /
+                            totalIncome) *
+                            100
+                        : 0
+                    )}
+                  </small>
+                </div>
+              </div>
+
+              <div className="def-finance-bottom">
+                <div>
+                  <span>
+                    <i className="dot green" />
+                    Kasa
+                  </span>
+                  <strong>₺{money(cashBalance)}</strong>
+                  <small>Net kasa</small>
+                </div>
+
+                <div>
+                  <span>
+                    <i className="dot red" />
+                    Borç
+                  </span>
+                  <strong>₺{money(payTotal)}</strong>
+                  <small>Kalan borç</small>
+                </div>
+
+                <div>
+                  <span>
+                    <i className="dot orange" />
+                    Alacak
+                  </span>
+                  <strong>
+                    ₺{money(collectTotal)}
+                  </strong>
+                  <small>Kalan alacak</small>
+                </div>
+              </div>
+            </article>
+
+            <article className="def-card def-cash-card">
+              <div className="def-card-heading">
+                <div>
+                  <h2>Bankaya Bağlı Hesaplarınız</h2>
+                  <span>
+                    Kasa ve banka bakiyelerinizi
+                    izleyin
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="def-link-btn"
+                  onClick={() =>
+                    openQuickAction(
+                      "/cash-bank"
+                    )
+                  }
+                >
+                  Tümü
+                  <MdKeyboardArrowRight />
+                </button>
+              </div>
+
+              <div className="def-account-total">
+                <span>Toplam nakit</span>
+                <strong>
+                  ₺{money(totalCash)}
+                </strong>
+              </div>
+
+              <div className="def-account-list">
+                {recentCashAccounts.length ? (
+                  recentCashAccounts.map(
+                    (account, index) => (
+                      <div
+                        className="def-account-row"
+                        key={`${account.name}-${index}`}
+                      >
+                        <div className="def-account-icon">
+                          <MdAccountBalance />
+                        </div>
+
+                        <div>
+                          <strong>
+                            {account.name}
+                          </strong>
+                          <span>
+                            Bağlı hesap
+                          </span>
+                        </div>
+
+                        <b>
+                          ₺{money(account.balance)}
+                        </b>
+                      </div>
+                    )
+                  )
+                ) : (
+                  <EmptyState>
+                    Henüz kasa veya banka hesabı
+                    eklenmemiş.
+                  </EmptyState>
+                )}
+              </div>
+            </article>
+          </section>
+
+          <section className="def-card def-recent-card">
+            <div className="def-card-heading">
+              <div>
+                <h2>Son İşlemler</h2>
+                <span>
+                  Bugünkü faturalar ve finansal
+                  hareketler
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="def-link-btn"
+                onClick={() =>
+                  openQuickAction("/invoices")
+                }
+              >
+                Tüm Faturalar
+                <MdArrowForward />
+              </button>
+            </div>
+
+            <div className="def-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>TARİH</th>
+                    <th>İŞLEM</th>
+                    <th>AÇIKLAMA</th>
+                    <th>BELGE</th>
+                    <th>CARİ</th>
+                    <th>TUTAR</th>
+                    <th>DURUM</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredRecent.length ? (
+                    filteredRecent.map((invoice) => {
+                      const type = typeOf(
+                        invoice.type
+                      );
+
+                      return (
+                        <tr key={invoice.id}>
+                          <td>
+                            {new Date(
+                              invoice.date ||
+                                invoice.createdAt ||
+                                Date.now()
+                            ).toLocaleDateString(
+                              "tr-TR"
+                            )}
+                          </td>
+
+                          <td>
+                            <span
+                              className={`def-type-pill ${type}`}
+                            >
+                              {type === "purchase"
+                                ? "Alış"
+                                : type === "return"
+                                ? "İade"
+                                : "Satış"}
+                            </span>
+                          </td>
+
+                          <td>
+                            {invoice.__quickSale
+                              ? "Hızlı Satış"
+                              : invoice.notes ||
+                                invoice.description ||
+                                "Fatura işlemi"}
+                          </td>
+
+                          <td>
+                            {invoice.invoiceNo ||
+                              invoice.id}
+                          </td>
+
+                          <td>
+                            {customerOf(
+                              invoice,
+                              customers
+                            )}
+                          </td>
+
+                          <td className="def-amount">
+                            ₺{money(
+                              totalOf(invoice)
+                            )}
+                          </td>
+
+                          <td>
+                            <span className="def-status">
+                              <MdCheckCircle />
+                              {invoice.status ||
+                                invoice.paymentStatus ||
+                                "Tamamlandı"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="7"
+                        className="def-empty-cell"
+                      >
+                        <EmptyState>
+                          Henüz işlem bulunmuyor.
+                        </EmptyState>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <aside className="def-side-column">
+          <section className="def-card def-side-card">
+            <div className="def-side-heading">
+              <div>
+                <h3>Yaklaşan Tahsilatlar</h3>
+                <span>
+                  Müşterilerinizden beklenen ödemeler
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction(
+                    "/collections"
+                  )
+                }
+              >
+                Tümü
+                <MdKeyboardArrowRight />
+              </button>
+            </div>
+
+            {upcomingCollections.length ? (
+              upcomingCollections.map((invoice) => {
+                const days = daysToDue(
+                  invoice,
+                  today
+                );
+
+                return (
+                  <div
+                    className="def-timeline-row"
+                    key={invoice.id}
+                  >
+                    <div className="def-timeline-dot green">
+                      {days < 0
+                        ? "!"
+                        : days ?? "–"}
+                    </div>
+
+                    <div className="def-timeline-info">
+                      <strong>
+                        {customerOf(
+                          invoice,
+                          customers
+                        )}
+                      </strong>
+
+                      <span>
+                        {invoice.invoiceNo ||
+                          "Fatura"}{" "}
+                        ·{" "}
+                        {days == null
+                          ? "Planlanmadı"
+                          : days < 0
+                          ? `${Math.abs(
+                              days
+                            )} gün gecikmiş`
+                          : days === 0
+                          ? "Bugün"
+                          : `${days} gün`}
+                      </span>
+                    </div>
+
+                    <b>
+                      ₺{money(
+                        Math.max(
+                          totalOf(invoice) -
+                            paidOf(invoice),
+                          0
+                        )
+                      )}
+                    </b>
+                  </div>
+                );
+              })
+            ) : (
+              <EmptyState>
+                Bekleyen tahsilat yok
+              </EmptyState>
+            )}
+          </section>
+
+          <section className="def-card def-side-card">
+            <div className="def-side-heading">
+              <div>
+                <h3>Yaklaşan Ödemeler</h3>
+                <span>
+                  Tedarikçilere yapılacak ödemeler
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction("/payments")
+                }
+              >
+                Tümü
+                <MdKeyboardArrowRight />
+              </button>
+            </div>
+
+            {upcomingPayments.length ? (
+              upcomingPayments.map((invoice) => {
+                const days = daysToDue(
+                  invoice,
+                  today
+                );
+
+                return (
+                  <div
+                    className="def-timeline-row"
+                    key={invoice.id}
+                  >
+                    <div className="def-timeline-dot red">
+                      {days < 0
+                        ? "!"
+                        : days ?? "–"}
+                    </div>
+
+                    <div className="def-timeline-info">
+                      <strong>
+                        {customerOf(
+                          invoice,
+                          customers
+                        )}
+                      </strong>
+
+                      <span>
+                        {invoice.invoiceNo ||
+                          "Fatura"}{" "}
+                        ·{" "}
+                        {days == null
+                          ? "Planlanmadı"
+                          : days < 0
+                          ? `${Math.abs(
+                              days
+                            )} gün gecikmiş`
+                          : days === 0
+                          ? "Bugün"
+                          : `${days} gün`}
+                      </span>
+                    </div>
+
+                    <b>
+                      ₺{money(
+                        Math.max(
+                          totalOf(invoice) -
+                            paidOf(invoice),
+                          0
+                        )
+                      )}
+                    </b>
+                  </div>
+                );
+              })
+            ) : (
+              <EmptyState>
+                Bekleyen ödeme yok
+              </EmptyState>
+            )}
+          </section>
+
+          <section className="def-card def-side-card">
+            <div className="def-side-heading">
+              <div>
+                <h3>Kısa Yollar</h3>
+                <span>Sık kullandığınız işlemler</span>
+              </div>
+            </div>
+
+            <div className="def-shortcuts">
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction(
+                    "/invoices/new"
+                  )
+                }
+              >
+                <MdDescription />
+                Yeni Fatura
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction(
+                    "/customers/new"
+                  )
+                }
+              >
+                <MdLocalAtm />
+                Cari Ekle
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction("/quick-sale")
+                }
+              >
+                <MdPayments />
+                Hızlı Satış
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction("/stock/new")
+                }
+              >
+                <MdReceiptLong />
+                Yeni Ürün
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction("/reports")
+                }
+              >
+                <MdTrendingUp />
+                Raporlar
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openQuickAction(
+                    "/cash-bank"
+                  )
+                }
+              >
+                <MdAccountBalance />
+                Kasa / Banka
+              </button>
+            </div>
+          </section>
+
+          <section className="def-card def-side-card def-cashflow-card">
+            <div className="def-today-header">
+              <div>
+                <span>BUGÜN</span>
+                <h3>Net Nakit Akışı</h3>
+              </div>
+              <MdMoreVert />
+            </div>
+
+            <strong className="def-today-number">
+              ₺{money(
+                Math.max(
+                  todaySales - todayPurchases,
+                  0
+                )
               )}
-            </tbody>
-          </table>
-        </section>
-      </div>
+            </strong>
 
-      <aside className="ren-right-column">
-        <div className="ren-side-card">
-          <h3>Yaklaşan Tahsilatlar</h3>
-          {[
-            ["1 Gün","ABC Market","₺2.190,00"],
-            ["3 Gün","XYZ Gıda","₺1.560,00"],
-            ["5 Gün","Deniz Cafe","₺980,00"],
-            ["7 Gün","Mega Plaza","₺3.450,00"]
-          ].map((r,i)=>(
-            <div className="ren-timeline" key={i}>
-              <span className="ren-day">{r[0]}</span>
-              <div><strong>{r[1]}</strong><small>{r[2]}</small></div>
+            <div className="def-cashflow-bar">
+              <span
+                style={{
+                  width:
+                    todaySales + todayPurchases
+                      ? `${Math.min(
+                          100,
+                          (todaySales /
+                            (todaySales +
+                              todayPurchases)) *
+                            100
+                        )}%`
+                      : "0%",
+                }}
+              />
             </div>
-          ))}
-        </div>
 
-        <div className="ren-side-card">
-          <h3>Yaklaşan Ödemeler</h3>
-          {[
-            ["2 Gün","Tedarikçi A.Ş.","₺4.250,00"],
-            ["4 Gün","Ambalaj San.","₺1.870,00"],
-            ["6 Gün","Temizlik Ürünleri","₺2.950,00"]
-          ].map((r,i)=>(
-            <div className="ren-timeline danger" key={i}>
-              <span className="ren-day danger">{r[0]}</span>
-              <div><strong>{r[1]}</strong><small>{r[2]}</small></div>
+            <div className="def-today-footer">
+              <span>
+                <MdTrendingUp />
+                Giriş ₺{money(todaySales)}
+              </span>
+
+              <span>
+                <MdTrendingDown />
+                Çıkış ₺{money(todayPurchases)}
+              </span>
             </div>
-          ))}
-        </div>
+          </section>
 
-        <div className="ren-side-card">
-          <h3>Kısa Yollar</h3>
-          <div className="ren-shortcuts">
-            <button>Yeni Fatura</button>
-            <button>Yeni Teklif</button>
-            <button>Yeni Ürün</button>
-            <button>Cari Ekle</button>
-            <button>Tahsilat</button>
-            <button>Rapor</button>
+          <div className="def-mobile-note">
+            <MoneyRing
+              title="Aylık gelir"
+              amount={totalIncome}
+              percent={
+                totalIncome > 0 ? 100 : 0
+              }
+            />
+            <MoneyRing
+              title="Aylık gider"
+              amount={totalExpense}
+              percent={
+                totalIncome > 0
+                  ? profitExpensePercent
+                  : 0
+              }
+              type="orange"
+            />
+            <div className="def-mobile-stock">
+              <MdReceiptLong />
+              <div>
+                <span>STOK</span>
+                <strong>
+                  {money(stockQty)}
+                </strong>
+                <small>
+                  {criticalProducts} kritik ürün
+                </small>
+              </div>
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      </div>
     </div>
   );
 }

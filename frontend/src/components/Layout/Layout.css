@@ -1,342 +1,963 @@
-/* ==========================================================
-   REN ERP x PARAŞÜT PREMIUM LAYOUT
-========================================================== */
 
-:root{
-  --sidebar:#0F172A;
-  --sidebar-hover:#1E293B;
-  --sidebar-active:#2563EB;
-  --bg:#F6F7FB;
-  --card:#FFFFFF;
-  --border:#E5E7EB;
-  --text:#0F172A;
-  --muted:#64748B;
+html, body, #root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-*{
-  box-sizing:border-box;
+body {
+  background: #f4f6f8;
+  color: #222d38;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
 }
 
-.ren-layout{
-  display:flex;
-  min-height:100vh;
-  background:var(--bg);
+button, input, select, textarea {
+  font: inherit;
 }
 
-/* ================= SIDEBAR ================= */
-
-.ren-sidebar{
-  width:250px;
-  background:var(--sidebar);
-  color:white;
-  display:flex;
-  flex-direction:column;
-  border-right:1px solid rgba(255,255,255,.06);
+* {
+  box-sizing: border-box;
 }
 
-.ren-logo{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:22px;
-  border-bottom:1px solid rgba(255,255,255,.06);
+:root {
+  --ren-green: #39a978;
+  --ren-green-dark: #2d8f67;
+  --ren-green-soft: #eaf7f1;
+  --ren-bg: #f4f6f8;
+  --ren-card: #fff;
+  --ren-border: #e5e9ee;
+  --ren-text: #222d38;
+  --ren-muted: #8b95a0;
+  --ren-sidebar-width: 274px;
 }
 
-.ren-logo-mark{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  background:#2563EB;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  font-weight:700;
+.ren-layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background: var(--ren-bg);
+  color: var(--ren-text);
 }
 
-.ren-logo-title{
-  font-size:18px;
-  font-weight:700;
+.ren-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 100;
+  width: var(--ren-sidebar-width);
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  background: #f7f8fa;
+  border-right: 1px solid var(--ren-border);
 }
 
-.ren-logo-subtitle{
-  font-size:12px;
-  color:#94A3B8;
+.ren-logo {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 7px 10px;
 }
 
-.ren-mobile-close{
-  display:none;
+.ren-logo-mark {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ren-green);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 5px 14px rgba(57,169,120,.18);
 }
 
-.ren-menu{
-  flex:1;
-  padding:16px 10px;
-  overflow-y:auto;
+.ren-logo-title {
+  color: #202a34;
+  font-size: 15px;
+  line-height: 1.1;
+  font-weight: 800;
 }
 
-.ren-menu-section{
-  color:#64748B;
-  font-size:11px;
-  letter-spacing:.08em;
-  font-weight:700;
-  padding:12px 14px;
+.ren-logo-subtitle {
+  margin-top: 4px;
+  color: #9aa3ad;
+  font-size: 9px;
 }
 
-.ren-menu-item{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:13px 14px;
-  margin:4px 0;
-  border-radius:12px;
-  color:#CBD5E1;
-  text-decoration:none;
-  transition:.18s;
-  position:relative;
+.ren-mobile-close {
+  display: none;
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ren-border);
+  border-radius: 9px;
+  background: #fff;
+  color: #66727e;
+  cursor: pointer;
 }
 
-.ren-menu-item:hover{
-  background:var(--sidebar-hover);
-  color:white;
+.ren-menu {
+  flex: 1;
+  padding: 6px 0;
+}
+
+.ren-menu-section {
+  padding: 12px 10px 8px;
+  color: #9ba4ad;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.ren-menu-divider {
+  height: 1px;
+  margin: 8px 8px;
+  background: var(--ren-border);
+}
+
+.ren-menu-item {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #55616d;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ren-menu-item:hover {
+  background: #eef2f4;
+  color: #27323d;
 }
 
 .ren-menu-item.active,
-.ren-menu-item.section-active{
-  background:#1E293B;
-  color:white;
+.ren-menu-item.section-active {
+  background: #fff;
+  color: var(--ren-green-dark);
+  box-shadow: 0 2px 9px rgba(26,40,55,.05);
 }
 
-.ren-menu-item.active::before{
-  content:"";
-  position:absolute;
-  left:-10px;
-  top:8px;
-  bottom:8px;
-  width:4px;
-  background:var(--sidebar-active);
-  border-radius:10px;
+.ren-menu-icon {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  display: grid;
+  place-items: center;
+  color: #8f99a4;
 }
 
-.ren-menu-icon{
-  width:22px;
-  text-align:center;
-  font-size:17px;
+.ren-menu-icon svg {
+  font-size: 18px;
 }
 
-.ren-menu-parent{
-  width:100%;
-  background:none;
-  border:none;
+.ren-menu-item.active .ren-menu-icon,
+.ren-menu-item.section-active .ren-menu-icon {
+  color: var(--ren-green);
 }
 
-.ren-menu-arrow{
-  margin-left:auto;
+.ren-menu-label {
+  flex: 1;
 }
 
-.ren-submenu{
-  margin:6px 0 10px 20px;
-  padding-left:14px;
-  border-left:1px solid rgba(255,255,255,.08);
+.ren-menu-arrow {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: #9ca5ae;
 }
 
-.ren-submenu-item{
-  display:block;
-  padding:10px 12px;
-  border-radius:8px;
-  color:#94A3B8;
-  font-size:14px;
-  text-decoration:none;
+.ren-menu-arrow svg {
+  font-size: 18px;
 }
 
-.ren-submenu-item:hover,
-.ren-submenu-item.active{
-  background:#1E293B;
-  color:white;
+.ren-submenu {
+  margin: 0 0 4px 20px;
+  padding: 1px 0 5px 12px;
+  border-left: 1px solid #e2e7eb;
 }
 
-.ren-sidebar-bottom{
-  padding:18px;
-  border-top:1px solid rgba(255,255,255,.06);
+.ren-submenu-item {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  margin: 1px 0;
+  border-radius: 7px;
+  color: #7e8994;
+  text-decoration: none;
+  font-size: 11px;
 }
 
-.ren-user-card{
-  display:flex;
-  align-items:center;
-  gap:12px;
+.ren-submenu-item:hover {
+  color: var(--ren-green-dark);
+  background: #eef7f3;
 }
 
-.ren-user-avatar{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:#2563EB;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
+.ren-submenu-item.active {
+  color: var(--ren-green-dark);
+  background: var(--ren-green-soft);
+  font-weight: 600;
 }
 
-.ren-user-info strong{
-  display:block;
-  font-size:14px;
+.ren-submenu-icon {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: #9da6af;
 }
 
-.ren-user-info span{
-  color:#94A3B8;
-  font-size:12px;
+.ren-submenu-icon svg {
+  font-size: 15px;
 }
 
-/* ================= MAIN ================= */
-
-.ren-main{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  min-width:0;
+.ren-submenu-item.active .ren-submenu-icon {
+  color: var(--ren-green);
 }
 
-.ren-topbar{
-  height:72px;
-  background:white;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 26px;
+.ren-sidebar-bottom {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--ren-border);
 }
 
-.ren-topbar-left{
-  display:flex;
-  align-items:center;
-  gap:16px;
+.ren-user-card {
+  min-height: 55px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px;
+  border: 1px solid #e9edf0;
+  border-radius: 10px;
+  background: #fff;
 }
 
-.ren-mobile-menu-button{
-  display:none;
+.ren-user-avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ren-green-soft);
+  color: var(--ren-green-dark);
+  font-size: 11px;
+  font-weight: 800;
 }
 
-.ren-topbar-title{
-  font-size:20px;
-  font-weight:700;
-  color:var(--text);
+.ren-user-info {
+  min-width: 0;
+  flex: 1;
 }
 
-/* Arama Kutusu */
-
-.ren-topbar-left::after{
-  content:"🔍 Ara...";
-  display:flex;
-  align-items:center;
-  width:320px;
-  height:42px;
-  padding:0 16px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  color:#94A3B8;
-  background:#F8FAFC;
-  margin-left:18px;
-  font-size:14px;
+.ren-user-info strong,
+.ren-user-info span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.ren-topbar-right{
-  display:flex;
-  align-items:center;
-  gap:18px;
+.ren-user-info strong {
+  color: #38434e;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.ren-topbar-button{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  border:1px solid var(--border);
-  background:white;
+.ren-user-info span {
+  margin-top: 2px;
+  color: #9da5ae;
+  font-size: 9px;
 }
 
-.ren-profile{
-  display:flex;
-  align-items:center;
-  gap:12px;
+.ren-user-arrow {
+  color: #9aa3ac;
+  font-size: 18px;
 }
 
-.ren-profile-avatar{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:#2563EB;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:700;
+.ren-main {
+  width: calc(100% - var(--ren-sidebar-width));
+  min-height: 100vh;
+  margin-left: var(--ren-sidebar-width);
+  background: var(--ren-bg);
 }
 
-.ren-profile-info strong{
-  display:block;
-  font-size:14px;
+.ren-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 22px;
+  background: rgba(244,246,248,.96);
+  border-bottom: 1px solid #e8ebef;
+  backdrop-filter: blur(10px);
 }
 
-.ren-profile-info span{
-  color:#64748B;
-  font-size:12px;
+.ren-topbar-left,
+.ren-topbar-right {
+  display: flex;
+  align-items: center;
 }
 
-.ren-content{
-  flex:1;
-  padding:24px;
-  background:#F6F7FB;
+.ren-topbar-right {
+  gap: 8px;
+  justify-content: flex-end;
 }
 
-/* ================= MOBILE ================= */
-
-.ren-sidebar-overlay{
-  display:none;
+.ren-mobile-menu-button {
+  display: none;
+  width: 38px;
+  height: 38px;
+  margin-right: 9px;
+  border: 1px solid var(--ren-border);
+  border-radius: 9px;
+  background: #fff;
+  color: #5f6974;
+  cursor: pointer;
 }
 
-@media (max-width:900px){
+.ren-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8a949f;
+  font-size: 12px;
+  white-space: nowrap;
+}
 
-  .ren-sidebar{
-    position:fixed;
-    left:-260px;
-    top:0;
-    bottom:0;
-    z-index:100;
-    transition:.25s;
+.ren-breadcrumb b {
+  color: #bcc3ca;
+  font-weight: 400;
+}
+
+.ren-breadcrumb strong {
+  color: #313c47;
+  font-weight: 600;
+}
+
+.ren-view-switch {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #dfe4e9;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.ren-view-switch button {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #8c96a0;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ren-view-switch button.active {
+  background: #161f28;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(18,25,32,.16);
+}
+
+.ren-quick-action-wrap {
+  position: relative;
+}
+
+.ren-quick-action-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--ren-green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 5px 14px rgba(57,169,120,.18);
+}
+
+.ren-quick-action-button:hover,
+.ren-quick-action-button.open {
+  background: var(--ren-green-dark);
+}
+
+.ren-quick-action-button svg {
+  font-size: 17px;
+}
+
+.ren-quick-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 200;
+  width: 245px;
+  padding: 7px;
+  border: 1px solid #dfe5ea;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 38px rgba(29,42,55,.13);
+}
+
+.ren-quick-menu-item {
+  width: 100%;
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4c5864;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ren-quick-menu-item:hover {
+  background: #f2f8f5;
+  color: #276f53;
+}
+
+.ren-quick-menu-icon {
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #f1f5f7;
+  color: #72808d;
+}
+
+.ren-quick-menu-item:hover .ren-quick-menu-icon {
+  background: #e3f4eb;
+  color: var(--ren-green-dark);
+}
+
+.ren-quick-menu-icon svg {
+  font-size: 17px;
+}
+
+.ren-quick-menu-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.ren-quick-menu-copy strong,
+.ren-quick-menu-copy small {
+  display: block;
+}
+
+.ren-quick-menu-copy strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ren-quick-menu-copy small {
+  margin-top: 2px;
+  color: #9ba4ad;
+  font-size: 9px;
+}
+
+.ren-quick-menu-arrow {
+  color: #acb4bd;
+  font-size: 16px;
+}
+
+.ren-topbar-icon-button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dfe4e9;
+  border-radius: 9px;
+  background: #fff;
+  color: #5d6873;
+  cursor: pointer;
+}
+
+.ren-topbar-icon-button svg {
+  font-size: 20px;
+}
+
+.ren-notification-button {
+  position: relative;
+}
+
+.ren-notification-button > span {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--ren-green);
+}
+
+.ren-profile {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 3px 2px 5px;
+}
+
+.ren-profile-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ren-green-soft);
+  color: var(--ren-green-dark);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ren-profile-info strong,
+.ren-profile-info span {
+  display: block;
+}
+
+.ren-profile-info strong {
+  color: #33404c;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ren-profile-info span {
+  margin-top: 2px;
+  color: #9ba3ac;
+  font-size: 9px;
+}
+
+.ren-profile-arrow {
+  color: #9ba3ad;
+  font-size: 18px;
+}
+
+.ren-content {
+  min-height: calc(100vh - 74px);
+  background: var(--ren-bg);
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --ren-sidebar-width: 245px;
   }
 
-  .ren-sidebar.mobile-open{
-    left:0;
+  .ren-profile-info,
+  .ren-profile-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .ren-sidebar {
+    transform: translateX(-102%);
+    transition: transform .18s ease;
+    box-shadow: 12px 0 40px rgba(22,32,42,.12);
   }
 
-  .ren-sidebar-overlay{
-    display:block;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.35);
-    border:none;
-    z-index:90;
+  .ren-sidebar.mobile-open {
+    transform: translateX(0);
   }
 
-  .ren-mobile-close{
-    display:block;
-    margin-left:auto;
-    background:none;
-    border:none;
-    color:white;
-    font-size:22px;
+  .ren-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: block;
+    border: 0;
+    background: rgba(26,35,43,.34);
   }
 
-  .ren-mobile-menu-button{
-    display:block;
-    background:none;
-    border:none;
-    font-size:22px;
+  .ren-main {
+    width: 100%;
+    margin-left: 0;
   }
 
-  .ren-topbar-left::after{
-    display:none;
+  .ren-mobile-menu-button {
+    display: grid;
+    place-items: center;
   }
 
-  .ren-profile-info{
-    display:none;
+  .ren-mobile-close {
+    display: grid;
+    place-items: center;
+  }
+
+  .ren-topbar {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 650px) {
+  .ren-topbar {
+    min-height: 64px;
+  }
+
+  .ren-view-switch {
+    display: none;
+  }
+
+  .ren-quick-action-button {
+    min-height: 38px;
+    padding: 0 9px;
+  }
+
+  .ren-topbar-icon-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ren-profile {
+    display: none;
+  }
+
+  .ren-quick-menu {
+    right: -5px;
+    width: min(245px, calc(100vw - 30px));
+  }
+
+  .ren-content {
+    min-height: calc(100vh - 64px);
+  }
+}
+
+
+/* =========================================================
+   REN ERP - SAĞLAM GECE MODU
+   Layout ölçülerine dokunmaz.
+========================================================= */
+
+.ren-theme-toggle {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid var(--ren-border);
+  border-radius: 9px;
+  background: var(--ren-card);
+  color: var(--ren-text);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.ren-theme-toggle:hover {
+  border-color: #78c6a4;
+  color: var(--ren-green);
+  background: var(--ren-green-soft);
+}
+
+.ren-theme-toggle:first-letter {
+  font-size: 17px;
+}
+
+/* LIGHT */
+.ren-layout.ren-theme-light {
+  --ren-bg: #f4f6f8;
+  --ren-card: #ffffff;
+  --ren-border: #e5e9ee;
+  --ren-text: #222d38;
+  --ren-muted: #8b95a0;
+  color-scheme: light;
+}
+
+/* DARK */
+.ren-layout.ren-theme-dark {
+  --ren-bg: #11181f;
+  --ren-card: #1a232c;
+  --ren-border: #2d3944;
+  --ren-text: #e9eef3;
+  --ren-muted: #99a6b2;
+  --ren-green-soft: #173c2f;
+  color-scheme: dark;
+}
+
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background: #11181f !important;
+  color: #e9eef3 !important;
+  color-scheme: dark;
+}
+
+.ren-layout.ren-theme-dark,
+.ren-layout.ren-theme-dark .ren-main,
+.ren-layout.ren-theme-dark .ren-content {
+  background: #11181f !important;
+  color: #e9eef3 !important;
+}
+
+/* SIDEBAR / TOPBAR */
+.ren-layout.ren-theme-dark .ren-sidebar {
+  background: #151e26 !important;
+  border-right-color: #2d3944 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-topbar {
+  background: rgba(17,24,31,.97) !important;
+  border-bottom-color: #2d3944 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-breadcrumb,
+.ren-layout.ren-theme-dark .ren-menu-section,
+.ren-layout.ren-theme-dark .ren-logo-subtitle,
+.ren-layout.ren-theme-dark .ren-user-info span,
+.ren-layout.ren-theme-dark .ren-profile-info span {
+  color: #8f9da9 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-logo-title,
+.ren-layout.ren-theme-dark .ren-breadcrumb strong,
+.ren-layout.ren-theme-dark .ren-user-info strong,
+.ren-layout.ren-theme-dark .ren-profile-info strong,
+.ren-layout.ren-theme-dark .ren-menu-label {
+  color: #e8edf1 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-menu-item {
+  color: #b5c0ca !important;
+}
+
+.ren-layout.ren-theme-dark .ren-menu-item:hover {
+  background: #1d2933 !important;
+  color: #f2f6f8 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-menu-item.active,
+.ren-layout.ren-theme-dark .ren-menu-item.section-active {
+  background: #1c2933 !important;
+  color: #69ca99 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-submenu {
+  border-left-color: #34424e !important;
+}
+
+.ren-layout.ren-theme-dark .ren-submenu-item {
+  color: #9caab6 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-submenu-item:hover,
+.ren-layout.ren-theme-dark .ren-submenu-item.active {
+  background: #17382d !important;
+  color: #70d1a1 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-user-card,
+.ren-layout.ren-theme-dark .ren-view-switch,
+.ren-layout.ren-theme-dark .ren-topbar-icon-button,
+.ren-layout.ren-theme-dark .ren-theme-toggle {
+  background: #1a232c !important;
+  border-color: #2d3944 !important;
+  color: #dce4ea !important;
+}
+
+.ren-layout.ren-theme-dark .ren-view-switch button {
+  color: #a2afba !important;
+}
+
+.ren-layout.ren-theme-dark .ren-view-switch button.active {
+  background: #edf2f5 !important;
+  color: #15202a !important;
+}
+
+.ren-layout.ren-theme-dark .ren-quick-menu {
+  background: #1a232c !important;
+  border-color: #2d3944 !important;
+  box-shadow: 0 20px 45px rgba(0,0,0,.35) !important;
+}
+
+.ren-layout.ren-theme-dark .ren-quick-menu-item {
+  color: #d2dbe2 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-quick-menu-item:hover {
+  background: #17382d !important;
+  color: #78d2a6 !important;
+}
+
+/* =========================================================
+   GENEL MODÜL YÜZEYLERİ
+   Mevcut sayfa CSS'lerindeki beyaz/gri yüzeyleri gece temasına alır.
+========================================================= */
+
+.ren-layout.ren-theme-dark .ren-content .card,
+.ren-layout.ren-theme-dark .ren-content [class*="card"],
+.ren-layout.ren-theme-dark .ren-content [class*="panel"],
+.ren-layout.ren-theme-dark .ren-content [class*="modal"],
+.ren-layout.ren-theme-dark .ren-content [class*="summary"],
+.ren-layout.ren-theme-dark .ren-content [class*="table"],
+.ren-layout.ren-theme-dark .ren-content [class*="toolbar"],
+.ren-layout.ren-theme-dark .ren-content [class*="header"],
+.ren-layout.ren-theme-dark .ren-content [class*="filter"] {
+  border-color: #2d3944 !important;
+}
+
+/* White surfaces */
+.ren-layout.ren-theme-dark .ren-content [style*="background: rgb(255, 255, 255)"],
+.ren-layout.ren-theme-dark .ren-content [style*="background:#fff"],
+.ren-layout.ren-theme-dark .ren-content [style*="background: #fff"] {
+  background: #1a232c !important;
+}
+
+/* Common hard-coded white / near-white backgrounds */
+.ren-layout.ren-theme-dark .ren-content .collection-card,
+.ren-layout.ren-theme-dark .ren-content .collection-summary-card,
+.ren-layout.ren-theme-dark .ren-content .collection-modal,
+.ren-layout.ren-theme-dark .ren-content .payment-card,
+.ren-layout.ren-theme-dark .ren-content .payment-summary-card,
+.ren-layout.ren-theme-dark .ren-content .payment-modal,
+.ren-layout.ren-theme-dark .ren-content .due-card,
+.ren-layout.ren-theme-dark .ren-content .due-summary-card,
+.ren-layout.ren-theme-dark .ren-content .customer-reports-card,
+.ren-layout.ren-theme-dark .ren-content .customer-report-card,
+.ren-layout.ren-theme-dark .ren-content .customer-reports-mini-summary > div,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-list-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-summary-card,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-list-search,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-document,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-party,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-note,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-totals,
+.ren-layout.ren-theme-dark .ren-content .reports-kpi,
+.ren-layout.ren-theme-dark .ren-content .reports-module-card,
+.ren-layout.ren-theme-dark .ren-content .reports-status-card,
+.ren-layout.ren-theme-dark .ren-content .reports-finance-card,
+.ren-layout.ren-theme-dark .ren-content .orders-card,
+.ren-layout.ren-theme-dark .ren-content .orders-form-card,
+.ren-layout.ren-theme-dark .ren-content .orders-total-box {
+  background: #1a232c !important;
+  color: #e7edf2 !important;
+}
+
+/* Main page backgrounds */
+.ren-layout.ren-theme-dark .ren-content .collection-page,
+.ren-layout.ren-theme-dark .ren-content .payment-page,
+.ren-layout.ren-theme-dark .ren-content .due-page,
+.ren-layout.ren-theme-dark .ren-content .customer-reports-page,
+.ren-layout.ren-theme-dark .ren-content .reports-page,
+.ren-layout.ren-theme-dark .ren-content .orders-page,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-list,
+.ren-layout.ren-theme-dark .ren-content .ren-invoice-detail {
+  background: #11181f !important;
+  color: #e7edf2 !important;
+}
+
+/* Tables */
+.ren-layout.ren-theme-dark .ren-content table thead,
+.ren-layout.ren-theme-dark .ren-content table th {
+  background: #151e26 !important;
+  color: #9eabb6 !important;
+  border-color: #2d3944 !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content table td {
+  color: #c5ced6 !important;
+  border-color: #27343f !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content table tbody tr:hover {
+  background: #1c2730 !important;
+}
+
+/* Headings / text */
+.ren-layout.ren-theme-dark .ren-content h1,
+.ren-layout.ren-theme-dark .ren-content h2,
+.ren-layout.ren-theme-dark .ren-content h3,
+.ren-layout.ren-theme-dark .ren-content strong {
+  color: #e9eef3;
+}
+
+.ren-layout.ren-theme-dark .ren-content p,
+.ren-layout.ren-theme-dark .ren-content small,
+.ren-layout.ren-theme-dark .ren-content label {
+  color: #9ca8b3;
+}
+
+/* Inputs */
+.ren-layout.ren-theme-dark .ren-content input,
+.ren-layout.ren-theme-dark .ren-content select,
+.ren-layout.ren-theme-dark .ren-content textarea {
+  background: #151e26 !important;
+  color: #e7edf2 !important;
+  border-color: #35434f !important;
+  color-scheme: dark;
+}
+
+.ren-layout.ren-theme-dark .ren-content input::placeholder,
+.ren-layout.ren-theme-dark .ren-content textarea::placeholder {
+  color: #71808c !important;
+}
+
+.ren-layout.ren-theme-dark .ren-content input:focus,
+.ren-layout.ren-theme-dark .ren-content select:focus,
+.ren-layout.ren-theme-dark .ren-content textarea:focus {
+  border-color: #4bb785 !important;
+  box-shadow: 0 0 0 3px rgba(57,169,120,.12) !important;
+}
+
+/* Buttons and common controls */
+.ren-layout.ren-theme-dark .ren-content button:not(.orders-modal-submit):not(.collection-modal-save):not(.payment-modal-save) {
+  border-color: #35434f;
+}
+
+.ren-layout.ren-theme-dark .ren-content .reports-kpi::after {
+  opacity: .95;
+}
+
+/* Invoice status / colored badges stay readable */
+.ren-layout.ren-theme-dark .ren-content [class*="status"],
+.ren.layout.ren-theme-dark .ren-content [class*="badge"] {
+  filter: saturate(.9) brightness(.9);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 650px) {
+  .ren-theme-toggle {
+    min-height: 38px;
+    padding: 0 9px;
+  }
+
+  .ren-theme-toggle span {
+    display: none;
   }
 }
