@@ -237,8 +237,8 @@
   right: 0;
   top: 47px;
   z-index: 50;
-  background: #fff;
-  border: 1px solid #dfe2e5;
+  background: #172731;
+  border: 1px solid #3a505c;
   border-radius: 8px;
   box-shadow: 0 14px 35px rgba(0,0,0,.12);
   overflow: hidden;
@@ -258,7 +258,7 @@
 }
 
 .ren-customer-dropdown > button:hover {
-  background: #f7f9fb;
+  background: #22343e;
 }
 
 .ren-customer-dropdown strong {
@@ -510,8 +510,8 @@
 }
 
 .ren-product-head {
-  background: #f7f7f8;
-  color: #6e7175;
+  background: #172731;
+  color: #9fb1bb;
   font-size: 9px;
   font-weight: 900;
   align-items: center;
@@ -546,8 +546,8 @@
   right: 0;
   top: 42px;
   z-index: 40;
-  background: #fff;
-  border: 1px solid #dfe2e5;
+  background: #172731;
+  border: 1px solid #3a505c;
   border-radius: 7px;
   box-shadow: 0 12px 30px rgba(0,0,0,.12);
   overflow: hidden;
@@ -570,7 +570,7 @@
 }
 
 .ren-product-suggestion-list button:hover {
-  background: #f7f9fb;
+  background: #22343e;
 }
 
 .ren-product-suggestion-list small {
@@ -1545,4 +1545,32 @@
 .ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-note-area,
 .ren-layout.ren-theme-dark .ren-content .ren-invoice-active-editor .ren-invoice-note-area {
   color: #dbe5ea !important;
+}
+
+
+/* ===== QA-004 LIVE FIX ===== */
+.ren-customer-dropdown,
+.ren-product-suggestion-list{
+  background:#172731 !important;
+  border:1px solid #3a505c !important;
+  color:#e8eef2 !important;
+}
+.ren-customer-dropdown>button,
+.ren-product-suggestion-list button{
+  background:#172731 !important;
+  color:#e8eef2 !important;
+  border-bottom:1px solid #2b404b !important;
+}
+.ren-customer-dropdown>button:hover,
+.ren-product-suggestion-list button:hover{
+  background:#22343e !important;
+}
+.ren-product-head,
+.ren-product-row.ren-product-head{
+  background:#172731 !important;
+  color:#9fb1bb !important;
+}
+.ren-product-row.ren-product-head>*{
+  background:#172731 !important;
+  color:#9fb1bb !important;
 }
