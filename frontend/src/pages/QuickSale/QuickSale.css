@@ -898,3 +898,317 @@
   color: #fff !important;
   border-color: #39a978 !important;
 }
+
+/* =========================================================
+   HIZLI SATIŞ QA - MANUEL TOPLAM / GEÇMİŞ / DÜZENLEME
+========================================================= */
+
+.quick-sale-history-section {
+  margin-bottom: 16px;
+}
+
+.quick-sale-history-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--qs-border);
+  border-radius: 8px;
+  background: var(--qs-inline-surface);
+  color: var(--qs-text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quick-sale-history-toggle:hover {
+  border-color: #8ccbad;
+}
+
+.quick-sale-history-panel {
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--qs-border);
+  border-radius: 9px;
+  background: var(--qs-inline-surface);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.quick-sale-history-empty {
+  padding: 12px;
+  color: var(--qs-muted);
+  font-size: 12px;
+}
+
+.quick-sale-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--qs-border-soft);
+}
+
+.quick-sale-history-row:last-child {
+  border-bottom: 0;
+}
+
+.quick-sale-history-main {
+  min-width: 0;
+}
+
+.quick-sale-history-main strong,
+.quick-sale-history-main span {
+  display: block;
+}
+
+.quick-sale-history-main strong {
+  color: var(--qs-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quick-sale-history-main span {
+  margin-top: 4px;
+  color: var(--qs-muted);
+  font-size: 10px;
+}
+
+.quick-sale-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.quick-sale-history-actions button {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-sale-history-edit {
+  border: 1px solid #9db8cc;
+  background: #edf5fa;
+  color: #326b92;
+}
+
+.quick-sale-history-delete {
+  border: 1px solid #e8b6bf;
+  background: #fff3f5;
+  color: #c94c5d;
+}
+
+.quick-sale-manual-total {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--qs-border);
+  border-radius: 8px;
+  background: var(--qs-inline-surface);
+}
+
+.quick-sale-manual-total > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.quick-sale-manual-total > div span {
+  color: var(--qs-muted);
+  font-size: 9px;
+}
+
+.quick-sale-manual-total > div strong {
+  color: var(--qs-text);
+  font-size: 14px;
+}
+
+.quick-sale-manual-total label {
+  margin: 0;
+  color: var(--qs-text-2);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.quick-sale-manual-total input {
+  margin-top: 5px;
+}
+
+.quick-sale-edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 16, 22, .58);
+  backdrop-filter: blur(3px);
+}
+
+.quick-sale-edit-modal {
+  width: min(480px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--qs-border);
+  border-radius: 12px;
+  background: var(--qs-card);
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+
+.quick-sale-edit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--qs-border-soft);
+}
+
+.quick-sale-edit-header > div span,
+.quick-sale-edit-header > div strong {
+  display: block;
+}
+
+.quick-sale-edit-header > div span {
+  color: var(--qs-muted);
+  font-size: 10px;
+}
+
+.quick-sale-edit-header > div strong {
+  margin-top: 3px;
+  color: var(--qs-text);
+  font-size: 15px;
+}
+
+.quick-sale-edit-header > button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--qs-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--qs-text);
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.quick-sale-edit-body {
+  padding: 18px;
+}
+
+.quick-sale-edit-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--qs-border-soft);
+}
+
+.quick-sale-edit-info span {
+  color: var(--qs-muted);
+  font-size: 10px;
+}
+
+.quick-sale-edit-info strong {
+  color: var(--qs-text);
+  font-size: 11px;
+}
+
+.quick-sale-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--qs-text-2);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.quick-sale-edit-field input {
+  width: 100%;
+  min-height: 42px;
+}
+
+.quick-sale-edit-note {
+  margin: 12px 0 0;
+  color: var(--qs-muted);
+  font-size: 10px;
+  line-height: 15px;
+}
+
+.quick-sale-edit-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--qs-border-soft);
+}
+
+.quick-sale-edit-footer button {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.quick-sale-edit-cancel {
+  border: 1px solid var(--qs-border);
+  background: var(--qs-inline-surface);
+  color: var(--qs-text-2);
+}
+
+.quick-sale-edit-save {
+  border: 0;
+  background: var(--qs-green);
+  color: #fff;
+}
+
+.ren-layout.ren-theme-dark .quick-sale-history-edit {
+  background: #1b3342;
+  border-color: #3a6075;
+  color: #9bc9e4;
+}
+
+.ren-layout.ren-theme-dark .quick-sale-history-delete {
+  background: #3b2429;
+  border-color: #74404a;
+  color: #f08d9b;
+}
+
+.ren-layout.ren-theme-dark .quick-sale-manual-total {
+  background: #1b2a34 !important;
+  border-color: #2d3b46 !important;
+}
+
+.ren-layout.ren-theme-dark .quick-sale-edit-modal {
+  background: #1b2a34 !important;
+  border-color: #334550 !important;
+}
+
+@media (max-width: 650px) {
+  .quick-sale-manual-total {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-sale-history-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .quick-sale-history-actions {
+    width: 100%;
+  }
+
+  .quick-sale-history-actions button {
+    flex: 1;
+  }
+}

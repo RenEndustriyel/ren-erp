@@ -248,3 +248,100 @@
     flex: 1;
   }
 }
+
+/* =========================================================
+   REN ERP - GECE TEMASI
+========================================================= */
+
+.ren-layout.ren-theme-dark .customer-edit-page {
+  background: #11181f !important;
+  color: #e9eef3 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-header h1,
+.ren-layout.ren-theme-dark .customer-edit-breadcrumb strong {
+  color: #eef4f7 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-header p,
+.ren-layout.ren-theme-dark .customer-edit-breadcrumb {
+  color: #94a3ad !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-breadcrumb b {
+  color: #4d5b65 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-card {
+  background: #1a232c !important;
+  color: #e9eef3 !important;
+  border-color: #2d3944 !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.16);
+}
+
+.ren-layout.ren-theme-dark .customer-edit-section-title {
+  color: #d9e2e7 !important;
+  border-bottom-color: #2d3944 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-field label {
+  color: #9aa8b2 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-field input,
+.ren-layout.ren-theme-dark .customer-edit-field select,
+.ren-layout.ren-theme-dark .customer-edit-field textarea {
+  background: #151e26 !important;
+  color: #edf3f6 !important;
+  border-color: #35434f !important;
+  color-scheme: dark;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-field input::placeholder,
+.ren-layout.ren-theme-dark .customer-edit-field textarea::placeholder {
+  color: #71808c !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-current-balance {
+  background: #17222b !important;
+  border-color: #35434f !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-current-balance span {
+  color: #8b99a4 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-current-balance strong {
+  color: #e8eef2 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-current-balance strong.negative {
+  color: #ee8d8d !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-current-balance strong.positive {
+  color: #63d19a !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-bottom {
+  border-top-color: #2d3944 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-cancel {
+  background: #1a232c !important;
+  border-color: #35434f !important;
+  color: #d9e2e7 !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-save {
+  background: #3d8e6c !important;
+  border-color: #3d8e6c !important;
+  color: #ffffff !important;
+}
+
+.ren-layout.ren-theme-dark .customer-edit-field input:focus,
+.ren-layout.ren-theme-dark .customer-edit-field select:focus,
+.ren-layout.ren-theme-dark .customer-edit-field textarea:focus {
+  border-color: #4bb785 !important;
+  box-shadow: 0 0 0 3px rgba(57,169,120,.12);
+}

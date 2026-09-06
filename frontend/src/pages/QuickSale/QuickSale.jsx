@@ -225,6 +225,20 @@ function getProductGrossSalePrice(
 }
 
 
+function getProductCostPrice(product) {
+  return numberValue(
+    product?.purchaseGross ??
+    product?.purchasePriceGross ??
+    product?.purchaseNet ??
+    product?.purchasePrice ??
+    product?.buyPrice ??
+    product?.costPrice ??
+    product?.cost ??
+    0
+  );
+}
+
+
 /* =========================================================
    KASA / POS
 ========================================================= */
@@ -656,6 +670,28 @@ export default function QuickSale() {
     setCardAmount,
   ] =
     useState("");
+
+
+  const [
+    manualTotal,
+    setManualTotal,
+  ] =
+    useState("");
+
+
+  const [
+    editSale,
+    setEditSale,
+  ] =
+    useState(null);
+
+
+  const [
+    editSaleTotal,
+    setEditSaleTotal,
+  ] =
+    useState("");
+
 
 
   const [
@@ -1234,6 +1270,8 @@ export default function QuickSale() {
 
       setSelectedAccountId("");
 
+      setManualTotal("");
+
     };
 
 
@@ -1370,6 +1408,31 @@ export default function QuickSale() {
     );
 
 
+  const saleTotal =
+    useMemo(() => {
+
+      const manual =
+        String(
+          manualTotal
+        ).trim();
+
+      if (!manual) {
+        return total;
+      }
+
+      return Math.max(
+        0,
+        numberValue(
+          manual
+        )
+      );
+
+    }, [
+      manualTotal,
+      total,
+    ]);
+
+
   const totalQuantity =
     cart.reduce(
       (
@@ -1423,7 +1486,7 @@ export default function QuickSale() {
       cashAmount
     ).trim() ===
       ""
-      ? total
+      ? saleTotal
       : cash;
 
 
@@ -1434,7 +1497,7 @@ export default function QuickSale() {
       cardAmount
     ).trim() ===
       ""
-      ? total
+      ? saleTotal
       : card;
 
 
@@ -1464,14 +1527,14 @@ export default function QuickSale() {
     paymentType ===
       "credit"
 
-      ? total
+      ? saleTotal
 
       : paymentType ===
           "cash"
 
       ? Math.max(
           0,
-          total -
+          saleTotal -
             effectiveCash
         )
 
@@ -1480,13 +1543,13 @@ export default function QuickSale() {
 
       ? Math.max(
           0,
-          total -
+          saleTotal -
             effectiveCard
         )
 
       : Math.max(
           0,
-          total -
+          saleTotal -
             splitEnteredTotal
         );
 
@@ -2606,6 +2669,522 @@ export default function QuickSale() {
 
 
   /* =======================================================
+     HIZLI SATIŞ DÜZENLE
+     Güvenli mod: toplam tutar ve ödeme dağılımı güncellenir.
+  ======================================================= */
+
+  const openEditQuickSale =
+    (sale) => {
+
+      setEditSale(
+        sale
+      );
+
+      setEditSaleTotal(
+        String(
+          numberValue(
+            sale?.total
+          )
+        )
+      );
+
+    };
+
+
+  const closeEditQuickSale =
+    () => {
+
+      setEditSale(
+        null
+      );
+
+      setEditSaleTotal(
+        ""
+      );
+
+    };
+
+
+  const handleSaveQuickSaleEdit =
+    () => {
+
+      if (!editSale) {
+        return;
+      }
+
+      const newTotal =
+        numberValue(
+          editSaleTotal
+        );
+
+      const oldTotal =
+        numberValue(
+          editSale.total
+        );
+
+      if (
+        newTotal <=
+        0
+      ) {
+
+        setSaleMessage(
+          "Satış toplamı 0 TL'den büyük olmalıdır."
+        );
+
+        return;
+      }
+
+      try {
+
+        const sales =
+          readQuickSales();
+
+        const target =
+          sales.find(
+            (item) =>
+              String(
+                item?.id
+              ) ===
+              String(
+                editSale.id
+              )
+          );
+
+        if (!target) {
+          throw new Error(
+            "Hızlı satış kaydı bulunamadı."
+          );
+        }
+
+        const oldPayments = {
+          cash:
+            numberValue(
+              target?.payments?.cash
+            ),
+          card:
+            numberValue(
+              target?.payments?.card
+            ),
+          credit:
+            numberValue(
+              target?.payments?.credit
+            ),
+        };
+
+        const oldPaid =
+          oldPayments.cash +
+          oldPayments.card;
+
+        const newPaid =
+          Math.min(
+            oldPaid,
+            newTotal
+          );
+
+        const paymentRatio =
+          oldPaid > 0
+            ? newPaid / oldPaid
+            : 0;
+
+        const newCash =
+          Number(
+            (
+              oldPayments.cash *
+              paymentRatio
+            ).toFixed(
+              2
+            )
+          );
+
+        const newCard =
+          Number(
+            (
+              oldPayments.card *
+              paymentRatio
+            ).toFixed(
+              2
+            )
+          );
+
+        const newCredit =
+          Number(
+            Math.max(
+              0,
+              newTotal -
+                newCash -
+                newCard
+            ).toFixed(
+              2
+            )
+          );
+
+        /*
+         * KASA / POS farkını düzelt.
+         */
+        const financeMovements =
+          readFinanceMovements();
+
+        const relatedFinance =
+          financeMovements.filter(
+            (movement) =>
+              String(
+                movement?.source
+              ) ===
+                "quick-sale" &&
+              String(
+                movement?.sourceDocument
+              ) ===
+                String(
+                  target.number
+                )
+          );
+
+        let updatedFinance =
+          [...financeMovements];
+
+        const desiredByMethod = {
+          "Nakit": newCash,
+          "Kredi Kartı": newCard,
+        };
+
+        const oldByMethod = {
+          "Nakit": oldPayments.cash,
+          "Kredi Kartı": oldPayments.card,
+        };
+
+        Object.keys(
+          desiredByMethod
+        ).forEach(
+          (method) => {
+
+            const related =
+              relatedFinance.filter(
+                (movement) =>
+                  String(
+                    movement?.method
+                  ) ===
+                  method
+              );
+
+            const desired =
+              desiredByMethod[
+                method
+              ];
+
+            const oldAmount =
+              oldByMethod[
+                method
+              ];
+
+            const difference =
+              desired -
+              oldAmount;
+
+            if (
+              Math.abs(
+                difference
+              ) <
+              0.005
+            ) {
+              return;
+            }
+
+            if (
+              related.length
+            ) {
+
+              const first =
+                related[0];
+
+              const nextAmount =
+                Math.max(
+                  0,
+                  numberValue(
+                    first.amount
+                  ) +
+                    difference
+                );
+
+              updatedFinance =
+                updatedFinance.map(
+                  (movement) =>
+                    String(
+                      movement.id
+                    ) ===
+                    String(
+                      first.id
+                    )
+                      ? {
+                          ...movement,
+                          amount:
+                            Number(
+                              nextAmount.toFixed(
+                                2
+                              )
+                            ),
+                        }
+                      : movement
+                );
+
+            }
+
+          }
+        );
+
+        /*
+         * Hesap bakiyelerine finans farkını yansıt.
+         * Her hesap için sadece o hesaba ait net fark uygulanır.
+         */
+        const accountsNow =
+          readAccounts();
+
+        const oldFinanceByAccount = {};
+        const newFinanceByAccount = {};
+
+        relatedFinance.forEach(
+          (movement) => {
+
+            const accountId =
+              String(
+                movement?.accountId ||
+                ""
+              );
+
+            if (!accountId) {
+              return;
+            }
+
+            oldFinanceByAccount[accountId] =
+              (oldFinanceByAccount[accountId] || 0) +
+              numberValue(
+                movement?.amount
+              );
+
+            const desired =
+              movement?.method ===
+                "Nakit"
+                ? newCash
+                : movement?.method ===
+                    "Kredi Kartı"
+                ? newCard
+                : numberValue(
+                    movement?.amount
+                  );
+
+            newFinanceByAccount[accountId] =
+              (newFinanceByAccount[accountId] || 0) +
+              desired;
+          }
+        );
+
+        const updatedAccounts =
+          accountsNow.map(
+            (account) => {
+
+              const accountId =
+                String(
+                  account?.id ||
+                  ""
+                );
+
+              const oldValue =
+                oldFinanceByAccount[accountId] ||
+                0;
+
+              const newValue =
+                newFinanceByAccount[accountId] ||
+                oldValue;
+
+              const adjustment =
+                newValue -
+                oldValue;
+
+              return Math.abs(
+                adjustment
+              ) < 0.005
+                ? account
+                : {
+                    ...account,
+                    balance:
+                      numberValue(
+                        account.balance
+                      ) +
+                      adjustment,
+                  };
+            }
+          );
+
+
+        /*
+         * CARİ HAREKETİ GÜNCELLE
+         */
+        const customerKey =
+          "ren-erp-customer-movements";
+
+        const customerMovements =
+          JSON.parse(
+            localStorage.getItem(
+              customerKey
+            ) ||
+            "[]"
+          );
+
+        const updatedCustomerMovements =
+          Array.isArray(
+            customerMovements
+          )
+            ? customerMovements.map(
+                (movement) =>
+                  String(
+                    movement?.source
+                  ) ===
+                    "quick-sale" &&
+                  String(
+                    movement?.sourceId ||
+                    movement?.document
+                  ) ===
+                    String(
+                      target.number
+                    )
+                    ? {
+                        ...movement,
+                        debt:
+                          newCredit,
+                        credit:
+                          0,
+                      }
+                    : movement
+              )
+            : [];
+
+        /*
+         * Satış kaydı.
+         */
+        const updatedSale = {
+          ...target,
+          total:
+            Number(
+              newTotal.toFixed(
+                2
+              )
+            ),
+          manualTotal:
+            Number(
+              newTotal.toFixed(
+                2
+              )
+            ),
+          originalTotal:
+            target.originalTotal ??
+            oldTotal,
+          payments: {
+            cash:
+              newCash,
+            card:
+              newCard,
+            credit:
+              newCredit,
+          },
+          updatedAt:
+            new Date().toISOString(),
+          editedAt:
+            new Date().toISOString(),
+        };
+
+        const updatedSales =
+          sales.map(
+            (sale) =>
+              String(
+                sale?.id
+              ) ===
+              String(
+                target.id
+              )
+                ? updatedSale
+                : sale
+          );
+
+        writeQuickSales(
+          updatedSales
+        );
+
+        writeFinanceMovements(
+          updatedFinance
+        );
+
+        writeAccounts(
+          updatedAccounts
+        );
+
+        localStorage.setItem(
+          customerKey,
+          JSON.stringify(
+            updatedCustomerMovements
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-customer-movements-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-customers-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-cash-bank-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-finance-updated"
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            "ren-quick-sales-updated"
+          )
+        );
+
+        setQuickSalesHistory(
+          updatedSales
+        );
+
+        setSaleMessage(
+          `${target.number} güncellendi. Yeni toplam ${money(
+            newTotal
+          )} TL.`
+        );
+
+        closeEditQuickSale();
+
+      } catch (
+        error
+      ) {
+
+        console.error(
+          "Hızlı satış düzenleme hatası:",
+          error
+        );
+
+        setSaleMessage(
+          error?.message ||
+          "Hızlı satış güncellenemedi."
+        );
+
+      }
+
+    };
+
+
+  /* =======================================================
      SATIŞI TAMAMLA
   ======================================================= */
 
@@ -3302,6 +3881,25 @@ export default function QuickSale() {
                     item.unitPrice
                   ),
 
+                costPrice:
+                  getProductCostPrice(
+                    item.product
+                  ),
+
+                lineCostTotal:
+                  Number(
+                    (
+                      getProductCostPrice(
+                        item.product
+                      ) *
+                      numberValue(
+                        item.quantity
+                      )
+                    ).toFixed(
+                      2
+                    )
+                  ),
+
                 vat:
                   getProductVat(
                     item.product
@@ -3331,7 +3929,47 @@ export default function QuickSale() {
 
           total:
             Number(
+              saleTotal.toFixed(
+                2
+              )
+            ),
+
+          automaticTotal:
+            Number(
               total.toFixed(
+                2
+              )
+            ),
+
+          manualTotal:
+            String(
+              manualTotal
+            ).trim()
+              ? Number(
+                  saleTotal.toFixed(
+                    2
+                  )
+                )
+              : null,
+
+          totalCost:
+            Number(
+              cart.reduce(
+                (
+                  sum,
+                  item
+                ) =>
+                  sum +
+                  (
+                    getProductCostPrice(
+                      item.product
+                    ) *
+                    numberValue(
+                      item.quantity
+                    )
+                  ),
+                0
+              ).toFixed(
                 2
               )
             ),
@@ -3455,10 +4093,12 @@ export default function QuickSale() {
 
         setSelectedAccountId("");
 
+        setManualTotal("");
+
 
         setSaleMessage(
           `${saleNumber} başarıyla tamamlandı. Toplam ${money(
-            total
+            saleTotal
           )} TL`
         );
 
@@ -3549,188 +4189,106 @@ export default function QuickSale() {
 
       {/* HIZLI SATIŞ GEÇMİŞİ */}
 
-      <section
-        style={{
-          marginBottom:
-            "16px",
-        }}
-      >
+      <section className="quick-sale-history-section">
+
         <button
           type="button"
+          className="quick-sale-history-toggle"
           onClick={() =>
             setShowQuickSalesHistory(
               (value) =>
                 !value
             )
           }
-          style={{
-            display:
-              "inline-flex",
-            alignItems:
-              "center",
-            gap:
-              "8px",
-            padding:
-              "10px 14px",
-            border:
-              "1px solid #dfe3e7",
-            borderRadius:
-              "7px",
-            background:
-              "var(--qs-inline-surface)",
-            color:
-              "#3f474d",
-            cursor:
-              "pointer",
-            fontSize:
-              "12px",
-            fontWeight:
-              700,
-          }}
         >
-          Son Hızlı Satışlar
+          <span>
+            Son Hızlı Satışlar
+          </span>
+
           <span>
             ({quickSalesHistory.length})
           </span>
         </button>
 
         {showQuickSalesHistory && (
-          <div
-            style={{
-              marginTop:
-                "10px",
-              padding:
-                "12px",
-              border:
-                "1px solid #e3e7ea",
-              borderRadius:
-                "8px",
-              background:
-                "var(--qs-inline-surface)",
-              maxHeight:
-                "280px",
-              overflowY:
-                "auto",
-            }}
-          >
+          <div className="quick-sale-history-panel">
+
             {quickSalesHistory.length === 0 ? (
-              <div
-                style={{
-                  padding:
-                    "12px",
-                  color:
-                    "#858d94",
-                  fontSize:
-                    "12px",
-                }}
-              >
+              <div className="quick-sale-history-empty">
                 Henüz hızlı satış kaydı bulunmuyor.
               </div>
             ) : (
               quickSalesHistory
                 .slice(
                   0,
-                  12
+                  20
                 )
                 .map(
-                  (
-                    sale
-                  ) => (
+                  (sale) => (
                     <div
                       key={
                         sale.id
                       }
-                      style={{
-                        display:
-                          "flex",
-                        alignItems:
-                          "center",
-                        justifyContent:
-                          "space-between",
-                        gap:
-                          "12px",
-                        padding:
-                          "10px 4px",
-                        borderBottom:
-                          "1px solid #eef0f2",
-                      }}
+                      className="quick-sale-history-row"
                     >
-                      <div>
-                        <strong
-                          style={{
-                            display:
-                              "block",
-                            color:
-                              "#384047",
-                            fontSize:
-                              "12px",
-                          }}
-                        >
+                      <div className="quick-sale-history-main">
+
+                        <strong>
                           {sale.number ||
                             sale.id}
                         </strong>
 
-                        <span
-                          style={{
-                            display:
-                              "block",
-                            marginTop:
-                              "3px",
-                            color:
-                              "#838b91",
-                            fontSize:
-                              "11px",
-                          }}
-                        >
+                        <span>
                           {sale.customerName ||
-                            "Hızlı Satış"}{" "}
+                            "Peşin / Müşterisiz"}{" "}
                           · ₺
                           {money(
                             sale.total
                           )}
                         </span>
+
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleDeleteQuickSale(
-                            sale
-                          )
-                        }
-                        style={{
-                          flexShrink:
-                            0,
-                          padding:
-                            "7px 10px",
-                          border:
-                            "1px solid #efb7bd",
-                          borderRadius:
-                            "6px",
-                          background:
-                            "#fff5f6",
-                          color:
-                            "#d95767",
-                          cursor:
-                            "pointer",
-                          fontSize:
-                            "11px",
-                          fontWeight:
-                            700,
-                        }}
-                      >
-                        SİL
-                      </button>
+                      <div className="quick-sale-history-actions">
+
+                        <button
+                          type="button"
+                          className="quick-sale-history-edit"
+                          onClick={() =>
+                            openEditQuickSale(
+                              sale
+                            )
+                          }
+                        >
+                          DÜZENLE
+                        </button>
+
+                        <button
+                          type="button"
+                          className="quick-sale-history-delete"
+                          onClick={() =>
+                            handleDeleteQuickSale(
+                              sale
+                            )
+                          }
+                        >
+                          SİL
+                        </button>
+
+                      </div>
+
                     </div>
                   )
                 )
             )}
+
           </div>
         )}
+
       </section>
 
 
-      {/* MESAJ */}
+      /* MESAJ */
 
       {
         saleMessage && (
@@ -5152,6 +5710,44 @@ export default function QuickSale() {
 
           <div className="quick-sale-cart-footer">
 
+            <div className="quick-sale-manual-total">
+
+              <div>
+                <span>
+                  Otomatik Toplam
+                </span>
+                <strong>
+                  ₺
+                  {
+                    money(
+                      total
+                    )
+                  }
+                </strong>
+              </div>
+
+              <label>
+                Manuel Satış Toplamı
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={
+                    manualTotal
+                  }
+                  onChange={(
+                    event
+                  ) =>
+                    setManualTotal(
+                      event.target.value
+                    )
+                  }
+                  placeholder={money(total)}
+                />
+              </label>
+
+            </div>
+
             <div>
 
               <span>
@@ -5201,7 +5797,7 @@ export default function QuickSale() {
                 ₺
                 {
                   money(
-                    total
+                    saleTotal
                   )
                 }
               </strong>
@@ -5235,6 +5831,128 @@ export default function QuickSale() {
         </aside>
 
       </div>
+
+
+      {/* =================================================
+          HIZLI SATIŞ DÜZENLE
+      ================================================= */}
+
+      {
+        editSale && (
+
+          <div className="quick-sale-edit-overlay">
+
+            <div className="quick-sale-edit-modal">
+
+              <div className="quick-sale-edit-header">
+                <div>
+                  <strong>
+                    Hızlı Satış Düzenle
+                  </strong>
+
+                  <span>
+                    {editSale.number}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={
+                    closeEditQuickSale
+                  }
+                  aria-label="Düzenlemeyi kapat"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="quick-sale-edit-body">
+
+                <div className="quick-sale-edit-info">
+                  <span>
+                    Cari
+                  </span>
+
+                  <strong>
+                    {editSale.customerName ||
+                      "Müşterisiz"}
+                  </strong>
+                </div>
+
+                <div className="quick-sale-edit-info">
+                  <span>
+                    Eski Toplam
+                  </span>
+
+                  <strong>
+                    ₺
+                    {
+                      money(
+                        editSale.total
+                      )
+                    }
+                  </strong>
+                </div>
+
+                <label className="quick-sale-edit-field">
+                  Yeni Satış Toplamı
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={
+                      editSaleTotal
+                    }
+                    onChange={(
+                      event
+                    ) =>
+                      setEditSaleTotal(
+                        event.target.value
+                      )
+                    }
+                    autoFocus
+                  />
+                </label>
+
+                <p className="quick-sale-edit-note">
+                  Bu işlem satış toplamını,
+                  ödeme dağılımını ve varsa
+                  veresiye tutarını yeni değere göre
+                  günceller. Ürün stok miktarı değişmez.
+                </p>
+
+              </div>
+
+              <div className="quick-sale-edit-footer">
+
+                <button
+                  type="button"
+                  className="quick-sale-edit-cancel"
+                  onClick={
+                    closeEditQuickSale
+                  }
+                >
+                  VAZGEÇ
+                </button>
+
+                <button
+                  type="button"
+                  className="quick-sale-edit-save"
+                  onClick={
+                    handleSaveQuickSaleEdit
+                  }
+                >
+                  DEĞİŞİKLİKLERİ KAYDET
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )
+      }
 
 
       {/* =================================================

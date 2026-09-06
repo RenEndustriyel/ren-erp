@@ -26,6 +26,8 @@ import {
 
 import "./CustomerDetail.css";
 
+import { getCustomerBalanceSnapshot } from "../../../lib/customerBalance";
+
 
 /* =========================================================
    YARDIMCI
@@ -194,6 +196,36 @@ const paymentMethods = [
   "Çek",
   "Diğer",
 ];
+
+function getCustomerCollections(customerId) {
+  const collections = getStoredArray(collectionStorageKey);
+
+  return collections
+    .filter(
+      (item) =>
+        String(item?.customerId || "") ===
+        String(customerId || "")
+    )
+    .map((item) => ({
+      id: `collection-${item.id}`,
+      customerId,
+      customerName: item.customerName || "",
+      document: item.document || "—",
+      type: "Tahsilat",
+      description:
+        item.description ||
+        `${item.document || "Tahsilat"} tahsilatı`,
+      debt: 0,
+      credit: numberValue(item.amount),
+      amount: numberValue(item.amount),
+      date: item.date || item.createdAt || new Date().toISOString(),
+      method: item.method || "",
+      source: "collection",
+      sourceId: item.id,
+      createdAt: item.createdAt || "",
+    }));
+}
+
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -400,13 +432,32 @@ export default function CustomerDetail() {
           customerId
         ) || [];
 
+      const storedCustomerMovements =
+        Array.isArray(freshMovements)
+          ? freshMovements
+          : [];
+
+      const collectionMovements =
+        getCustomerCollections(customerId);
+
+      const movementMap = new Map();
+
+      [
+        ...storedCustomerMovements,
+        ...collectionMovements,
+      ].forEach((movement) => {
+        const key = String(
+          movement?.id ||
+          `${movement?.type || ""}-${movement?.document || ""}-${movement?.date || ""}-${movement?.amount || ""}`
+        );
+
+        if (!movementMap.has(key)) {
+          movementMap.set(key, movement);
+        }
+      });
 
       setMovements(
-        Array.isArray(
-          freshMovements
-        )
-          ? freshMovements
-          : []
+        Array.from(movementMap.values())
       );
 
 
@@ -441,6 +492,7 @@ export default function CustomerDetail() {
       "ren-customer-movements-updated",
       "ren-invoices-updated",
       "ren-cash-bank-updated",
+      "ren-collections-updated",
       "ren-finance-updated",
     ];
 
@@ -804,11 +856,17 @@ export default function CustomerDetail() {
      MÜŞTERİDE GÖSTERİLECEK TAHSİLAT
   ======================================================= */
 
+  const balanceSnapshot =
+    getCustomerBalanceSnapshot({
+      customer,
+      movements: normalizedMovements,
+      invoices,
+    });
+
   const customerReceivable =
-    Math.max(
-      invoiceSummary.openSales,
-      movementTotals.balance
-    );
+    isSupplier
+      ? balanceSnapshot.payable
+      : balanceSnapshot.receivable;
 
 
   /* =======================================================
@@ -1172,6 +1230,50 @@ export default function CustomerDetail() {
       };
 
       updateCustomerBalance(customer.id, amount);
+
+      const customerMovementStorageKey =
+        "ren-erp-customer-movements";
+
+      const customerMovements =
+        getStoredArray(customerMovementStorageKey);
+
+      const newCustomerMovement = {
+        id:
+          `customer-collection-${newCollectionRecord.id}`,
+        customerId:
+          customer.id,
+        customerName:
+          getCustomerName(customer),
+        document,
+        type:
+          "Tahsilat",
+        description:
+          collectionForm.description.trim() ||
+          `${document} tahsilatı`,
+        debt:
+          0,
+        credit:
+          amount,
+        amount,
+        date:
+          collectionForm.date,
+        method:
+          collectionForm.method,
+        source:
+          "collection",
+        sourceId:
+          newCollectionRecord.id,
+        createdAt:
+          new Date().toISOString(),
+      };
+
+      localStorage.setItem(
+        customerMovementStorageKey,
+        JSON.stringify([
+          newCustomerMovement,
+          ...customerMovements,
+        ])
+      );
 
       localStorage.setItem(
         collectionStorageKey,
@@ -3213,8 +3315,8 @@ export default function CustomerDetail() {
                   >
                     {
                       isSupplier
-                        ? "TOPLAM ÖDEME"
-                        : "TOPLAM TAHSİLAT"
+                        ? "ÖDEME TOPLAMI"
+                        : "TAHSİLAT TOPLAMI"
                     }
                   </span>
 
@@ -3341,7 +3443,8 @@ export default function CustomerDetail() {
                         ? `${Math.min(
                             100,
                             (
-                              invoiceSummary.totalPaid /
+                              (invoiceSummary.totalPaid +
+                                movementTotals.collection) /
                               invoiceSummary.salesTotal
                             ) *
                               100

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -77,6 +78,50 @@ import Orders from "./pages/Orders/Orders";
 
 import Reports from "./pages/Reports/Reports";
 
+
+/* =========================================================
+   GLOBAL TOAST
+========================================================= */
+
+function GlobalToast() {
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setToast(e.detail);
+      setTimeout(() => setToast(null), 3000);
+    };
+
+    window.addEventListener("ren-toast", handler);
+    return () => window.removeEventListener("ren-toast", handler);
+  }, []);
+
+  if (!toast) return null;
+
+  return (
+    <div style={{
+      position:"fixed",
+      top:20,
+      right:20,
+      zIndex:99999,
+      minWidth:320,
+      background:"#16A34A",
+      color:"#fff",
+      padding:"16px 18px",
+      borderRadius:12,
+      boxShadow:"0 12px 30px rgba(0,0,0,.35)",
+      display:"flex",
+      alignItems:"center",
+      gap:12
+    }}>
+      <div style={{fontSize:24}}>✓</div>
+      <div>
+        <div style={{fontWeight:700}}>{toast.title}</div>
+        {toast.text && <div style={{fontSize:13,opacity:.95}}>{toast.text}</div>}
+      </div>
+    </div>
+  );
+}
 
 /* =========================================================
    GEÇİCİ BOŞ MODÜL
@@ -480,7 +525,7 @@ export default function App() {
           ================================================= */}
 
           <Route
-            path="/reports"
+            path="/reports/*"
             element={
               <Reports />
             }
@@ -535,6 +580,7 @@ export default function App() {
 
       </Routes>
 
+      <GlobalToast />
     </BrowserRouter>
 
   );

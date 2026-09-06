@@ -1,0 +1,486 @@
+/* =========================================================
+   REN ERP - KASA / BANKA RAPORLARI
+   Tam CSS. JSX sınıflarıyla birebir uyumlu.
+   REN Dark tema + sabit yerleşim.
+========================================================= */
+
+.cash-report-page {
+  min-height: 100vh;
+  padding: 30px 34px 50px;
+  box-sizing: border-box;
+  background: #14212b;
+  color: #e8eef2;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.cash-report-container {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.cash-report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 22px;
+}
+
+.cash-report-header h1 {
+  margin: 11px 0 5px;
+  color: #e8eef2;
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+
+.cash-report-header p {
+  margin: 0;
+  color: #9caab5;
+  font-size: 12px;
+}
+
+.cash-report-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: #81919e;
+  font-size: 10px;
+}
+
+.cash-report-breadcrumb strong {
+  color: #c1ccd4;
+  font-weight: 650;
+}
+
+.cash-report-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #35434f;
+  border-radius: 7px;
+  background: #172731;
+  color: #c7d1d8;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cash-report-refresh:hover {
+  background: #243640;
+  color: #e8eef2;
+  border-color: #4a5b68;
+}
+
+/* FILTER */
+.cash-report-filter-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 72px;
+  margin-bottom: 16px;
+  padding: 13px 17px;
+  box-sizing: border-box;
+  border: 1px solid #2d3b46;
+  border-radius: 8px;
+  background: #1b2a34;
+}
+
+.cash-report-filter-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.cash-report-filter-title strong {
+  color: #d6e0e7;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.cash-report-filter-title span {
+  color: #81919e;
+  font-size: 8px;
+}
+
+.cash-report-filters {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+}
+
+.cash-report-filters input,
+.cash-report-filters select {
+  height: 34px;
+  min-width: 130px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid #35434f;
+  border-radius: 6px;
+  outline: none;
+  background: #172731;
+  color: #e8eef2;
+  font: inherit;
+  font-size: 10px;
+}
+
+.cash-report-filters input {
+  flex: 1;
+}
+
+.cash-report-filters input:focus,
+.cash-report-filters select:focus {
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57,169,120,.12);
+}
+
+/* KPI */
+.cash-report-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.cash-report-kpi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 96px;
+  padding: 16px 17px;
+  box-sizing: border-box;
+  border: 1px solid #2d3b46;
+  border-radius: 8px;
+  background: #1b2a34;
+}
+
+.cash-report-kpi.highlight {
+  background: #173c2f;
+  border-color: #2f9168;
+}
+
+.cash-report-kpi span {
+  display: block;
+  margin-bottom: 5px;
+  color: #94a3ad;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: .5px;
+}
+
+.cash-report-kpi strong {
+  display: block;
+  color: #e8eef2;
+  font-size: 18px;
+  font-weight: 750;
+}
+
+.cash-report-kpi.highlight strong {
+  color: #59c08d;
+}
+
+.cash-report-kpi small {
+  display: block;
+  margin-top: 4px;
+  color: #81919e;
+  font-size: 8px;
+}
+
+.cash-report-kpi .income,
+.cash-report-kpi .income-cell {
+  color: #59c08d;
+}
+
+.cash-report-kpi .expense,
+.cash-report-kpi .expense-cell {
+  color: #e97786;
+}
+
+/* BIG / SECTION CARDS */
+.cash-report-section {
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid #2d3b46;
+  border-radius: 8px;
+  background: #1b2a34;
+}
+
+.cash-report-big-card {
+  overflow: hidden;
+  border: 1px solid #2d3b46;
+  border-radius: 8px;
+  background: #1b2a34;
+}
+
+.cash-report-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 62px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #2d3b46;
+}
+
+.cash-report-section-header h2 {
+  margin: 0;
+  color: #e8eef2;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cash-report-section-header span {
+  color: #81919e;
+  font-size: 8px;
+}
+
+/* MAIN GRIDS */
+.cash-report-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+/* ACCOUNT LIST */
+.cash-report-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px;
+  background: #1b2a34;
+}
+
+.cash-report-account-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 58px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid #2d3b46;
+  border-radius: 7px;
+  background: #172731;
+}
+
+.cash-report-account-row:hover {
+  background: #1d2b34;
+}
+
+.cash-report-account-row strong {
+  color: #e8eef2;
+  font-size: 11px;
+}
+
+.cash-report-account-row span {
+  color: #81919e;
+  font-size: 8px;
+}
+
+.cash-report-money {
+  color: #39a978;
+  font-size: 12px;
+  font-weight: 750;
+  text-align: right;
+}
+
+/* BARS */
+.cash-report-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #35434f;
+}
+
+.cash-report-bar > div {
+  height: 100%;
+  border-radius: inherit;
+  background: #39a978;
+}
+
+/* TABLE */
+.cash-report-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cash-report-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.cash-report-table th {
+  height: 43px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2d3b46;
+  background: #17232d;
+  color: #9aaab5;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.cash-report-table td {
+  height: 58px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #273640;
+  background: #1b2a34;
+  color: #c7d1d8;
+  white-space: nowrap;
+  font-size: 10px;
+}
+
+.cash-report-table tbody tr:hover td {
+  background: #1d2b34;
+}
+
+.cash-report-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cash-report-table td strong {
+  color: #e8eef2;
+  font-weight: 700;
+}
+
+.cash-report-direction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.cash-report-direction.income {
+  background: #173c2f;
+  color: #59c08d;
+}
+
+.cash-report-direction.expense {
+  background: #3a2328;
+  color: #e97786;
+}
+
+.income-cell {
+  color: #59c08d !important;
+  font-weight: 700;
+}
+
+.expense-cell {
+  color: #e97786 !important;
+  font-weight: 700;
+}
+
+.cash-report-type {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #35434f;
+  border-radius: 5px;
+  background: #172731;
+  color: #b2bdc6;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* EMPTY */
+.cash-report-empty {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #81919e;
+}
+
+.cash-report-empty-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 220px;
+  padding: 25px;
+  text-align: center;
+  color: #81919e;
+}
+
+.cash-report-empty-box strong {
+  color: #e8eef2;
+  font-size: 12px;
+}
+
+.cash-report-empty-box span {
+  color: #81919e;
+  font-size: 9px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .cash-report-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cash-report-grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .cash-report-page {
+    padding: 22px 18px 40px;
+  }
+
+  .cash-report-header {
+    flex-direction: column;
+  }
+
+  .cash-report-refresh {
+    width: 100%;
+  }
+
+  .cash-report-filter-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cash-report-filter-title {
+    min-width: 0;
+  }
+
+  .cash-report-filters {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .cash-report-filters input,
+  .cash-report-filters select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 650px) {
+  .cash-report-kpi-grid,
+  .cash-report-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .cash-report-page {
+    padding: 16px 12px 30px;
+  }
+}

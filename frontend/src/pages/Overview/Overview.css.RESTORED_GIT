@@ -1,0 +1,1416 @@
+/* REN ERP - Defteran referansına göre Genel Bakış */
+/* Tipografi: Inter / Segoe UI. Renkler, boşluklar ve kart yapısı referans görsellere göre. */
+
+.ren-old-dashboard,
+.def-dashboard {
+  --df-green: #39a978;
+  --df-green-dark: #2d8f67;
+  --df-green-soft: #edf8f3;
+  --df-bg: #f4f6f8;
+  --df-card: #ffffff;
+  --df-border: #e5e9ee;
+  --df-border-soft: #edf0f3;
+  --df-text: #202a34;
+  --df-text-2: #4b5662;
+  --df-muted: #8b95a0;
+  --df-muted-2: #a2abb4;
+  --df-danger: #d9475e;
+  --df-orange: #e5a033;
+  width: 100%;
+  min-height: 100%;
+  background: var(--df-bg);
+  color: var(--df-text);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+}
+
+.ren-old-dashboard *,
+.def-dashboard *,
+.ren-old-dashboard *::before,
+.def-dashboard *::before,
+.ren-old-dashboard *::after,
+.def-dashboard *::after {
+  box-sizing: border-box;
+}
+
+.def-dashboard {
+  padding: 0 20px 32px;
+}
+
+.def-dashboard-grid {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 16px;
+  align-items: start;
+}
+
+.def-main-column,
+.def-side-column {
+  min-width: 0;
+}
+
+.def-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.def-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Üst özet kartı */
+
+.def-welcome-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--df-border);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(30, 42, 55, .02);
+  padding: 19px 22px 0;
+}
+
+.def-welcome-card::before {
+  content: "Hoş Geldin Mete! 👋";
+  display: block;
+  color: #1f2933;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  padding-bottom: 4px;
+}
+
+.def-welcome-card::after {
+  content: "Göz atman gereken önemli işlemler aşağıda.";
+  display: block;
+  color: #87919b;
+  font-size: 11px;
+  line-height: 18px;
+  padding-bottom: 14px;
+}
+
+.def-welcome-tabs {
+  position: absolute;
+  top: 19px;
+  right: 22px;
+  z-index: 2;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 9px;
+  background: #f1f4f6;
+}
+
+.def-welcome-tabs button {
+  height: 34px;
+  min-width: 82px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #909aa4;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.def-welcome-tabs button.active {
+  background: #fff;
+  color: #3e4954;
+  box-shadow: 0 1px 4px rgba(31, 43, 55, .07);
+}
+
+.def-welcome-list {
+  border-top: 1px solid var(--df-border-soft);
+}
+
+.def-summary-row {
+  width: 100%;
+  min-height: 59px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 6px 0 8px;
+  border: 0;
+  border-bottom: 1px solid var(--df-border-soft);
+  background: #fff;
+  color: #26313c;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.def-summary-row:last-child {
+  border-bottom: 0;
+}
+
+.def-summary-row:hover {
+  background: #fbfcfd;
+}
+
+.def-summary-row > span {
+  font-weight: 500;
+}
+
+.def-summary-row strong {
+  min-width: 82px;
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 5px;
+  color: #4b5660;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.def-summary-row strong svg {
+  color: #a5afb8;
+  font-size: 16px;
+}
+
+/* Ajanda */
+
+.def-agenda-card {
+  background: #fff;
+  border: 1px solid var(--df-border);
+  border-radius: 13px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(30, 42, 55, .02);
+  padding: 20px 22px 0;
+}
+
+.def-section-title-row,
+.def-card-heading,
+.def-side-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.def-section-title-row h2,
+.def-card-heading h2 {
+  margin: 0;
+  color: #202a34;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+.def-section-title-row span,
+.def-card-heading > div > span,
+.def-card-heading > div > small,
+.def-side-heading span {
+  display: block;
+  margin-top: 3px;
+  color: #8b95a0;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+}
+
+.def-card-heading > div > small {
+  margin-top: 1px;
+}
+
+.def-agenda-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.def-search {
+  width: 225px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid #dfe5ea;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.def-search svg {
+  color: #9ca5af;
+  font-size: 17px;
+}
+
+.def-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #39444f;
+  font-size: 11px;
+}
+
+.def-search input::placeholder {
+  color: #a2abb4;
+}
+
+.def-select,
+.def-filter-btn,
+.def-add-btn {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.def-select {
+  min-width: 93px;
+  padding: 0 11px;
+  border: 1px solid #dfe5ea;
+  background: #fff;
+  color: #4e5964;
+}
+
+.def-filter-btn {
+  min-width: 65px;
+  padding: 0 12px;
+  border: 1px solid #dfe5ea;
+  background: #fff;
+  color: #2f3944;
+}
+
+.def-add-btn {
+  min-width: 68px;
+  padding: 0 12px;
+  border: 0;
+  background: var(--df-green);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 5px 11px rgba(57, 169, 120, .14);
+}
+
+.def-add-btn svg {
+  font-size: 16px;
+}
+
+.def-calendar-head {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 15px;
+  border-top: 1px solid var(--df-border-soft);
+  border-bottom: 1px solid var(--df-border-soft);
+}
+
+.def-calendar-head > div {
+  min-height: 47px;
+  padding: 0 14px 10px;
+  display: flex;
+  align-items: end;
+  border-right: 1px solid var(--df-border-soft);
+}
+
+.def-calendar-head > div:last-child {
+  border-right: 0;
+}
+
+.def-calendar-head span {
+  color: #89939e;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .015em;
+  white-space: nowrap;
+}
+
+.def-calendar-body {
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+}
+
+.def-calendar-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  color: #99a2ac;
+}
+
+.def-calendar-note > svg {
+  font-size: 18px;
+  color: #c0c8cf;
+}
+
+.def-calendar-note strong {
+  display: block;
+  color: #57616c;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.def-calendar-note span {
+  display: block;
+  margin-top: 2px;
+  color: #9ca5ae;
+  font-size: 10px;
+}
+
+/* Alt büyük alanlar */
+
+.def-large-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  gap: 16px;
+}
+
+.def-card {
+  background: #fff;
+  border: 1px solid var(--df-border);
+  border-radius: 13px;
+  box-shadow: 0 1px 2px rgba(30,42,55,.02);
+}
+
+.def-finance-card,
+.def-cash-card,
+.def-recent-card {
+  padding: 20px 22px;
+}
+
+.def-card-heading {
+  margin-bottom: 12px;
+}
+
+.def-link-btn {
+  border: 0;
+  background: transparent;
+  color: #697580;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.def-link-btn svg {
+  font-size: 15px;
+}
+
+/* Gelir gider */
+
+.def-profit-visual {
+  min-height: 222px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.def-profit-arc {
+  width: 285px;
+  height: 143px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 285px 285px 0 0;
+  background: conic-gradient(
+    from 270deg,
+    var(--df-green) 0deg,
+    var(--df-green) var(--profit-rotation),
+    #e9eef1 var(--profit-rotation),
+    #e9eef1 180deg,
+    transparent 180deg
+  );
+}
+
+.def-profit-arc::after {
+  content: "";
+  position: absolute;
+  inset: 30px 30px 0;
+  border-radius: 225px 225px 0 0;
+  background: #fff;
+}
+
+.def-profit-hole {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  text-align: center;
+}
+
+.def-profit-hole span {
+  display: block;
+  color: #8c96a1;
+  font-size: 11px;
+}
+
+.def-profit-hole strong {
+  display: block;
+  margin-top: 4px;
+  color: #303a45;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.def-income-expense {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 0 9px 18px;
+  border-bottom: 1px solid var(--df-border-soft);
+}
+
+.def-income-expense > div {
+  position: relative;
+  padding-left: 13px;
+}
+
+.def-income-expense > div > .dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+}
+
+.def-income-expense label,
+.def-income-expense strong,
+.def-income-expense small {
+  display: block;
+}
+
+.def-income-expense label {
+  color: #8f99a4;
+  font-size: 10px;
+}
+
+.def-income-expense strong {
+  margin-top: 3px;
+  color: #303a45;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.def-income-expense small {
+  margin-top: 1px;
+  color: #98a1aa;
+  font-size: 10px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.dot.green {
+  background: #40ae7e;
+}
+
+.dot.gray {
+  background: #bec7ce;
+}
+
+.dot.red {
+  background: var(--df-danger);
+}
+
+.dot.orange {
+  background: var(--df-orange);
+}
+
+.def-finance-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-top: 17px;
+}
+
+.def-finance-bottom > div {
+  padding: 0 13px;
+  border-right: 1px solid var(--df-border-soft);
+}
+
+.def-finance-bottom > div:first-child {
+  padding-left: 9px;
+}
+
+.def-finance-bottom > div:last-child {
+  border-right: 0;
+}
+
+.def-finance-bottom span,
+.def-finance-bottom strong,
+.def-finance-bottom small {
+  display: block;
+}
+
+.def-finance-bottom span {
+  color: #8d97a2;
+  font-size: 9px;
+}
+
+.def-finance-bottom strong {
+  margin-top: 3px;
+  color: #303a45;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.def-finance-bottom small {
+  margin-top: 1px;
+  color: #a1a9b1;
+  font-size: 9px;
+}
+
+/* Kasa / banka */
+
+.def-account-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 47px;
+  margin-bottom: 6px;
+  padding: 0 12px;
+  border: 1px solid #edf0f3;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.def-account-total span {
+  color: #8a949e;
+  font-size: 10px;
+}
+
+.def-account-total strong {
+  color: #303a45;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.def-account-list {
+  margin-top: 5px;
+}
+
+.def-account-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 1px;
+  border-bottom: 1px solid var(--df-border-soft);
+}
+
+.def-account-row:last-child {
+  border-bottom: 0;
+}
+
+.def-account-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--df-green-soft);
+  color: var(--df-green);
+}
+
+.def-account-icon svg {
+  font-size: 16px;
+}
+
+.def-account-row strong,
+.def-account-row span {
+  display: block;
+}
+
+.def-account-row strong {
+  color: #39434e;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.def-account-row span {
+  margin-top: 2px;
+  color: #9ca5ae;
+  font-size: 9px;
+}
+
+.def-account-row b {
+  color: #3e4954;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Son işlemler */
+
+.def-recent-card {
+  overflow: hidden;
+}
+
+.def-table-wrap {
+  overflow-x: auto;
+}
+
+.def-table-wrap table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: collapse;
+}
+
+.def-table-wrap th {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e9edf1;
+  color: #98a1aa;
+  font-size: 9px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.def-table-wrap td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f2f4;
+  color: #4a5560;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.def-table-wrap tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.def-table-wrap tbody tr:hover {
+  background: #fbfcfd;
+}
+
+.def-type-pill {
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #edf8f3;
+  color: #2d8f67;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.def-type-pill.purchase {
+  background: #fff6e8;
+  color: #b97916;
+}
+
+.def-type-pill.return {
+  background: #fff0f2;
+  color: #c8465d;
+}
+
+.def-amount {
+  color: #303a45 !important;
+  font-weight: 600;
+}
+
+.def-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #4f9576;
+  font-size: 9px;
+}
+
+.def-status svg {
+  font-size: 14px;
+}
+
+.def-empty-state {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px;
+  color: #96a0aa;
+  font-size: 10px;
+}
+
+.def-empty-state svg {
+  color: #80bca1;
+  font-size: 17px;
+}
+
+/* Sağ kolon */
+
+.def-side-card {
+  padding: 18px 18px 15px;
+}
+
+.def-side-heading {
+  margin-bottom: 10px;
+}
+
+.def-side-heading h3 {
+  margin: 0;
+  color: #242e38;
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 600;
+}
+
+.def-side-heading button {
+  border: 0;
+  background: transparent;
+  color: #6e7984;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.def-side-heading button svg {
+  font-size: 14px;
+}
+
+.def-timeline-row {
+  display: grid;
+  grid-template-columns: 27px minmax(0,1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--df-border-soft);
+}
+
+.def-timeline-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 2px;
+}
+
+.def-timeline-dot {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.def-timeline-dot.green {
+  background: #e9f7f0;
+  color: #3a9d75;
+}
+
+.def-timeline-dot.red {
+  background: #fff0f2;
+  color: #cf4c60;
+}
+
+.def-timeline-info {
+  min-width: 0;
+}
+
+.def-timeline-info strong,
+.def-timeline-info span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.def-timeline-info strong {
+  color: #35404b;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.def-timeline-info span {
+  margin-top: 2px;
+  color: #98a1ab;
+  font-size: 9px;
+}
+
+.def-timeline-row > b {
+  color: #3f4a55;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Kısa yollar */
+
+.def-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+}
+
+.def-shortcuts button {
+  min-height: 65px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 4px;
+  border: 1px solid #e6eaee;
+  border-radius: 9px;
+  background: #fff;
+  color: #4c5762;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.def-shortcuts button:hover {
+  background: #f8fbfa;
+  border-color: #cae6da;
+  color: var(--df-green-dark);
+}
+
+.def-shortcuts svg {
+  color: var(--df-green);
+  font-size: 18px;
+}
+
+/* Net nakit */
+
+.def-cashflow-card {
+  padding-bottom: 16px;
+}
+
+.def-today-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.def-today-header span {
+  display: block;
+  color: #9aa3ac;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+
+.def-today-header h3 {
+  margin: 3px 0 0;
+  color: #303a45;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.def-today-header > svg {
+  color: #9ca5ae;
+  font-size: 17px;
+}
+
+.def-today-number {
+  display: block;
+  margin-top: 13px;
+  color: #303a45;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.def-cashflow-bar {
+  height: 6px;
+  margin-top: 11px;
+  border-radius: 999px;
+  background: #edf1f3;
+  overflow: hidden;
+}
+
+.def-cashflow-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--df-green);
+}
+
+.def-today-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  color: #7e8892;
+  font-size: 9px;
+}
+
+.def-today-footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.def-today-footer svg {
+  font-size: 13px;
+}
+
+/* Mobil alt not */
+
+.def-mobile-note {
+  display: none;
+}
+
+@media (max-width: 1250px) {
+  .def-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
+  .def-large-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1050px) {
+  .def-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .def-side-column {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .def-side-column .def-cashflow-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 760px) {
+  .def-dashboard {
+    padding: 0 12px 24px;
+  }
+
+  .def-agenda-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .def-search {
+    width: 100%;
+  }
+
+  .def-section-title-row,
+  .def-card-heading {
+    flex-direction: column;
+  }
+
+  .def-welcome-tabs {
+    position: static;
+    margin: -49px 0 12px auto;
+    width: max-content;
+  }
+
+  .def-side-column {
+    grid-template-columns: 1fr;
+  }
+
+  .def-side-column .def-cashflow-card {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .def-welcome-card,
+  .def-agenda-card,
+  .def-finance-card,
+  .def-cash-card,
+  .def-recent-card,
+  .def-side-card {
+    border-radius: 11px;
+  }
+
+  .def-welcome-card {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .def-summary-row {
+    min-height: 54px;
+    font-size: 11px;
+  }
+
+  .def-finance-bottom {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .def-finance-bottom > div {
+    border-right: 0;
+    padding: 0;
+  }
+}
+
+
+/* =========================================================
+   REN ERP - GENEL BAKIŞ / DARK TEMA
+   Sadece renkleri değiştirir, yerleşim ve ölçülere dokunmaz.
+========================================================= */
+
+.ren-layout.ren-theme-dark .def-dashboard {
+  --df-bg: #14212b;
+  --df-card: #1b2a34;
+  --df-border: #30414c;
+  --df-border-soft: #2a3944;
+  --df-text: #edf4f7;
+  --df-text-2: #d5e0e5;
+  --df-muted: #93a4af;
+  --df-muted-2: #788b97;
+  --df-green: #39a978;
+  --df-green-dark: #55c792;
+  --df-green-soft: #173c31;
+  --df-danger: #e86b7d;
+  --df-orange: #e2aa4d;
+
+  background: #14212b !important;
+  color: #edf4f7 !important;
+}
+
+/* Ana zemin ve tüm ana kartlar */
+.ren-layout.ren-theme-dark .def-dashboard,
+.ren-layout.ren-theme-dark .def-main-column,
+.ren-layout.ren-theme-dark .def-side-column {
+  background: #14212b !important;
+  color: #edf4f7 !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-card,
+.ren-layout.ren-theme-dark .def-agenda-card,
+.ren-layout.ren-theme-dark .def-card,
+.ren-layout.ren-theme-dark .def-side-card,
+.ren-layout.ren-theme-dark .def-recent-card {
+  background: #1b2a34 !important;
+  border-color: #30414c !important;
+  color: #edf4f7 !important;
+  box-shadow: none !important;
+}
+
+/* Üst özet */
+.ren-layout.ren-theme-dark .def-welcome-card::before {
+  color: #f2f6f8 !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-card::after {
+  color: #93a4af !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-tabs {
+  background: #17262f !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-tabs button {
+  color: #91a2ae !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-tabs button.active {
+  background: #243640 !important;
+  color: #edf4f7 !important;
+  box-shadow: none !important;
+}
+
+.ren-layout.ren-theme-dark .def-welcome-list {
+  border-top-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-summary-row {
+  background: #1b2a34 !important;
+  color: #dce6ea !important;
+  border-bottom-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-summary-row:hover {
+  background: #21323d !important;
+}
+
+.ren-layout.ren-theme-dark .def-summary-row strong {
+  color: #5ed19b !important;
+}
+
+.ren-layout.ren-theme-dark .def-summary-row strong svg {
+  color: #76909c !important;
+}
+
+/* Başlıklar ve açıklamalar */
+.ren-layout.ren-theme-dark .def-section-title-row h2,
+.ren-layout.ren-theme-dark .def-card-heading h2,
+.ren-layout.ren-theme-dark .def-side-heading h3,
+.ren-layout.ren-theme-dark .def-today-header h3 {
+  color: #eef4f6 !important;
+}
+
+.ren-layout.ren-theme-dark .def-section-title-row span,
+.ren-layout.ren-theme-dark .def-card-heading > div > span,
+.ren-layout.ren-theme-dark .def-card-heading > div > small,
+.ren-layout.ren-theme-dark .def-side-heading span,
+.ren-layout.ren-theme-dark .def-today-header span {
+  color: #93a4af !important;
+}
+
+/* Arama / seçim / filtre */
+.ren-layout.ren-theme-dark .def-search,
+.ren-layout.ren-theme-dark .def-select,
+.ren-layout.ren-theme-dark .def-filter-btn {
+  background: #172730 !important;
+  border-color: #354752 !important;
+  color: #d9e4e8 !important;
+}
+
+.ren-layout.ren-theme-dark .def-search svg {
+  color: #8498a4 !important;
+}
+
+.ren-layout.ren-theme-dark .def-search input {
+  color: #e8f0f3 !important;
+  background: transparent !important;
+}
+
+.ren-layout.ren-theme-dark .def-search input::placeholder {
+  color: #6f838f !important;
+}
+
+.ren-layout.ren-theme-dark .def-select svg,
+.ren.layout.ren-theme-dark .def-link-btn svg {
+  color: #89a0ac !important;
+}
+
+.ren-layout.ren-theme-dark .def-filter-btn:hover,
+.ren-layout.ren-theme-dark .def-select:hover {
+  border-color: #4b665f !important;
+  background: #1e3039 !important;
+}
+
+.ren-layout.ren-theme-dark .def-add-btn {
+  background: #39a978 !important;
+  color: #fff !important;
+}
+
+/* Ajanda */
+.ren-layout.ren-theme-dark .def-calendar-head {
+  border-top-color: #2a3944 !important;
+  border-bottom-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-head > div {
+  border-right-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-head span {
+  color: #8ea0ab !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-note {
+  color: #9fb0ba !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-note > svg {
+  color: #5a7180 !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-note strong {
+  color: #dce6ea !important;
+}
+
+.ren-layout.ren-theme-dark .def-calendar-note span {
+  color: #8295a1 !important;
+}
+
+/* Gelir gider */
+.ren-layout.ren-theme-dark .def-profit-arc {
+  background: conic-gradient(
+    from 270deg,
+    var(--df-green) 0deg,
+    var(--df-green) var(--profit-rotation),
+    #33434d var(--profit-rotation),
+    #33434d 180deg,
+    transparent 180deg
+  ) !important;
+}
+
+.ren-layout.ren-theme-dark .def-profit-arc::after {
+  background: #1b2a34 !important;
+}
+
+.ren-layout.ren-theme-dark .def-profit-hole span {
+  color: #8ea0ab !important;
+}
+
+.ren-layout.ren-theme-dark .def-profit-hole strong,
+.ren-layout.ren-theme-dark .def-income-expense strong,
+.ren-layout.ren-theme-dark .def-finance-bottom strong {
+  color: #edf4f7 !important;
+}
+
+.ren-layout.ren-theme-dark .def-income-expense,
+.ren.layout.ren-theme-dark .def-finance-bottom > div {
+  border-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-income-expense label,
+.ren-layout.ren-theme-dark .def-income-expense small,
+.ren-layout.ren-theme-dark .def-finance-bottom span,
+.ren-layout.ren-theme-dark .def-finance-bottom small {
+  color: #8da0ac !important;
+}
+
+/* Kasa / banka */
+.ren-layout.ren-theme-dark .def-account-total {
+  background: #172730 !important;
+  border-color: #30414c !important;
+}
+
+.ren-layout.ren-theme-dark .def-account-total span,
+.ren-layout.ren-theme-dark .def-account-row span {
+  color: #8da0ac !important;
+}
+
+.ren-layout.ren-theme-dark .def-account-total strong,
+.ren-layout.ren-theme-dark .def-account-row b,
+.ren-layout.ren-theme-dark .def-account-row strong {
+  color: #e5edf0 !important;
+}
+
+.ren-layout.ren-theme-dark .def-account-row {
+  border-bottom-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-account-icon {
+  background: #173c31 !important;
+  color: #59cd98 !important;
+}
+
+/* Son işlemler */
+.ren-layout.ren-theme-dark .def-table-wrap th {
+  background: #17242d !important;
+  border-bottom-color: #30414c !important;
+  color: #8ea0ab !important;
+}
+
+.ren-layout.ren-theme-dark .def-table-wrap td {
+  background: #1b2a34 !important;
+  border-bottom-color: #293943 !important;
+  color: #d1dce1 !important;
+}
+
+.ren-layout.ren-theme-dark .def-table-wrap tbody tr:hover td {
+  background: #21323d !important;
+}
+
+.ren-layout.ren-theme-dark .def-amount {
+  color: #59cd98 !important;
+}
+
+.ren-layout.ren-theme-dark .def-type-pill {
+  background: #173c31 !important;
+  color: #63d39f !important;
+}
+
+.ren-layout.ren-theme-dark .def-type-pill.purchase {
+  background: #44371f !important;
+  color: #e1ae4f !important;
+}
+
+.ren-layout.ren-theme-dark .def-type-pill.return {
+  background: #42252d !important;
+  color: #ef7d8d !important;
+}
+
+.ren-layout.ren-theme-dark .def-status {
+  color: #60c99a !important;
+}
+
+.ren-layout.ren-theme-dark .def-empty-state {
+  color: #81949f !important;
+}
+
+.ren-layout.ren-theme-dark .def-empty-state svg {
+  color: #4e9d7d !important;
+}
+
+/* Sağ kolon */
+.ren-layout.ren-theme-dark .def-link-btn,
+.ren.layout.ren-theme-dark .def-side-heading button {
+  color: #8fa3ae !important;
+}
+
+.ren-layout.ren-theme-dark .def-link-btn:hover,
+.ren-layout.ren-theme-dark .def-side-heading button:hover {
+  color: #63d39f !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-row {
+  border-bottom-color: #2a3944 !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-dot.green {
+  background: #173c31 !important;
+  color: #63d39f !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-dot.red {
+  background: #42252d !important;
+  color: #ef7d8d !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-info strong {
+  color: #e3ebee !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-info span {
+  color: #8295a1 !important;
+}
+
+.ren-layout.ren-theme-dark .def-timeline-row > b {
+  color: #5bd19a !important;
+}
+
+/* Kısa yollar */
+.ren-layout.ren-theme-dark .def-shortcuts button {
+  background: #172730 !important;
+  border-color: #344650 !important;
+  color: #d9e4e8 !important;
+}
+
+.ren-layout.ren-theme-dark .def-shortcuts button:hover {
+  background: #1f333d !important;
+  border-color: #406054 !important;
+  color: #63d39f !important;
+}
+
+.ren-layout.ren-theme-dark .def-shortcuts svg {
+  color: #59c995 !important;
+}
+
+/* Net nakit */
+.ren-layout.ren-theme-dark .def-today-number {
+  color: #62d49f !important;
+}
+
+.ren-layout.ren-theme-dark .def-today-header > svg {
+  color: #7c909c !important;
+}
+
+.ren-layout.ren-theme-dark .def-cashflow-bar {
+  background: #33434d !important;
+}
+
+.ren-layout.ren-theme-dark .def-cashflow-bar span {
+  background: #39a978 !important;
+}
+
+.ren-layout.ren-theme-dark .def-today-footer {
+  color: #8da0ab !important;
+}
+
+/* Mobil */
+.ren-layout.ren-theme-dark .def-mobile-stock {
+  background: #1b2a34 !important;
+  border-color: #30414c !important;
+  color: #e7eef1 !important;
+}

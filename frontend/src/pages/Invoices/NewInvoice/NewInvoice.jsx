@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   MdAdd,
   MdArrowBack,
@@ -470,6 +471,7 @@ export default function NewInvoice() {
   const [accounts, setAccounts] = useState(() => getLocalAccounts());
 
   const [customerSearch, setCustomerSearch] = useState("");
+  const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const [invoiceDate, setInvoiceDate] = useState(today());
@@ -485,8 +487,15 @@ export default function NewInvoice() {
 
   const [notes, setNotes] = useState("");
   const [items, setItems] = useState([createItem()]);
+  const [productDropdown, setProductDropdown] = useState({
+    rowId: null,
+    top: 0,
+    left: 0,
+    width: 0,
+  });
   const [stockTracking, setStockTracking] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [successToast, setSuccessToast] = useState(null);
 
   const [newCustomerOpen, setNewCustomerOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
@@ -551,6 +560,21 @@ export default function NewInvoice() {
       window.removeEventListener("ren-finance-updated", refresh);
     };
   }, []);
+
+
+  useEffect(() => {
+    if (!productDropdown.rowId) return;
+
+    const closeOnScroll = () => {
+      closeProductDropdown();
+    };
+
+    window.addEventListener("scroll", closeOnScroll, true);
+
+    return () => {
+      window.removeEventListener("scroll", closeOnScroll, true);
+    };
+  }, [productDropdown.rowId]);
 
 
   /* =========================================================
@@ -689,25 +713,47 @@ export default function NewInvoice() {
       .trim()
       .toLocaleLowerCase("tr-TR");
 
-    if (!q) return [];
+    const source = q
+      ? customers.filter((customer) => {
+          const name = customerDisplayName(customer)
+            .toLocaleLowerCase("tr-TR");
 
-    return customers
-      .filter((customer) => {
-        const name = customerDisplayName(customer)
-          .toLocaleLowerCase("tr-TR");
+          const code = String(customer.code || "")
+            .toLocaleLowerCase("tr-TR");
 
-        const code = String(customer.code || "")
-          .toLocaleLowerCase("tr-TR");
+          return name.includes(q) || code.includes(q);
+        })
+      : customers;
 
-        return name.includes(q) || code.includes(q);
-      })
-      .slice(0, 8);
+    return source.slice(0, 12);
   }, [customers, customerSearch]);
 
+
+
+  const productMatches = (searchText) => {
+    const q = String(searchText || "")
+      .trim()
+      .toLocaleLowerCase("tr-TR");
+
+    const source = q
+      ? products.filter((product) => {
+          const name = productName(product)
+            .toLocaleLowerCase("tr-TR");
+
+          const code = productCode(product)
+            .toLocaleLowerCase("tr-TR");
+
+          return name.includes(q) || code.includes(q);
+        })
+      : products;
+
+    return source.slice(0, 12);
+  };
 
   const selectCustomer = (customer) => {
     setSelectedCustomer(customer);
     setCustomerSearch("");
+    setCustomerDropdownOpen(false);
   };
 
 
@@ -719,6 +765,7 @@ export default function NewInvoice() {
     });
 
     setNewCustomerOpen(true);
+    setCustomerDropdownOpen(false);
   };
 
 
@@ -768,11 +815,32 @@ export default function NewInvoice() {
   };
 
 
+  const openProductDropdown = (rowId, element) => {
+    const rect = element.getBoundingClientRect();
+
+    setProductDropdown({
+      rowId,
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: Math.max(rect.width, 360),
+    });
+  };
+
+  const closeProductDropdown = () => {
+    setProductDropdown({
+      rowId: null,
+      top: 0,
+      left: 0,
+      width: 0,
+    });
+  };
+
   const addEmptyLine = () => {
-    setItems((current) => [
-      ...current,
-      createItem(),
-    ]);
+    setItems((current) => {
+      const last = current[current.length - 1];
+      if (last && !last.productId && !String(last.productName || "").trim()) return current;
+      return [...current, createItem()];
+    });
   };
 
 
@@ -794,32 +862,22 @@ export default function NewInvoice() {
       setItems((current) =>
         current.map((item) =>
           item.id === itemId
-            ? {
-                ...item,
-                productId: "",
-                productCode: "",
-                productName: "",
-              }
+            ? { ...item, productId: "", productCode: "", productName: "" }
             : item
         )
       );
       return;
     }
 
-    const product = products.find(
-      (item) =>
-        String(item.id) === String(productId)
-    );
-
+    const product = products.find((item) => String(item.id) === String(productId));
     if (!product) return;
 
-    const price =
-      invoiceType === "purchase"
-        ? productPurchasePrice(product)
-        : productSalePrice(product);
+    const price = invoiceType === "purchase"
+      ? productPurchasePrice(product)
+      : productSalePrice(product);
 
-    setItems((current) =>
-      current.map((item) =>
+    setItems((current) => {
+      const next = current.map((item) =>
         item.id === itemId
           ? {
               ...item,
@@ -831,169 +889,15 @@ export default function NewInvoice() {
               vatRate: productVat(product),
             }
           : item
-      )
-    );
-  };
+      );
 
+      const last = next[next.length - 1];
+      if (last && last.productId && String(last.productName || "").trim()) {
+        next.push(createItem());
+      }
 
-  const openNewProduct = (
-    itemId,
-    initialName = ""
-  ) => {
-    const item = items.find(
-      (entry) => entry.id === itemId
-    );
-
-    setNewProduct({
-      name:
-        initialName ||
-        item?.productName ||
-        "",
-      code: item?.productCode || "",
-      unit: item?.unit || "Adet",
-      purchasePrice:
-        invoiceType === "purchase"
-          ? item?.unitPrice || ""
-          : "",
-      salePrice:
-        invoiceType === "sales"
-          ? item?.unitPrice || ""
-          : "",
-      vatRate: item?.vatRate ?? 20,
+      return next;
     });
-
-    setNewProductTargetId(itemId);
-    setNewProductOpen(true);
-  };
-
-
-  const saveNewProduct = () => {
-    const name = String(newProduct.name || "").trim();
-
-    if (!name) {
-      window.alert("Ürün adı boş olamaz.");
-      return;
-    }
-
-    const code =
-      String(newProduct.code || "").trim() ||
-      `FAT-${Date.now()}`;
-
-    try {
-      const product = createProduct({
-        name,
-        code,
-        barcode: code,
-        unit: newProduct.unit || "Adet",
-
-        purchaseNet:
-          numberValue(
-            newProduct.purchasePrice
-          ),
-
-        purchaseGross:
-          numberValue(
-            newProduct.purchasePrice
-          ) *
-          (1 +
-            numberValue(newProduct.vatRate) /
-              100),
-
-        purchaseVat:
-          numberValue(newProduct.vatRate),
-
-        salesNet:
-          numberValue(
-            newProduct.salePrice
-          ),
-
-        salesGross:
-          numberValue(
-            newProduct.salePrice
-          ) *
-          (1 +
-            numberValue(newProduct.vatRate) /
-              100),
-
-        salesVat:
-          numberValue(newProduct.vatRate),
-
-        openingStock: 0,
-        stockTracking: true,
-        active: true,
-      });
-
-      setProducts(getProducts() || []);
-
-      setItems((current) =>
-        current.map((item) =>
-          item.id === newProductTargetId
-            ? {
-                ...item,
-                productId: product.id,
-                productName: product.name,
-                productCode: product.code,
-                unit:
-                  product.unit ||
-                  "Adet",
-                unitPrice:
-                  invoiceType === "purchase"
-                    ? numberValue(
-                        newProduct.purchasePrice
-                      )
-                    : numberValue(
-                        newProduct.salePrice
-                      ),
-                vatRate:
-                  numberValue(
-                    newProduct.vatRate
-                  ),
-              }
-            : item
-        )
-      );
-
-      setNewProductOpen(false);
-      setNewProductTargetId("");
-
-      setNewProduct({
-        name: "",
-        code: "",
-        unit: "Adet",
-        purchasePrice: "",
-        salePrice: "",
-        vatRate: 20,
-      });
-    } catch (error) {
-      window.alert(
-        error?.message ||
-          "Ürün oluşturulamadı."
-      );
-    }
-  };
-
-
-  const productMatches = (query) => {
-    const q = String(query || "")
-      .trim()
-      .toLocaleLowerCase("tr-TR");
-
-    if (!q) return [];
-
-    return products
-      .filter((product) => {
-        const name = productName(product)
-          .toLocaleLowerCase("tr-TR");
-
-        const code = productCode(product)
-          .toLocaleLowerCase("tr-TR");
-
-        return (
-          name.includes(q) ||
-          code.includes(q)
-        );
-      })
-      .slice(0, 6);
   };
 
 
@@ -1789,6 +1693,18 @@ export default function NewInvoice() {
 
 
   /* =========================================================
+     KAYDET BİLDİRİMİ
+  ========================================================= */
+
+  const showSuccessToast = (message) => {
+    setSuccessToast(message);
+    window.setTimeout(() => {
+      setSuccessToast(null);
+    }, 3200);
+  };
+
+
+  /* =========================================================
      KAYDET
   ========================================================= */
 
@@ -2134,14 +2050,14 @@ export default function NewInvoice() {
         )
       );
 
-      window.alert(
-        `${saved.invoiceNo} numaralı fatura başarıyla kaydedildi.`
+      showSuccessToast(
+        `${saved.invoiceNo} numaralı fatura bilgileri başarıyla kaydedildi.`
       );
 
-      window.location.href =
-        `/invoices/detail?id=${encodeURIComponent(
-          saved.id
-        )}`;
+      window.setTimeout(() => {
+        window.location.href =
+          `/invoices/detail?id=${encodeURIComponent(saved.id)}`;
+      }, 900);
     } catch (error) {
       console.error(
         "REN ERP fatura kaydetme hatası:",
@@ -2191,6 +2107,69 @@ export default function NewInvoice() {
 
   return (
     <div className="ren-invoice-edit ren-invoice-active-editor">
+
+      {successToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 2147483647,
+            minWidth: 360,
+            maxWidth: "calc(100vw - 32px)",
+            padding: "14px 20px",
+            border: "1px solid #4bc58b",
+            borderRadius: 14,
+            background: "linear-gradient(135deg, #1e7b55, #2fa66f)",
+            color: "#f1fff8",
+            boxShadow: "0 16px 40px rgba(0,0,0,.35)",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            fontSize: 13,
+            fontWeight: 800,
+            letterSpacing: ".01em",
+          }}
+        >
+          <span
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              display: "grid",
+              placeItems: "center",
+              background: "rgba(255,255,255,.16)",
+              fontSize: 17,
+              flex: "0 0 auto",
+            }}
+          >
+            ✓
+          </span>
+
+          <span>{successToast}</span>
+
+          <button
+            type="button"
+            onClick={() => setSuccessToast(null)}
+            aria-label="Bildirimi kapat"
+            style={{
+              marginLeft: "auto",
+              border: 0,
+              background: "transparent",
+              color: "#f1fff8",
+              fontSize: 18,
+              cursor: "pointer",
+              lineHeight: 1,
+              opacity: .85,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* =================================================
           HEADER
@@ -2291,17 +2270,7 @@ export default function NewInvoice() {
             VAZGEÇ
           </button>
 
-          <button
-            type="button"
-            className="primary"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            <MdSave />
-            {saving
-              ? "KAYDEDİLİYOR..."
-              : "KAYDET"}
-          </button>
+
 
         </div>
       </header>
@@ -2356,14 +2325,12 @@ export default function NewInvoice() {
                 <MdSearch />
 
                 <input
-                  value={
-                    customerSearch
-                  }
-                  onChange={(event) =>
-                    setCustomerSearch(
-                      event.target.value
-                    )
-                  }
+                  value={customerSearch}
+                  onFocus={() => setCustomerDropdownOpen(true)}
+                  onChange={(event) => {
+                    setCustomerSearch(event.target.value);
+                    setCustomerDropdownOpen(true);
+                  }}
                   placeholder={
                     invoiceType ===
                     "purchase"
@@ -2373,10 +2340,10 @@ export default function NewInvoice() {
                 />
               </div>
 
-              {(customerResults.length >
-                0 ||
-                createCustomerSearchButton) && (
-                <div className="ren-customer-dropdown">
+              {customerDropdownOpen &&
+                (customerResults.length > 0 ||
+                  createCustomerSearchButton) && (
+                <div className="ren-customer-dropdown" style={{ zIndex: 99999 }}>
 
                   {customerResults.map(
                     (customer) => (
@@ -2816,14 +2783,7 @@ export default function NewInvoice() {
             </span>
           </div>
 
-          <button
-            type="button"
-            className="ren-add-line"
-            onClick={addEmptyLine}
-          >
-            <MdAdd />
-            SATIR EKLE
-          </button>
+
 
         </div>
 
@@ -2859,83 +2819,79 @@ export default function NewInvoice() {
                   <div className="ren-product-cell product-cell">
 
                     <input
-                      value={
-                        item.productName ||
-                        ""
-                      }
+                      value={item.productName || ""}
+                      onFocus={(event) => {
+                        openProductDropdown(item.id, event.currentTarget);
+                      }}
                       onChange={(event) => {
-                        updateItem(
-                          item.id,
-                          "productName",
-                          event.target
-                            .value
-                        );
+                        updateItem(item.id, "productName", event.target.value);
 
-                        if (
-                          item.productId
-                        ) {
-                          updateItem(
-                            item.id,
-                            "productId",
-                            ""
-                          );
+                        if (item.productId) {
+                          updateItem(item.id, "productId", "");
                         }
+
+                        openProductDropdown(item.id, event.currentTarget);
                       }}
                       placeholder="Ürün adı"
                     />
 
-                    {item.productName &&
-                      !item.productId && (
-                        <>
-                          <div className="ren-product-suggestion-list">
+                    {productDropdown.rowId === item.id &&
+                      typeof document !== "undefined" &&
+                      createPortal(
+                        <div
+                          className="ren-product-suggestion-list"
+                          style={{
+                            position: "fixed",
+                            top: productDropdown.top,
+                            left: productDropdown.left,
+                            width: productDropdown.width,
+                            zIndex: 2147483647,
+                            maxHeight: 320,
+                            overflowY: "auto",
+                          }}
+                        >
+                          {productMatches(item.productName).map((product) => (
+                            <button
+                              key={product.id}
+                              type="button"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                changeLineProduct(item.id, product.id);
+                                closeProductDropdown();
+                              }}
+                            >
+                              <span>{productName(product)}</span>
+                              <small>{productCode(product)}</small>
+                            </button>
+                          ))}
 
-                            {productMatches(
-                              item.productName
-                            ).map(
-                              (
-                                product
-                              ) => (
-                                <button
-                                  key={
-                                    product.id
-                                  }
-                                  type="button"
-                                  onClick={() =>
-                                    changeLineProduct(
-                                      item.id,
-                                      product.id
-                                    )
-                                  }
-                                >
-                                  <span>
-                                    {productName(
-                                      product
-                                    )}
-                                  </span>
+                          {item.productName && (
+                            <button
+                              type="button"
+                              className="ren-new-product-inline"
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                closeProductDropdown();
+                                openNewProduct(item.id);
+                              }}
+                            >
+                              ＋ Yeni ürün oluştur
+                            </button>
+                          )}
 
-                                  <small>
-                                    {productCode(
-                                      product
-                                    )}
-                                  </small>
-                                </button>
-                              )
-                            )}
-
-                          </div>
-
-                          <button
-                            type="button"
-                            className="ren-new-product-inline"
-                            onClick={() =>
-                              openNewProduct(
-                                item.id
-                              )
-                            }
-                          >
-                            ＋ Yeni ürün oluştur
-                          </button>
-                        </>
+                          {!productMatches(item.productName).length && !item.productName && (
+                            <div
+                              style={{
+                                padding: "12px 14px",
+                                color: "#9caab5",
+                                fontSize: 11,
+                              }}
+                            >
+                              Ürün aramak için yazmaya başlayın.
+                            </div>
+                          )}
+                        </div>,
+                        document.body
                       )}
 
                     {item.productId && (
@@ -3139,6 +3095,16 @@ export default function NewInvoice() {
 
         </div>
 
+        <div className="ren-add-line-footer">
+          <button
+            type="button"
+            className="ren-add-line"
+            onClick={addEmptyLine}
+          >
+            <MdAdd />
+            SATIR EKLE
+          </button>
+        </div>
 
         {/* NOTE / TOTAL */}
 
@@ -3231,55 +3197,72 @@ export default function NewInvoice() {
 
         {/* STOCK */}
 
-        <div className="ren-stock-control">
-
-          <div>
-            <strong>
-              STOK TAKİBİ
-            </strong>
-
-            <span>
-              Fatura kaydedildiğinde stok
-              hareketini yönetir.
-            </span>
-          </div>
-
+        <div
+          className="ren-invoice-footer-actions"
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 10,
+            width: "100%",
+            padding: "16px 18px 18px",
+            marginTop: 14,
+            borderTop: "1px solid #334650",
+            boxSizing: "border-box",
+          }}
+        >
           <button
             type="button"
-            className={
-              stockTracking
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setStockTracking(
-                true
-              )
-            }
+            className="secondary"
+            style={{
+              minHeight: 42,
+              minWidth: 150,
+              padding: "0 18px",
+              borderRadius: 8,
+              border: "1px solid #3a505c",
+              background: "#243640",
+              color: "#dbe5ea",
+              fontSize: 11,
+              fontWeight: 800,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 7,
+              cursor: "pointer",
+            }}
           >
-            STOK HAREKETİ OLUŞTUR
+            TASLAK KAYDET
           </button>
 
           <button
             type="button"
-            className={
-              !stockTracking
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setStockTracking(
-                false
-              )
-            }
+            className="primary"
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              minHeight: 42,
+              minWidth: 150,
+              padding: "0 20px",
+              borderRadius: 8,
+              border: "1px solid #39a978",
+              background: "#39a978",
+              color: "#07150f",
+              fontSize: 11,
+              fontWeight: 900,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 7,
+              cursor: saving ? "not-allowed" : "pointer",
+              opacity: saving ? 0.7 : 1,
+            }}
           >
-            STOK HAREKETİ YOK
+            <MdSave />
+            {saving ? "KAYDEDİLİYOR..." : "KAYDET"}
           </button>
-
         </div>
 
       </div>
-
 
       {/* =================================================
           MODAL - CUSTOMER

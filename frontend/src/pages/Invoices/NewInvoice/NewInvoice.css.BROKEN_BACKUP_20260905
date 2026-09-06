@@ -1,0 +1,1173 @@
+/* =========================================================
+   REN ERP
+   YENİ FATURA
+   PARAŞÜT REFERANS TASARIMI
+========================================================= */
+
+.parasut-invoice-page {
+  position: relative;
+  min-height: calc(100vh - 68px);
+  padding: 28px 28px 70px;
+  background: #f2f2f2;
+  color: #555;
+  font-family:
+    "Open Sans",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.parasut-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.parasut-page-title {
+  padding-left: 0;
+}
+
+.parasut-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #a0a0a0;
+  font-size: 12px;
+}
+
+.parasut-breadcrumb b {
+  color: #c0c0c0;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.parasut-page-title h1 {
+  margin: 0;
+  color: #252525;
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.parasut-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-top: 2px;
+}
+
+.parasut-cancel-button,
+.parasut-save-button,
+.parasut-save-arrow {
+  height: 40px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parasut-cancel-button {
+  min-width: 86px;
+  padding: 0 16px;
+  border: 1px solid #cfcfcf;
+  border-radius: 5px;
+  background: #fff;
+  color: #777;
+}
+
+.parasut-save-button {
+  min-width: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-left: 7px;
+  padding: 0 14px;
+  border: 1px solid #59534f;
+  border-radius: 5px 0 0 5px;
+  background: #59534f;
+  color: #fff;
+}
+
+.parasut-save-button svg {
+  font-size: 17px;
+}
+
+.parasut-save-button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.parasut-save-arrow {
+  width: 38px;
+  margin-left: 0;
+  border: 0;
+  border-left: 1px solid rgba(255,255,255,.25);
+  border-radius: 0 5px 5px 0;
+  background: #59534f;
+  color: #fff;
+}
+
+
+/* =========================================================
+   ANA FATURA KARTI
+========================================================= */
+
+.parasut-invoice-card {
+  position: relative;
+  width: calc(100% - 320px);
+  min-width: 760px;
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+
+/* =========================================================
+   SATIR
+========================================================= */
+
+.parasut-row {
+  display: grid;
+  grid-template-columns: 48px 270px minmax(300px, 540px);
+  align-items: start;
+  min-height: 68px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.parasut-row-icon {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 23px;
+  color: #9b9b9b;
+  font-size: 15px;
+}
+
+.parasut-label {
+  padding-top: 25px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+
+.parasut-control {
+  position: relative;
+  padding: 16px 15px 15px 0;
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   FATURA İSMİ
+========================================================= */
+
+.parasut-invoice-name-row {
+  min-height: 78px;
+}
+
+.document-icon {
+  color: #20a8c7;
+  font-size: 32px;
+  padding-top: 19px;
+}
+
+.parasut-invoice-name-row .parasut-label {
+  padding-top: 31px;
+}
+
+.parasut-invoice-name-row .parasut-control {
+  padding-top: 19px;
+}
+
+.parasut-input {
+  width: 100%;
+  max-width: 530px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  outline: none;
+  background: #fff;
+  color: #444;
+  font-family: inherit;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.parasut-input:focus {
+  border-color: #aaa;
+}
+
+
+/* =========================================================
+   MÜŞTERİ
+========================================================= */
+
+.customer-row {
+  min-height: 96px;
+}
+
+.customer-control {
+  padding-top: 17px;
+}
+
+.parasut-search-box {
+  position: relative;
+  width: 100%;
+  max-width: 530px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.parasut-search-box > svg {
+  margin-left: 10px;
+  color: #888;
+  font-size: 17px;
+}
+
+.parasut-search-box input {
+  flex: 1;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #444;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.parasut-search-box input::placeholder {
+  color: #999;
+}
+
+.parasut-help-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 9px;
+  color: #999;
+  font-size: 10px;
+  font-style: italic;
+}
+
+.parasut-help-text span {
+  color: #777;
+  font-style: normal;
+}
+
+.parasut-dropdown {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #d3d3d3;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,.12);
+}
+
+.parasut-dropdown button {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 7px 11px;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parasut-dropdown button:hover {
+  background: #f7f7f7;
+}
+
+.parasut-dropdown strong {
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.parasut-dropdown span {
+  margin-top: 2px;
+  color: #999;
+  font-size: 10px;
+}
+
+.selected-customer {
+  width: 100%;
+  max-width: 530px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  border: 1px solid #cfcfcf;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.selected-customer strong {
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.selected-customer span {
+  color: #999;
+  font-size: 10px;
+}
+
+.selected-customer button {
+  margin-left: auto;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #777;
+  font-family: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   MÜŞTERİ BİLGİ
+========================================================= */
+
+.customer-info-row {
+  min-height: 54px;
+}
+
+.customer-info-row .parasut-row-icon {
+  padding-top: 18px;
+}
+
+.customer-info-row .parasut-label {
+  padding-top: 20px;
+}
+
+.customer-info-row .parasut-control {
+  padding-top: 18px;
+}
+
+.customer-information,
+.empty-value {
+  color: #999;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   TAHSİLAT
+========================================================= */
+
+.payment-status-row {
+  min-height: 76px;
+}
+
+.parasut-radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 530px;
+  height: 45px;
+  border: 1px solid #d2d2d2;
+}
+
+.parasut-radio-group button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 0;
+  background: #fff;
+  color: #777;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parasut-radio-group button + button {
+  border-left: 1px solid #d2d2d2;
+}
+
+.parasut-radio-group button.selected {
+  color: #4d4d4d;
+}
+
+.radio-dot {
+  color: #888;
+  font-size: 19px;
+  line-height: 1;
+}
+
+
+/* =========================================================
+   TARİH
+========================================================= */
+
+.parasut-date-input {
+  position: relative;
+  width: 100%;
+  max-width: 530px;
+  height: 39px;
+}
+
+.parasut-date-input input {
+  width: 100%;
+  height: 100%;
+  padding: 0 38px 0 10px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  outline: none;
+  background: #fff;
+  color: #555;
+  font-family: inherit;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.parasut-date-input svg {
+  position: absolute;
+  right: 10px;
+  top: 11px;
+  color: #888;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   VADE
+========================================================= */
+
+.parasut-due-buttons {
+  width: 100%;
+  max-width: 530px;
+  height: 38px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-bottom: 8px;
+  border: 1px solid #cfcfcf;
+}
+
+.parasut-due-buttons button {
+  border: 0;
+  border-right: 1px solid #cfcfcf;
+  background: #fff;
+  color: #999;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.parasut-due-buttons button:last-child {
+  border-right: 0;
+}
+
+.parasut-due-buttons button:hover,
+.parasut-due-buttons button.active {
+  color: #555;
+  background: #fafafa;
+}
+
+
+/* =========================================================
+   EK BUTONLAR
+========================================================= */
+
+.parasut-extra-buttons {
+  display: flex;
+  gap: 10px;
+  padding: 0 15px 19px 318px;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.parasut-extra-buttons button {
+  height: 31px;
+  padding: 0 11px;
+  border: 1px solid #cfcfcf;
+  border-radius: 3px;
+  background: #fff;
+  color: #888;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parasut-extra-buttons button:hover {
+  color: #555;
+  border-color: #aaa;
+}
+
+
+/* =========================================================
+   STOK TAKİBİ
+========================================================= */
+
+.parasut-stock-section {
+  display: grid;
+  grid-template-columns: 48px 270px minmax(300px, 540px);
+  align-items: start;
+  min-height: 130px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.parasut-stock-section > .parasut-row-icon {
+  padding-top: 28px;
+}
+
+.parasut-stock-section > .parasut-label {
+  padding-top: 31px;
+}
+
+.parasut-stock-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 19px;
+  border: 1px solid #d2d2d2;
+}
+
+.parasut-stock-options button {
+  min-height: 105px;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 16px 12px;
+  border: 0;
+  background: #fff;
+  color: #666;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parasut-stock-options button + button {
+  border-left: 1px solid #d2d2d2;
+}
+
+.parasut-stock-options button.active {
+  background: #fff;
+}
+
+.stock-radio {
+  color: #888;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.parasut-stock-options strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #555;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.parasut-stock-options small {
+  display: block;
+  color: #999;
+  font-size: 10px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+
+/* =========================================================
+   SAĞ KATEGORİ / ETİKET
+========================================================= */
+
+.parasut-side-column {
+  position: absolute;
+  top: 102px;
+  right: 28px;
+  width: 285px;
+}
+
+.parasut-side-card {
+  margin-bottom: 12px;
+  padding: 15px 18px;
+  border-radius: 5px;
+  background: #eee;
+  box-sizing: border-box;
+}
+
+.side-card-title {
+  margin-bottom: 10px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.side-select {
+  height: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 9px;
+  border: 1px solid #cfcfcf;
+  background: #fff;
+  box-sizing: border-box;
+  color: #999;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.side-select svg {
+  font-size: 17px;
+}
+
+.parasut-side-card p {
+  margin: 8px 0 0;
+  color: #999;
+  font-size: 10px;
+  line-height: 1.45;
+  font-style: italic;
+}
+
+
+/* =========================================================
+   ÜRÜNLER
+========================================================= */
+
+.parasut-products-card {
+  width: 100%;
+  margin-top: 14px;
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 5px;
+  overflow: visible;
+}
+
+.parasut-products-header,
+.parasut-product-entry,
+.parasut-product-row {
+  display: grid;
+  grid-template-columns:
+    minmax(300px, 2fr)
+    90px
+    100px
+    145px
+    110px
+    145px
+    45px;
+  align-items: center;
+}
+
+.parasut-products-header {
+  min-height: 46px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #dedede;
+}
+
+.parasut-products-header > div {
+  padding: 0 12px;
+  color: #888;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.product-header-title {
+  color: #666 !important;
+}
+
+
+/* =========================================================
+   ÜRÜN GİRİŞ
+========================================================= */
+
+.parasut-product-entry {
+  min-height: 72px;
+  border-bottom: 1px solid #dedede;
+}
+
+.parasut-product-entry > div,
+.parasut-product-entry > input {
+  margin: 0 6px;
+}
+
+.parasut-product-search {
+  position: relative;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  margin-left: 12px !important;
+  border: 1px solid #cfcfcf;
+  background: #fff;
+}
+
+.parasut-product-search > svg {
+  margin-left: 9px;
+  color: #888;
+  font-size: 17px;
+}
+
+.parasut-product-search input {
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.parasut-product-dropdown {
+  position: absolute;
+  top: 42px;
+  left: -1px;
+  right: -1px;
+  z-index: 100;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,.13);
+}
+
+.parasut-product-dropdown button {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parasut-product-dropdown button:hover {
+  background: #f7f7f7;
+}
+
+.parasut-product-dropdown strong {
+  display: block;
+  color: #444;
+  font-size: 11px;
+}
+
+.parasut-product-dropdown small {
+  display: block;
+  margin-top: 2px;
+  color: #999;
+  font-size: 9px;
+}
+
+.parasut-product-dropdown span {
+  color: #555;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.product-quantity-input,
+.product-price-input {
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid #cfcfcf;
+  outline: none;
+  background: #fff;
+  color: #555;
+  font-family: inherit;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.product-unit {
+  padding-left: 10px;
+  color: #777;
+  font-size: 11px;
+}
+
+.product-vat {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 9px;
+  border: 1px solid #cfcfcf;
+  color: #888;
+  font-size: 10px;
+}
+
+.product-vat span {
+  color: #555;
+  font-weight: 700;
+}
+
+.product-total {
+  padding: 0 10px;
+  color: #777;
+  font-size: 12px;
+  text-align: right;
+}
+
+.product-plus-button {
+  width: 30px;
+  height: 30px;
+  margin-right: 9px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: #fff;
+  color: #888;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   ÜRÜN SATIRLARI
+========================================================= */
+
+.parasut-product-row {
+  min-height: 60px;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.parasut-product-row > div,
+.parasut-product-row > input,
+.parasut-product-row > select {
+  margin: 0 6px;
+}
+
+.product-name-cell {
+  padding-left: 12px !important;
+}
+
+.product-name-cell strong {
+  display: block;
+  color: #444;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.product-name-cell small {
+  display: block;
+  margin-top: 3px;
+  color: #999;
+  font-size: 9px;
+}
+
+.parasut-product-row input,
+.parasut-product-row select {
+  width: calc(100% - 4px);
+  height: 34px;
+  padding: 0 7px;
+  border: 1px solid #cfcfcf;
+  outline: none;
+  background: #fff;
+  color: #555;
+  font-family: inherit;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.parasut-product-row > div:nth-child(3) {
+  padding-left: 8px;
+  color: #777;
+  font-size: 11px;
+}
+
+.product-total.strong {
+  color: #444;
+  font-weight: 700;
+}
+
+.product-delete-button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 9px;
+  border: 1px solid #e2cccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #d45c52;
+  cursor: pointer;
+}
+
+.product-delete-button:hover {
+  background: #fff5f4;
+}
+
+
+/* =========================================================
+   YENİ SATIR
+========================================================= */
+
+.parasut-add-line {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 13px 0 16px 12px;
+  padding: 0 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #888;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parasut-add-line:hover {
+  color: #555;
+  border-color: #aaa;
+}
+
+
+/* =========================================================
+   TOPLAM
+========================================================= */
+
+.parasut-total-area {
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  min-height: 225px;
+  border-top: 1px solid #dedede;
+}
+
+.total-profit {
+  padding: 28px 20px;
+  color: #888;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.total-profit strong {
+  margin-left: 4px;
+  color: #777;
+  font-weight: 600;
+}
+
+.total-box {
+  padding: 15px 18px 20px;
+}
+
+.total-box > div {
+  min-height: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.total-box span {
+  color: #888;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.total-box strong {
+  color: #777;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.discount-field {
+  display: flex;
+  align-items: center;
+  width: 95px;
+  height: 32px;
+  border: 1px solid #ccc;
+}
+
+.discount-field input {
+  width: 70px;
+  height: 100%;
+  padding: 0 7px;
+  border: 0;
+  outline: none;
+  color: #555;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.discount-field span {
+  color: #999;
+  font-size: 10px;
+}
+
+.total-box .grand-total {
+  border-bottom: 0;
+}
+
+.total-box .grand-total span {
+  color: #777;
+  font-size: 11px;
+}
+
+.total-box .grand-total strong {
+  color: #252525;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   ALT BUTON
+========================================================= */
+
+.parasut-bottom-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  width: calc(100% - 320px);
+  padding: 16px 0;
+}
+
+.bottom-cancel,
+.bottom-save {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bottom-cancel {
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #777;
+}
+
+.bottom-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #59534f;
+  background: #59534f;
+  color: #fff;
+}
+
+.bottom-save:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1250px) {
+  .parasut-invoice-card,
+  .parasut-bottom-actions {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .parasut-side-column {
+    position: static;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .parasut-side-card {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .parasut-invoice-page {
+    padding: 18px 14px 50px;
+  }
+
+  .parasut-page-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .parasut-row,
+  .parasut-stock-section {
+    grid-template-columns: 42px 180px minmax(250px, 1fr);
+  }
+
+  .parasut-extra-buttons {
+    padding-left: 222px;
+  }
+
+  .parasut-products-card {
+    overflow-x: auto;
+  }
+
+  .parasut-products-header,
+  .parasut-product-entry,
+  .parasut-product-row {
+    min-width: 950px;
+  }
+}
+
+@media (max-width: 650px) {
+  .parasut-side-column {
+    grid-template-columns: 1fr;
+  }
+
+  .parasut-row,
+  .parasut-stock-section {
+    grid-template-columns: 38px 120px 1fr;
+  }
+
+  .parasut-extra-buttons {
+    padding-left: 158px;
+    flex-wrap: wrap;
+  }
+
+  .parasut-radio-group,
+  .parasut-stock-options {
+    grid-template-columns: 1fr;
+  }
+
+  .parasut-radio-group button + button,
+  .parasut-stock-options button + button {
+    border-left: 0;
+    border-top: 1px solid #d2d2d2;
+  }
+
+  .parasut-total-area {
+    grid-template-columns: 1fr;
+  }
+}

@@ -74,6 +74,10 @@ const MENU = {
     ["/invoices/returns", "İade Faturaları", MdReceiptLong],
     ["/invoices/reports", "Fatura Raporları", MdBarChart],
   ],
+  quickSale: [
+    ["/quick-sale", "Hızlı Satış", MdPointOfSale, true],
+    ["/quick-sale/report", "Hızlı Satış Raporu", MdBarChart],
+  ],
   cash: [
     ["/cash-bank/accounts", "Kasa ve Bankalar", MdAccountBalanceWallet],
     ["/cash-bank/checks", "Çekler", MdDescription],
@@ -223,6 +227,7 @@ export default function Layout() {
   const [ordersOpen, setOrdersOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [cashOpen, setCashOpen] = useState(false);
+  const [quickSaleOpen, setQuickSaleOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
   const [uiMode, setUiMode] = useState(
@@ -239,7 +244,10 @@ export default function Layout() {
   const isOrdersPage = pathname.startsWith("/orders");
   const isInvoicePage = pathname.startsWith("/invoices");
   const isCashPage = pathname.startsWith("/cash-bank");
-  const isQuickSalePage = pathname.startsWith("/quick-sale");
+  const isQuickSaleReportPage =
+    pathname.startsWith("/quick-sale/report");
+  const isQuickSalePage =
+    pathname.startsWith("/quick-sale");
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -252,12 +260,14 @@ export default function Layout() {
     if (isOrdersPage) setOrdersOpen(true);
     if (isInvoicePage) setInvoiceOpen(true);
     if (isCashPage) setCashOpen(true);
+    if (isQuickSalePage) setQuickSaleOpen(true);
   }, [
     isStockPage,
     isCustomerPage,
     isOrdersPage,
     isInvoicePage,
     isCashPage,
+    isQuickSalePage,
   ]);
 
   useEffect(() => {
@@ -356,12 +366,16 @@ export default function Layout() {
             end
           />
 
-          <SimpleMenuItem
-            to="/quick-sale"
+          <GroupButton
             label="Hızlı Satış"
             icon={MdPointOfSale}
+            open={quickSaleOpen}
             active={isQuickSalePage}
+            onClick={() => setQuickSaleOpen((value) => !value)}
           />
+          {quickSaleOpen ? (
+            <Submenu items={MENU.quickSale} />
+          ) : null}
 
           <div className="ren-menu-divider" />
 

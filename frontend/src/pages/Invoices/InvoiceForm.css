@@ -1,0 +1,42 @@
+/* ===== QA-001 | Tedarikçi/Cari Arama Koyu Dropdown ===== */
+
+.supplier-search-dropdown,
+.search-dropdown,
+.autocomplete-dropdown {
+  background: #16293a !important;
+  border: 1px solid #27465d !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+
+.supplier-search-dropdown *,
+.search-dropdown *,
+.autocomplete-dropdown * {
+  color: #ffffff !important;
+}
+
+.supplier-search-item,
+.search-dropdown-item,
+.autocomplete-item {
+  background: transparent;
+  color: #ffffff !important;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .15s ease;
+}
+
+.supplier-search-item:hover,
+.search-dropdown-item:hover,
+.autocomplete-item:hover,
+.supplier-search-item.active,
+.search-dropdown-item.active,
+.autocomplete-item.active {
+  background: #1f3a50 !important;
+}
+
+.supplier-search-item small,
+.search-dropdown-item small,
+.autocomplete-item small {
+  color: #8aa5b8 !important;
+}

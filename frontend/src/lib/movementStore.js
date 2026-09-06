@@ -826,11 +826,107 @@ function createInvoiceMovements() {
    HAREKETLERDE ÇİFT KAYIT TEMİZLEME
 ========================================================= */
 
+function normalizeMovementType(value) {
+  return String(
+    value ||
+    ""
+  )
+    .trim()
+    .toLocaleLowerCase(
+      "tr-TR"
+    );
+}
+
+
+function movementBusinessKey(
+  movement
+) {
+
+  const type =
+    normalizeMovementType(
+      movement?.type
+    );
+
+  const customerId =
+    String(
+      movement?.customerId ||
+      ""
+    );
+
+  const document =
+    String(
+      movement?.document ||
+      movement?.sourceDocument ||
+      movement?.invoiceNo ||
+      ""
+    )
+      .trim()
+      .toLocaleLowerCase(
+        "tr-TR"
+      );
+
+  const amount =
+    numberValue(
+      movement?.amount ??
+      movement?.credit ??
+      movement?.debt ??
+      0
+    );
+
+  const date =
+    String(
+      movement?.date ||
+      ""
+    ).slice(
+      0,
+      10
+    );
+
+  /*
+   * Tahsilat ve ödeme belgeleri tekilleştirilirken
+   * kaynak önemli değil.
+   *
+   * Aynı cari + aynı tarih + aynı belge + aynı tutar
+   * aynı işlemdir.
+   */
+  if (
+    (
+      type === "tahsilat" ||
+      type === "ödeme" ||
+      type === "odeme"
+    ) &&
+    customerId &&
+    document &&
+    amount > 0
+  ) {
+    return [
+      "business",
+      customerId,
+      type === "tahsilat"
+        ? "collection"
+        : "payment",
+      document,
+      date,
+      amount.toFixed(2),
+    ].join("|");
+  }
+
+  return "";
+}
+
+
+/* =========================================================
+   HAREKETLERDE ÇİFT KAYIT TEMİZLEME
+========================================================= */
+
 function uniqueMovements(
   movements
 ) {
 
-  const seen =
+  const seenIds =
+    new Set();
+
+  const seenBusinessKeys =
     new Set();
 
   const result = [];
@@ -839,48 +935,66 @@ function uniqueMovements(
   movements.forEach(
     (movement) => {
 
-      /*
-       * Öncelikli benzersiz kimlik.
-       */
-
-      const key =
-        movement.id
+      const idKey =
+        movement?.id
           ? String(
               movement.id
             )
-          : [
-              movement.source ||
-                "",
-              movement.sourceId ||
-                "",
-              movement.invoiceId ||
-                "",
-              movement.customerId ||
-                "",
-              movement.date ||
-                "",
-              movement.type ||
-                "",
-              movement.amount ||
-                movement.debt ||
-                movement.credit ||
-                0,
-            ].join("|");
+          : "";
 
+      const businessKey =
+        movementBusinessKey(
+          movement
+        );
 
+      /*
+       * Önce gerçek kayıt kimliğini kontrol et.
+       */
       if (
-        seen.has(
-          key
+        idKey &&
+        seenIds.has(
+          idKey
         )
       ) {
         return;
       }
 
+      /*
+       * Tahsilat / ödeme gibi belgeli cari
+       * hareketlerde ikinci güvenlik katmanı.
+       *
+       * Böylece:
+       *
+       * ren-erp-collections
+       * +
+       * ren-erp-cash-bank-movements
+       *
+       * aynı belgeyi iki kez gösteremez.
+       */
+      if (
+        businessKey &&
+        seenBusinessKeys.has(
+          businessKey
+        )
+      ) {
+        return;
+      }
 
-      seen.add(
-        key
-      );
+      if (
+        idKey
+      ) {
+        seenIds.add(
+          idKey
+        );
+      }
 
+      if (
+        businessKey
+      ) {
+        seenBusinessKeys.add(
+          businessKey
+        );
+      }
 
       result.push(
         movement
@@ -892,7 +1006,6 @@ function uniqueMovements(
 
   return result;
 }
-
 
 /* =========================================================
    TÜM CARİ HAREKETLER
@@ -929,11 +1042,21 @@ export function getAllCustomerMovements() {
    * işlemleri buraya yazılıyor.
    */
 
+  /*
+   * Kaynak önceliği:
+   * 1) Faturalar
+   * 2) Resmi tahsilat / ödeme kayıtları
+   * 3) Eski manuel cari hareketler
+   * 4) Finans hareketleri
+   *
+   * Sonraki uniqueMovements() çağrısı,
+   * aynı belgeyi ikinci kez göstermeyi engeller.
+   */
   const combined = [
     ...invoiceMovements,
-    ...manualMovements,
     ...collectionMovements,
     ...paymentMovements,
+    ...manualMovements,
     ...financeMovements,
   ];
 

@@ -1,11 +1,12 @@
 .edit-stock-page {
   --es-green: #39a978;
   --es-green-dark: #2d8f67;
-  --es-green-soft: #edf8f3;
-  --es-bg: #f4f6f8;
-  --es-border: #e3e8ec;
-  --es-text: #202a34;
-  --es-muted: #7f8a95;
+  --es-green-soft: #173c2f;
+  --es-bg: #14212b;
+  --es-border: #334650;
+  --es-text: #e8eef2;
+  --es-muted: #9caab5;
+
   width: 100%;
   min-height: calc(100vh - 74px);
   padding: 24px;
@@ -33,18 +34,18 @@
 .edit-stock-breadcrumb {
   display: flex;
   gap: 8px;
-  color: #8a95a0;
+  color: #9caab5;
   font-size: 12px;
   line-height: 1.4;
 }
 
 .edit-stock-breadcrumb span {
-  color: #b0bac3;
+  color: #738792;
 }
 
 .edit-stock-header h1 {
   margin: 8px 0 0;
-  color: #202a34;
+  color: #edf3f6;
   font-size: 28px;
   line-height: 1.15;
   font-weight: 700;
@@ -65,17 +66,25 @@
 }
 
 .edit-stock-cancel {
-  border: 1px solid #dfe5ea;
-  background: #fff;
-  color: #59646f;
+  border: 1px solid #3a505c;
+  background: #243640;
+  color: #dbe5ea;
+}
+
+.edit-stock-cancel:hover {
+  background: #2a414d;
 }
 
 .edit-stock-save {
   border: 0;
   background: var(--es-green);
-  color: #fff;
-  font-weight: 650;
-  box-shadow: 0 5px 12px rgba(57, 169, 120, 0.14);
+  color: #07150f;
+  font-weight: 750;
+  box-shadow: 0 5px 12px rgba(57, 169, 120, 0.16);
+}
+
+.edit-stock-save:hover {
+  background: #45b783;
 }
 
 .edit-stock-save:disabled {
@@ -89,15 +98,16 @@
   padding: 24px 22px;
   border: 1px solid var(--es-border);
   border-radius: 13px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(26, 39, 50, 0.025);
+  background: #1b2a34;
+  color: var(--es-text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 .edit-stock-section-title {
   margin: 0 0 17px;
   padding-bottom: 11px;
-  border-bottom: 1px solid #edf0f3;
-  color: #2a3540;
+  border-bottom: 1px solid #334650;
+  color: #e8eef2;
   font-size: 15px;
   line-height: 1.3;
   font-weight: 700;
@@ -120,7 +130,7 @@
 .edit-stock-field label {
   display: block;
   margin-bottom: 7px;
-  color: #5f6b76;
+  color: #9eb0ba;
   font-size: 12px;
   line-height: 1.35;
   font-weight: 600;
@@ -131,14 +141,15 @@
 .edit-stock-field textarea {
   width: 100%;
   min-height: 42px;
-  border: 1px solid #dfe5e9;
+  border: 1px solid #3a505c;
   border-radius: 8px;
-  background: #fff;
-  color: #37424d;
+  background: #172731;
+  color: #edf3f6;
   padding: 0 11px;
   font-size: 13px;
   line-height: 1.3;
   outline: 0;
+  color-scheme: dark;
 }
 
 .edit-stock-field textarea {
@@ -147,17 +158,22 @@
   resize: vertical;
 }
 
+.edit-stock-field input::placeholder,
+.edit-stock-field textarea::placeholder {
+  color: #738792;
+}
+
 .edit-stock-field input:focus,
 .edit-stock-field select:focus,
 .edit-stock-field textarea:focus {
-  border-color: #91cfb2;
-  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.08);
+  border-color: #39a978;
+  box-shadow: 0 0 0 3px rgba(57, 169, 120, 0.10);
 }
 
 .edit-stock-field small {
   display: block;
   margin-top: 5px;
-  color: #8e99a3;
+  color: #81939e;
   font-size: 10px;
   line-height: 14px;
 }
@@ -165,9 +181,9 @@
 .edit-stock-percent-input {
   display: flex;
   align-items: center;
-  border: 1px solid #a9d6be;
+  border: 1px solid #3a505c;
   border-radius: 8px;
-  background: #fff;
+  background: #172731;
   overflow: hidden;
 }
 
@@ -175,17 +191,18 @@
   min-height: 42px;
   border: 0;
   box-shadow: none;
+  background: #172731;
   font-size: 13px;
 }
 
 .edit-stock-percent-input span {
   padding-right: 12px;
-  color: var(--es-green-dark);
+  color: #63d29a;
   font-size: 13px;
   font-weight: 700;
 }
 
-/* KDV Hariç / Dahil seçimini daha kompakt tutuyoruz. */
+/* KDV Hariç / Dahil seçimi */
 .edit-stock-field.full > div > button {
   min-height: 32px !important;
   height: 32px !important;
@@ -193,6 +210,13 @@
   border-radius: 7px !important;
   font-size: 12px !important;
   line-height: 1 !important;
+  background: #243640 !important;
+  border: 1px solid #3a505c !important;
+  color: #dbe5ea !important;
+}
+
+.edit-stock-field.full > div > button:hover {
+  background: #2a414d !important;
 }
 
 .edit-stock-price-chain-note {
@@ -202,14 +226,15 @@
   align-items: center;
   gap: 10px;
   border-radius: 8px;
-  background: #f4f8f6;
-  color: #77838d;
+  background: #173c2f;
+  border: 1px solid #2e7859;
+  color: #9ebfb0;
   font-size: 11px;
   line-height: 16px;
 }
 
 .edit-stock-price-chain-note strong {
-  color: #4d5d56;
+  color: #86e0b5;
   white-space: nowrap;
   font-weight: 700;
 }
@@ -221,7 +246,18 @@
   align-items: center;
   justify-content: flex-end;
   gap: 9px;
-  border-top: 1px solid #edf0f3;
+  border-top: 1px solid #334650;
+}
+
+.edit-stock-bottom .edit-stock-cancel {
+  background: #243640;
+  color: #dbe5ea;
+  border-color: #3a505c;
+}
+
+.edit-stock-bottom .edit-stock-save {
+  background: #39a978;
+  color: #07150f;
 }
 
 @media (max-width: 950px) {
