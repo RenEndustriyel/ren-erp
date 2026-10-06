@@ -1,6 +1,7 @@
 import {
   MdDashboard,
   MdLogout,
+  MdStorefront,
 } from "react-icons/md";
 
 import {
@@ -63,6 +64,23 @@ export default function Layout() {
 
             <span>
               Genel Bakış
+            </span>
+          </NavLink>
+
+          <NavLink
+            to="/pazaryeri"
+            className={({ isActive }) =>
+              `ren-sidebar-link ${
+                isActive
+                  ? "active"
+                  : ""
+              }`
+            }
+          >
+            <MdStorefront />
+
+            <span>
+              Pazaryeri
             </span>
           </NavLink>
 
